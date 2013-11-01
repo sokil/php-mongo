@@ -9,7 +9,7 @@ class Document
     public function __construct(array $data = null)
     {        
         if($data) {
-            $this->_data = $data;
+            $this->_data = array_merge($this->_data, $data);
         }
     }
     
