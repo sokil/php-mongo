@@ -1,0 +1,16 @@
+{
+    "name": "sokil/phpmongo",
+    "description": "Active Record for PHP Mongo",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dmytro Sokil",
+            "email": "dmytro.sokil@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Sokil": "src/"
+        }
+    }
+}
