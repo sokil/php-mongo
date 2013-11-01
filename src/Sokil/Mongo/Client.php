@@ -11,7 +11,7 @@ class Client
     /**
      * @var array Database to class mapping
      */
-    private $_mapping = array();
+    protected $_mapping = array();
     
     public function __construct($dsn, array $options = array("connect" => true)) {
         $this->_connection = new \MongoClient($dsn, $options);
