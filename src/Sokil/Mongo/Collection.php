@@ -3,9 +3,7 @@
 namespace Sokil\Mongo;
 
 class Collection
-{
-    protected $_name;
-    
+{    
     protected $_docClass = '\Sokil\Mongo\Document';
     
     protected $_searchClass = '\Sokil\Mongo\Search';
