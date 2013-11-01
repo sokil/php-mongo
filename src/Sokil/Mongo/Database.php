@@ -21,6 +21,9 @@ class Database
         if(!isset($this->_collectionPool[$name])) {
             
             $className = '\\' . get_called_class() . '\\' . implode('\\', array_map('ucfirst', array_map('strtolower', explode('.', $name))));
+            if(!class_exists($className)) {
+                $className = '\Sokil\Mongo\Collection';
+            }
             
             $this->_collectionPool[$name] = new $className($this->_database->selectCollection($name));
         }
