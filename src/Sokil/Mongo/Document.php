@@ -15,7 +15,19 @@ class Document
     
     public function getId()
     {
-        return (string) $this->_id;
+        return $this->_data['_id'];
+    }
+    
+    public function setId($id) {
+        if($id instanceof \MongoId) {
+            $this->_data['id'] = $id;
+        }
+        
+        else {
+            $this->_data['id'] = new \MongoId((string) $id);
+        }
+        
+        return $this;
     }
     
     public function rules()

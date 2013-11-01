@@ -8,7 +8,7 @@ class Client
     
     private $_databasePool = array();
     
-    public function _construct($dsn, array $options = array("connect" => true)) {
+    public function __construct($dsn, array $options = array("connect" => true)) {
         $this->_connection = new \MongoClient($dsn, $options);
     }
     

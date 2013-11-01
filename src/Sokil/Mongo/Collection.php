@@ -66,12 +66,23 @@ class Collection
             '_id'   => $id
         ));
         
-        return new $this->_docClass($this, $data);
+        if(!$data) {
+            return null;
+        }
+        
+        return new $this->_docClass($data);
     }
     
     public function save(Document $document)
     {
-        $this->_collection->save($document->toArray());
+        $data = $document->toArray();
+        
+        $status = $this->_collection->save($data);
+        if($status['ok'] != 1) {
+            throw new Exception($status['err']);
+        }
+        
+        $document->setId($data['_id']);
         
         return $this;
     }
