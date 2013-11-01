@@ -40,9 +40,7 @@ class Collection
      */
     public function create(array $data = null)
     {
-        $document = new $this->_docClass($data);
-        
-        return $document;
+        return new $this->_docClass($data);
     }
     
         /**
