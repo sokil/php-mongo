@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Mongo;
+namespace Sokil\Mongo;
 
 class Document
 {

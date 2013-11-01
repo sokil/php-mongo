@@ -1,12 +1,12 @@
 <?php
 
-namespace Core\Mongo;
+namespace Sokil\Mongo;
 
-class Search implements \Iterator, \Countable, \Core\Db\SearchInterface
+class Search implements \Iterator, \Countable
 {
     /**
      *
-     * @var Core_Mongo_Collection
+     * @var \Sokil\Mongo\Collection
      */
     private $_collection;
     
@@ -58,8 +58,9 @@ class Search implements \Iterator, \Countable, \Core\Db\SearchInterface
     {
         $this->_limit = (int) $limit;
         
-        if(null !== $offset)
+        if(null !== $offset) {
             $this->skip($offset);
+        }
         
         return $this;
     }
@@ -73,44 +74,51 @@ class Search implements \Iterator, \Countable, \Core\Db\SearchInterface
     
     /**
      * 
-     * @return MongoCursor
+     * @return \MongoCursor
      */
     private function getCursor()
     {
-        if($this->_cursor)
+        if($this->_cursor) {
             return $this->_cursor;
+        }
         
         $this->_cursor = $this->_collection
             ->getNativeCollection()
             ->find($this->_query, $this->_fields);
         
         
-        if($this->_skip)
+        if($this->_skip) {
             $this->_cursor->skip($this->_skip);
+        }
         
-        if($this->_limit)
+        if($this->_limit) {
             $this->_cursor->limit($this->_limit);
+        }
         
-        if($this->_sort)
+        if($this->_sort) {
             $this->_cursor->sort($this->_sort);
+        }
         
         return $this->_cursor;
     }
     
-    public function findOne()
-    {
-        $documentData = $this->_collection->getNativeCollection()->findOne($this->_query, $this->_fields);
-        
-        $className = $this->_collection->getDocumentClassName();
-        
-        return new $className($this->_collection, $documentData);
-    }
-    
-    public function fetchCount()
+    public function count()
     {
         return (int) $this->_collection
             ->getNativeCollection()
             ->count($this->_query, $this->_limit, $this->_skip);
+    }
+    
+    public function findOne()
+    {
+        $documentData = $this->_collection
+            ->getNativeCollection()
+            ->findOne($this->_query, $this->_fields);
+        
+        $className = $this->_collection
+            ->getDocumentClassName();
+        
+        return new $className($this->_collection, $documentData);
     }
     
     public function current()
@@ -120,11 +128,6 @@ class Search implements \Iterator, \Countable, \Core\Db\SearchInterface
         $className = $this->_collection->getDocumentClassName();
         
         return new $className($this->_collection, $documentData);
-    }
-    
-    public function count()
-    {
-        return $this->fetchCount();
     }
     
     public function key()
@@ -145,22 +148,5 @@ class Search implements \Iterator, \Countable, \Core\Db\SearchInterface
     public function valid()
     {
         return $this->getCursor()->valid();
-    }
-    
-    public function fetchAll()
-    {
-        return $this;
-    }
-    
-    public function paginate($currentPage, $itemsPerPage = 50)
-    {
-        // store pager configuration
-        $pager = new \Core\Db\Search\Paginator;
-        $pager
-                ->setCurrentPage($currentPage)
-                ->setItemsPerPage($itemsPerPage)
-                ->setSearch($this);
-
-        return $pager;
     }
 }

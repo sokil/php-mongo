@@ -38,7 +38,7 @@ class Collection
     /**
      * 
      * @param array $data
-     * @return \Core\Mongo\Document
+     * @return \Sokil\Mongo\Document
      */
     public function create(array $data = null)
     {
