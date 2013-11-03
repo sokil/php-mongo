@@ -83,10 +83,22 @@ class Collection
         return $this;
     }
     
-    public function delete(Document $document)
+    public function delete($document)
     {
+        if($document instanceof Document) {
+            $document = $document->getId();
+            
+            if(!$document) {
+                throw new Exception('Document not saved');
+            }
+        }
+        
+        elseif(!($document instanceof \MongoId)) {
+            $document = new \MongoId($document->getId());
+        }
+        
         $status = $this->_collection->remove(array(
-            '_id'   => new \MongoId($document->getId()),
+            '_id'   => $document
         ));
         
         if($status['ok'] != 1) {

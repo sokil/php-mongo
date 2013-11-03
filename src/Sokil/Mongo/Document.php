@@ -15,7 +15,7 @@ class Document
     
     public function getId()
     {
-        return $this->_data['_id'];
+        return isset($this->_data['_id']) ? $this->_data['_id'] : null;
     }
     
     public function setId($id) {
