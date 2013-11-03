@@ -95,4 +95,14 @@ class Collection
         
         return $this;
     }
+    
+    public function aggregate($pipelines) {
+        $status = $this->_collection->aggregate($pipelines);
+        
+        if($status['ok'] != 1) {
+            throw new Exception($status['errmsg']);
+        }
+        
+        return $status['result'];
+    }
 }
