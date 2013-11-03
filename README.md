@@ -5,66 +5,66 @@ Active Record implementation of Mongo adapter on PHP
 
 Example:
          
-/**
- * Connect to collection
- */
+    /**
+     * Connect to collection
+     */
 
-// connect to mongo
-$client = new Client('mongodb://127.0.0.1');
+    // connect to mongo
+    $client = new Client('mongodb://127.0.0.1');
 
-// select database
-$database = $client->getDatabase('test');
+    // select database
+    $database = $client->getDatabase('test');
 
-// select collection
-$collection = $database->getCollection('phpmongo_test_collection');
+    // select collection
+    $collection = $database->getCollection('phpmongo_test_collection');
 
-/**
- * Create document
- */
+    /**
+     * Create document
+     */
 
-// create document
-$document = $collection->create(array(
-    'l1'   => array(
-        'l11'   => 'l11value',
-        'l12'   => 'l12value',
-    ),
-    'l2'   => array(
-        'l21'   => 'l21value',
-        'l22'   => 'l22value',
-    ),
-));
+    // create document
+    $document = $collection->create(array(
+        'l1'   => array(
+            'l11'   => 'l11value',
+            'l12'   => 'l12value',
+        ),
+        'l2'   => array(
+            'l21'   => 'l21value',
+            'l22'   => 'l22value',
+        ),
+    ));
 
-// insert document
-$collection->save($document);
+    // insert document
+    $collection->save($document);
 
-// test
-$documentId = (string) $document->getId();
-$this->assertNotEmpty($documentId);
+    // test
+    $documentId = (string) $document->getId();
+    $this->assertNotEmpty($documentId);
 
-/**
- * Update document
- */
+    /**
+     * Update document
+     */
 
-// update
-$document->set('l1.l12', 'updated');
-$collection->save($document);
+    // update
+    $document->set('l1.l12', 'updated');
+    $collection->save($document);
 
-// test
-$this->assertEquals($documentId, (string) $document->getId());
+    // test
+    $this->assertEquals($documentId, (string) $document->getId());
 
-/**
- * Read document
- */
+    /**
+     * Read document
+     */
 
-// get document
-$document = $collection->findById($documentId);
+    // get document
+    $document = $collection->findById($documentId);
 
-// test
-$this->assertEquals('updated', $document->get('l1.l12'));
+    // test
+    $this->assertEquals('updated', $document->get('l1.l12'));
 
-/**
- * Delete document
- */
-$collection->delete($document);
+    /**
+     * Delete document
+     */
+    $collection->delete($document);
 
-$this->assertEmpty($collection->findById($documentId));
+    $this->assertEmpty($collection->findById($documentId));
