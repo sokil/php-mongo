@@ -96,7 +96,31 @@ class Collection
         return $this;
     }
     
+    /**
+     * Create Aggregator pipelines instance
+     * 
+     * @return \Sokil\Mongo\AggregatePipelines
+     */
+    public function createPipeline() {
+        return new AggregatePipelines;
+    }
+    
+    /**
+     * Aggregate using pipelines
+     * 
+     * @param type $pipelines
+     * @return array result of aggregation
+     * @throws Exception
+     */
     public function aggregate($pipelines) {
+        
+        if($pipelines instanceof AggregatePipelines) {
+            $pipelines = $pipelines->toArray();
+        }
+        elseif(!is_array($pipelines)) {
+            throw new Exception('Wrong pipelines specified');
+        }
+        
         $status = $this->_collection->aggregate($pipelines);
         
         if($status['ok'] != 1) {
