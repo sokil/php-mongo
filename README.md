@@ -4,6 +4,7 @@ PHPMongo
 Active Record implementation of Mongo adapter on PHP
 
 Example:
+         
          /**
          * Connect to collection
          */
