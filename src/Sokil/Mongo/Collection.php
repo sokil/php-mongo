@@ -94,7 +94,7 @@ class Collection
         }
         
         elseif(!($document instanceof \MongoId)) {
-            $document = new \MongoId($document->getId());
+            $document = new \MongoId($document);
         }
         
         $status = $this->_collection->remove(array(
