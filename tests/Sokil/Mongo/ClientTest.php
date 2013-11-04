@@ -24,7 +24,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
          */
         
         // create document
-        $document = $collection->create(array(
+        $document = $collection->createDocument(array(
             'l1'   => array(
                 'l11'   => 'l11value',
                 'l12'   => 'l12value',
@@ -36,7 +36,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         ));
         
         // insert document
-        $collection->save($document);
+        $collection->saveDocument($document);
         
         // test
         $documentId = (string) $document->getId();
@@ -48,7 +48,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         
         // update
         $document->set('l1.l12', 'updated');
-        $collection->save($document);
+        $collection->saveDocument($document);
         
         // test
         $this->assertEquals($documentId, (string) $document->getId());
@@ -58,7 +58,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
          */
         
         // get document
-        $document = $collection->findById($documentId);
+        $document = $collection->getDocument($documentId);
                 
         // test
         $this->assertEquals('updated', $document->get('l1.l12'));
@@ -66,8 +66,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         /**
          * Delete document
          */
-        $collection->delete($document);
+        $collection->deleteDocument($document);
         
-        $this->assertEmpty($collection->findById($documentId));
+        $this->assertEmpty($collection->getDocument($documentId));
+        
+        /**
+         * Delete collection
+         */
+        $collection->delete();
     }
 }

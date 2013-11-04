@@ -28,6 +28,15 @@ class Collection
         return $this->_collection;
     }
     
+    public function delete() {
+        $status = $this->_collection->drop();
+        if($status['ok'] != 1) {
+            throw new Exception('Error deleting collection ' . $this->_collection->getName());
+        }
+        
+        return $this;
+    }
+    
     public function getDocumentClassName()
     {
         return $this->_docClass;
@@ -38,21 +47,28 @@ class Collection
      * @param array $data
      * @return \Sokil\Mongo\Document
      */
-    public function create(array $data = null)
+    public function createDocument(array $data = null)
     {
         return new $this->_docClass($data);
     }
     
-        /**
+    /**
+     * Create document query builder
      * 
      * @return \Sokil\Mongo\Search
      */
-    public function find()
+    public function findDocument()
     {
         return new $this->_searchClass($this);
     }
     
-    public function findById($id)
+    /**
+     * Get document by id
+     * 
+     * @param string|MongoId $id
+     * @return \Sokil\Mongo\_docClass|null
+     */
+    public function getDocument($id)
     {
         if(!($id instanceof \MongoId)) {
             $id = new \MongoId($id);
@@ -69,7 +85,7 @@ class Collection
         return new $this->_docClass($data);
     }
     
-    public function save(Document $document)
+    public function saveDocument(Document $document)
     {
         $data = $document->toArray();
         
@@ -83,7 +99,7 @@ class Collection
         return $this;
     }
     
-    public function delete($document)
+    public function deleteDocument($document)
     {
         if($document instanceof Document) {
             $document = $document->getId();
