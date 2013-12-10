@@ -20,11 +20,11 @@ class Document
     
     public function setId($id) {
         if($id instanceof \MongoId) {
-            $this->_data['id'] = $id;
+            $this->_data['_id'] = $id;
         }
         
         else {
-            $this->_data['id'] = new \MongoId((string) $id);
+            $this->_data['_id'] = new \MongoId((string) $id);
         }
         
         return $this;
