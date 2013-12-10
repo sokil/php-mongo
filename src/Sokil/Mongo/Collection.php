@@ -61,7 +61,7 @@ class Collection
      * 
      * @return \Sokil\Mongo\Search
      */
-    public function findDocument()
+    public function find()
     {
         return new $this->_searchClass($this);
     }
