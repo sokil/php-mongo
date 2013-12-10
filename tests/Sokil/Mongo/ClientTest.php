@@ -4,12 +4,14 @@ namespace Sokil\Mongo;
 
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
-    public function testUsecase() 
+    /**
+     *
+     * @var \Sokil\Mongo\Collection
+     */
+    private static $collection;
+    
+    public static function setUpBeforeClass()
     {
-        /**
-         * Connect to collection
-         */
-        
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
         
@@ -17,14 +19,21 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $database = $client->getDatabase('test');
         
         // select collection
-        $collection = $database->getCollection('phpmongo_test_collection');
-        
+        self::$collection = $database->getCollection('phpmongo_test_collection');
+    }
+    
+    public static function tearDownAfterClass() {
+        self::$collection->delete();
+    }
+    
+    public function testUsecase() 
+    {        
         /**
          * Create document
          */
         
         // create document
-        $document = $collection->createDocument(array(
+        $document = self::$collection->createDocument(array(
             'l1'   => array(
                 'l11'   => 'l11value',
                 'l12'   => 'l12value',
@@ -36,10 +45,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         ));
         
         // insert document
-        $collection->saveDocument($document);
+        self::$collection->saveDocument($document);
+        $documentId = (string) $document->getId();
         
         // test
-        $documentId = (string) $document->getId();
         $this->assertNotEmpty($documentId);
         
         /**
@@ -48,31 +57,20 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         
         // update
         $document->set('l1.l12', 'updated');
-        $collection->saveDocument($document);
+        $document->set('l3', 'add new key');
+        self::$collection->saveDocument($document);
         
         // test
-        $this->assertEquals($documentId, (string) $document->getId());
+        $document = self::$collection->getDocument($documentId);
         
-        /**
-         * Read document
-         */
-        
-        // get document
-        $document = $collection->getDocument($documentId);
-                
-        // test
         $this->assertEquals('updated', $document->get('l1.l12'));
+        $this->assertEquals('add new key', $document->get('l3'));
         
         /**
          * Delete document
          */
-        $collection->deleteDocument($document);
+        self::$collection->deleteDocument($document);
         
-        $this->assertEmpty($collection->getDocument($documentId));
-        
-        /**
-         * Delete collection
-         */
-        $collection->delete();
+        $this->assertEmpty(self::$collection->getDocument($documentId));
     }
 }

@@ -6,6 +6,8 @@ class Document
 {
     private $_data = array();
     
+    private $_updateOperators = array();
+    
     public function __construct(array $data = null)
     {        
         if($data) {
@@ -70,12 +72,18 @@ class Document
             throw new Exception('Selector not specified');
         }
         
+        // add update operator if document already saved
+        // this replace only one field instead of whole document
+        if($this->getId()) {
+            $this->addUpdateOperation('$set', $selector, $value);
+        }
+        
+        // update local field
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
         
         // optimize one-level selector search
-        if(1 == $chunksNum)
-        {
+        if(1 == $chunksNum) {
             $this->_data[$selector] = $value;
             
             return $this;
@@ -84,23 +92,56 @@ class Document
         // selector is nested
         $section = &$this->_data;
 
-        for($i = 0; $i < $chunksNum - 1; $i++)
-        {
+        for($i = 0; $i < $chunksNum - 1; $i++) {
 
             $field = $arraySelector[$i];
 
-            if(!isset($section[$field]))
-            {
+            if(!isset($section[$field])) {
                 $section[$field] = array();
             }
 
             $section = &$section[$field];
-
         }
         
         $section[$arraySelector[$chunksNum - 1]] = $value;
         
         return $this;
+    }
+    
+    private function addUpdateOperation($operation, $fieldName, $value)
+    {
+        if(!$this->getId()) {
+            throw new \Exception('Document must be saved');
+        }
+        
+        if(!isset($this->_updateOperators[$operation])) {
+            $this->_updateOperators[$operation] = array();
+        }
+        
+        $this->_updateOperators[$operation][$fieldName] = $value;
+        
+        return $this;
+    }
+    
+    public function hasUpdateOperations()
+    {
+        return (bool) $this->_updateOperators;
+    }
+    
+    public function resetUpdateOperations()
+    {
+        $this->_updateOperators = array();
+        return $this;
+    }
+    
+    public function getUpdateOperations()
+    {
+        return $this->_updateOperators;
+    }
+    
+    public function increment($fieldName, $value = 1)
+    {
+        return $this->addUpdateOperation('$inc', $fieldName, $value);
     }
     
     public function toArray()

@@ -86,14 +86,27 @@ class Collection
     }
     
     public function saveDocument(Document $document)
-    {
+    {        
         $data = $document->toArray();
         
-        $status = $this->_collection->save($data);
-        if($status['ok'] != 1) {
-            throw new Exception($status['err']);
+        // apply update operations
+        if($document->hasUpdateOperations()) {
+            $status = $this->_collection->update(array('_id' => $document->getId()), $document->getUpdateOperations());
+            if($status['ok'] != 1) {
+                throw new Exception($status['err']);
+            }
+            
+            $document->resetUpdateOperations();
+        }
+        else {
+            // save data
+            $status = $this->_collection->save($data);
+            if($status['ok'] != 1) {
+                throw new Exception($status['err']);
+            }
         }
         
+        // set id
         $document->setId($data['_id']);
         
         return $this;
