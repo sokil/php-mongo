@@ -118,7 +118,7 @@ class Search implements \Iterator, \Countable
         $className = $this->_collection
             ->getDocumentClassName();
         
-        return new $className($this->_collection, $documentData);
+        return new $className($documentData);
     }
     
     public function current()
@@ -127,7 +127,7 @@ class Search implements \Iterator, \Countable
         
         $className = $this->_collection->getDocumentClassName();
         
-        return new $className($this->_collection, $documentData);
+        return new $className($documentData);
     }
     
     public function key()
