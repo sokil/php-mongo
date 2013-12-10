@@ -30,8 +30,13 @@ class Collection
     
     public function delete() {
         $status = $this->_collection->drop();
+        var_dump($status);
         if($status['ok'] != 1) {
-            throw new Exception('Error deleting collection ' . $this->_collection->getName());
+            // check if collection exists
+            if('ns not found' !== $status['errmsg']) {
+                // collection exist
+                throw new Exception('Error deleting collection ' . $this->_collection->getName());
+            }
         }
         
         return $this;
