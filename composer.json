@@ -1,5 +1,5 @@
 {
-    "name": "sokil/phpmongo",
+    "name": "sokil/php-mongo",
     "description": "Active Record for PHP Mongo",
     "license": "MIT",
     "authors": [
