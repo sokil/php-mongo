@@ -30,7 +30,6 @@ class Collection
     
     public function delete() {
         $status = $this->_collection->drop();
-        var_dump($status);
         if($status['ok'] != 1) {
             // check if collection exists
             if('ns not found' !== $status['errmsg']) {
