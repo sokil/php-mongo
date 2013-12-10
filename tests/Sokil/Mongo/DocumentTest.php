@@ -67,4 +67,46 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(123, $doc->i);
         $this->assertEquals(77, $doc->j);
     }
+    
+    public function testPush()
+    {
+        $doc = self::$collection->createDocument(array('some1' => 'some', 'some2' => 'some'));
+        self::$collection->saveDocument($doc);
+        
+        // push single to empty
+        $doc->push('key1', 1);
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array(1), self::$collection->getDocument($doc->getId())->key1);
+        
+        // push array to empty
+        $doc->push('key2', array(1));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array(1), self::$collection->getDocument($doc->getId())->key2);
+        
+        // push single to single
+        $doc->push('some1', 'another');
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array('some', 'another'), self::$collection->getDocument($doc->getId())->some1);
+        
+        // push array to single
+        $doc->push('some2', array('another'));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array('some', 'another'), self::$collection->getDocument($doc->getId())->some2);
+        
+        // push single to array
+        $doc->push('some1', 'yet another');
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array('some', 'another', 'yet another'), self::$collection->getDocument($doc->getId())->some1);
+        
+        // push array to array
+        $doc->push('some2', array('yet another'));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array('some', 'another', 'yet another'), self::$collection->getDocument($doc->getId())->some2);
+    }
 }

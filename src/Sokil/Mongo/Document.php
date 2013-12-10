@@ -66,19 +66,12 @@ class Document
         return $value;
     }
     
-    public function set($selector, $value)
+    private function _set($selector, $value)
     {
         if(!$selector) {
             throw new Exception('Selector not specified');
         }
         
-        // add update operator if document already saved
-        // this replace only one field instead of whole document
-        if($this->getId()) {
-            $this->addUpdateOperation('$set', $selector, $value);
-        }
-        
-        // update local field
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
         
@@ -103,6 +96,7 @@ class Document
             $section = &$section[$field];
         }
         
+        // update local field
         $section[$arraySelector[$chunksNum - 1]] = $value;
         
         return $this;
@@ -139,9 +133,42 @@ class Document
         return $this->_updateOperators;
     }
     
-    public function increment($fieldName, $value = 1)
+    public function set($selector, $value)
     {
-        return $this->addUpdateOperation('$inc', $fieldName, $value);
+        $this->_set($selector, $value);
+        
+        if($this->getId()) {
+            $this->addUpdateOperation('$set', $selector, $value);            
+        }
+        
+        return $this;
+    }
+    
+    public function push($selector, $value, $each = true)
+    {
+        $oldValue = $this->get($selector);
+        
+        if($oldValue && !is_array($oldValue)) {
+            $value = array_merge((array) $oldValue, (array) $value);
+            $this->addUpdateOperation('$set', $selector, $value);
+        }
+        else {
+            if($this->getId()) {
+                if($each && is_array($value)) {
+                    $this->addUpdateOperation('$push', $selector, array('$each' => $value));
+                }
+                else {
+                    $this->addUpdateOperation('$push', $selector, $value);
+                }
+            }
+        }
+        
+        $this->_set($selector, $value);
+    }
+    
+    public function increment($selector, $value = 1)
+    {
+        return $this->addUpdateOperation('$inc', $selector, $value);
     }
     
     public function toArray()
