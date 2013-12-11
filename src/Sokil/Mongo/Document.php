@@ -4,7 +4,7 @@ namespace Sokil\Mongo;
 
 class Document
 {
-    private $_data = array();
+    protected $_data = array();
     
     private $_updateOperators = array();
     
