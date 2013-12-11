@@ -124,9 +124,7 @@ class Search implements \Iterator, \Countable
     public function current()
     {
         $documentData = $this->getCursor()->current();
-        
         $className = $this->_collection->getDocumentClassName();
-        
         return new $className($documentData);
     }
     
@@ -137,12 +135,14 @@ class Search implements \Iterator, \Countable
     
     public function next()
     {
-        return $this->getCursor()->next();        
+        $this->getCursor()->next();
+        return $this;
     }
     
     public function rewind()
     {
-        return $this->getCursor()->rewind();
+        $this->getCursor()->rewind();
+        return $this;
     }
     
     public function valid()
