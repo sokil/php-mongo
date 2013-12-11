@@ -167,6 +167,11 @@ class Document
         return $this->addUpdateOperation('$inc', $selector, $value);
     }
     
+    public function decrement($selector, $value = 1)
+    {
+        return $this->addUpdateOperation('$inc', $selector, -1 * abs($value));
+    }
+    
     public function toArray()
     {
         return $this->_data;
