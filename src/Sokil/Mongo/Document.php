@@ -103,11 +103,7 @@ class Document
     }
     
     private function addUpdateOperation($operation, $fieldName, $value)
-    {
-        if(!$this->getId()) {
-            throw new \Exception('Document must be saved');
-        }
-        
+    {        
         if(!isset($this->_updateOperators[$operation])) {
             $this->_updateOperators[$operation] = array();
         }
