@@ -124,6 +124,10 @@ class Search implements \Iterator, \Countable
     public function current()
     {
         $documentData = $this->getCursor()->current();
+        if(!$documentData) {
+            return null;
+        }
+        
         $className = $this->_collection->getDocumentClassName();
         return new $className($documentData);
     }
