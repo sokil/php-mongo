@@ -3,8 +3,8 @@ PHPMongo
 
 Active Record implementation of Mongo adapter on PHP
 
-Example:
-         
+Example
+```php
     /**
      * Connect to collection
      */
@@ -53,3 +53,4 @@ Example:
      */
 
     $collection->delete($document);
+```
