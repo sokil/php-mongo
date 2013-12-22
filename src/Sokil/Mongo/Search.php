@@ -115,6 +115,10 @@ class Search implements \Iterator, \Countable
             ->getNativeCollection()
             ->findOne($this->_query, $this->_fields);
         
+        if(!$documentData) {
+            return null;
+        }
+        
         $className = $this->_collection
             ->getDocumentClassName();
         
