@@ -6,6 +6,14 @@ class Document
 {
     protected $_data = array();
     
+    protected $_scenario;
+    
+    /**
+     *
+     * @var array validator errors
+     */
+    private $_errors = array();
+    
     private $_updateOperators = array();
     
     public function __construct(array $data = null)
@@ -32,9 +40,207 @@ class Document
         return $this;
     }
     
+    public function setScenario($scenario)
+    {
+        $this->_scenario = $scenario;
+
+        return $this;
+    }
+
+    public function getScenario()
+    {
+        return $this->_scenario;
+    }
+
+    public function setNoScenario()
+    {
+        $this->_scenario = null;
+
+        return $this;
+    }
+
+    public function isScenario($scenario)
+    {
+        return $scenario === $this->_scenario;
+    }
+    
     public function rules()
     {
         return array();
+    }
+    
+    /**
+     * check if filled model params is valid
+     * @return boolean
+     */
+    public function isValid()
+    {
+        $this->_errors = array();
+
+        foreach($this->rules() as $rule)
+        {
+            $fields = array_map('trim', explode(',', $rule[0]));
+
+            // check scenario
+            if(!empty($rule['on'])) {
+                $onScenarios = explode(',', $rule['on']);
+                if(!in_array($this->getScenario(),  $onScenarios)) {
+                    continue;
+                }
+            }
+
+            if(!empty($rule['except'])) {
+                $exceptScenarios = explode(',', $rule['except']);
+                if(in_array($this->getScenario(),  $exceptScenarios)) {
+                    continue;
+                }
+            }
+
+            // validate
+            switch($rule[1]) {
+                case 'required':
+
+                    foreach($fields as $field) {
+                        if(!$this->get($field)) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Field "' . $field . '" required in model ' . get_called_class();
+                            }
+
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
+
+                case 'equals':
+
+                    foreach($fields as $field) {
+                        if(!$this->get($field)) {
+                            continue;
+                        }
+                        
+                        if($this->get($field) !== $rule['to']) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Field "' . $field . '" must be equals to "' . $rule['to'] . '" in model ' . get_called_class();
+                            }
+
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
+                    
+                case 'not_equals':
+
+                    foreach($fields as $field) {
+                        if(!$this->get($field)) {
+                            continue;
+                        }
+                        
+                        if($this->get($field) === $rule['to']) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Field "' . $field . '" must not be equals to "' . $rule['to'] . '" in model ' . get_called_class();
+                            }
+
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
+
+                case 'in':
+                    foreach($fields as $field) {
+                        if(!$this->get($field)) {
+                            continue;
+                        }
+
+                        if(!in_array($this->get($field), $rule['range'])) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Field "' . $field . '" not in range of alloved values in model ' . get_called_class();
+                            }
+
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
+
+                case 'numeric':
+                    foreach($fields as $field) {
+                        if(!$this->get($field)) {
+                            continue;
+                        }
+                        
+                        if(!is_numeric($this->get($field))) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Field "' . $field . '" not numeric in model ' . get_called_class();
+                            }
+
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
+
+                case 'null':
+                    foreach($fields as $field) {                        
+                        if(null !== $this->get($field)) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Field "' . $field . '" must be null in model ' . get_called_class();
+                            }
+
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
+
+                case 'regexp':
+                    foreach($fields as $field) {
+                        if(!$this->get($field)) {
+                            continue;
+                        }
+
+                        if(!preg_match($rule['pattern'], $this->get($field))) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Field "' . $field . '" not match regexp ' . $rule['pattern'] . ' in model ' . get_called_class();
+                            }
+
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return !$this->hasErrors();
+    }
+
+    public function hasErrors()
+    {
+        return $this->_errors;
+    }
+
+    /**
+     * get list of validation errors
+     *
+     * Format: $errors['fieldName']['rule'] = 'mesage';
+     *
+     * @return array list of validation errors
+     */
+    public function getErrors()
+    {
+        return $this->_errors;
+    }
+
+    public function triggerError($fieldName, $rule, $message)
+    {
+        $this->_errors[$fieldName][$rule] = $message;
+
+        throw new \Core\Db\Validate\Exception;
+
+        return $this;
+    }
+
+    protected function triggerErrors(array $errors)
+    {
+        $this->_errors = array_merge($this->_errors, $errors);
+
+        return $this;
     }
     
     public function __get($name)

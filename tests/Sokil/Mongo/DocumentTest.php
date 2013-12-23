@@ -50,6 +50,211 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     }
     
+    public function testIsValid_RequiredField()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'required')
+            )));
+        
+        // required field empty
+        $this->assertFalse($document->isValid());
+        
+        // required field set
+        $document->set('some-field-name', 'some-value');
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_FieldEquals()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'equals', 'to' => 'some-value')
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->set('some-field-name', 'some-wrong-value');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 'some-value');
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_FieldNotEquals()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'not_equals', 'to' => 'some-value')
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->set('some-field-name', 'some-wrong-value');
+        $this->assertTrue($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 'some-value');
+        $this->assertFalse($document->isValid());
+    }
+    
+    public function testIsValid_FieldInRange()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'in', 'range' => array('acceptedValue1', 'acceptedValue2'))
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 'acceptedValue1');
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_NumericField()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'numeric')
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 23);
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_NullField()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'numeric')
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', null);
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_FieldEqualsOnScenario()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'equals', 'to' => 23, 'on' => 'SCENARIO_1,SCENARIO_2')
+            )));
+        
+        // required field empty
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->setScenarion('SCENARIO_1');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 23);
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_FieldEqualsExceptScenario()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'equals', 'to' => 23, 'except' => 'SCENARIO_1,SCENARIO_2')
+            )));
+        
+        // required field empty
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to wrong value
+        $document->setScenarion('SCENARIO_2');
+        $this->assertTrue($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 23);
+        $this->assertFalse($document->isValid());
+    }
+    
+    public function testIsValid_FieldRegexp()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'regexp', 'pattern' => '#[a-z]+[0-9]+[a-z]+#')
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 'abc123def');
+        $this->assertTrue($document->isValid());
+    }
+    
     public function testIncrement()
     {
         // create document

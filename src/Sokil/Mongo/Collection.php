@@ -90,7 +90,11 @@ class Collection
     }
     
     public function saveDocument(Document $document)
-    {        
+    {
+        if(!$document->isValid()) {
+            throw new \Exception('Document not valid');
+        }
+        
         $data = $document->toArray();
         
         // apply update operations
