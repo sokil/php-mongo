@@ -64,7 +64,7 @@ Document can be validated before save. To set validation rules, method roles mus
 Supported rules are:
 
 ```
-class User
+class User except \Sokil\Mongo\Document
 {
     public function rules()
     {
