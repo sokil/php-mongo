@@ -231,8 +231,6 @@ class Document
     {
         $this->_errors[$fieldName][$rule] = $message;
 
-        throw new \Core\Db\Validate\Exception;
-
         return $this;
     }
 
