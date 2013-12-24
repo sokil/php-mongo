@@ -214,7 +214,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
         
         // required field set to wrong value
-        $document->setScenarion('SCENARIO_1');
+        $document->setScenario('SCENARIO_1');
         $this->assertFalse($document->isValid());
         
         // required field set to valid value
@@ -237,13 +237,20 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $document->set('some-field-name', 'wrongValue');
         $this->assertFalse($document->isValid());
         
+        // field set to valid value
+        $document->set('some-field-name', 23);
+        $this->assertTrue($document->isValid());
+        
+        // set excepted scenario
+        $document->setScenario('SCENARIO_2');
+        
         // required field set to wrong value
-        $document->setScenarion('SCENARIO_2');
+        $document->set('some-field-name', 'wrongValue');
         $this->assertTrue($document->isValid());
         
         // required field set to valid value
         $document->set('some-field-name', 23);
-        $this->assertFalse($document->isValid());
+        $this->assertTrue($document->isValid());
     }
     
     public function testIsValid_FieldRegexp()
