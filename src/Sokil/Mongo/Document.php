@@ -254,12 +254,7 @@ class Document
     
     public function __get($name)
     {
-        return isset($this->_data[$name]) ? $this->_data[$name] : null;
-    }
-    
-    public function __set($name, $value)
-    {
-        $this->_data[$name] = $value;
+        return $this->get($name);
     }
     
     public function get($selector)
@@ -281,12 +276,27 @@ class Document
         return $value;
     }
     
-    private function _set($selector, $value)
+    /**
+     * Handle setting params through public property
+     * 
+     * @param type $name
+     * @param type $value
+     */
+    public function __set($name, $value)
     {
-        if(!$selector) {
-            throw new Exception('Selector not specified');
-        }
-        
+        $this->set($name, $value);
+    }
+    
+    /**
+     * Store value to specified selector in local cache
+     * 
+     * @param type $selector
+     * @param type $value
+     * @return \Sokil\Mongo\Document
+     * @throws Exception
+     */
+    private function _set($selector, $value)
+    {        
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
         
@@ -317,6 +327,25 @@ class Document
         return $this;
     }
     
+    /**
+     * Update value in local cache and in DB
+     * 
+     * @param type $selector
+     * @param type $value
+     * @return \Sokil\Mongo\Document
+     */
+    public function set($selector, $value)
+    {
+        $this->_set($selector, $value);
+        
+        // if document saved - save through update
+        if($this->getId()) {
+            $this->addUpdateOperation('$set', $selector, $value);            
+        }
+        
+        return $this;
+    }
+    
     private function addUpdateOperation($operation, $fieldName, $value)
     {        
         if(!isset($this->_updateOperators[$operation])) {
@@ -342,17 +371,6 @@ class Document
     public function getUpdateOperations()
     {
         return $this->_updateOperators;
-    }
-    
-    public function set($selector, $value)
-    {
-        $this->_set($selector, $value);
-        
-        if($this->getId()) {
-            $this->addUpdateOperation('$set', $selector, $value);            
-        }
-        
-        return $this;
     }
     
     public function push($selector, $value, $each = true)
