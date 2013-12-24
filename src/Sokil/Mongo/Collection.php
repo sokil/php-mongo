@@ -89,11 +89,16 @@ class Collection
         return new $this->_docClass($data);
     }
     
+    /**
+     * 
+     * @param \Sokil\Mongo\Document $document
+     * @return \Sokil\Mongo\Collection
+     * @throws \Sokil\Mongo\Exception
+     * @throws \Sokil\Mongo\Document\Exception\Validate
+     */
     public function saveDocument(Document $document)
     {
-        if(!$document->isValid()) {
-            throw new \Exception('Document not valid');
-        }
+        $document->validate();
         
         $data = $document->toArray();
         

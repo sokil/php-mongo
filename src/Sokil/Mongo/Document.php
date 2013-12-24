@@ -209,6 +209,17 @@ class Document
 
         return !$this->hasErrors();
     }
+    
+    /**
+     * 
+     * @throws \Sokil\Mongo\Document\Exception\Validate
+     */
+    public function validate()
+    {
+        if(!$this->isValid()) {
+            throw new \Sokil\Mongo\Document\Exception\Validate('Document not valid');
+        }
+    }
 
     public function hasErrors()
     {
