@@ -19,7 +19,7 @@ class Document
     public function __construct(array $data = null)
     {        
         if($data) {
-            $this->_data = array_merge($this->_data, $data);
+            $this->fromArray($data);
         }
     }
     
@@ -390,5 +390,11 @@ class Document
     public function toArray()
     {
         return $this->_data;
+    }
+    
+    public function fromArray(array $data)
+    {
+        $this->_data = array_merge($this->_data, $data);
+        return $this;
     }
 }

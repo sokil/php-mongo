@@ -33,6 +33,20 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         self::$collection->delete();
     }
     
+    public function testCreateDocumentFromArray()
+    {
+        $document = self::$collection->createDocument(array(
+            'param1'    => 'value1',
+            'param2'    => array(
+                'param21'   => 'value21',
+                'param22'   => 'value22',
+            )
+        ));
+        
+        $this->assertEquals('value1', $document->get('param1'));
+        $this->assertEquals('value22', $document->get('param2.param22'));
+    }
+    
     public function testSetId()
     {
         // save document
