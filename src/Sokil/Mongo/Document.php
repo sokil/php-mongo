@@ -414,7 +414,7 @@ class Document
     {
         $this->_data = array_merge($this->_data, $data);
         
-        // if document loaded from array - save entire tocument instead of sending commands
+        // if document loaded from array - save entire document instead of sending commands
         $this->resetUpdateOperations();
         
         return $this;
