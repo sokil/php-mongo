@@ -265,14 +265,14 @@ class Document
     public function triggerError($fieldName, $rule, $message)
     {
         $this->_errors[$fieldName][$rule] = $message;
-
+        throw new Document\Exception\Validate;
         return $this;
     }
 
     protected function triggerErrors(array $errors)
     {
         $this->_errors = array_merge($this->_errors, $errors);
-
+        throw new Document\Exception\Validate;
         return $this;
     }
     

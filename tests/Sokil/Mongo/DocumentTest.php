@@ -368,4 +368,40 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(array('some', 'another', 'yet another'), self::$collection->getDocument($doc->getId())->some2);
     }
+    
+    public function testTriggerError()
+    {
+        try {
+            $document = new \Sokil\Mongo\Document;
+            $document->triggerError('field', 'rule', 'message');
+        }
+        catch (\Sokil\Mongo\Document\Exception\Validate $e) {
+            $this->assertEquals(
+                array('field' => array('rule' => 'message')), 
+                $document->getErrors()
+            );
+        }
+        catch(\Exception $e) {
+            $this->fail('\Sokil\Mongo\Document\Exception\Validate expected, ' . get_class($e) . ' found');
+        }
+    }
+    
+    public function testTriggerErrors()
+    {
+        $errors = array(
+            'field1' => array('rule1' => 'message1'),
+            'field2' => array('rule2' => 'message2')
+        );
+        
+        try {
+            $document = new \Sokil\Mongo\Document;
+            $document->triggerErrors($errors);
+        }
+        catch (\Sokil\Mongo\Document\Exception\Validate $e) {
+            $this->assertEquals($errors, $document->getErrors());
+        }
+        catch(\Exception $e) {
+            $this->fail('\Sokil\Mongo\Document\Exception\Validate expected, ' . get_class($e) . ' found');
+        }
+    }
 }
