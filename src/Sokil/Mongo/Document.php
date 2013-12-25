@@ -204,6 +204,30 @@ class Document
                         }
                     }
                     break;
+                    
+                case 'email':
+                    foreach($fields as $field) {
+                        $value = $this->get($field);
+                        if(!$value) {
+                            continue;
+                        }
+
+                        $isValidEmail = filter_var($value, FILTER_VALIDATE_EMAIL);
+                        $isValidMX = true;
+                        
+                        if($isValidEmail && !empty($rule['mx'])) {
+                            $isValidMX =  checkdnsrr(explode('@', $value)[1], 'MX');
+                        }
+                        
+                        if(!$isValidEmail || !$isValidMX) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Value of field "' . $field . '" is not email in model ' . get_called_class();
+                            }
+                            
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
             }
         }
 

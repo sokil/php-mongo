@@ -276,6 +276,39 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
     }
     
+    public function testIsValid_FieldEmail()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'email'),
+                array('some-field-name-mx', 'email', 'mx' => true)
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // Email invalid
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+        
+        // Email valid
+        $document->set('some-field-name', 'user@example.com');
+        $this->assertTrue($document->isValid());
+        
+        // additional MX check on wrong email
+        $document->set('some-field-name-mx', 'user@example.com');
+        $this->assertFalse($document->isValid());
+        
+        // additional MX check on wrong email
+        $document->set('some-field-name-mx', 'user@gmail.com');
+        $this->assertTrue($document->isValid());
+        
+    }
+    
     public function testIncrement()
     {
         // create document
