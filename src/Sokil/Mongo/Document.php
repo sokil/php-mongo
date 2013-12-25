@@ -14,6 +14,16 @@ class Document
      */
     private $_errors = array();
     
+    /**
+     *
+     * @var array manually added validator errors
+     */
+    private $_triggeredErors = array();
+    
+    /**
+     *
+     * @var array list of update operations
+     */
     private $_updateOperators = array();
     
     public function __construct(array $data = null)
@@ -247,7 +257,7 @@ class Document
 
     public function hasErrors()
     {
-        return $this->_errors;
+        return ($this->_errors || $this->_triggeredErors);
     }
 
     /**
@@ -259,18 +269,18 @@ class Document
      */
     public function getErrors()
     {
-        return $this->_errors;
+        return array_merge_recursive($this->_errors, $this->_triggeredErors);
     }
 
     public function triggerError($fieldName, $rule, $message)
     {
-        $this->_errors[$fieldName][$rule] = $message;
+        $this->_triggeredErors[$fieldName][$rule] = $message;
         return $this;
     }
 
     public function triggerErrors(array $errors)
     {
-        $this->_errors = array_merge($this->_errors, $errors);
+        $this->_triggeredErors = array_merge_recursive($this->_triggeredErors, $errors);
         return $this;
     }
     

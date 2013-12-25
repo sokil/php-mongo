@@ -376,6 +376,8 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             $document->triggerError('field', 'rule', 'message');
             
             $document->validate();
+            
+            $this->fail('\Sokil\Mongo\Document\Exception\Validate must be thrown, no exception captured');
         }
         catch (\Sokil\Mongo\Document\Exception\Validate $e) {
             $this->assertEquals(
@@ -386,6 +388,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         catch(\Exception $e) {
             $this->fail('\Sokil\Mongo\Document\Exception\Validate expected, ' . get_class($e) . ' found');
         }
+        
     }
     
     public function testTriggerErrors()
@@ -400,6 +403,8 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             $document->triggerErrors($errors);
             
             $document->validate();
+            
+            $this->fail('\Sokil\Mongo\Document\Exception\Validate must be thrown, no exception captured');
         }
         catch (\Sokil\Mongo\Document\Exception\Validate $e) {
             $this->assertEquals($errors, $document->getErrors());
@@ -407,5 +412,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         catch(\Exception $e) {
             $this->fail('\Sokil\Mongo\Document\Exception\Validate expected, ' . get_class($e) . ' found');
         }
+        
     }
 }
