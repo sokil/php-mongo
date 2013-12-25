@@ -374,6 +374,8 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         try {
             $document = new \Sokil\Mongo\Document;
             $document->triggerError('field', 'rule', 'message');
+            
+            $document->validate();
         }
         catch (\Sokil\Mongo\Document\Exception\Validate $e) {
             $this->assertEquals(
@@ -396,6 +398,8 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         try {
             $document = new \Sokil\Mongo\Document;
             $document->triggerErrors($errors);
+            
+            $document->validate();
         }
         catch (\Sokil\Mongo\Document\Exception\Validate $e) {
             $this->assertEquals($errors, $document->getErrors());
