@@ -41,7 +41,13 @@ class Collection
         return $this;
     }
     
-    public function getDocumentClassName()
+    /**
+     * Override to define classname of document by document data
+     * 
+     * @param array $documentData
+     * @return string Document class data
+     */
+    public function getDocumentClassName(array $documentData = null)
     {
         return $this->_docClass;
     }
