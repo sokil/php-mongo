@@ -327,46 +327,154 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(77, $doc->j);
     }
     
-    public function testPush()
+    public function testPushSingleToEmpty()
     {
-        $doc = self::$collection->createDocument(array('some1' => 'some', 'some2' => 'some'));
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => 'some',
+        ));
+        
         self::$collection->saveDocument($doc);
         
         // push single to empty
-        $doc->push('key1', 1);
+        $doc->push('key', 1);
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array(1), self::$collection->getDocument($doc->getId())->key1);
+        $this->assertEquals(array(1), self::$collection->getDocument($doc->getId())->key);
+        
+    }
+    
+    public function testPushArrayToEmpty()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => 'some',
+        ));
+        
+        self::$collection->saveDocument($doc);
         
         // push array to empty
-        $doc->push('key2', array(1));
+        $doc->push('key', array(1));
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array(1), self::$collection->getDocument($doc->getId())->key2);
+        $this->assertEquals(array(array(1)), self::$collection->getDocument($doc->getId())->key);
+        
+    }
+    
+    public function testPushSingleToSingle()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => 'some',
+        ));
+        
+        self::$collection->saveDocument($doc);
         
         // push single to single
-        $doc->push('some1', 'another');
+        $doc->push('some', 'another');
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', 'another'), self::$collection->getDocument($doc->getId())->some1);
+        $this->assertEquals(array('some', 'another'), self::$collection->getDocument($doc->getId())->some);
+    }
+    
+    public function testPushArrayToSingle()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => 'some',
+        ));
+        
+        self::$collection->saveDocument($doc);
         
         // push array to single
-        $doc->push('some2', array('another'));
+        $doc->push('some', array('another'));
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', 'another'), self::$collection->getDocument($doc->getId())->some2);
+        $this->assertEquals(array('some', array('another')), self::$collection->getDocument($doc->getId())->some);
+        
+    }
+    
+    public function testPushSingleToArray()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => array('some1', 'some2'),
+        ));
+        
+        self::$collection->saveDocument($doc);
         
         // push single to array
-        $doc->push('some1', 'yet another');
+        $doc->push('some', 'some3');
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', 'another', 'yet another'), self::$collection->getDocument($doc->getId())->some1);
+        $this->assertEquals(array('some1', 'some2', 'some3'), self::$collection->getDocument($doc->getId())->some);
+        
+    }
+    
+    public function testPushArrayToArray()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => array('some1', 'some2'),
+        ));
+        
+        self::$collection->saveDocument($doc);
         
         // push array to array
-        $doc->push('some2', array('yet another'));
+        $doc->push('some', array('some3'));
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', 'another', 'yet another'), self::$collection->getDocument($doc->getId())->some2);
+        $this->assertEquals(array('some1', 'some2', array('some3')), self::$collection->getDocument($doc->getId())->some);
+    }
+    
+    public function testPushFromArrayToEmpty()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => 'some',
+        ));
+        
+        self::$collection->saveDocument($doc);
+        
+        // push array to empty
+        $doc->pushFromArray('key', array(1));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array(1), self::$collection->getDocument($doc->getId())->key);
+        
+    }
+    
+    public function testPushFromArrayToSingle()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => 'some',
+        ));
+        
+        self::$collection->saveDocument($doc);
+        
+        // push array to single
+        $doc->pushFromArray('some', array('another'));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array('some', 'another'), self::$collection->getDocument($doc->getId())->some);
+        
+    }
+    
+    public function testPushFromArrayToArray()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => array('some1', 'some2'),
+        ));
+        
+        self::$collection->saveDocument($doc);
+        
+        // push array to array
+        $doc->pushFromArray('some', array('some3'));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array('some1', 'some2', 'some3'), self::$collection->getDocument($doc->getId())->some);
     }
     
     public function testTriggerError()

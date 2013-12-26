@@ -337,23 +337,66 @@ class Document extends Structure
         return $this->_updateOperators;
     }
     
-    public function push($selector, $value, $each = true)
+    /**
+     * Push argument as single element to field value
+     * 
+     * @param string $selector
+     * @param mixed $value
+     */
+    public function push($selector, $value)
     {
         $oldValue = $this->get($selector);
         
-        if($oldValue && !is_array($oldValue)) {
-            $value = array_merge((array) $oldValue, (array) $value);
-            $this->addUpdateOperation('$set', $selector, $value);
+        if($value instanceof Structure) {
+            $value = $value->toArray();
         }
+        
+        // field already exist and has single value
+        if($oldValue && !is_array($oldValue)) {
+            $value = array_merge((array) $oldValue, array($value));
+            
+            if($this->getId()) {
+                $this->addUpdateOperation('$set', $selector, $value);
+            }
+        }
+        // field not exists or already is array
         else {
             if($this->getId()) {
-                if($each && is_array($value)) {
-                    $this->addUpdateOperation('$push', $selector, array('$each' => $value));
-                }
-                else {
-                    $this->addUpdateOperation('$push', $selector, $value);
-                }
+                $this->addUpdateOperation('$push', $selector, $value);
             }
+        }
+        
+        // set local data
+        parent::set($selector, $value);
+    }
+    
+    /**
+     * Push each element of argument's array as single element to field value
+     * 
+     * @param type $selector
+     * @param array $value
+     */
+    public function pushFromArray($selector, array $value)
+    {
+        $oldValue = $this->get($selector);
+        
+        if($value instanceof Structure) {
+            $value = $value->toArray();
+        }
+        
+        // field already exist and has single value
+        if($oldValue && !is_array($oldValue)) {
+            if($this->getId()) {
+                $value = array_merge((array) $oldValue, $value);
+                $this->addUpdateOperation('$set', $selector, $value);
+            }
+        }
+        // field not exists or already an array
+        else {
+            if($this->getId()) {
+                $this->addUpdateOperation('$push', $selector, array('$each' => $value));
+            }
+            
         }
         
         parent::set($selector, $value);
