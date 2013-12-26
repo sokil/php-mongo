@@ -27,11 +27,23 @@ class Document
     private $_updateOperators = array();
     
     public function __construct(array $data = null)
-    {        
+    {
+        $this->beforeConstruct();
+        
         if($data) {
             $this->fromArray($data);
         }
+        
+        $this->afterConstruct();
     }
+    
+    public function beforeConstruct() {}
+    
+    public function afterConstruct() {}
+    
+    public function beforeSave() {}
+    
+    public function afterSave() {}
     
     public function getId()
     {

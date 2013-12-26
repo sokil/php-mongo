@@ -102,6 +102,9 @@ class Collection
         
         $data = $document->toArray();
         
+        // handle beforeSave event
+        $document->beforeSave();
+        
         // apply update operations
         if($document->hasUpdateOperations()) {
             $status = $this->_collection->update(array('_id' => $document->getId()), $document->getUpdateOperations());
@@ -118,6 +121,9 @@ class Collection
                 throw new Exception($status['err']);
             }
         }
+        
+        // handle afterSave event
+        $document->afterSave();
         
         // set id
         $document->setId($data['_id']);
