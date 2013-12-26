@@ -4,8 +4,6 @@ namespace Sokil\Mongo;
 
 class Collection
 {    
-    protected $_docClass = '\Sokil\Mongo\Document';
-    
     protected $_searchClass = '\Sokil\Mongo\Search';
     
     /**
@@ -49,7 +47,7 @@ class Collection
      */
     public function getDocumentClassName(array $documentData = null)
     {
-        return $this->_docClass;
+        return '\Sokil\Mongo\Document';
     }
     
     /**
@@ -59,7 +57,9 @@ class Collection
      */
     public function createDocument(array $data = null)
     {
-        return new $this->_docClass($data);
+        $className = $this->getDocumentClassName($data);
+        
+        return new $className($data);
     }
     
     /**
@@ -92,7 +92,8 @@ class Collection
             return null;
         }
         
-        return new $this->_docClass($data);
+        $className = $this->getDocumentClassName($data);
+        return new $className($data);
     }
     
     /**
