@@ -2,10 +2,8 @@
 
 namespace Sokil\Mongo;
 
-class Document
+class Document extends Structure
 {
-    protected $_data = array();
-    
     protected $_scenario;
     
     /**
@@ -26,13 +24,11 @@ class Document
      */
     private $_updateOperators = array();
     
-    public function __construct(array $data = null)
-    {
+    public function __construct(array $data = null) {
+        
         $this->beforeConstruct();
         
-        if($data) {
-            $this->fromArray($data);
-        }
+        parent::__construct($data);
         
         $this->afterConstruct();
     }
@@ -47,17 +43,16 @@ class Document
     
     public function getId()
     {
-        return isset($this->_data['_id']) ? $this->_data['_id'] : null;
+        return $this->get('_id');
     }
     
     public function setId($id) {
-        if($id instanceof \MongoId) {
-            $this->_data['_id'] = $id;
+        
+        if(!($id instanceof \MongoId)) {
+            $id = new \MongoId($id);
         }
         
-        else {
-            $this->_data['_id'] = new \MongoId((string) $id);
-        }
+        parent::set('_id', $id);
         
         return $this;
     }
@@ -296,81 +291,6 @@ class Document
         return $this;
     }
     
-    public function __get($name)
-    {
-        return $this->get($name);
-    }
-    
-    public function get($selector)
-    {
-        if(false === strpos($selector, '.')) {
-            return  isset($this->_data[$selector]) ? $this->_data[$selector] : null;
-        }
-
-        $value = $this->_data;
-        foreach(explode('.', $selector) as $field)
-        {
-            if(!isset($value[$field])) {
-                return null;
-            }
-
-            $value = $value[$field];
-        }
-
-        return $value;
-    }
-    
-    /**
-     * Handle setting params through public property
-     * 
-     * @param type $name
-     * @param type $value
-     */
-    public function __set($name, $value)
-    {
-        $this->set($name, $value);
-    }
-    
-    /**
-     * Store value to specified selector in local cache
-     * 
-     * @param type $selector
-     * @param type $value
-     * @return \Sokil\Mongo\Document
-     * @throws Exception
-     */
-    private function _set($selector, $value)
-    {        
-        $arraySelector = explode('.', $selector);
-        $chunksNum = count($arraySelector);
-        
-        // optimize one-level selector search
-        if(1 == $chunksNum) {
-            $this->_data[$selector] = $value;
-            
-            return $this;
-        }
-        
-        // selector is nested
-        $section = &$this->_data;
-
-        for($i = 0; $i < $chunksNum - 1; $i++) {
-
-            $field = $arraySelector[$i];
-
-            if(!isset($section[$field])) {
-                $section[$field] = array();
-            }
-
-            $section = &$section[$field];
-        }
-        
-        // update local field
-        $section[$arraySelector[$chunksNum - 1]] = $value;
-        
-        return $this;
-    }
-    
     /**
      * Update value in local cache and in DB
      * 
@@ -380,11 +300,11 @@ class Document
      */
     public function set($selector, $value)
     {
-        $this->_set($selector, $value);
+        parent::set($selector, $value);
         
         // if document saved - save through update
         if($this->getId()) {
-            $this->addUpdateOperation('$set', $selector, $value);            
+            $this->addUpdateOperation('$set', $selector, $value);
         }
         
         return $this;
@@ -436,7 +356,7 @@ class Document
             }
         }
         
-        $this->_set($selector, $value);
+        parent::set($selector, $value);
     }
     
     public function increment($selector, $value = 1)
@@ -449,14 +369,9 @@ class Document
         return $this->addUpdateOperation('$inc', $selector, -1 * abs($value));
     }
     
-    public function toArray()
-    {
-        return $this->_data;
-    }
-    
     public function fromArray(array $data)
     {
-        $this->_data = array_merge($this->_data, $data);
+        parent::fromArray($data);
         
         // if document loaded from array - save entire document instead of sending commands
         $this->resetUpdateOperations();

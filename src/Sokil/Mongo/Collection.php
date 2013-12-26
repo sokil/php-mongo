@@ -113,7 +113,7 @@ class Collection
         $document->beforeSave();
         
         // apply update operations
-        if($document->hasUpdateOperations()) {
+        if($document->hasUpdateOperations()) {            
             $status = $this->_collection->update(array('_id' => $document->getId()), $document->getUpdateOperations());
             if($status['ok'] != 1) {
                 throw new Exception($status['err']);
