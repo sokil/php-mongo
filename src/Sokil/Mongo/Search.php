@@ -29,7 +29,7 @@ class Search implements \Iterator, \Countable
     
     public function fields(array $fields)
     {
-        $this->_fileds = $fields;
+        $this->_fields = $fields;
     }
     
     public function where($field, $condition)
