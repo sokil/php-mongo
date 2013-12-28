@@ -22,9 +22,21 @@ class Search implements \Iterator, \Countable
     
     private $_sort = array();
     
-    public function __construct(Collection $collection)
+    /**
+     *
+     * @var boolean results are arrays instead of objects
+     */
+    private $_options = array(
+        'arrayResult'   => false,
+    );
+    
+    public function __construct(Collection $collection, array $options = null)
     {
         $this->_collection = $collection;
+        
+        if($options) {
+            $this->_options = array_merge($this->_options, $options);
+        }
     }
     
     public function fields(array $fields)
@@ -119,6 +131,10 @@ class Search implements \Iterator, \Countable
             return null;
         }
         
+        if($this->_options['arrayResult']) {
+            return $documentData;
+        }
+        
         $className = $this->_collection
             ->getDocumentClassName();
         
@@ -139,6 +155,10 @@ class Search implements \Iterator, \Countable
         $documentData = $this->getCursor()->current();
         if(!$documentData) {
             return null;
+        }
+        
+        if($this->_options['arrayResult']) {
+            return $documentData;
         }
         
         $className = $this->_collection->getDocumentClassName($documentData);

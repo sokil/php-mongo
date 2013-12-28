@@ -41,4 +41,43 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $document = self::$collection->find()->where('some-unexisted-field', 'some-value')->findOne();
         $this->assertEmpty($document);
     }
+    
+    public function testFindAll()
+    {
+        // create new document
+        self::$collection->delete();
+        
+        // add doc
+        $document = self::$collection->createDocument(array(
+            'some-field'    => 'some-value',
+        ));
+        self::$collection->saveDocument($document);
+        
+        // find
+        $documents = self::$collection->find()->where('some-field', 'some-value');
+        
+        $firstDocument = current($documents->findAll());
+        $this->assertEquals($firstDocument->getId(), $document->getId());
+    }
+    
+    public function testReturnAsArray()
+    {
+        // create new document
+        self::$collection->delete();
+        
+        $document = self::$collection->createDocument(array(
+            'some-field'    => 'some-value',
+        ));
+        
+        self::$collection->saveDocument($document);
+        
+        // find all rows
+        $document = self::$collection->findAsArray()->where('some-field', 'some-value')->rewind()->current();
+        $this->assertEquals('array', gettype($document));
+        
+        // find one row
+        $document = self::$collection->findAsArray()->where('some-field', 'some-value')->findOne();
+        $this->assertEquals('array', gettype($document));
+        
+    }
 }

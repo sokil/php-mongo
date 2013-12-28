@@ -3,7 +3,7 @@
 namespace Sokil\Mongo;
 
 class Collection
-{    
+{
     protected $_searchClass = '\Sokil\Mongo\Search';
     
     /**
@@ -70,6 +70,16 @@ class Collection
     public function find()
     {
         return new $this->_searchClass($this);
+    }
+    
+    /**
+     * Create document query builder
+     * 
+     * @return \Sokil\Mongo\Search
+     */
+    public function findAsArray()
+    {
+        return new $this->_searchClass($this, array('arrayResult' => true));
     }
     
     /**
