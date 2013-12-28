@@ -125,6 +125,15 @@ class Search implements \Iterator, \Countable
         return new $className($documentData);
     }
     
+    /**
+     * 
+     * @return array result of searching
+     */
+    public function findAll()
+    {
+        return iterator_to_array($this);
+    }
+    
     public function current()
     {
         $documentData = $this->getCursor()->current();
