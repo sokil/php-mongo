@@ -33,7 +33,7 @@ class Document extends Structure
         $this->afterConstruct();
     }
     
-    public function __toStrind()
+    public function __toString()
     {
         return (string) $this->getId();
     }

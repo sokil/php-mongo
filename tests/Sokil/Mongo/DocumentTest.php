@@ -33,6 +33,17 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         self::$collection->delete();
     }
     
+    public function testToString()
+    {
+        $document = self::$collection->createDocument(array(
+            'param1'    => 'value1'
+        ));
+        
+        self::$collection->saveDocument($document);
+        
+        $this->assertEquals((string) $document, $document->getId());
+    }
+        
     public function testCreateDocumentFromArray()
     {
         $document = self::$collection->createDocument(array(
