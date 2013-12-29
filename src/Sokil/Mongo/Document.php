@@ -356,18 +356,30 @@ class Document extends Structure
             $value = $value->toArray();
         }
         
+        // field not exists
+        if(!$oldValue) {
+            if($this->getId()) {
+                $this->addUpdateOperation('$push', $selector, $value);
+            }
+            else {
+                $value = array($value);
+            }
+        }
         // field already exist and has single value
-        if($oldValue && !is_array($oldValue)) {
+        elseif(!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, array($value));
             
             if($this->getId()) {
                 $this->addUpdateOperation('$set', $selector, $value);
             }
         }
-        // field not exists or already is array
+        // field exists and is array
         else {
             if($this->getId()) {
                 $this->addUpdateOperation('$push', $selector, $value);
+            }
+            else {
+                $value = array_merge($oldValue, array($value));
             }
         }
         
