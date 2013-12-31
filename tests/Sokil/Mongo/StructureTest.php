@@ -50,6 +50,10 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $structure = new Structure;
         $structure->set('a.b.c.d', 'value');
         
+        // get unexisted
+        $this->assertEquals(null, $structure->get('unexisted-key'));
+        
+        // get existed
         $this->assertEquals('value', $structure->get('a.b.c.d'));
         $this->assertEquals(array('d' => 'value'), $structure->get('a.b.c'));
         $this->assertEquals(array('c' => array('d' => 'value')), $structure->get('a.b'));
@@ -64,6 +68,9 @@ class StructureTest extends \PHPUnit_Framework_TestCase
             'a' => 'a',
             'b' => 'b'
         ));
+        
+        // get unexited key
+        $this->assertEquals(null, $structure->getObject('unexisted-param', '\Sokil\Mongo\StructureTest\StructureWrapper'));
         
         // get object
         $structureWrapper = $structure->getObject('param2', '\Sokil\Mongo\StructureTest\StructureWrapper');
@@ -101,6 +108,9 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $structure->set('param2', array(
             array('a' => 'a1'),
         ));
+        
+        // get unexited key
+        $this->assertEquals(array(), $structure->getObjectList('unexisted-param', '\Sokil\Mongo\StructureTest\StructureWrapper'));
         
         // get object
         $structureList = $structure->getObjectList('param2', function($data) {

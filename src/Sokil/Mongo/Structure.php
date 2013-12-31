@@ -48,6 +48,9 @@ class Structure
     public function getObject($selector, $className)
     {
         $data = $this->get($selector);
+        if(!$data) {
+            return null;
+        }
         
         // get classname from callable
         if(is_callable($className)) {
@@ -74,6 +77,9 @@ class Structure
     public function getObjectList($selector, $className)
     {
         $data = $this->get($selector);
+        if(!$data) {
+            return array();
+        }
         
         // classname is string
         if(is_string($className)) {
