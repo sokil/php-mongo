@@ -24,7 +24,7 @@ Basic example
      * Create document
      */
 
-    $document = $collection->create(array(
+    $document = $collection->createDocument(array(
         'l1'   => array(
             'l11'   => 'l11value',
             'l12'   => 'l12value',
@@ -35,26 +35,26 @@ Basic example
         ),
     ));
 
-    $collection->save($document);
+    $collection->saveDocument($document);
 
     /**
      * Update document
      */
 
     $document->set('l1.l12', 'updated');
-    $collection->save($document);
+    $collection->saveDocument($document);
 
     /**
      * Read document
      */
 
-    $document = $collection->findById($documentId);
+    $document = $collection->getDocument($documentId);
 
     /**
      * Delete document
      */
 
-    $collection->delete($document);
+    $collection->deleteDocument($document);
 ```
 
 Document validation
