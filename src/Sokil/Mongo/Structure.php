@@ -37,9 +37,22 @@ class Structure
         return $value;
     }
     
+    /**
+     * Get structure object from adocument's value
+     * 
+     * @param string $selector
+     * @param string|closure $className string classname or closure, which accept data and return string class name
+     * @return object representation of document with class, passed as argument
+     * @throws \Sokil\Mongo\Exception
+     */
     public function getObject($selector, $className)
     {
         $data = $this->get($selector);
+        
+        // get classname from callable
+        if(is_callable($className)) {
+            $className = $className($data);
+        }
         
         // prepare structure
         $structure =  new $className();
@@ -50,19 +63,51 @@ class Structure
         return clone $structure->fromArray($data);
     }
     
+    /**
+     * Get list of structure objects from list of values in mongo document
+     * 
+     * @param string $selector
+     * @param string|closure $className string classname or closure, which accept data and return string class name
+     * @return object representation of document with class, passed as argument
+     * @throws \Sokil\Mongo\Exception
+     */
     public function getObjectList($selector, $className)
     {
         $data = $this->get($selector);
         
-        // prepare structure
-        $structure =  new $className();
-        if(!($structure instanceof Structure)) {
-            throw new Exception('Wring structure class specified');
+        // classname is string
+        if(is_string($className)) {
+            
+            $structure = new $className();
+            if(!($structure instanceof Structure)) {
+                throw new Exception('Wring structure class specified');
+            }
+
+            return array_map(function($dataItem) use($structure) {
+                return clone $structure->fromArray($dataItem);
+            }, $data);
         }
         
-        return array_map(function($dataItem) use($structure) {
-            return clone $structure->fromArray($dataItem);
-        }, $data);
+        // classname id callable
+        if(is_callable($className)) {
+            
+            $structurePool = array();
+
+            return array_map(function($dataItem) use($structurePool, $className) {
+                
+                $classNameString = $className($dataItem);
+                if(empty($structurePool[$classNameString])) {
+                    $structurePool[$classNameString] = new $classNameString;
+                    if(!($structurePool[$classNameString] instanceof Structure)) {
+                        throw new Exception('Wring structure class specified');
+                    }
+                }
+                
+                return clone $structurePool[$classNameString]->fromArray($dataItem);
+            }, $data);
+        }
+        
+        throw new Exception('Wrong class name specified. Use string or closure');
     }
     
     /**

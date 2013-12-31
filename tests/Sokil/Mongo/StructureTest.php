@@ -74,38 +74,47 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('def-c', $structureWrapper->get('c'));
     }
     
-    public function testGetObjectList()
+    public function testGetObjectWithClusureClassName()
+    {
+        $structure = new Structure;
+        $structure->set('param1', 'value1');
+        $structure->set('param2', array(
+            'a' => 'a',
+            'b' => 'b'
+        ));
+        
+        // get object
+        $structureWrapper = $structure->getObject('param2', function($data) {
+            return '\Sokil\Mongo\StructureTest\StructureWrapper';
+        });
+        
+        // tests
+        $this->assertInstanceOf('\Sokil\Mongo\StructureTest\StructureWrapper', $structureWrapper);
+        $this->assertEquals('b', $structureWrapper->get('b'));
+        $this->assertEquals('def-c', $structureWrapper->get('c'));
+    }
+    
+    public function testGetObjectListWithClusureClassName()
     {
         $structure = new Structure;
         $structure->set('param1', 'value1');
         $structure->set('param2', array(
             array('a' => 'a1'),
-            array('a' => 'a2', 'b' => 'b2'),
-            array('a' => 'a3', 'b' => 'b3', 'c' => 'c3'),
         ));
         
         // get object
-        $structureList = $structure->getObjectList('param2', '\Sokil\Mongo\StructureTest\StructureWrapper');
+        $structureList = $structure->getObjectList('param2', function($data) {
+            return '\Sokil\Mongo\StructureTest\StructureWrapper';
+        });
         
         // tests
         $this->assertEquals('array', gettype($structureList));
-        $this->assertEquals(3, count($structureList));
+        $this->assertEquals(1, count($structureList));
         
         $this->assertInstanceOf('\Sokil\Mongo\StructureTest\StructureWrapper', $structureList[0]);
-        $this->assertInstanceOf('\Sokil\Mongo\StructureTest\StructureWrapper', $structureList[1]);
-        $this->assertInstanceOf('\Sokil\Mongo\StructureTest\StructureWrapper', $structureList[2]);
         
         $this->assertEquals('a1', $structureList[0]->get('a'));
         $this->assertEquals('def-b', $structureList[0]->get('b'));
         $this->assertEquals('def-c', $structureList[0]->get('c'));
-        
-        
-        $this->assertEquals('a2', $structureList[1]->get('a'));
-        $this->assertEquals('b2', $structureList[1]->get('b'));
-        $this->assertEquals('def-c', $structureList[1]->get('c'));
-        
-        $this->assertEquals('a3', $structureList[2]->get('a'));
-        $this->assertEquals('b3', $structureList[2]->get('b'));
-        $this->assertEquals('c3', $structureList[2]->get('c'));
     }
 }
