@@ -37,6 +37,34 @@ class Structure
         return $value;
     }
     
+    public function getObject($selector, $className)
+    {
+        $data = $this->get($selector);
+        
+        // prepare structure
+        $structure =  new $className();
+        if(!($structure instanceof Structure)) {
+            throw new Exception('Wring structure class specified');
+        }
+        
+        return clone $structure->fromArray($data);
+    }
+    
+    public function getObjectList($selector, $className)
+    {
+        $data = $this->get($selector);
+        
+        // prepare structure
+        $structure =  new $className();
+        if(!($structure instanceof Structure)) {
+            throw new Exception('Wring structure class specified');
+        }
+        
+        return array_map(function($dataItem) use($structure) {
+            return clone $structure->fromArray($dataItem);
+        }, $data);
+    }
+    
     /**
      * Handle setting params through public property
      * 
