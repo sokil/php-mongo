@@ -23,7 +23,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     }
     
-    public function testSaveValidDocument()
+    public function testSaveValidNewDocument()
     {
         // create document
         $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
@@ -43,10 +43,28 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $collection->delete();
     }
     
+    public function testUpdateExistedDocument()
+    {
+        // create document
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+        $document = $collection->createDocument(array('param' => 'value'));   
+        $collection->saveDocument($document);
+        
+        // update document
+        $document->set('param', 'new-value');
+        $collection->saveDocument($document);
+        
+        // test
+        $document = $collection->getDocument($document->getId());
+        $this->assertEquals('new-value', $document->param);
+        
+        $collection->delete();
+    }
+    
     /**
      * @expectedException \Sokil\Mongo\Document\Exception\Validate
      */
-    public function testSaveInvalidDocument()
+    public function testSaveInvalidNewDocument()
     {
         // create document
         $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));

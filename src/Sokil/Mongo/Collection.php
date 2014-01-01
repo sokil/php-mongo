@@ -130,6 +130,10 @@ class Collection
             }
             
             $document->resetUpdateOperations();
+            
+            // get updated data
+            $data = $this->_collection->findOne(array('_id' => $document->getId()));
+            $document->fromArray($data);
         }
         else {
             // save data
