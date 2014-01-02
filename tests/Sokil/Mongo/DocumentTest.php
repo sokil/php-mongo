@@ -75,6 +75,61 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     }
     
+    public function testSet()
+    {
+        $document = self::$collection->createDocument(array(
+            'param' => 'value',
+        ));
+        
+        $document->set('a.b.c', 'value1');
+        $this->assertEquals('value1', $document->get('a.b.c'));
+        $this->assertEquals(array('c' => 'value1'), $document->get('a.b'));
+        $this->assertEquals(array('b' => array('c' => 'value1')), $document->get('a'));
+        
+        $document->set('a.b.c', 'value2');
+        $this->assertEquals('value2', $document->get('a.b.c'));
+        $this->assertEquals(array('c' => 'value2'), $document->get('a.b'));
+        $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
+        
+        self::$collection->saveDocument($document);
+        $document = self::$collection->getDocument($document->getId());
+        
+        $document->set('a.b.c', 'value1');
+        $this->assertEquals('value1', $document->get('a.b.c'));
+        $this->assertEquals(array('c' => 'value1'), $document->get('a.b'));
+        $this->assertEquals(array('b' => array('c' => 'value1')), $document->get('a'));
+        
+        $document->set('a.b.c', 'value2');
+        $this->assertEquals('value2', $document->get('a.b.c'));
+        $this->assertEquals(array('c' => 'value2'), $document->get('a.b'));
+        $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
+    }
+    
+    public function testAppend()
+    {
+        $document = self::$collection->createDocument(array(
+            'param' => 'value',
+        ));
+        
+        $document->append('a.b.c', 'value1');
+        $this->assertEquals('value1', $document->get('a.b.c'));
+        $this->assertEquals(array('c' => 'value1'), $document->get('a.b'));
+        $this->assertEquals(array('b' => array('c' => 'value1')), $document->get('a'));
+        
+        $document->append('a.b.c', 'value2');
+        $this->assertEquals(array('value1', 'value2'), $document->get('a.b.c'));
+        $this->assertEquals(array('c' => array('value1', 'value2')), $document->get('a.b'));
+        $this->assertEquals(array('b' => array('c' => array('value1', 'value2'))), $document->get('a'));
+        
+        self::$collection->saveDocument($document);
+        $document = self::$collection->getDocument($document->getId());
+        
+        $document->append('a.b.c', 'value3');
+        $this->assertEquals(array('value1', 'value2', 'value3'), $document->get('a.b.c'));
+        $this->assertEquals(array('c' => array('value1', 'value2', 'value3')), $document->get('a.b'));
+        $this->assertEquals(array('b' => array('c' => array('value1', 'value2', 'value3'))), $document->get('a'));
+    }
+    
     public function testIsValid_RequiredField()
     {
         // mock of document

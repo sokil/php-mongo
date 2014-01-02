@@ -425,6 +425,18 @@ class Document extends Structure
         return $this;
     }
     
+    public function append($selector, $value)
+    {
+        parent::append($selector, $value);
+        
+        // if document saved - save through update
+        if($this->getId()) {
+            $this->_addSetUpdateOperation($selector, $this->get($selector));
+        }
+        
+        return $this;
+    }
+    
     /**
      * Push argument as single element to field value
      * 
