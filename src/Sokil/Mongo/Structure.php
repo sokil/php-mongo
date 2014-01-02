@@ -166,6 +166,21 @@ class Structure
         
         return $this;
     }
+    
+    public function append($selector, $value)
+    {
+        $oldValue = $this->get($selector);
+        if($oldValue) {
+            if(!is_array($oldValue)) {
+                $oldValue = (array) $oldValue;
+            }
+            $oldValue[] = $value;
+            $value = $oldValue;
+        }
+        
+        $this->set($selector, $value);
+        return $this;
+    }
         
     public function toArray()
     {

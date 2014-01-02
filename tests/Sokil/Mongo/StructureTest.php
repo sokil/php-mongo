@@ -45,6 +45,23 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         ), $structure->toArray());
     }
     
+    public function testAppend()
+    {
+        $structure = new Structure;
+        
+        $structure->append('key', 'v1');
+        $this->assertEquals('v1', $structure->key);
+        
+        $structure->append('key', 'v2');
+        $this->assertEquals(array('v1', 'v2'), $structure->key);
+        
+        $structure->set('key', 'v1');
+        $this->assertEquals('v1', $structure->key);
+        
+        $structure->append('key', 'v2');
+        $this->assertEquals(array('v1', 'v2'), $structure->key);
+    }
+    
     public function testGet()
     {
         $structure = new Structure;
