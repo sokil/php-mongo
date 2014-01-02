@@ -123,17 +123,26 @@ class Collection
         $document->beforeSave();
         
         // apply update operations
-        if($document->hasUpdateOperations()) {            
-            $status = $this->_collection->update(array('_id' => $document->getId()), $document->getUpdateOperations());
+        if($document->hasUpdateOperations()) {
+            
+            $updateOperations = $document->getUpdateOperations();
+            
+            $status = $this->_collection->update(
+                array('_id' => $document->getId()),
+                $updateOperations
+            );
+            
             if($status['ok'] != 1) {
                 throw new Exception($status['err']);
             }
             
             $document->resetUpdateOperations();
             
-            // get updated data
-            $data = $this->_collection->findOne(array('_id' => $document->getId()));
-            $document->fromArray($data);
+            // get updated data if some field incremented
+            if(isset($updateOperations['$inc'])) {
+                $data = $this->_collection->findOne(array('_id' => $document->getId()));
+                $document->fromArray($data);
+            }
         }
         else {
             // save data

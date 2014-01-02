@@ -323,19 +323,49 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIncrement()
     {
         // create document
-        $doc = self::$collection->createDocument(array('i' => 100));
+        $doc = self::$collection->createDocument(array('i' => 1));
+        
+        // increment unsaved
+        $doc->increment('i', 2);
+        $doc->increment('i', 4);
+        $doc->set('j', 8);
+        
+        // test unsaved
+        $this->assertEquals(7, $doc->get('i'));
+        $this->assertEquals(8, $doc->get('j'));
+        
+        // save
         self::$collection->saveDocument($doc);
         
-        // increment
-        $doc->increment('i', 23);
-        $doc->set('j', 77);
-        self::$collection->saveDocument($doc);
-        
-        // check
+        // test saved
         $doc = self::$collection->getDocument($doc->getId());
         
-        $this->assertEquals(123, $doc->i);
-        $this->assertEquals(77, $doc->j);
+        $this->assertEquals(7, $doc->get('i'));
+        $this->assertEquals(8, $doc->get('j'));
+        
+        // increment saved
+        $doc->increment('i', 16); // existed key
+        $doc->increment('i', 32);
+        
+        $doc->increment('j', 64); // unexisted key
+        $doc->increment('j', 128);
+        
+        $doc->set('k', 256); // set new key
+        
+        // test unsaved
+        $this->assertEquals(55, $doc->get('i'));
+        $this->assertEquals(200, $doc->get('j'));
+        $this->assertEquals(256, $doc->get('k'));
+        
+        // save
+        self::$collection->saveDocument($doc);
+        
+        // test saved
+        $doc = self::$collection->getDocument($doc->getId());
+        
+        $this->assertEquals(55, $doc->get('i'));
+        $this->assertEquals(200, $doc->get('j'));
+        $this->assertEquals(256, $doc->get('k'));
     }
     
     public function testPushSingleToEmptyOnExistedDocument()
@@ -349,9 +379,10 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         // push single to empty
         $doc->push('key', 1);
+        $doc->push('key', 1);
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array(1), self::$collection->getDocument($doc->getId())->key);
+        $this->assertEquals(array(1, 1), self::$collection->getDocument($doc->getId())->key);
         
     }
     

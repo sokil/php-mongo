@@ -296,32 +296,83 @@ class Document extends Structure
         return $this;
     }
     
-    /**
-     * Update value in local cache and in DB
-     * 
-     * @param type $selector
-     * @param type $value
-     * @return \Sokil\Mongo\Document
-     */
-    public function set($selector, $value)
-    {
-        parent::set($selector, $value);
-        
-        // if document saved - save through update
-        if($this->getId()) {
-            $this->addUpdateOperation('$set', $selector, $value);
+    protected function _addSetUpdateOperation($fieldName, $value)
+    {        
+        if(!isset($this->_updateOperators['$set'])) {
+            $this->_updateOperators['$set'] = array();
         }
+        
+        $this->_updateOperators['$set'][$fieldName] = $value;
         
         return $this;
     }
     
-    private function addUpdateOperation($operation, $fieldName, $value)
-    {        
-        if(!isset($this->_updateOperators[$operation])) {
-            $this->_updateOperators[$operation] = array();
+    protected function _addPushUpdateOperation($fieldName, $value)
+    {
+        // no $push operator found
+        if(!isset($this->_updateOperators['$push'])) {
+            $this->_updateOperators['$push'] = array();
         }
         
-        $this->_updateOperators[$operation][$fieldName] = $value;
+        // no field name found
+        if(!isset($this->_updateOperators['$push'][$fieldName])) {
+            $this->_updateOperators['$push'][$fieldName] = $value;
+        }
+        
+        // field name found and has single value
+        else if(!isset($this->_updateOperators['$push'][$fieldName]['$each'])) {
+            $oldValue = $this->_updateOperators['$push'][$fieldName];
+            $this->_updateOperators['$push'][$fieldName] = array(
+                '$each' => array($oldValue, $value)
+            );
+        }
+        
+        // field name found and already $each
+        else {
+            $this->_updateOperators['$push'][$fieldName]['$each'][] = $value;
+        }
+    }
+    
+    protected function _addPushEachUpdateOperation($fieldName, array $value)
+    {
+        // no $push operator found
+        if(!isset($this->_updateOperators['$push'])) {
+            $this->_updateOperators['$push'] = array();
+        }
+        
+        // no field name found
+        if(!isset($this->_updateOperators['$push'][$fieldName])) {
+            $this->_updateOperators['$push'][$fieldName] = array(
+                '$each' => $value
+            );
+        }
+        
+        // field name found and has single value
+        else if(!isset($this->_updateOperators['$push'][$fieldName]['$each'])) {
+            $oldValue = $this->_updateOperators['$push'][$fieldName];
+            $this->_updateOperators['$push'][$fieldName] = array(
+                '$each' => array_merge(array($oldValue), $value)
+            );
+        }
+        
+        // field name found and already $each
+        else {
+            $this->_updateOperators['$push'][$fieldName]['$each'] = array_merge(
+                $this->_updateOperators['$push'][$fieldName]['$each'],
+                $value
+            );
+        }
+    }
+    
+    public function _addIncUpdateOperation($selector, $value)
+    {
+        // check if update operations already added
+        $oldIncrementValue = $this->getUpdateOperation('$inc', $selector);
+        if($oldIncrementValue) {
+            $value = $oldIncrementValue + $value;
+        }
+        
+        $this->_updateOperators['$inc'][$selector] = $value;
         
         return $this;
     }
@@ -337,9 +388,41 @@ class Document extends Structure
         return $this;
     }
     
+    public function getUpdateOperation($operation, $fieldName = null)
+    {
+        if($fieldName) {
+            return isset($this->_updateOperators[$operation][$fieldName])
+                ? $this->_updateOperators[$operation][$fieldName]
+                : null;
+        }
+        
+        return isset($this->_updateOperators[$operation]) 
+            ? $this->_updateOperators[$operation]
+            : null;
+    }
+    
     public function getUpdateOperations()
     {
         return $this->_updateOperators;
+    }
+        
+    /**
+     * Update value in local cache and in DB
+     * 
+     * @param type $selector
+     * @param type $value
+     * @return \Sokil\Mongo\Document
+     */
+    public function set($selector, $value)
+    {
+        parent::set($selector, $value);
+        
+        // if document saved - save through update
+        if($this->getId()) {
+            $this->_addSetUpdateOperation($selector, $value);
+        }
+        
+        return $this;
     }
     
     /**
@@ -359,31 +442,26 @@ class Document extends Structure
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {
-                $this->addUpdateOperation('$push', $selector, $value);
+                $this->_addPushUpdateOperation($selector, $value);
             }
-            else {
-                $value = array($value);
-            }
+            $value = array($value);
         }
         // field already exist and has single value
         elseif(!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, array($value));
-            
             if($this->getId()) {
-                $this->addUpdateOperation('$set', $selector, $value);
+                $this->_addSetUpdateOperation($selector, $value);
             }
         }
         // field exists and is array
         else {
             if($this->getId()) {
-                $this->addUpdateOperation('$push', $selector, $value);
+                $this->_addPushUpdateOperation($selector, $value);
             }
-            else {
-                $value = array_merge($oldValue, array($value));
-            }
+            $value = array_merge($oldValue, array($value));
         }
         
-        // set local data
+        // update local data
         parent::set($selector, $value);
     }
     
@@ -401,41 +479,46 @@ class Document extends Structure
             $value = $value->toArray();
         }
         
-        // field already exist and has single value
-        if($oldValue && !is_array($oldValue)) {
+        // field not exists
+        if(!$oldValue) {
             if($this->getId()) {
-                $value = array_merge((array) $oldValue, $value);
-                $this->addUpdateOperation('$set', $selector, $value);
-            }
-        }
-        // field not exists or already an array
-        else {
-            if($this->getId()) {
-                $this->addUpdateOperation('$push', $selector, array('$each' => $value));
+                $this->_addPushUpdateOperation($selector, array('$each' => $value));
             }
             
         }
+        // field already exist and has single value
+        else if(!is_array($oldValue)) {
+            $value = array_merge((array) $oldValue, $value);
+            if($this->getId()) {
+                $this->_addSetUpdateOperation($selector, $value);
+            }
+        }
+        // field already exists and is array
+        else {
+            if($this->getId()) {
+                $this->_addPushUpdateOperation($selector, array('$each' => $value));
+            }
+            $value = array_merge($oldValue, $value);
+        }
         
+        // update local data
         parent::set($selector, $value);
     }
     
     public function increment($selector, $value = 1)
     {
-        return $this->addUpdateOperation('$inc', $selector, $value);
+        parent::set($selector, (int) $this->get($selector) + $value);
+        
+        if($this->getId()) {
+            $this->_addIncUpdateOperation($selector, $value);
+        }
+
+        
+        return $this; 
     }
     
     public function decrement($selector, $value = 1)
     {
-        return $this->addUpdateOperation('$inc', $selector, -1 * abs($value));
-    }
-    
-    public function fromArray(array $data)
-    {
-        parent::fromArray($data);
-        
-        // if document loaded from array - save entire document instead of sending commands
-        $this->resetUpdateOperations();
-        
-        return $this;
+        return $this->increment($selector, -1 * $value);
     }
 }
