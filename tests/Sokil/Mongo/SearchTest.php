@@ -80,4 +80,20 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('array', gettype($document));
         
     }
+    
+    public function testSearchInArrayField()
+    {
+        // create document
+        $document = self::$collection->createDocument();
+        
+        $document->push('param', 'value1');
+        $document->push('param', 'value2');
+        
+        self::$collection->saveDocument($document);
+        
+        // find document
+        $document = self::$collection->find()->where('param', 'value1')->findOne();
+        
+        $this->assertEquals(array('value1', 'value2'), $document->param);
+    }
 }
