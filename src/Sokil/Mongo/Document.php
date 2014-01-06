@@ -320,7 +320,7 @@ class Document extends Structure
         }
         
         // field name found and has single value
-        else if(!isset($this->_updateOperators['$push'][$fieldName]['$each'])) {
+        else if(!is_array($this->_updateOperators['$push'][$fieldName]) || !isset($this->_updateOperators['$push'][$fieldName]['$each'])) {
             $oldValue = $this->_updateOperators['$push'][$fieldName];
             $this->_updateOperators['$push'][$fieldName] = array(
                 '$each' => array($oldValue, $value)
@@ -468,7 +468,16 @@ class Document extends Structure
         // field exists and is array
         else {
             if($this->getId()) {
-                $this->_addPushUpdateOperation($selector, $value);
+                // check if array because previous $set operation on single value was executed
+                $setValue = $this->getUpdateOperation('$set', $selector);
+                if($setValue) {
+                    $setValue[] = $value;
+                    $this->_addSetUpdateOperation($selector, $setValue);
+                }
+                else {
+                    $this->_addPushUpdateOperation($selector, $value);
+                }
+                
             }
             $value = array_merge($oldValue, array($value));
         }
