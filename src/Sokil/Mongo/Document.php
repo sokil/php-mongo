@@ -42,9 +42,21 @@ class Document extends Structure
     
     public function afterConstruct() {}
     
+    public function beforeInsert() {}
+    
+    public function afterInsert() {}
+    
+    public function beforeUpdate() {}
+    
+    public function afterUpdate() {}
+    
     public function beforeSave() {}
     
     public function afterSave() {}
+    
+    public function beforeDelete() {}
+    
+    public function afterDelete() {}
     
     public function getId()
     {

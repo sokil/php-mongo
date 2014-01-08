@@ -124,34 +124,53 @@ class Collection
         // handle beforeSave event
         $document->beforeSave();
         
-        // apply update operations
-        if($document->hasUpdateOperations()) {
+        // update
+        if($document->getId()) {
             
-            $updateOperations = $document->getUpdateOperations();
+            $document->beforeUpdate();
             
-            $status = $this->_collection->update(
-                array('_id' => $document->getId()),
-                $updateOperations
-            );
-            
-            if($status['ok'] != 1) {
-                throw new Exception($status['err']);
+            if($document->hasUpdateOperations()) {
+                
+                $updateOperations = $document->getUpdateOperations();
+                
+                $status = $this->_collection->update(
+                    array('_id' => $document->getId()),
+                    $updateOperations
+                );
+                
+                if($status['ok'] != 1) {
+                    throw new Exception($status['err']);
+                }
+                
+                $document->resetUpdateOperations();
+                
+                // get updated data if some field incremented
+                if(isset($updateOperations['$inc'])) {
+                    $data = $this->_collection->findOne(array('_id' => $document->getId()));
+                    $document->fromArray($data);
+                }
             }
-            
-            $document->resetUpdateOperations();
-            
-            // get updated data if some field incremented
-            if(isset($updateOperations['$inc'])) {
-                $data = $this->_collection->findOne(array('_id' => $document->getId()));
-                $document->fromArray($data);
+            else {
+                $status = $this->_collection->save($document->toArray());
+                if($status['ok'] != 1) {
+                    throw new Exception($status['err']);
+                }
             }
+
+            $document->afterUpdate();
         }
+        // insert
         else {
+            
+            $document->beforeInsert();
+            
             // save data
             $status = $this->_collection->save($data);
             if($status['ok'] != 1) {
                 throw new Exception($status['err']);
             }
+            
+            $document->afterInsert();
         }
         
         // handle afterSave event
@@ -163,23 +182,15 @@ class Collection
         return $this;
     }
     
-    public function deleteDocument($document)
-    {
-        if($document instanceof Document) {
-            $document = $document->getId();
-            
-            if(!$document) {
-                throw new Exception('Document not saved');
-            }
-        }
-        
-        elseif(!($document instanceof \MongoId)) {
-            $document = new \MongoId($document);
-        }
+    public function deleteDocument(Document $document)
+    {        
+        $document->beforeDelete();
         
         $status = $this->_collection->remove(array(
-            '_id'   => $document
+            '_id'   => $document->getId()
         ));
+        
+        $document->afterDelete();
         
         if($status['ok'] != 1) {
             throw new Exception($status['err']);
