@@ -136,7 +136,7 @@ class Search implements \Iterator, \Countable
         }
         
         $className = $this->_collection
-            ->getDocumentClassName();
+            ->getDocumentClassName($documentData);
         
         return new $className($documentData);
     }
