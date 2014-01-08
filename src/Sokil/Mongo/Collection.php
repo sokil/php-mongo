@@ -113,9 +113,11 @@ class Collection
      * @throws \Sokil\Mongo\Exception
      * @throws \Sokil\Mongo\Document\Exception\Validate
      */
-    public function saveDocument(Document $document)
+    public function saveDocument(Document $document, $validate = true)
     {
-        $document->validate();
+        if($validate) {
+            $document->validate();
+        }
         
         $data = $document->toArray();
         
