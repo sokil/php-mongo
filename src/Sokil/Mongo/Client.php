@@ -4,6 +4,14 @@ namespace Sokil\Mongo;
 
 class Client
 {
+    private $_dsn;
+    
+    private $_connectOptions = array('connect' => true);
+    
+    /**
+     *
+     * @var \MongoClient
+     */
     private $_connection;
     
     private $_databasePool = array();
@@ -18,8 +26,46 @@ class Client
      * @param type $dsn
      * @param array $options
      */
-    public function __construct($dsn, array $options = array('connect' => true)) {
-        $this->_connection = new \MongoClient($dsn, $options);
+    public function __construct($dsn = null, array $options = null) {
+        if($dsn) {
+            $this->setDsn($dsn);
+        }
+        
+        if($options) {
+            $this->setConnectOptions($options);
+        }
+    }
+    
+    public function setDsn($dsn)
+    {
+        $this->_dsn = $dsn;
+        return $this;
+    }
+    
+    public function setConnectOptions(array $options)
+    {
+        $this->_connectOptions = $options;
+        return $this;
+    }
+    
+    public function setConnection(\MongoClient $client)
+    {
+        $this->_connection = $client;
+        return $this;
+    }
+    
+    public function getConnection()
+    {
+        if(!$this->_connection) {
+            
+            if(!$this->_dsn) {
+                throw new Exception('DSN not specified');
+            }
+            
+            $this->_connection = new \MongoClient($this->_dsn, $this->_connectOptions);
+        }
+        
+        return $this->_connection;
     }
     
     /**
@@ -56,7 +102,7 @@ class Client
                 $className = '\Sokil\Mongo\Database';
             }
             
-            $this->_databasePool[$name] = new $className($this->_connection->selectDB($name));
+            $this->_databasePool[$name] = new $className($this->getConnection()->selectDB($name));
         }
         
         return $this->_databasePool[$name];
@@ -64,31 +110,31 @@ class Client
     
     public function readPrimaryOnly()
     {
-        $this->_connection->setReadPreference(\MongoClient::RP_PRIMARY);
+        $this->getConnection()->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
     
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->_connection->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+        $this->getConnection()->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
     
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->_connection->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+        $this->getConnection()->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
     
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->_connection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        $this->getConnection()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
     
     public function readNearest(array $tags = null)
     {
-        $this->_connection->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+        $this->getConnection()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
 }
