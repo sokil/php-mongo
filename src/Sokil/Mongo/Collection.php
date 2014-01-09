@@ -101,7 +101,7 @@ class Collection
      */
     public function getDocuments(array $idList)
     {
-        return $this->find()->byIdList($idList)->findOne();
+        return $this->find()->byIdList($idList)->findAll();
     }
     
     /**
