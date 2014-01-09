@@ -12,6 +12,10 @@ class Search implements \Iterator, \Countable
     
     private $_fields = array();
     
+    /**
+     *
+     * @var \MongoCursor
+     */
     private $_cursor;
     
     private $_query = array();
@@ -21,6 +25,8 @@ class Search implements \Iterator, \Countable
     private $_limit = 0;
     
     private $_sort = array();
+    
+    private $_readPreferences = array();
     
     /**
      *
@@ -111,6 +117,12 @@ class Search implements \Iterator, \Countable
             $this->_cursor->sort($this->_sort);
         }
         
+        if($this->_readPreferences) {
+            foreach($this->_readPreferences as $readPreference => $tags) {
+                $this->_cursor->setReadPreference($readPreference, $tags);
+            }
+        }
+        
         return $this->_cursor;
     }
     
@@ -185,5 +197,35 @@ class Search implements \Iterator, \Countable
     public function valid()
     {
         return $this->getCursor()->valid();
+    }
+    
+    public function readPrimaryOnly()
+    {
+        $this->_readPreferences[\MongoClient::RP_PRIMARY] = null;
+        return $this;
+    }
+    
+    public function readPrimaryPreferred(array $tags = null)
+    {
+        $this->_readPreferences[\MongoClient::RP_PRIMARY_PREFERRED] = $tags;
+        return $this;
+    }
+    
+    public function readSecondaryOnly(array $tags = null)
+    {
+        $this->_readPreferences[\MongoClient::RP_SECONDARY] = $tags;
+        return $this;
+    }
+    
+    public function readSecondaryPreferred(array $tags = null)
+    {
+        $this->_readPreferences[\MongoClient::RP_SECONDARY_PREFERRED] = $tags;
+        return $this;
+    }
+    
+    public function readNearest(array $tags = null)
+    {
+        $this->_readPreferences[\MongoClient::RP_NEAREST] = $tags;
+        return $this;
     }
 }
