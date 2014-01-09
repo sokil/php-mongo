@@ -96,4 +96,27 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(array('value1', 'value2'), $document->param);
     }
+    
+    public function testWhereIn()
+    {
+        // create new document
+        self::$collection->delete();
+        
+        $document = self::$collection->createDocument(array(
+            'param'    => 'value1',
+        ));
+        
+        self::$collection->saveDocument($document);
+        
+        $documentId = $document->getId();
+        
+        // find all rows
+        $document = self::$collection->find()
+            ->whereIn('param', array('value1', 'value2', 'value3'))
+            ->findOne();
+        
+        $this->assertNotEmpty($document);
+        
+        $this->assertEquals($documentId, $document->getId());
+    }
 }

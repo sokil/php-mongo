@@ -90,20 +90,18 @@ class Collection
      */
     public function getDocument($id)
     {
-        if(!($id instanceof \MongoId)) {
-            $id = new \MongoId($id);
-        }
-        
-        $data = $this->_collection->findOne(array(
-            '_id'   => $id
-        ));
-        
-        if(!$data) {
-            return null;
-        }
-        
-        $className = $this->getDocumentClassName($data);
-        return new $className($data);
+        return $this->find()->byId($id)->findOne();
+    }
+    
+    /**
+     * Get document by id
+     * 
+     * @param string|MongoId $id
+     * @return \Sokil\Mongo\_docClass|null
+     */
+    public function getDocuments(array $idList)
+    {
+        return $this->find()->byIdList($idList)->findOne();
     }
     
     /**

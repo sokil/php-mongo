@@ -50,9 +50,9 @@ class Search implements \Iterator, \Countable
         $this->_fields = $fields;
     }
     
-    public function where($field, $condition)
+    public function where($field, $value)
     {
-        $this->_query[$field] = $condition;
+        $this->_query[$field] = $value;
         
         return $this;
     }
@@ -63,6 +63,11 @@ class Search implements \Iterator, \Countable
             array($field => null),
             array($field => ''),
         ));
+    }
+    
+    public function whereIn($field, array $values)
+    {
+        return $this->where($field, array('$in' => $values));
     }
     
     public function skip($skip)
@@ -88,6 +93,26 @@ class Search implements \Iterator, \Countable
         $this->_sort = $sort;
         
         return $this;
+    }
+    
+    public function byId($id)
+    {
+        if(!($id instanceof \MongoId)) {
+            $id = new \MongoId($id);
+        }
+        
+        return $this->where('_id', $id);
+    }
+    
+    public function byIdList(array $idList)
+    {
+        return $this->whereIn('_id', array_map(function($id) {
+            if($id instanceof \MongoId) {
+                return $id;
+            }
+            
+            return new \MongoId($id);
+        }, $idList));
     }
     
     /**
