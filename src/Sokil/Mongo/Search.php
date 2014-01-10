@@ -57,6 +57,11 @@ class Search implements \Iterator, \Countable
         return $this;
     }
     
+    public function whereNot($field, array $values)
+    {
+        return $this->where($field, array('$ne' => $values));
+    }
+    
     public function whereEmpty($field)
     {
         return $this->where('$or', array(
@@ -69,6 +74,7 @@ class Search implements \Iterator, \Countable
     {
         return $this->where($field, array('$in' => $values));
     }
+    
     
     public function skip($skip)
     {
