@@ -57,9 +57,9 @@ class Search implements \Iterator, \Countable
         return $this;
     }
     
-    public function whereNot($field, array $values)
+    public function whereNot($field, $value)
     {
-        return $this->where($field, array('$ne' => $values));
+        return $this->where($field, array('$ne' => $value));
     }
     
     public function whereEmpty($field)
