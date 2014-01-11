@@ -75,6 +75,31 @@ class Search implements \Iterator, \Countable
         return $this->where($field, array('$in' => $values));
     }
     
+    public function whereNotIn($field, array $values)
+    {
+        return $this->where($field, array('$nin' => $values));
+    }
+    
+    public function whereLike($field, $regex, $caseInsensitive = true)
+    {
+        // regex
+        $query = array(
+            '$regex'    => $regex,
+        );
+        
+        // options
+        $options = '';
+        
+        if($caseInsensitive) {
+            $options .= 'i';
+        }
+        
+        $query['$options'] = $options;
+        
+        // query
+        return $this->where($field, $query);
+    }
+    
     
     public function skip($skip)
     {
