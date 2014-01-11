@@ -140,15 +140,30 @@ class Search implements \Iterator, \Countable
         return $this->where('_id', $id);
     }
     
-    public function byIdList(array $idList)
+    /**
+     * get list of MongoId objects from array of strings, MongoId's and Document's
+     * 
+     * @param array $list
+     * @return type
+     */
+    public function getIdList(array $list)
     {
-        return $this->whereIn('_id', array_map(function($id) {
-            if($id instanceof \MongoId) {
-                return $id;
+        return array_map(function($element) {
+            if($element instanceof \MongoId) {
+                return $element;
             }
             
-            return new \MongoId($id);
-        }, $idList));
+            if($element instanceof Document) {
+                return $element->getId();
+            }
+            
+            return new \MongoId($element);
+        }, $list);
+    }
+    
+    public function byIdList(array $idList)
+    {
+        return $this->whereIn('_id', $this->getIdList($idList));
     }
     
     /**
