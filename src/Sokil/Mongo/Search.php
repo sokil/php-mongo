@@ -52,7 +52,12 @@ class Search implements \Iterator, \Countable
     
     public function where($field, $value)
     {
-        $this->_query[$field] = $value;
+        if(!isset($this->_query[$field]) || !is_array($value) || !is_array($this->_query[$field])) {
+            $this->_query[$field] = $value;
+        }
+        else {
+            $this->_query[$field] = array_merge($this->_query[$field], $value);
+        }
         
         return $this;
     }

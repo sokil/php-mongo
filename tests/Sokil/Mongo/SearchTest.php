@@ -119,4 +119,82 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals($documentId, $document->getId());
     }
+    
+    public function testWhereNotIn()
+    {
+        // create new document
+        self::$collection->delete();
+        
+        $document = self::$collection->createDocument(array(
+            'param'    => 'value',
+        ));
+        
+        self::$collection->saveDocument($document);
+        
+        $documentId = $document->getId();
+        
+        // find all rows
+        $document = self::$collection->find()
+            ->whereNotIn('param', array('value1', 'value2', 'value3'))
+            ->findOne();
+        
+        $this->assertNotEmpty($document);
+        
+        $this->assertEquals($documentId, $document->getId());
+    }
+    
+    public function testWhereLike()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => 'abcd',
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // find all rows
+        $document = self::$collection->find()
+            ->whereLike('param', 'ab[a-z]{2}')
+            ->findOne();
+        
+        $this->assertEquals($documentId, $document->getId());
+    }
+    
+    public function testCombinedWhereWithLikeAndNotIn()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => 'abcd',
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // try to found - must be empty result
+        $document= self::$collection->find()
+            ->whereLike('param', 'wrongregex[a-z]{2}')
+            ->whereNotIn('param', array('abzz'))
+            ->findOne();
+        
+        $this->assertEmpty($document);
+        
+        // try to found - must be empty result
+        $document= self::$collection->find()
+            ->whereLike('param', 'ab[a-z]{2}')
+            ->whereNotIn('param', array('abcd'))
+            ->findOne();
+        
+        $this->assertEmpty($document);
+        
+        // try to found - must be one result
+        $document = self::$collection->find()
+            ->whereLike('param', 'ab[a-z]{2}')
+            ->whereNotIn('param', array('abzz'))
+            ->findOne();
+        
+        $this->assertEquals($documentId, $document->getId());
+    }
 }
