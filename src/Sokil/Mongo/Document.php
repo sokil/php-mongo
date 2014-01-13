@@ -24,13 +24,15 @@ class Document extends Structure
      */
     private $_updateOperators = array();
     
+    private $_events = array();
+    
     public function __construct(array $data = null) {
         
-        $this->beforeConstruct();
+        $this->triggerEvent('beforeConstruct');
         
         parent::__construct($data);
         
-        $this->afterConstruct();
+        $this->triggerEvent('afterConstruct');
     }
     
     public function __toString()
@@ -38,25 +40,84 @@ class Document extends Structure
         return (string) $this->getId();
     }
     
-    public function beforeConstruct() {}
+    public function attachEvent($event, $handler)
+    {
+        $this->_events[$event][] = $handler;
+        return $this;
+    }
     
-    public function afterConstruct() {}
+    public function triggerEvent($event)
+    {
+        if(empty($this->_events[$event])) {
+            return $this;
+        }
+        
+        foreach($this->_events[$event] as $handler) {
+            call_user_func($handler);
+        }
+        
+        return $this;
+    }
     
-    public function beforeInsert() {}
+    public function onBeforeConstruct($handler) 
+    {
+        $this->_events['beforeConstruct'][] = $handler;
+        return $this;
+    }
     
-    public function afterInsert() {}
+    public function onAfterConstruct($handler)
+    {
+        $this->_events['afterConstruct'][] = $handler;
+        return $this;
+    }
     
-    public function beforeUpdate() {}
+    public function onBeforeInsert($handler)
+    {
+        $this->_events['beforeInsert'][] = $handler;
+        return $this;
+    }
     
-    public function afterUpdate() {}
+    public function onAfterInsert($handler)
+    {
+        $this->_events['afterInsert'][] = $handler;
+        return $this;
+    }
     
-    public function beforeSave() {}
+    public function onBeforeUpdate($handler)
+    {
+        $this->_events['beforeUpdate'][] = $handler;
+        return $this;
+    }
     
-    public function afterSave() {}
+    public function onAfterUpdate($handler)
+    {
+        $this->_events['afterUpdate'][] = $handler;
+        return $this;
+    }
     
-    public function beforeDelete() {}
+    public function onBeforeSave($handler)
+    {
+        $this->_events['beforeSave'][] = $handler;
+        return $this;
+    }
     
-    public function afterDelete() {}
+    public function onAfterSave($handler)
+    {
+        $this->_events['afterSave'][] = $handler;
+        return $this;
+    }
+    
+    public function onBeforeDelete($handler)
+    {
+        $this->_events['beforeDelete'][] = $handler;
+        return $this;
+    }
+    
+    public function onAfterDelete($handler)
+    {
+        $this->_events['afterDelete'][] = $handler;
+        return $this;
+    }
     
     public function getId()
     {

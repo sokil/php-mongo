@@ -120,12 +120,12 @@ class Collection
         $data = $document->toArray();
         
         // handle beforeSave event
-        $document->beforeSave();
+        $document->triggerEvent('beforeSave');
         
         // update
         if($document->getId()) {
             
-            $document->beforeUpdate();
+            $document->triggerEvent('beforeUpdate');
             
             if($document->hasUpdateOperations()) {
                 
@@ -155,12 +155,12 @@ class Collection
                 }
             }
 
-            $document->afterUpdate();
+            $document->triggerEvent('afterUpdate');
         }
         // insert
         else {
             
-            $document->beforeInsert();
+            $document->triggerEvent('beforeInsert');
             
             // save data
             $status = $this->_collection->save($data);
@@ -168,11 +168,11 @@ class Collection
                 throw new Exception($status['err']);
             }
             
-            $document->afterInsert();
+            $document->triggerEvent('afterInsert');
         }
         
         // handle afterSave event
-        $document->afterSave();
+        $document->triggerEvent('afterSave');
         
         // set id
         $document->setId($data['_id']);
@@ -182,13 +182,13 @@ class Collection
     
     public function deleteDocument(Document $document)
     {        
-        $document->beforeDelete();
+        $document->triggerEvent('beforeDelete');
         
         $status = $this->_collection->remove(array(
             '_id'   => $document->getId()
         ));
         
-        $document->afterDelete();
+        $document->triggerEvent('afterDelete');
         
         if($status['ok'] != 1) {
             throw new Exception($status['err']);
