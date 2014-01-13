@@ -243,8 +243,18 @@ class Search implements \Iterator, \Countable
     
     public function findRandom()
     {
+        $count = $this->count();
+        
+        if(!$count) {
+            return null;
+        }
+        
+        if(1 === $count) {
+            return $this->findOne();
+        }
+        
         return $this
-            ->skip(mt_rand(0, $this->count() - 1))
+            ->skip(mt_rand(0, $count - 1))
             ->limit(1)
             ->current();
     }

@@ -65,9 +65,16 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         ));
         self::$collection->saveDocument($document3);
         
-        // find random document
+        // find unexisted random document
+        $document = self::$collection->find()->where('pZZZ', 'v')->findRandom();
+        $this->assertEmpty($document);
+        
+        // find random documents if only one document match query
+        $document = self::$collection->find()->where('p1', 'other_v')->findRandom();
+        $this->assertEquals($document->getId(), $document3->getId());
+        
+        // find random document among two existed documents
         $document = self::$collection->find()->where('p1', 'v')->findRandom();
-
         $this->assertTrue(in_array($document->getId(), array($document1->getId(), $document2->getId())));
     }
     
