@@ -193,6 +193,9 @@ class Search implements \Iterator, \Countable
             $this->_cursor->sort($this->_sort);
         }
         
+        $this->_cursor->rewind();
+        
+        // define read preferences
         if($this->_readPreferences) {
             foreach($this->_readPreferences as $readPreference => $tags) {
                 $this->_cursor->setReadPreference($readPreference, $tags);
@@ -236,6 +239,14 @@ class Search implements \Iterator, \Countable
     public function findAll()
     {
         return iterator_to_array($this);
+    }
+    
+    public function findRandom()
+    {
+        return $this
+            ->skip(mt_rand(0, $this->count() - 1))
+            ->limit(1)
+            ->current();
     }
     
     public function current()

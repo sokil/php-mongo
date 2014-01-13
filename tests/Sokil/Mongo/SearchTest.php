@@ -42,6 +42,35 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($document);
     }
     
+    public function testFindRandom()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document1 = self::$collection->createDocument(array(
+            'p1'    => 'v',
+            'p2'    => 'doc1',
+        ));
+        self::$collection->saveDocument($document1);
+        
+        $document2 = self::$collection->createDocument(array(
+            'p1'    => 'v',
+            'p2'    => 'doc2',
+        ));
+        self::$collection->saveDocument($document2);
+        
+        $document3 = self::$collection->createDocument(array(
+            'p1'    => 'other_v',
+            'p2'    => 'doc3',
+        ));
+        self::$collection->saveDocument($document3);
+        
+        // find random document
+        $document = self::$collection->find()->where('p1', 'v')->findRandom();
+
+        $this->assertTrue(in_array($document->getId(), array($document1->getId(), $document2->getId())));
+    }
+    
     public function testFindAll()
     {
         // create new document
