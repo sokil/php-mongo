@@ -62,6 +62,11 @@ class Search implements \Iterator, \Countable
         return $this;
     }
     
+    public function whereJsCondition($condition)
+    {
+        return $this->where('$where', $condition);
+    }
+    
     public function whereNot($field, $value)
     {
         return $this->where($field, array('$ne' => $value));
@@ -142,7 +147,7 @@ class Search implements \Iterator, \Countable
     
     public function whereArray($field)
     {
-        return $this->where('$where', 'Array.isArray(this.' . $field . ')');
+        return $this->whereJsCondition('Array.isArray(this.' . $field . ')');
     }
     
     public function whereArrayOfArrays($field)
