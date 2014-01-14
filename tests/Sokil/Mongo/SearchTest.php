@@ -198,6 +198,35 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($documentId, $document->getId());
     }
     
+    public function testFileType()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'f_double'          => 1.1,
+            'f_string'          => 'string',
+            'f_object'          => array('key' => 'value'),
+            'f_array'           => array(1, 2, 3),
+            'f_array_of_array'  => array(array(1, 2), array(3, 4)),
+            'f_objectId'        => new \MongoId,
+            'f_boolean'         => false,
+            'f_date'            => new \MongoDate,
+            'f_null'            => null,
+        ));
+        self::$collection->saveDocument($document);
+        
+        $this->assertNotEmpty(self::$collection->find()->whereDouble('f_double')->findOne());
+        $this->assertNotEmpty(self::$collection->find()->whereString('f_string')->findOne());
+        $this->assertNotEmpty(self::$collection->find()->whereObject('f_object')->findOne());
+        $this->assertNotEmpty(self::$collection->find()->whereArray('f_array')->findOne());
+        $this->assertNotEmpty(self::$collection->find()->whereArrayOfArrays('f_array_of_array')->findOne());
+        $this->assertNotEmpty(self::$collection->find()->whereObjectId('f_objectId')->findOne());
+        $this->assertNotEmpty(self::$collection->find()->whereBoolean('f_boolean')->findOne());
+        $this->assertNotEmpty(self::$collection->find()->whereDate('f_date')->findOne());
+        $this->assertNotEmpty(self::$collection->find()->whereNull('f_null')->findOne());
+    }
+    
     public function testCombinedWhereWithLikeAndNotIn()
     {
         self::$collection->delete();

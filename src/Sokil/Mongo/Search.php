@@ -105,14 +105,64 @@ class Search implements \Iterator, \Countable
         return $this->where($field, $query);
     }
     
-    public function whereFieldExists($field)
+    public function whereExists($field)
     {
         return $this->where($field, array('$exist' => true));
     }
     
-    public function whereFieldNotExists($field)
+    public function whereNotExists($field)
     {
         return $this->where($field, array('$exist' => false));
+    }
+    
+    public function whereHasType($field, $type)
+    {
+        return $this->where($field, array('$type' => (int) $type));
+    }
+    
+    public function whereDouble($field)
+    {
+        return $this->whereHasType($field, Document::FIELD_TYPE_DOUBLE);
+    }
+    
+    public function whereString($field)
+    {
+        return $this->whereHasType($field, Document::FIELD_TYPE_STRING);
+    }
+    
+    public function whereObject($field)
+    {
+        return $this->whereHasType($field, Document::FIELD_TYPE_OBJECT);
+    }
+    
+    public function whereBoolean($field)
+    {
+        return $this->whereHasType($field, Document::FIELD_TYPE_BOOLEAN);
+    }
+    
+    public function whereArray($field)
+    {
+        return $this->where('$where', 'Array.isArray(this.' . $field . ')');
+    }
+    
+    public function whereArrayOfArrays($field)
+    {
+        return $this->whereHasType($field, Document::FIELD_TYPE_ARRAY);
+    }
+    
+    public function whereObjectId($field)
+    {
+        return $this->whereHasType($field, Document::FIELD_TYPE_OBJECT_ID);
+    }
+    
+    public function whereDate($field)
+    {
+        return $this->whereHasType($field, Document::FIELD_TYPE_DATE);
+    }
+    
+    public function whereNull($field)
+    {
+        return $this->whereHasType($field, Document::FIELD_TYPE_NULL);
     }
     
     public function skip($skip)
