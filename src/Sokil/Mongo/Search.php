@@ -105,6 +105,15 @@ class Search implements \Iterator, \Countable
         return $this->where($field, $query);
     }
     
+    public function whereFieldExists($field)
+    {
+        return $this->where($field, array('$exist' => true));
+    }
+    
+    public function whereFieldNotExists($field)
+    {
+        return $this->where($field, array('$exist' => false));
+    }
     
     public function skip($skip)
     {
