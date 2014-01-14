@@ -22,6 +22,113 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         self::$collection = $database->getCollection('phpmongo_test_collection');
     }
     
+    public function testReturnSpecifiedFields()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'a'    => 'a1',
+            'b'    => 'b1',
+            'c'    => 'c1',
+            'd'    => 'd1',
+        ));
+        
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // fild some fields of document
+        $document = self::$collection->find()
+            ->fields(array(
+                'a', 'c'
+            ))
+            ->field('b')
+            ->findOne();
+        
+        $this->assertEquals(array(
+            'a'    => 'a1',
+            'b'    => 'b1',
+            'c'    => 'c1',
+            '_id'   => $documentId,
+        ), $document->toArray());
+    }
+    
+    public function testSkipSpecifiedFields()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'a'    => 'a1',
+            'b'    => 'b1',
+            'c'    => 'c1',
+            'd'    => 'd1',
+        ));
+        
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // fild some fields of document
+        $document = self::$collection->find()
+            ->skipFields(array(
+                'a', 'c'
+            ))
+            ->skipField('b')
+            ->findOne();
+        
+        $this->assertEquals(array(
+            'd'    => 'd1',
+            '_id'   => $documentId,
+        ), $document->toArray());
+    }
+    
+    /**
+     * @expectedException \MongoCursorException
+     */
+    public function testErrorOnAcceptedAndSkippedFieldsPassed()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'a'    => 'a1',
+            'b'    => 'b1',
+            'c'    => 'c1',
+            'd'    => 'd1',
+        ));
+        
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // fild some fields of document
+        $document = self::$collection->find()
+            ->fields(array(
+                'a', 'c'
+            ))
+            ->skipField('b')
+            ->findOne();
+    }
+    
+    public function testSlice()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'key'    => array('a', 'b', 'c', 'd', 'e', 'f'),
+        ));
+        
+        self::$collection->saveDocument($document);
+        
+        // only limit defined
+        $this->assertEquals(array('a', 'b'), self::$collection->find()->slice('key', 2)->findOne()->key);
+        $this->assertEquals(array('e', 'f'), self::$collection->find()->slice('key', -2)->findOne()->key);
+        
+        // limit and skip defined
+        $this->assertEquals(array('c'), self::$collection->find()->slice('key', 1, 2)->findOne()->key);
+        $this->assertEquals(array('e'), self::$collection->find()->slice('key', 1, -2)->findOne()->key);
+    }
+    
     public function testFindOne()
     {
         // create new document

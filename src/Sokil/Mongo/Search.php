@@ -45,9 +45,68 @@ class Search implements \Iterator, \Countable
         }
     }
     
+    /**
+     * Return only specified fields
+     * 
+     * @param array $fields
+     * @return \Sokil\Mongo\Search
+     */
     public function fields(array $fields)
     {
-        $this->_fields = $fields;
+        $this->_fields = array_fill_keys($fields, 1);
+        return $this;
+    }
+    
+    /**
+     * Return all fields except specified
+     * @param array $fields
+     */
+    public function skipFields(array $fields)
+    {
+        $this->_fields = array_fill_keys($fields, 0);
+        return $this;
+    }
+    
+    /**
+     * Append field to accept list
+     * @param type $field
+     * @return \Sokil\Mongo\Search
+     */
+    public function field($field)
+    {
+        $this->_fields[$field] = 1;
+        return $this;
+    }
+    
+    /**
+     * Append field to skip list
+     * 
+     * @param type $field
+     * @return \Sokil\Mongo\Search
+     */
+    public function skipField($field)
+    {
+        $this->_fields[$field] = 0;
+        return $this;
+    }
+    
+    public function slice($field, $limit, $skip = null)
+    {
+        $limit  = (int) $limit;
+        $skip   = (int) $skip;
+        
+        if($skip) {
+            if(!$limit) {
+                throw new Exception('Limit must be specified');
+            }
+            
+            $this->_fields[$field] = array('$slice' => array($skip, $limit));
+        }
+        else {
+            $this->_fields[$field] = array('$slice' => $limit);
+        }
+        
+        return $this;
     }
     
     public function where($field, $value)
@@ -62,22 +121,37 @@ class Search implements \Iterator, \Countable
         return $this;
     }
     
-    public function whereJsCondition($condition)
-    {
-        return $this->where('$where', $condition);
-    }
-    
-    public function whereNot($field, $value)
-    {
-        return $this->where($field, array('$ne' => $value));
-    }
-    
     public function whereEmpty($field)
     {
         return $this->where('$or', array(
             array($field => null),
             array($field => ''),
         ));
+    }
+    
+    public function whereGreater($field, $value)
+    {
+        return $this->where($field, array('$gt' => $value));
+    }
+    
+    public function whereGreaterOrEqual($field, $value)
+    {
+        return $this->where($field, array('$gte' => $value));
+    }
+    
+    public function whereLess($field, $value)
+    {
+        return $this->where($field, array('$lt' => $value));
+    }
+    
+    public function whereLessOrEqual($field, $value)
+    {
+        return $this->where($field, array('$lte' => $value));
+    }
+    
+    public function whereNot($field, $value)
+    {
+        return $this->where($field, array('$ne' => $value));
     }
     
     public function whereIn($field, array $values)
@@ -88,26 +162,6 @@ class Search implements \Iterator, \Countable
     public function whereNotIn($field, array $values)
     {
         return $this->where($field, array('$nin' => $values));
-    }
-    
-    public function whereLike($field, $regex, $caseInsensitive = true)
-    {
-        // regex
-        $query = array(
-            '$regex'    => $regex,
-        );
-        
-        // options
-        $options = '';
-        
-        if($caseInsensitive) {
-            $options .= 'i';
-        }
-        
-        $query['$options'] = $options;
-        
-        // query
-        return $this->where($field, $query);
     }
     
     public function whereExists($field)
@@ -168,6 +222,46 @@ class Search implements \Iterator, \Countable
     public function whereNull($field)
     {
         return $this->whereHasType($field, Document::FIELD_TYPE_NULL);
+    }
+    
+    public function whereJsCondition($condition)
+    {
+        return $this->where('$where', $condition);
+    }
+    
+    public function whereLike($field, $regex, $caseInsensitive = true)
+    {
+        // regex
+        $query = array(
+            '$regex'    => $regex,
+        );
+        
+        // options
+        $options = '';
+        
+        if($caseInsensitive) {
+            $options .= 'i';
+        }
+        
+        $query['$options'] = $options;
+        
+        // query
+        return $this->where($field, $query);
+    }
+    
+    /**
+     * Find documents where the value of a field is an array that contains all the specified elements
+     * @param type $field
+     * @param array $values
+     */
+    public function whereAll($field, array $values)
+    {
+        return $this->where($field, array('$all' => $values));
+    }
+    
+    public function whereArraySize($field, $length)
+    {
+        return $this->where($field, array('$size' => (int) $length));
     }
     
     public function skip($skip)
