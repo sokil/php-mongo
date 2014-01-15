@@ -410,7 +410,7 @@ class SearchTest extends \PHPUnit_Framework_TestCase
             'param'    => '1',
         ));
         self::$collection->saveDocument($document);
-        $documentId = $document1->getId();
+        $documentId = $document->getId();
         
         // find
         $this->assertEquals($documentId, self::$collection->find()->whereNor(
