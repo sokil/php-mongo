@@ -462,13 +462,51 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $documentId = $document->getId();
         
         // find
-        $search = self::$collection->find()->whereElemMatch('param', Query::get()
-            // param.sub-param1
-            ->whereGreater('subparam1', 0)
-            // param.sub-param2
-            ->whereLess('subparam2', 30)
-            ->whereGreater('subparam2', 10)
+        $search = self::$collection->find()->whereElemMatch('param', 
+            Query::get()
+                // param.sub-param1
+                ->whereGreater('subparam1', 0)
+                // param.sub-param2
+                ->whereLess('subparam2', 30)
+                ->whereGreater('subparam2', 10)
         );
+    
+        $document = $search->findOne();
+
+        $this->assertNotEmpty($document);
+        $this->assertEquals($documentId, $document->getId());
+    }
+    
+    public function testWhereElemMatchWithoutHelpers()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => array(
+                array(
+                    'subparam1'    => 10,
+                    'subparam2'    => 20,
+                ),
+                array(
+                    'subparam1'    => 200,
+                    'subparam2'    => 300,
+                ),
+            ),
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // find
+        $search = self::$collection->find()->where('param', array('$elemMatch' => array(
+            'subparam1' => array(
+                '$gt'   => 0,
+            ),
+            'subparam2' => array(
+                '$lt'   => 30,
+                '$gt'   => 10,
+            )
+        )));
     
         $document = $search->findOne();
 
@@ -521,6 +559,4 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($document);
         $this->assertEquals($documentId, $document->getId());
     }
-    
-    
 }
