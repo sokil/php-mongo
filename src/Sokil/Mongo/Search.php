@@ -107,7 +107,27 @@ class Search extends Query implements \Iterator, \Countable
         return $this;
     }
     
+    public function whereOr(Query $query1, Query $query2)
+    {
+        return $this->where('$or', array($query1->toArray(), $query2->toArray()));
+    }
     
+    public function whereAnd(Query $query1, Query $query2)
+    {
+        return $this->where('$and', array($query1->toArray(), $query2->toArray()));
+    }
+    
+    /**
+     * Selects the documents that fail all the query expressions in the array
+     * @param Query $query Instance of query
+     * @param Query $query ...
+     */
+    public function whereNor()
+    {
+        return $this->where('$nor', array_map(function(Query $query) {
+            return $query->toArray();
+        }, func_get_args()));
+    }
     
     public function skip($skip)
     {

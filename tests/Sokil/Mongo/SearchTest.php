@@ -369,4 +369,53 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals($documentId, $document->getId());
     }
+    
+    public function testWhereOr()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document1 = self::$collection->createDocument(array(
+            'param1'    => 'p11',
+            'param2'    => 'p12',
+        ));
+        self::$collection->saveDocument($document1);
+        $document1Id = $document1->getId();
+        
+        $document2 = self::$collection->createDocument(array(
+            'param1'    => 'p21',
+            'param2'    => 'p22',
+        ));
+        self::$collection->saveDocument($document2);
+        $document2Id = $document2->getId();
+        
+        // find
+        $this->assertEquals($document1Id, self::$collection->find()->whereOr(
+            Query::get()->where('param1', 'p11')->where('param2', 'p12'),
+            Query::get()->where('param1', 'p11')->where('some', 'some')
+        )->findOne()->getId());
+        
+        $this->assertEquals($document2Id, self::$collection->find()->whereOr(
+            Query::get()->where('param1', 'p21'),
+            Query::get()->where('param', '2')
+        )->findOne()->getId());
+    }
+    
+    public function testWhereNor()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document1 = self::$collection->createDocument(array(
+            'param'    => '1',
+        ));
+        self::$collection->saveDocument($document1);
+        $document1Id = $document1->getId();
+        
+        // find
+        $this->assertEquals($document1Id, self::$collection->find()->whereNor(
+            Query::get()->whereGreater('param', 100)->where('some', 'some'),
+            Query::get()->where('param', 5)
+        )->findOne()->getId());
+    }
 }

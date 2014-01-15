@@ -6,6 +6,11 @@ class Query
 {    
     protected $_query = array();
     
+    public static function get()
+    {
+        return new self;
+    }
+    
     public function where($field, $value)
     {
         if(!isset($this->_query[$field]) || !is_array($value) || !is_array($this->_query[$field])) {
@@ -46,7 +51,7 @@ class Query
         return $this->where($field, array('$lte' => $value));
     }
     
-    public function whereNot($field, $value)
+    public function whereNotEqual($field, $value)
     {
         return $this->where($field, array('$ne' => $value));
     }
@@ -159,5 +164,10 @@ class Query
     public function whereArraySize($field, $length)
     {
         return $this->where($field, array('$size' => (int) $length));
+    }
+    
+    public function toArray()
+    {
+        return $this->_query;
     }
 }
