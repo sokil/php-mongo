@@ -107,18 +107,32 @@ class Search extends Query implements \Iterator, \Countable
         return $this;
     }
     
-    public function whereOr(Query $query1, Query $query2)
+    /**
+     * Selects the documents that satisfy at least one of the expressions.
+     * @param Query $query Instance of query
+     * @param Query $query ...
+     */
+    public function whereOr()
     {
-        return $this->where('$or', array($query1->toArray(), $query2->toArray()));
-    }
-    
-    public function whereAnd(Query $query1, Query $query2)
-    {
-        return $this->where('$and', array($query1->toArray(), $query2->toArray()));
+        return $this->where('$or', array_map(function(Query $query) {
+            return $query->toArray();
+        }, func_get_args()));
     }
     
     /**
-     * Selects the documents that fail all the query expressions in the array
+     * Selects the documents that satisfy all the expressions in the array.
+     * @param Query $query Instance of query
+     * @param Query $query ...
+     */
+    public function whereAnd()
+    {
+        return $this->where('$and', array_map(function(Query $query) {
+            return $query->toArray();
+        }, func_get_args()));
+    }
+    
+    /**
+     * Selects the documents that fail all the query expressions in the array.
      * @param Query $query Instance of query
      * @param Query $query ...
      */
