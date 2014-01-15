@@ -406,16 +406,38 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         self::$collection->delete();
         
         // create new document
-        $document1 = self::$collection->createDocument(array(
+        $document = self::$collection->createDocument(array(
             'param'    => '1',
         ));
-        self::$collection->saveDocument($document1);
-        $document1Id = $document1->getId();
+        self::$collection->saveDocument($document);
+        $documentId = $document1->getId();
         
         // find
-        $this->assertEquals($document1Id, self::$collection->find()->whereNor(
+        $this->assertEquals($documentId, self::$collection->find()->whereNor(
             Query::get()->whereGreater('param', 100)->where('some', 'some'),
             Query::get()->where('param', 5)
+        )->findOne()->getId());
+    }
+    
+    public function testWhereNot()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => '1',
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // scalar value
+        $this->assertEquals($documentId, self::$collection->find()->whereNot(
+            Query::get()->where('param', 2)
+        )->findOne()->getId());
+        
+        // operator-expression
+        $this->assertEquals($documentId, self::$collection->find()->whereNot(
+            Query::get()->whereGreater('param', 5)
         )->findOne()->getId());
     }
 }

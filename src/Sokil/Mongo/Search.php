@@ -129,6 +129,22 @@ class Search extends Query implements \Iterator, \Countable
         }, func_get_args()));
     }
     
+    public function whereNot(Query $query)
+    {
+        foreach($query->toArray() as $field => $value) {
+            // $not acceptable only for operators-expressions
+            if(is_array($value) && is_string(key($value))) {
+                $this->where($field, array('$not' => $value));
+            }
+            // for single values use $ne
+            else {
+                $this->whereNotEqual($field, $value);
+            }
+        }
+        
+        return $this;
+    }
+    
     public function skip($skip)
     {
         $this->_skip = (int) $skip;
