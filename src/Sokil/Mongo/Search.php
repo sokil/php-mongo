@@ -145,31 +145,6 @@ class Search extends Query implements \Iterator, \Countable
         return $this;
     }
     
-    public function skip($skip)
-    {
-        $this->_skip = (int) $skip;
-        
-        return $this;
-    }
-    
-    public function limit($limit, $offset = null)
-    {
-        $this->_limit = (int) $limit;
-        
-        if(null !== $offset) {
-            $this->skip($offset);
-        }
-        
-        return $this;
-    }
-    
-    public function sort(array $sort)
-    {
-        $this->_sort = $sort;
-        
-        return $this;
-    }
-    
     public function byId($id)
     {
         if(!($id instanceof \MongoId)) {
@@ -203,6 +178,31 @@ class Search extends Query implements \Iterator, \Countable
     public function byIdList(array $idList)
     {
         return $this->whereIn('_id', $this->getIdList($idList));
+    }
+    
+    public function skip($skip)
+    {
+        $this->_skip = (int) $skip;
+        
+        return $this;
+    }
+    
+    public function limit($limit, $offset = null)
+    {
+        $this->_limit = (int) $limit;
+        
+        if(null !== $offset) {
+            $this->skip($offset);
+        }
+        
+        return $this;
+    }
+    
+    public function sort(array $sort)
+    {
+        $this->_sort = $sort;
+        
+        return $this;
     }
     
     /**

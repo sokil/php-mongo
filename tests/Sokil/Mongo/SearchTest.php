@@ -440,4 +440,87 @@ class SearchTest extends \PHPUnit_Framework_TestCase
             Query::get()->whereGreater('param', 5)
         )->findOne()->getId());
     }
+    
+    public function testWhereElemMatch()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => array(
+                array(
+                    'subparam1'    => 10,
+                    'subparam2'    => 20,
+                ),
+                array(
+                    'subparam1'    => 200,
+                    'subparam2'    => 300,
+                ),
+            ),
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // find
+        $search = self::$collection->find()->whereElemMatch('param', Query::get()
+            // param.sub-param1
+            ->whereGreater('subparam1', 0)
+            // param.sub-param2
+            ->whereLess('subparam2', 30)
+            ->whereGreater('subparam2', 10)
+        );
+    
+        $document = $search->findOne();
+
+        $this->assertNotEmpty($document);
+        $this->assertEquals($documentId, $document->getId());
+    }
+    
+    public function testWhereElemMatchWithLogicalOr()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => array(
+                array(
+                    'subparam1'    => 10,
+                    'subparam2'    => 20,
+                ),
+                array(
+                    'subparam1'    => 200,
+                    'subparam2'    => 300,
+                ),
+            ),
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // find
+        $search = self::$collection->find()->whereOr(
+            Query::get()->whereElemMatch('param', 
+                Query::get()
+                    // param.sub-param1
+                    ->whereGreater('subparam1', 0)
+                    // param.sub-param2
+                    ->whereLess('subparam2', 30)
+                    ->whereGreater('subparam2', 10)
+            ),
+            Query::get()->whereElemMatch('param', 
+                Query::get()
+                    // param.sub-param1
+                    ->whereGreater('subparam1', 100)
+                    // param.sub-param2
+                    ->whereLess('subparam2', 400)
+                    ->whereGreater('subparam2', 100)    
+            )
+        );
+    
+        $document = $search->findOne();
+
+        $this->assertNotEmpty($document);
+        $this->assertEquals($documentId, $document->getId());
+    }
+    
+    
 }

@@ -17,7 +17,7 @@ class Query
             $this->_query[$field] = $value;
         }
         else {
-            $this->_query[$field] = array_merge($this->_query[$field], $value);
+            $this->_query[$field] = array_merge_recursive($this->_query[$field], $value);
         }
         
         return $this;
@@ -159,6 +159,11 @@ class Query
     public function whereAll($field, array $values)
     {
         return $this->where($field, array('$all' => $values));
+    }
+    
+    public function whereElemMatch($field, Query $query)
+    {
+        return $this->where($field, array('$elemMatch' => $query->toArray()));
     }
     
     public function whereArraySize($field, $length)
