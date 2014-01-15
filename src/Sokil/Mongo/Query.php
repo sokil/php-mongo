@@ -68,12 +68,12 @@ class Query
     
     public function whereExists($field)
     {
-        return $this->where($field, array('$exist' => true));
+        return $this->where($field, array('$exists' => true));
     }
     
     public function whereNotExists($field)
     {
-        return $this->where($field, array('$exist' => false));
+        return $this->where($field, array('$exists' => false));
     }
     
     public function whereHasType($field, $type)

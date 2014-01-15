@@ -559,4 +559,36 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($document);
         $this->assertEquals($documentId, $document->getId());
     }
+    
+    public function testWhereFieldExists()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'fieldName'    => '1',
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // scalar value
+        $this->assertEmpty(self::$collection->find()->whereExists('unexistedFieldName')->findOne());
+        $this->assertEquals($documentId, self::$collection->find()->whereExists('fieldName')->findOne()->getId());
+    }
+    
+    public function testWhereFieldNotExists()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'fieldName'    => '1',
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        $this->assertEmpty(self::$collection->find()->whereNotExists('fieldName')->findOne());
+        
+        $this->assertEquals($documentId, self::$collection->find()->whereNotExists('unexistedFieldName')->findOne()->getId());
+    }
 }
