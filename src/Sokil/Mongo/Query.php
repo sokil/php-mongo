@@ -32,6 +32,8 @@ class Query
         return $this->where('$or', array(
             array($field => null),
             array($field => ''),
+            array($field => array()),
+            array($field => array('$exists' => false))
         ));
     }
     

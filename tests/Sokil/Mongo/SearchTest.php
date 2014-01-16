@@ -263,6 +263,28 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($documentId, $document->getId());
     }
     
+    public function testWhereEmpty()
+    {
+        // create new document
+        self::$collection->delete();
+        
+        $document = self::$collection->createDocument(array(
+            'f_null'      => null,
+            'f_string'    => '',
+            'f_array'     => array(),
+        ));
+        
+        self::$collection->saveDocument($document);
+        
+        $documentId = $document->getId();
+        
+        // find all rows
+        $this->assertEquals($documentId, self::$collection->find()->whereEmpty('f_null')->findOne()->getId());
+        $this->assertEquals($documentId, self::$collection->find()->whereEmpty('f_string')->findOne()->getId());
+        $this->assertEquals($documentId, self::$collection->find()->whereEmpty('f_array')->findOne()->getId());
+        $this->assertEquals($documentId, self::$collection->find()->whereEmpty('f_unexisted_field')->findOne()->getId());
+    }
+    
     public function testWhereNotIn()
     {
         // create new document
