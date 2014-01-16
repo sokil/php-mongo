@@ -560,6 +560,99 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($documentId, $document->getId());
     }
     
+    public function testWhereElemMatchWithLogicalAnd()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => array(
+                array(
+                    'subparam1'    => 10,
+                    'subparam2'    => 20,
+                ),
+                array(
+                    'subparam1'    => 200,
+                    'subparam2'    => 300,
+                ),
+            ),
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // find
+        $search = self::$collection->find()->whereAnd(
+            Query::get()->whereElemMatch('param', 
+                Query::get()
+                    // param.sub-param1
+                    ->whereGreater('subparam1', 0)
+                    // param.sub-param2
+                    ->whereLess('subparam2', 30)
+                    ->whereGreater('subparam2', 10)
+            ),
+            Query::get()->whereElemMatch('param', 
+                Query::get()
+                    // param.sub-param1
+                    ->whereGreater('subparam1', 100)
+                    // param.sub-param2
+                    ->whereLess('subparam2', 400)
+                    ->whereGreater('subparam2', 100)    
+            )
+        );
+    
+        $document = $search->findOne();
+
+        $this->assertNotEmpty($document);
+        $this->assertEquals($documentId, $document->getId());
+    }
+    
+    /**
+     * Merging situations when all except values exual - use $in
+     */
+    public function testWhereElemMatchByANDWithLogicalAnd()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => array(
+                array(
+                    'subparam1'    => 10,
+                    'subparam2'    => 20,
+                ),
+                array(
+                    'subparam1'    => 200,
+                    'subparam2'    => 300,
+                ),
+            ),
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // find
+        $search = self::$collection->find()
+            ->whereElemMatch('param', 
+                Query::get()
+                    // param.sub-param1
+                    ->whereGreater('subparam1', 0)
+                    // param.sub-param2
+                    ->whereLess('subparam2', 30)
+                    ->whereGreater('subparam2', 10)
+            )->whereElemMatch('param', 
+                Query::get()
+                    // param.sub-param1
+                    ->whereGreater('subparam1', 100)
+                    // param.sub-param2
+                    ->whereLess('subparam2', 400)
+                    ->whereGreater('subparam2', 100)    
+            );
+    
+        $document = $search->findOne();
+
+        $this->assertNotEmpty($document);
+        $this->assertEquals($documentId, $document->getId());
+    }
+    
     public function testWhereFieldExists()
     {
         self::$collection->delete();
