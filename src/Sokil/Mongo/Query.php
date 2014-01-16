@@ -6,6 +6,10 @@ class Query
 {    
     protected $_query = array();
     
+    /**
+     * 
+     * @return \Sokil\Mongo\Query
+     */
     public static function get()
     {
         return new self;
