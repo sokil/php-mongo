@@ -112,11 +112,15 @@ class Search extends Query implements \Iterator, \Countable
      * @param Query $query Instance of query
      * @param Query $query ...
      */
-    public function whereOr()
+    public function whereOr($expression = null)
     {
+        if($expression instanceof Query) {
+            $expression = func_get_args();
+        }
+        
         return $this->where('$or', array_map(function(Query $query) {
             return $query->toArray();
-        }, func_get_args()));
+        }, $expression));
     }
     
     /**
@@ -124,11 +128,15 @@ class Search extends Query implements \Iterator, \Countable
      * @param Query $query Instance of query
      * @param Query $query ...
      */
-    public function whereAnd()
+    public function whereAnd($expression = null)
     {
+        if($expression instanceof Query) {
+            $expression = func_get_args();
+        }
+        
         return $this->where('$and', array_map(function(Query $query) {
             return $query->toArray();
-        }, func_get_args()));
+        }, $expression));
     }
     
     /**
@@ -136,11 +144,15 @@ class Search extends Query implements \Iterator, \Countable
      * @param Query $query Instance of query
      * @param Query $query ...
      */
-    public function whereNor()
+    public function whereNor($expression = null)
     {
+        if($expression instanceof Query) {
+            $expression = func_get_args();
+        }
+        
         return $this->where('$nor', array_map(function(Query $query) {
             return $query->toArray();
-        }, func_get_args()));
+        }, $expression));
     }
     
     public function whereNot(Query $query)
