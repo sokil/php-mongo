@@ -2,9 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class Query
+class Expression
 {    
-    protected $_query = array();
+    protected $_expression = array();
     
     /**
      * 
@@ -17,11 +17,11 @@ class Query
     
     public function where($field, $value)
     {
-        if(!isset($this->_query[$field]) || !is_array($value) || !is_array($this->_query[$field])) {
-            $this->_query[$field] = $value;
+        if(!isset($this->_expression[$field]) || !is_array($value) || !is_array($this->_expression[$field])) {
+            $this->_expression[$field] = $value;
         }
         else {
-            $this->_query[$field] = array_merge_recursive($this->_query[$field], $value);
+            $this->_expression[$field] = array_merge_recursive($this->_expression[$field], $value);
         }
         
         return $this;
@@ -140,7 +140,7 @@ class Query
     public function whereLike($field, $regex, $caseInsensitive = true)
     {
         // regex
-        $query = array(
+        $expression = array(
             '$regex'    => $regex,
         );
         
@@ -151,10 +151,10 @@ class Query
             $options .= 'i';
         }
         
-        $query['$options'] = $options;
+        $expression['$options'] = $options;
         
         // query
-        return $this->where($field, $query);
+        return $this->where($field, $expression);
     }
     
     /**
@@ -167,9 +167,9 @@ class Query
         return $this->where($field, array('$all' => $values));
     }
     
-    public function whereElemMatch($field, Query $query)
+    public function whereElemMatch($field, Expression $expression)
     {
-        return $this->where($field, array('$elemMatch' => $query->toArray()));
+        return $this->where($field, array('$elemMatch' => $expression->toArray()));
     }
     
     public function whereArraySize($field, $length)
@@ -179,55 +179,55 @@ class Query
     
     /**
      * Selects the documents that satisfy at least one of the expressions.
-     * @param Query $query Instance of query
-     * @param Query $query ...
+     * @param Query $expression Instance of query
+     * @param Query $expression ...
      */
-    public function whereOr($expression = null)
+    public function whereOr($expressions = null)
     {
-        if($expression instanceof Query) {
-            $expression = func_get_args();
+        if($expressions instanceof Expression) {
+            $expressions = func_get_args();
         }
         
-        return $this->where('$or', array_map(function(Query $query) {
-            return $query->toArray();
-        }, $expression));
+        return $this->where('$or', array_map(function(Expression $expression) {
+            return $expression->toArray();
+        }, $expressions));
     }
     
     /**
      * Selects the documents that satisfy all the expressions in the array.
-     * @param Query $query Instance of query
-     * @param Query $query ...
+     * @param Query $expression Instance of query
+     * @param Query $expression ...
      */
-    public function whereAnd($expression = null)
+    public function whereAnd($expressions = null)
     {
-        if($expression instanceof Query) {
-            $expression = func_get_args();
+        if($expressions instanceof Expression) {
+            $expressions = func_get_args();
         }
         
-        return $this->where('$and', array_map(function(Query $query) {
-            return $query->toArray();
-        }, $expression));
+        return $this->where('$and', array_map(function(Expression $expression) {
+            return $expression->toArray();
+        }, $expressions));
     }
     
     /**
      * Selects the documents that fail all the query expressions in the array.
-     * @param Query $query Instance of query
-     * @param Query $query ...
+     * @param Query $expression Instance of query
+     * @param Query $expression ...
      */
-    public function whereNor($expression = null)
+    public function whereNor($expressions = null)
     {
-        if($expression instanceof Query) {
-            $expression = func_get_args();
+        if($expressions instanceof Expression) {
+            $expressions = func_get_args();
         }
         
-        return $this->where('$nor', array_map(function(Query $query) {
-            return $query->toArray();
-        }, $expression));
+        return $this->where('$nor', array_map(function(Expression $expression) {
+            return $expression->toArray();
+        }, $expressions));
     }
     
-    public function whereNot(Query $query)
+    public function whereNot(Expression $expression)
     {
-        foreach($query->toArray() as $field => $value) {
+        foreach($expression->toArray() as $field => $value) {
             // $not acceptable only for operators-expressions
             if(is_array($value) && is_string(key($value))) {
                 $this->where($field, array('$not' => $value));
@@ -243,6 +243,12 @@ class Query
     
     public function toArray()
     {
-        return $this->_query;
+        return $this->_expression;
+    }
+    
+    public function merge(Expression $expression)
+    {
+        $this->_expression = array_merge_recursive($this->_expression, $expression->toArray());
+        return $this;
     }
 }

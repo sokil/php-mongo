@@ -412,14 +412,16 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $document2Id = $document2->getId();
         
         // find
-        $this->assertEquals($document1Id, self::$collection->find()->whereOr(
-            Query::get()->where('param1', 'p11')->where('param2', 'p12'),
-            Query::get()->where('param1', 'p11')->where('some', 'some')
+        $q1 = self::$collection->find();
+        $this->assertEquals($document1Id, $q1->whereOr(
+            $q1->expression()->where('param1', 'p11')->where('param2', 'p12'),
+            $q1->expression()->where('param1', 'p11')->where('some', 'some')
         )->findOne()->getId());
         
-        $this->assertEquals($document2Id, self::$collection->find()->whereOr(
-            Query::get()->where('param1', 'p21'),
-            Query::get()->where('param', '2')
+        $q2 = self::$collection->find();
+        $this->assertEquals($document2Id, $q2->whereOr(
+            $q2->expression()->where('param1', 'p21'),
+            $q2->expression()->where('param', '2')
         )->findOne()->getId());
     }
     
@@ -435,9 +437,10 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $documentId = $document->getId();
         
         // find
-        $this->assertEquals($documentId, self::$collection->find()->whereNor(
-            Query::get()->whereGreater('param', 100)->where('some', 'some'),
-            Query::get()->where('param', 5)
+        $q = self::$collection->find();
+        $this->assertEquals($documentId, $q->whereNor(
+            $q->expression()->whereGreater('param', 100)->where('some', 'some'),
+            $q->expression()->where('param', 5)
         )->findOne()->getId());
     }
     
@@ -453,13 +456,15 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $documentId = $document->getId();
         
         // scalar value
-        $this->assertEquals($documentId, self::$collection->find()->whereNot(
-            Query::get()->where('param', 2)
+        $q1 = self::$collection->find();
+        $this->assertEquals($documentId, $q1->whereNot(
+            $q1->expression()->where('param', 2)
         )->findOne()->getId());
         
         // operator-expression
-        $this->assertEquals($documentId, self::$collection->find()->whereNot(
-            Query::get()->whereGreater('param', 5)
+        $q2 = self::$collection->find();
+        $this->assertEquals($documentId, $q2->whereNot(
+            $q2->expression()->whereGreater('param', 5)
         )->findOne()->getId());
     }
     
@@ -484,8 +489,10 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $documentId = $document->getId();
         
         // find
-        $search = self::$collection->find()->whereElemMatch('param', 
-            Query::get()
+        $q = self::$collection->find();
+        
+        $search = $q->whereElemMatch('param', 
+            $q->expression()
                 // param.sub-param1
                 ->whereGreater('subparam1', 0)
                 // param.sub-param2
@@ -557,17 +564,18 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $documentId = $document->getId();
         
         // find
-        $search = self::$collection->find()->whereOr(
-            Query::get()->whereElemMatch('param', 
-                Query::get()
+        $q = self::$collection->find();
+        $search = $q->whereOr(
+            $q->expression()->whereElemMatch('param', 
+                $q->expression()
                     // param.sub-param1
                     ->whereGreater('subparam1', 0)
                     // param.sub-param2
                     ->whereLess('subparam2', 30)
                     ->whereGreater('subparam2', 10)
             ),
-            Query::get()->whereElemMatch('param', 
-                Query::get()
+            $q->expression()->whereElemMatch('param', 
+                $q->expression()
                     // param.sub-param1
                     ->whereGreater('subparam1', 100)
                     // param.sub-param2
@@ -603,17 +611,18 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $documentId = $document->getId();
         
         // find
-        $search = self::$collection->find()->whereAnd(
-            Query::get()->whereElemMatch('param', 
-                Query::get()
+        $q = self::$collection->find();
+        $search = $q->whereAnd(
+            $q->expression()->whereElemMatch('param', 
+                $q->expression()
                     // param.sub-param1
                     ->whereGreater('subparam1', 0)
                     // param.sub-param2
                     ->whereLess('subparam2', 30)
                     ->whereGreater('subparam2', 10)
             ),
-            Query::get()->whereElemMatch('param', 
-                Query::get()
+            $q->expression()->whereElemMatch('param', 
+                $q->expression()
                     // param.sub-param1
                     ->whereGreater('subparam1', 100)
                     // param.sub-param2
@@ -652,16 +661,17 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $documentId = $document->getId();
         
         // find
-        $search = self::$collection->find()
+        $q = self::$collection->find();
+        $search = $q
             ->whereElemMatch('param', 
-                Query::get()
+                $q->expression()
                     // param.sub-param1
                     ->whereGreater('subparam1', 0)
                     // param.sub-param2
                     ->whereLess('subparam2', 30)
                     ->whereGreater('subparam2', 10)
             )->whereElemMatch('param', 
-                Query::get()
+                $q->expression()
                     // param.sub-param1
                     ->whereGreater('subparam1', 100)
                     // param.sub-param2

@@ -4,7 +4,9 @@ namespace Sokil\Mongo;
 
 class Collection
 {
-    protected $_searchClass = '\Sokil\Mongo\Search';
+    protected $_queryBuliderClass = '\Sokil\Mongo\QueryBuilder';
+    
+    protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
     
     /**
      *
@@ -69,7 +71,9 @@ class Collection
      */
     public function find()
     {
-        return new $this->_searchClass($this);
+        return new $this->_queryBuliderClass($this, array(
+            'expressionClass'   => $this->_queryExpressionClass,
+        ));
     }
     
     /**
@@ -79,7 +83,10 @@ class Collection
      */
     public function findAsArray()
     {
-        return new $this->_searchClass($this, array('arrayResult' => true));
+        return new $this->_queryBuliderClass($this, array(
+            'expressionClass'   => $this->_queryExpressionClass,
+            'arrayResult' => true
+        ));
     }
     
     /**

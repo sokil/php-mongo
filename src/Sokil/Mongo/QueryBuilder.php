@@ -2,7 +2,7 @@
 
 namespace Sokil\Mongo;
 
-class Search extends Query implements \Iterator, \Countable
+class QueryBuilder implements \Iterator, \Countable
 {
     /**
      *
@@ -20,6 +20,12 @@ class Search extends Query implements \Iterator, \Countable
     
     private $_skip = 0;
     
+    /**
+     *
+     * @var \Sokil\Mongo\Expression
+     */
+    private $_expression;
+    
     private $_limit = 0;
     
     private $_sort = array();
@@ -28,10 +34,17 @@ class Search extends Query implements \Iterator, \Countable
     
     /**
      *
+     * @var If specified in child class - overload config from collection class
+     */
+    protected $_queryExpressionClass;
+    
+    /**
+     *
      * @var boolean results are arrays instead of objects
      */
     private $_options = array(
-        'arrayResult'   => false,
+        'arrayResult'       => false,
+        'expressionClass'   => '\Sokil\Mongo\Expression'
     );
     
     public function __construct(Collection $collection, array $options = null)
@@ -41,6 +54,14 @@ class Search extends Query implements \Iterator, \Countable
         if($options) {
             $this->_options = array_merge($this->_options, $options);
         }
+        
+        // expression
+        $this->_expression = $this->expression();
+    }
+    
+    public function __call($name, $arguments) {
+        call_user_func_array(array($this->_expression, $name), $arguments);
+        return $this;
     }
     
     /**
@@ -107,13 +128,19 @@ class Search extends Query implements \Iterator, \Countable
         return $this;
     }
     
-    public function byId($id)
+    public function query(Expression $expression)
     {
-        if(!($id instanceof \MongoId)) {
-            $id = new \MongoId($id);
-        }
+        $this->_expression->merge($expression);
+        return $this;
+    }
+    
+    public function expression()
+    {
+        $expressionClass = $this->_queryExpressionClass 
+            ? $this->_queryExpressionClass 
+            : $this->_options['expressionClass'];
         
-        return $this->where('_id', $id);
+        return new $expressionClass;
     }
     
     /**
@@ -139,7 +166,19 @@ class Search extends Query implements \Iterator, \Countable
     
     public function byIdList(array $idList)
     {
-        return $this->whereIn('_id', $this->getIdList($idList));
+        $this->_expression->whereIn('_id', $this->getIdList($idList));
+        return $this;
+    }
+    
+    public function byId($id)
+    {
+        if(!($id instanceof \MongoId)) {
+            $id = new \MongoId($id);
+        }
+        
+        $this->_expression->where('_id', $id);
+        
+        return $this;
     }
     
     public function skip($skip)
@@ -179,7 +218,7 @@ class Search extends Query implements \Iterator, \Countable
         
         $this->_cursor = $this->_collection
             ->getNativeCollection()
-            ->find($this->_query, $this->_fields);
+            ->find($this->_expression->toArray(), $this->_fields);
         
         
         if($this->_skip) {
@@ -210,14 +249,14 @@ class Search extends Query implements \Iterator, \Countable
     {
         return (int) $this->_collection
             ->getNativeCollection()
-            ->count($this->_query, $this->_limit, $this->_skip);
+            ->count($this->_expression->toArray(), $this->_limit, $this->_skip);
     }
     
     public function findOne()
     {
         $documentData = $this->_collection
             ->getNativeCollection()
-            ->findOne($this->_query, $this->_fields);
+            ->findOne($this->_expression->toArray(), $this->_fields);
         
         if(!$documentData) {
             return null;
