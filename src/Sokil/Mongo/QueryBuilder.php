@@ -134,6 +134,10 @@ class QueryBuilder implements \Iterator, \Countable
         return $this;
     }
     
+    /**
+     * 
+     * @return \Sokil\Mongo\Expression
+     */
     public function expression()
     {
         $expressionClass = $this->_queryExpressionClass 

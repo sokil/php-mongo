@@ -7,11 +7,11 @@ class Expression
     protected $_expression = array();
     
     /**
-     * 
-     * @return \Sokil\Mongo\Query
+     * Create new instance of expression
+     * @return \Sokil\Mongo\Expression
      */
-    public static function get()
-    {
+    public function expression()
+    {        
         return new self;
     }
     
@@ -179,8 +179,8 @@ class Expression
     
     /**
      * Selects the documents that satisfy at least one of the expressions.
-     * @param Query $expression Instance of query
-     * @param Query $expression ...
+     * @param Expression $expression Instance of query
+     * @param Expression $expression ...
      */
     public function whereOr($expressions = null)
     {
@@ -195,8 +195,8 @@ class Expression
     
     /**
      * Selects the documents that satisfy all the expressions in the array.
-     * @param Query $expression Instance of query
-     * @param Query $expression ...
+     * @param Expression $expression Instance of query
+     * @param Expression $expression ...
      */
     public function whereAnd($expressions = null)
     {
@@ -211,8 +211,8 @@ class Expression
     
     /**
      * Selects the documents that fail all the query expressions in the array.
-     * @param Query $expression Instance of query
-     * @param Query $expression ...
+     * @param Expression $expression Instance of query
+     * @param Expression $expression ...
      */
     public function whereNor($expressions = null)
     {
