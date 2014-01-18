@@ -457,17 +457,23 @@ class Document extends Structure
         }
     }
     
-    public function _addIncUpdateOperation($selector, $value)
+    public function _addIncUpdateOperation($fieldName, $value)
     {
         // check if update operations already added
-        $oldIncrementValue = $this->getUpdateOperation('$inc', $selector);
+        $oldIncrementValue = $this->getUpdateOperation('$inc', $fieldName);
         if($oldIncrementValue) {
             $value = $oldIncrementValue + $value;
         }
         
-        $this->_updateOperators['$inc'][$selector] = $value;
+        $this->_updateOperators['$inc'][$fieldName] = $value;
         
         return $this;
+    }
+    
+    public function _addPullUpdateOperation($fieldName, $value)
+    {
+        // no $push operator found
+        $this->_updateOperators['$pull'][$fieldName] = $value;
     }
     
     public function hasUpdateOperations()
@@ -502,29 +508,29 @@ class Document extends Structure
     /**
      * Update value in local cache and in DB
      * 
-     * @param type $selector
+     * @param type $fieldName
      * @param type $value
      * @return \Sokil\Mongo\Document
      */
-    public function set($selector, $value)
+    public function set($fieldName, $value)
     {
-        parent::set($selector, $value);
+        parent::set($fieldName, $value);
         
         // if document saved - save through update
         if($this->getId()) {
-            $this->_addSetUpdateOperation($selector, $value);
+            $this->_addSetUpdateOperation($fieldName, $value);
         }
         
         return $this;
     }
     
-    public function append($selector, $value)
+    public function append($fieldName, $value)
     {
-        parent::append($selector, $value);
+        parent::append($fieldName, $value);
         
         // if document saved - save through update
         if($this->getId()) {
-            $this->_addSetUpdateOperation($selector, $this->get($selector));
+            $this->_addSetUpdateOperation($fieldName, $this->get($fieldName));
         }
         
         return $this;
@@ -533,12 +539,12 @@ class Document extends Structure
     /**
      * Push argument as single element to field value
      * 
-     * @param string $selector
+     * @param string $fieldName
      * @param mixed $value
      */
-    public function push($selector, $value)
+    public function push($fieldName, $value)
     {
-        $oldValue = $this->get($selector);
+        $oldValue = $this->get($fieldName);
         
         if($value instanceof Structure) {
             $value = $value->toArray();
@@ -547,7 +553,7 @@ class Document extends Structure
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {
-                $this->_addPushUpdateOperation($selector, $value);
+                $this->_addPushUpdateOperation($fieldName, $value);
             }
             $value = array($value);
         }
@@ -555,20 +561,20 @@ class Document extends Structure
         elseif(!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, array($value));
             if($this->getId()) {
-                $this->_addSetUpdateOperation($selector, $value);
+                $this->_addSetUpdateOperation($fieldName, $value);
             }
         }
         // field exists and is array
         else {
             if($this->getId()) {
                 // check if array because previous $set operation on single value was executed
-                $setValue = $this->getUpdateOperation('$set', $selector);
+                $setValue = $this->getUpdateOperation('$set', $fieldName);
                 if($setValue) {
                     $setValue[] = $value;
-                    $this->_addSetUpdateOperation($selector, $setValue);
+                    $this->_addSetUpdateOperation($fieldName, $setValue);
                 }
                 else {
-                    $this->_addPushUpdateOperation($selector, $value);
+                    $this->_addPushUpdateOperation($fieldName, $value);
                 }
                 
             }
@@ -576,18 +582,18 @@ class Document extends Structure
         }
         
         // update local data
-        parent::set($selector, $value);
+        parent::set($fieldName, $value);
     }
     
     /**
      * Push each element of argument's array as single element to field value
      * 
-     * @param type $selector
+     * @param type $fieldName
      * @param array $value
      */
-    public function pushFromArray($selector, array $value)
+    public function pushFromArray($fieldName, array $value)
     {
-        $oldValue = $this->get($selector);
+        $oldValue = $this->get($fieldName);
         
         if($value instanceof Structure) {
             $value = $value->toArray();
@@ -596,7 +602,7 @@ class Document extends Structure
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {
-                $this->_addPushUpdateOperation($selector, array('$each' => $value));
+                $this->_addPushUpdateOperation($fieldName, array('$each' => $value));
             }
             
         }
@@ -604,35 +610,51 @@ class Document extends Structure
         else if(!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, $value);
             if($this->getId()) {
-                $this->_addSetUpdateOperation($selector, $value);
+                $this->_addSetUpdateOperation($fieldName, $value);
             }
         }
         // field already exists and is array
         else {
             if($this->getId()) {
-                $this->_addPushUpdateOperation($selector, array('$each' => $value));
+                $this->_addPushUpdateOperation($fieldName, array('$each' => $value));
             }
             $value = array_merge($oldValue, $value);
         }
         
         // update local data
-        parent::set($selector, $value);
+        parent::set($fieldName, $value);
     }
     
-    public function increment($selector, $value = 1)
+    /**
+     * 
+     * @param string $fieldName
+     * @param integer|string|array|\Sokil\Mongo\Expression $expression
+     * @return \Sokil\Mongo\Document
+     */
+    public function pull($fieldName, $expression)
     {
-        parent::set($selector, (int) $this->get($selector) + $value);
+        if($expression instanceof Expression) {
+            $expression = $expression->toArray();
+        }
+        
+        $this->_updateOperators['$pull'][$fieldName] = $expression;
+        return $this;
+    }
+    
+    public function increment($fieldName, $value = 1)
+    {
+        parent::set($fieldName, (int) $this->get($fieldName) + $value);
         
         if($this->getId()) {
-            $this->_addIncUpdateOperation($selector, $value);
+            $this->_addIncUpdateOperation($fieldName, $value);
         }
 
         
         return $this; 
     }
     
-    public function decrement($selector, $value = 1)
+    public function decrement($fieldName, $value = 1)
     {
-        return $this->increment($selector, -1 * $value);
+        return $this->increment($fieldName, -1 * $value);
     }
 }

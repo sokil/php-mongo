@@ -651,6 +651,129 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('some1', 'some2', 'some3'), self::$collection->getDocument($doc->getId())->some);
     }
     
+    public function testPullFromOneDimensionalArray()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => array('some1', 'some2'),
+        ));
+        
+        self::$collection->saveDocument($doc);
+        
+        // push array to array
+        $doc->pull('some', 'some2');
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array('some1'), self::$collection->getDocument($doc->getId())->some);
+    }
+    
+    public function testPullFromTwoDimensionalArray()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => array(
+                array('sub'  => 1), 
+                array('sub'  => 2)
+            ),
+        ));
+        
+        self::$collection->saveDocument($doc);
+        
+        // push array to array
+        $doc->pull('some', array(
+            'sub'  => 2
+        ));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array(array('sub' => 1)), self::$collection->getDocument($doc->getId())->some);
+    }
+    
+    public function testPullFromThreeDimensionalArray()
+    {
+        self::$collection->delete();
+        
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => array(
+                array(
+                    'sub'  => array(
+                        array('a' => 1),
+                        array('b' => 2),
+                    )
+                ),
+                array(
+                    'sub'  => array(
+                        array('a' => 3),
+                        array('b' => 4),
+                    )
+                )
+            ),
+        ));
+        self::$collection->saveDocument($doc);
+        
+        // pull 1
+        $doc->pull('some', array(
+            'sub.a'  => 1
+        ));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array(
+            array(
+                'sub'  => array(
+                    array('a' => 3),
+                    array('b' => 4),
+                )
+            )
+        ), self::$collection->getDocument($doc->getId())->some);
+        
+        // pull 2
+        $doc->pull('some', array(
+            'sub'  => array(
+                'a' => 3,
+            )
+        ));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array(), self::$collection->getDocument($doc->getId())->some);
+    }
+    
+    public function testPullFromThreeDimensionalUsingExpressionArray()
+    {
+        self::$collection->delete();
+        
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => array(
+                array(
+                    'sub'  => array(
+                        array('a' => 1),
+                        array('b' => 2),
+                    )
+                ),
+                array(
+                    'sub'  => array(
+                        array('a' => 3),
+                        array('b' => 4),
+                    )
+                )
+            ),
+        ));
+        self::$collection->saveDocument($doc);
+        
+        // push array to array
+        $doc->pull('some', self::$collection->expression()->where('sub.a', 1));
+        self::$collection->saveDocument($doc);
+        
+        $this->assertEquals(array(
+            array(
+                'sub'  => array(
+                    array('a' => 3),
+                    array('b' => 4),
+                )
+            )
+        ), self::$collection->getDocument($doc->getId())->some);
+    }
+    
     public function testTriggerError()
     {
         try {

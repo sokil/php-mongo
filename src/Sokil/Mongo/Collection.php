@@ -76,6 +76,11 @@ class Collection
         ));
     }
     
+    public function expression()
+    {        
+        return new $this->_queryExpressionClass;
+    }
+    
     /**
      * Create document query builder
      * 
