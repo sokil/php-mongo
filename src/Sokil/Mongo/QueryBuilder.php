@@ -147,6 +147,11 @@ class QueryBuilder implements \Iterator, \Countable
         return new $expressionClass;
     }
     
+    public function getExpression()
+    {
+        return $this->_expression;
+    }
+    
     /**
      * get list of MongoId objects from array of strings, MongoId's and Document's
      * 
