@@ -659,9 +659,9 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         // find
         $q = self::$collection->find();
-        $search = $q->whereNot($q->expression()->whereElemMatch('param', $q->expression()->where('subparam1', 777)));
-    
-        $document = $search->findOne();
+        $q->whereNot($q->expression()->whereElemMatch('param', $q->expression()->where('subparam1', 777)));
+        
+        $document = $q->findOne();
 
         $this->assertNotEmpty($document);
         $this->assertEquals($documentId, $document->getId());
