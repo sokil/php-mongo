@@ -67,7 +67,7 @@ class Collection
     /**
      * Create document query builder
      * 
-     * @return \Sokil\Mongo\Search
+     * @return \Sokil\Mongo\QueryBuilder|\Sokil\Mongo\Expression
      */
     public function find()
     {
@@ -84,7 +84,7 @@ class Collection
     /**
      * Create document query builder
      * 
-     * @return \Sokil\Mongo\Search
+     * @return \Sokil\Mongo\QueryBuilder
      */
     public function findAsArray()
     {
@@ -98,7 +98,7 @@ class Collection
      * Get document by id
      * 
      * @param string|MongoId $id
-     * @return \Sokil\Mongo\_docClass|null
+     * @return \Sokil\Mongo\Document|null
      */
     public function getDocument($id)
     {
@@ -109,7 +109,7 @@ class Collection
      * Get document by id
      * 
      * @param string|MongoId $id
-     * @return \Sokil\Mongo\_docClass|null
+     * @return \Sokil\Mongo\Document|null
      */
     public function getDocuments(array $idList)
     {
