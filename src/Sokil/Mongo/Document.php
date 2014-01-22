@@ -48,12 +48,14 @@ class Document extends Structure
     
     public function __construct(array $data = null) {
         
-        $this->triggerEvent('beforeConstruct');
+        $this->beforeConstruct();
         
         parent::__construct($data);
         
         $this->triggerEvent('afterConstruct');
     }
+    
+    public function beforeConstruct() {}
     
     public function __toString()
     {
