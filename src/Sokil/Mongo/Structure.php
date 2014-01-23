@@ -6,6 +6,8 @@ class Structure
 {
     protected $_data = array();
     
+    protected $_modifiedFields = array();
+    
     public function __construct(array $data = null)
     {
         if($data) {
@@ -136,7 +138,11 @@ class Structure
      * @throws Exception
      */
     public function set($selector, $value)
-    {        
+    {
+        // mark field as modified
+        $this->_modifiedFields[] = $selector;
+        
+        // modify
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
         
@@ -180,6 +186,26 @@ class Structure
         
         $this->set($selector, $value);
         return $this;
+    }
+    
+    public function isModified($selector)
+    {
+        if(!$this->_modifiedFields) {
+            return false;
+        }
+        
+        foreach($this->_modifiedFields as $modifiedField) {
+            if(preg_match('/^' . $selector . '($|.)/', $modifiedField)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    public function getModifiedFields()
+    {
+        return $this->_modifiedFields;
     }
         
     public function toArray()
