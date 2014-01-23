@@ -152,9 +152,14 @@ class Document extends Structure
             $id = new \MongoId($id);
         }
         
-        parent::set('_id', $id);
+        $this->_data['_id'] = $id;
         
         return $this;
+    }
+    
+    public function isStored()
+    {
+        return $this->get('_id') && !$this->isModified('_id');
     }
     
     public function setScenario($scenario)

@@ -75,6 +75,17 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     }
     
+    public function testIsStored()
+    {
+        // not stored
+        $document = self::$collection->createDocument(array('k' => 'v'));
+        $this->assertFalse($document->isStored());
+        
+        // stored
+        self::$collection->saveDocument($document);
+        $this->assertTrue($document->isStored());
+    }
+    
     public function testSet()
     {
         $document = self::$collection->createDocument(array(
