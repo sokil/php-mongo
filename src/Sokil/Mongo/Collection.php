@@ -135,7 +135,7 @@ class Collection
         $document->triggerEvent('beforeSave');
         
         // update
-        if($document->getId()) {
+        if($document->isStored()) {
             
             $document->triggerEvent('beforeUpdate');
             
@@ -161,7 +161,11 @@ class Collection
                 }
             }
             else {
-                $status = $this->_collection->save($document->toArray());
+                $status = $this->_collection->update(
+                    array('_id' => $document->getId()),
+                    $document->toArray()
+                );
+                
                 if($status['ok'] != 1) {
                     throw new Exception($status['err']);
                 }
@@ -175,7 +179,7 @@ class Collection
             $document->triggerEvent('beforeInsert');
             
             // save data
-            $status = $this->_collection->save($data);
+            $status = $this->_collection->insert($data);
             if($status['ok'] != 1) {
                 throw new Exception($status['err']);
             }
@@ -187,7 +191,10 @@ class Collection
         $document->triggerEvent('afterSave');
         
         // set id
-        $document->setId($data['_id']);
+        $document->defineId($data['_id']);
+        
+        // set document as not modified
+        $document->setNotModified();
         
         return $this;
     }

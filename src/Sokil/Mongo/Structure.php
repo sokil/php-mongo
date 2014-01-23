@@ -211,6 +211,12 @@ class Structure
     {
         return $this->_modifiedFields;
     }
+    
+    public function setNotModified()
+    {
+        $this->_modifiedFields = array();
+        return $this;
+    }
         
     public function toArray()
     {

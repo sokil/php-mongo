@@ -146,13 +146,33 @@ class Document extends Structure
         return $this->get('_id');
     }
     
-    public function setId($id) {
+    /**
+     * Used to define id of stored document. This id must be already presenf in db
+     * 
+     * @param type $id
+     * @return \Sokil\Mongo\Document
+     */
+    public function defineId($id) {
         
         if(!($id instanceof \MongoId)) {
             $id = new \MongoId($id);
         }
         
         $this->_data['_id'] = $id;
+        
+        return $this;
+    }
+    
+    /*
+     * Used to define id of unstord document. This db is manual
+     */
+    public function setId($id) {
+        
+        if(!($id instanceof \MongoId)) {
+            $id = new \MongoId($id);
+        }
+        
+        $this->set('_id', $id);
         
         return $this;
     }
