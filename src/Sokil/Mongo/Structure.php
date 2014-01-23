@@ -188,10 +188,14 @@ class Structure
         return $this;
     }
     
-    public function isModified($selector)
+    public function isModified($selector = null)
     {
         if(!$this->_modifiedFields) {
             return false;
+        }
+        
+        if(!$selector) {
+            return (bool) $this->_modifiedFields;
         }
         
         foreach($this->_modifiedFields as $modifiedField) {

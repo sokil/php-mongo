@@ -161,8 +161,11 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     {
         $structure = new \Sokil\Mongo\Structure;
  
+        $this->assertFalse($structure->isModified());
         // 1
         $structure->set('param1', 'value');
+        
+        $this->assertTrue($structure->isModified());
         
         $this->assertTrue($structure->isModified('param1'));
         $this->assertFalse($structure->isModified('param1-unex'));
