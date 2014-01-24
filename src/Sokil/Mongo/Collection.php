@@ -129,8 +129,6 @@ class Collection
             $document->validate();
         }
         
-        $data = $document->toArray();
-        
         // handle beforeSave event
         $document->triggerEvent('beforeSave');
         
@@ -177,6 +175,8 @@ class Collection
         else {
             
             $document->triggerEvent('beforeInsert');
+            
+            $data = $document->toArray();
             
             // save data
             $status = $this->_collection->insert($data);
