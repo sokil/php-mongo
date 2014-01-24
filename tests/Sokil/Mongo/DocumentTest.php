@@ -128,6 +128,22 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
     }
     
+    public function testSetDate()
+    {
+        $date = new \MongoDate;
+        
+        // save
+        $document = self::$collection->createDocument()
+            ->set('d', $date);
+        
+        self::$collection->saveDocument($document);
+        
+        //read
+        $document = self::$collection->getDocument($document->getId());
+        
+        $this->assertEquals($date, $document->get('d'));
+    }
+    
     public function testAppend()
     {
         $document = self::$collection->createDocument(array(
