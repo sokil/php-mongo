@@ -183,15 +183,15 @@ class Collection
             if($status['ok'] != 1) {
                 throw new Exception($status['err']);
             }
+
+            // set id
+            $document->defineId($data['_id']);
             
             $document->triggerEvent('afterInsert');
         }
         
         // handle afterSave event
         $document->triggerEvent('afterSave');
-        
-        // set id
-        $document->defineId($data['_id']);
         
         // set document as not modified
         $document->setNotModified();
