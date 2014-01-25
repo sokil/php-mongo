@@ -577,6 +577,10 @@ class Document extends Structure
             $value = $value->toArray();
         }
         
+        if(is_object($value)) {
+            $value = (array) $value;
+        }
+        
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {

@@ -14,6 +14,8 @@ class Collection
      */
     private $_collection;
     
+    private $_documentsPool = array();
+    
     public function __construct(\MongoCollection $collection)
     {
         $this->_collection = $collection;
@@ -102,7 +104,11 @@ class Collection
      */
     public function getDocument($id)
     {
-        return $this->find()->byId($id)->findOne();
+        if(!isset($this->_documentsPool[(string) $id])) {
+            $this->_documentsPool[(string) $id] = $this->find()->byId($id)->findOne();
+        }
+        
+        return $this->_documentsPool[(string) $id];
     }
     
     /**
@@ -113,7 +119,17 @@ class Collection
      */
     public function getDocuments(array $idList)
     {
-        return $this->find()->byIdList($idList)->findAll();
+        $documents = $this->find()->byIdList($idList)->findAll();
+        if(!$documents) {
+            return array();
+        }
+        
+        $this->_documentsPool = array_merge(
+            $this->_documentsPool,
+            $documents
+        );
+        
+        return $documents;
     }
     
     /**
@@ -153,7 +169,8 @@ class Collection
                 $document->resetUpdateOperations();
                 
                 // get updated data if some field incremented
-                if(isset($updateOperations['$inc'])) {
+                // get updated data if some data pulled from field
+                if(isset($updateOperations['$inc']) || isset($updateOperations['$pull'])) {
                     $data = $this->_collection->findOne(array('_id' => $document->getId()));
                     $document->fromArray($data);
                 }
@@ -187,6 +204,10 @@ class Collection
             // set id
             $document->defineId($data['_id']);
             
+            // store to document's bool 
+            $this->_documentsPool[(string) $data['_id']] = $document;
+            
+            // event
             $document->triggerEvent('afterInsert');
         }
         
@@ -212,6 +233,9 @@ class Collection
         if($status['ok'] != 1) {
             throw new Exception($status['err']);
         }
+        
+        // drop from document's pool
+        unset($this->_documentsPool[(string) $document->getId()]);
         
         return $this;
     }

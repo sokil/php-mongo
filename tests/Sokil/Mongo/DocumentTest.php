@@ -496,7 +496,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $doc->push('key', $object2);
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array((array)$object1, (array)$object2), self::$collection->getDocument($doc->getId())->key);
+        $this->assertEquals(
+            array((array)$object1, (array)$object2), 
+            $doc->key
+        );
+        
+        $this->assertEquals(
+            array((array)$object1, (array)$object2), 
+            self::$collection->getDocument($doc->getId())->key
+        );
     }
     
     public function testPushArrayToEmptyOnExistedDocument()
@@ -703,7 +711,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $doc->pull('some', 'some2');
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array('some1'), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(
+            array('some1'), 
+            $doc->some
+        );
+        
+        $this->assertEquals(
+            array('some1'), 
+            self::$collection->getDocument($doc->getId())->some
+        );
     }
     
     public function testPullFromTwoDimensionalArray()
