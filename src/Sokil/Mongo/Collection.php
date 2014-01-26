@@ -84,6 +84,15 @@ class Collection
     }
     
     /**
+     * 
+     * @return \Sokil\Mongo\Operator
+     */
+    public function operator()
+    {
+        return new Operator;
+    }
+    
+    /**
      * Create document query builder
      * 
      * @return \Sokil\Mongo\QueryBuilder
@@ -153,9 +162,9 @@ class Collection
             
             $document->triggerEvent('beforeUpdate');
             
-            if($document->hasUpdateOperations()) {
+            if($document->getOperator()->defined()) {
                 
-                $updateOperations = $document->getUpdateOperations();
+                $updateOperations = $document->getOperator()->getAll();
                 
                 $status = $this->_collection->update(
                     array('_id' => $document->getId()),
@@ -163,17 +172,15 @@ class Collection
                 );
                 
                 if($status['ok'] != 1) {
-                    throw new Exception($status['err']);
+                    throw new Exception('Update error: ' . $status['err']);
                 }
                 
-                $document->resetUpdateOperations();
-                
-                // get updated data if some field incremented
-                // get updated data if some data pulled from field
-                if(isset($updateOperations['$inc']) || isset($updateOperations['$pull'])) {
+                if($document->getOperator()->isReloadRequired()) {
                     $data = $this->_collection->findOne(array('_id' => $document->getId()));
                     $document->fromArray($data);
                 }
+                
+                $document->getOperator()->reset();
             }
             else {
                 $status = $this->_collection->update(
@@ -182,7 +189,7 @@ class Collection
                 );
                 
                 if($status['ok'] != 1) {
-                    throw new Exception($status['err']);
+                    throw new Exception('Update error: ' . $status['err']);
                 }
             }
 
@@ -198,7 +205,7 @@ class Collection
             // save data
             $status = $this->_collection->insert($data);
             if($status['ok'] != 1) {
-                throw new Exception($status['err']);
+                throw new Exception('Insert error: ' . $status['err']);
             }
 
             // set id
@@ -231,11 +238,32 @@ class Collection
         $document->triggerEvent('afterDelete');
         
         if($status['ok'] != 1) {
-            throw new Exception($status['err']);
+            throw new Exception('Delete error: ' . $status['err']);
         }
         
         // drop from document's pool
         unset($this->_documentsPool[(string) $document->getId()]);
+        
+        return $this;
+    }
+    
+    public function updateMultiple(Expression $expression, $updateData)
+    {
+        if($updateData instanceof Operator) {
+            $updateData = $updateData->getAll();
+        }
+        
+        $status = $this->_collection->update(
+            $expression->toArray(), 
+            $updateData,
+            array(
+                'multiple'  => true,
+            )
+        );
+        
+        if(1 != $status['ok']) {
+            throw new Exception('Multiple update error: ' . $status['err']);
+        }
         
         return $this;
     }
