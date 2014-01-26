@@ -103,6 +103,11 @@ class Operator
         return $this;
     }
     
+    public function unsetField($fieldName)
+    {
+        $this->_operators['$unset'][$fieldName] = '';
+        return $this;
+    }
     
     
     public function isDefined()
