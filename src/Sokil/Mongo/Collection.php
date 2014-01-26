@@ -162,7 +162,7 @@ class Collection
             
             $document->triggerEvent('beforeUpdate');
             
-            if($document->getOperator()->defined()) {
+            if($document->getOperator()->isDefined()) {
                 
                 $updateOperations = $document->getOperator()->getAll();
                 

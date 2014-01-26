@@ -436,7 +436,7 @@ class Document extends Structure
         
         // if document saved - save through update
         if($this->getId()) {
-            $this->_operator->addSet($fieldName, $value);
+            $this->_operator->set($fieldName, $value);
         }
         
         return $this;
@@ -448,7 +448,7 @@ class Document extends Structure
         
         // if document saved - save through update
         if($this->getId()) {
-            $this->_operator->addSet($fieldName, $this->get($fieldName));
+            $this->_operator->set($fieldName, $this->get($fieldName));
         }
         
         return $this;
@@ -475,7 +475,7 @@ class Document extends Structure
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {
-                $this->_operator->addPush($fieldName, $value);
+                $this->_operator->push($fieldName, $value);
             }
             $value = array($value);
         }
@@ -483,7 +483,7 @@ class Document extends Structure
         elseif(!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, array($value));
             if($this->getId()) {
-                $this->_operator->addSet($fieldName, $value);
+                $this->_operator->set($fieldName, $value);
             }
         }
         // field exists and is array
@@ -493,10 +493,10 @@ class Document extends Structure
                 $setValue = $this->_operator->get('$set', $fieldName);
                 if($setValue) {
                     $setValue[] = $value;
-                    $this->_operator->addSet($fieldName, $setValue);
+                    $this->_operator->set($fieldName, $setValue);
                 }
                 else {
-                    $this->_operator->addPush($fieldName, $value);
+                    $this->_operator->push($fieldName, $value);
                 }
                 
             }
@@ -524,7 +524,7 @@ class Document extends Structure
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {
-                $this->_operator->addPush($fieldName, array('$each' => $value));
+                $this->_operator->push($fieldName, array('$each' => $value));
             }
             
         }
@@ -532,13 +532,13 @@ class Document extends Structure
         else if(!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, $value);
             if($this->getId()) {
-                $this->_operator->addSet($fieldName, $value);
+                $this->_operator->set($fieldName, $value);
             }
         }
         // field already exists and is array
         else {
             if($this->getId()) {
-                $this->_operator->addPush($fieldName, array('$each' => $value));
+                $this->_operator->push($fieldName, array('$each' => $value));
             }
             $value = array_merge($oldValue, $value);
         }
@@ -555,7 +555,7 @@ class Document extends Structure
      */
     public function pull($fieldName, $expression)
     {
-        $this->_operator->addPull($fieldName, $expression);
+        $this->_operator->pull($fieldName, $expression);
         return $this;
     }
     
@@ -564,7 +564,7 @@ class Document extends Structure
         parent::set($fieldName, (int) $this->get($fieldName) + $value);
         
         if($this->getId()) {
-            $this->_operator->addInc($fieldName, $value);
+            $this->_operator->increment($fieldName, $value);
         }
 
         

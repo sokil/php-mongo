@@ -141,7 +141,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         // packet update
         $collection->updateMultiple(
             $collection->expression()->where('p', 1),
-            $collection->operator()->addSet('k', 'v')
+            $collection->operator()->set('k', 'v')
         );
         
         // test

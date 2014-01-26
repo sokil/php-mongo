@@ -10,7 +10,7 @@ class Operator
      */
     private $_operators = array();
     
-    public function addSet($fieldName, $value)
+    public function set($fieldName, $value)
     {        
         if(!isset($this->_operators['$set'])) {
             $this->_operators['$set'] = array();
@@ -21,7 +21,7 @@ class Operator
         return $this;
     }
     
-    public function addPush($fieldName, $value)
+    public function push($fieldName, $value)
     {
         // no $push operator found
         if(!isset($this->_operators['$push'])) {
@@ -47,7 +47,7 @@ class Operator
         }
     }
     
-    public function addPushEach($fieldName, array $value)
+    public function pushEach($fieldName, array $value)
     {
         // no $push operator found
         if(!isset($this->_operators['$push'])) {
@@ -78,7 +78,7 @@ class Operator
         }
     }
     
-    public function addInc($fieldName, $value)
+    public function increment($fieldName, $value)
     {
         // check if update operations already added
         $oldIncrementValue = $this->get('$inc', $fieldName);
@@ -91,7 +91,7 @@ class Operator
         return $this;
     }
     
-    public function addPull($fieldName, $value)
+    public function pull($fieldName, $value)
     {
         if($value instanceof Expression) {
             $value = $value->toArray();
@@ -103,7 +103,9 @@ class Operator
         return $this;
     }
     
-    public function defined()
+    
+    
+    public function isDefined()
     {
         return (bool) $this->_operators;
     }
