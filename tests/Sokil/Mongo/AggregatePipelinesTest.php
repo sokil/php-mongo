@@ -2,7 +2,25 @@
 
 namespace Sokil\Mongo;
 
-class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase {
+class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     *
+     * @var \Sokil\Mongo\Collection
+     */
+    private static $collection;
+    
+    public static function setUpBeforeClass()
+    {
+        // connect to mongo
+        $client = new Client('mongodb://127.0.0.1');
+        
+        // select database
+        $database = $client->getDatabase('test');
+        
+        // select collection
+        self::$collection = $database->getCollection('phpmongo_test_collection');
+    }
     
     /**
      * Check if pipeline added as new or appended to previouse on same operator
@@ -11,7 +29,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase {
      */
     public function testPipelineAppend() {
         
-        $pipelines  = new AggregatePipelines;
+        $pipelines = self::$collection->createPipeline();
         
         // insert new match pipeline
         $pipelines->match(array(
