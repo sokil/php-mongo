@@ -874,4 +874,46 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         }
         
     }
+    
+    public function testFromArrayOnUpdate()
+    {
+        // save document
+        $document = self::$collection->createDocument(array(
+            'p' => 'pv',
+        ));
+        self::$collection->saveDocument($document);
+           
+        // update document
+        $document
+            ->set('f1', 'fv1')
+            ->fromArray(array(
+                'a1'    => 'av1',
+                'a2'    => 'av2',
+            ));
+        
+        $documentData = $document->toArray();
+        unset($documentData['_id']);
+        
+        $this->assertEquals(array(
+            'p'     => 'pv',
+            'f1'    => 'fv1',
+            'a1'    => 'av1',
+            'a2'    => 'av2',
+        ), $documentData);
+        
+        self::$collection->saveDocument($document);
+        
+        // test
+        $foundDocumentData = self::$collection->getDocumentDirectly($document->getId())
+            ->toArray();
+        
+        unset($foundDocumentData['_id']);
+        
+        $this->assertEquals(array(
+            'p'     => 'pv',
+            'f1'    => 'fv1',
+            'a1'    => 'av1',
+            'a2'    => 'av2',
+        ), $foundDocumentData);
+    }
 }

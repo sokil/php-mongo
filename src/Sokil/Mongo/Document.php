@@ -46,9 +46,9 @@ class Document extends Structure
      */
     private $_operator;
     
-    public function __construct(array $data = null) {
-        
-        $this->beforeConstruct();
+    public function __construct(array $data = null)
+    {    
+        $this->beforeConstruct();   
         
         parent::__construct($data);
         
@@ -437,6 +437,20 @@ class Document extends Structure
         // if document saved - save through update
         if($this->getId()) {
             $this->_operator->set($fieldName, $value);
+        }
+        
+        return $this;
+    }
+    
+    public function fromArray(array $data)
+    {        
+        if($this->isStored()) {
+            foreach($data as $fieldName => $value) {
+                $this->set($fieldName, $value);
+            }
+        }
+        else {
+            parent::fromArray($data);
         }
         
         return $this;

@@ -114,10 +114,21 @@ class Collection
     public function getDocument($id)
     {
         if(!isset($this->_documentsPool[(string) $id])) {
-            $this->_documentsPool[(string) $id] = $this->find()->byId($id)->findOne();
+            $this->_documentsPool[(string) $id] = $this->getDocumentDirectly($id);
         }
         
         return $this->_documentsPool[(string) $id];
+    }
+    
+    /**
+     * Get document by id directly omiting cache
+     * 
+     * @param type $id
+     * @return \Sokil\Mongo\Document|null
+     */
+    public function getDocumentDirectly($id)
+    {
+        return $this->find()->byId($id)->findOne();
     }
     
     /**
