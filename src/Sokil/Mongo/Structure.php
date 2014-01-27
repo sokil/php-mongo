@@ -17,13 +17,13 @@ class Structure
     
     public function __get($name)
     {
-        return $this->get($name);
+        return isset($this->_data[$name]) ? $this->_data[$name] : null;
     }
     
     public function get($selector)
     {
         if(false === strpos($selector, '.')) {
-            return  isset($this->_data[$selector]) ? $this->_data[$selector] : null;
+            return isset($this->_data[$selector]) ? $this->_data[$selector] : null;
         }
 
         $value = $this->_data;
