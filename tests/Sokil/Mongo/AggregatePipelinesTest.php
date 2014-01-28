@@ -4,6 +4,32 @@ namespace Sokil\Mongo;
 
 class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase {
     
+    public function testPipelineAppendFewGroups() {
+        $pipelines  = new AggregatePipelines;
+        
+        $pipelines->group(array(
+            '_id'       => array(),
+            'field'    => array('$sum' => 1)
+        ));
+        
+        $pipelines->group(array(
+            '_id'       => array(),
+            'field'    => array('$sum' => 1)
+        ));
+        
+        $this->assertEquals(
+            array(
+                array('$group' => array(
+                        '_id' => array(),
+                        'field' => array('$sum' => 1)
+                    )),
+                array('$group' => array(
+                        '_id' => array(),
+                        'field' => array('$sum' => 1)
+                    )),
+            ), $pipelines->toArray());
+    }
+    
     /**
      * Check if pipeline added as new or appended to previouse on same operator
      * 
