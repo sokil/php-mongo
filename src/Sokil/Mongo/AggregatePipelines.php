@@ -9,7 +9,7 @@ class AggregatePipelines
     private function _add($operator, $pipeline) {
         $lastIndex = count($this->_pipelines) - 1;
         
-        if(!$this->_pipelines || !isset($this->_pipelines[$lastIndex][$operator])) {
+        if(!$this->_pipelines || !isset($this->_pipelines[$lastIndex][$operator]) || $operator == '$group') {
             $this->_pipelines[] = array($operator => $pipeline);
         }
         else {

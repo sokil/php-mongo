@@ -26,25 +26,27 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $pipelines  = new AggregatePipelines;
         
         $pipelines->group(array(
-            '_id'       => array(),
-            'field'    => array('$sum' => 1)
+            '_id'   => '$field1',
+            'group1'  => array('$sum' => '$field2'),
+            'group2'  => array('$sum' => '$field3'),
         ));
         
         $pipelines->group(array(
-            '_id'       => array(),
-            'field'    => array('$sum' => 1)
+            '_id'   => array('id1' => '$_id', 'id2' => '$group1'),
+            'field' => array('$sum' => '$group2')
         ));
         
         $this->assertEquals(
             array(
                 array('$group' => array(
-                        '_id' => array(),
-                        'field' => array('$sum' => 1)
-                    )),
+                    '_id'   => '$field1',
+                    'group1'  => array('$sum' => '$field2'),
+                    'group2'  => array('$sum' => '$field3'),
+                )),
                 array('$group' => array(
-                        '_id' => array(),
-                        'field' => array('$sum' => 1)
-                    )),
+                    '_id'   => array('id1' => '$_id', 'id2' => '$group1'),
+                    'field' => array('$sum' => '$group2')
+                )),
             ), $pipelines->toArray());
     }
     
