@@ -21,6 +21,9 @@ class Client
      */
     protected $_mapping = array();
     
+        
+    private $_logger;
+    
     /**
      * 
      * @param type $dsn
@@ -136,5 +139,25 @@ class Client
     {
         $this->getConnection()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
+    }
+    
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    {
+        $this->_logger = $logger;
+        return $this;
+    }
+    
+    /**
+     * 
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->_logger;
+    }
+    
+    public function hasLogger()
+    {
+        return (bool) $this->_logger;
     }
 }

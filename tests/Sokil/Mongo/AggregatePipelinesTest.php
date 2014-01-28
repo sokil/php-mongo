@@ -2,31 +2,51 @@
 
 namespace Sokil\Mongo;
 
-class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase {
+class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     *
+     * @var \Sokil\Mongo\Collection
+     */
+    private static $collection;
+    
+    public static function setUpBeforeClass()
+    {
+        // connect to mongo
+        $client = new Client('mongodb://127.0.0.1');
+        
+        // select database
+        $database = $client->getDatabase('test');
+        
+        // select collection
+        self::$collection = $database->getCollection('phpmongo_test_collection');
+    }
     
     public function testPipelineAppendFewGroups() {
         $pipelines  = new AggregatePipelines;
         
         $pipelines->group(array(
-            '_id'       => array(),
-            'field'    => array('$sum' => 1)
+            '_id'   => '$field1',
+            'group1'  => array('$sum' => '$field2'),
+            'group2'  => array('$sum' => '$field3'),
         ));
         
         $pipelines->group(array(
-            '_id'       => array(),
-            'field'    => array('$sum' => 1)
+            '_id'   => array('id1' => '$_id', 'id2' => '$group1'),
+            'field' => array('$sum' => '$group2')
         ));
         
         $this->assertEquals(
             array(
                 array('$group' => array(
-                        '_id' => array(),
-                        'field' => array('$sum' => 1)
-                    )),
+                    '_id'   => '$field1',
+                    'group1'  => array('$sum' => '$field2'),
+                    'group2'  => array('$sum' => '$field3'),
+                )),
                 array('$group' => array(
-                        '_id' => array(),
-                        'field' => array('$sum' => 1)
-                    )),
+                    '_id'   => array('id1' => '$_id', 'id2' => '$group1'),
+                    'field' => array('$sum' => '$group2')
+                )),
             ), $pipelines->toArray());
     }
     
@@ -37,7 +57,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase {
      */
     public function testPipelineAppend() {
         
-        $pipelines  = new AggregatePipelines;
+        $pipelines = self::$collection->createPipeline();
         
         // insert new match pipeline
         $pipelines->match(array(

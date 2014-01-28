@@ -6,6 +6,8 @@ class Structure
 {
     protected $_data = array();
     
+    protected $_modifiedFields = array();
+    
     public function __construct(array $data = null)
     {
         if($data) {
@@ -15,13 +17,13 @@ class Structure
     
     public function __get($name)
     {
-        return $this->get($name);
+        return isset($this->_data[$name]) ? $this->_data[$name] : null;
     }
     
     public function get($selector)
     {
         if(false === strpos($selector, '.')) {
-            return  isset($this->_data[$selector]) ? $this->_data[$selector] : null;
+            return isset($this->_data[$selector]) ? $this->_data[$selector] : null;
         }
 
         $value = $this->_data;
@@ -136,7 +138,11 @@ class Structure
      * @throws Exception
      */
     public function set($selector, $value)
-    {        
+    {
+        // mark field as modified
+        $this->_modifiedFields[] = $selector;
+        
+        // modify
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
         
@@ -179,6 +185,36 @@ class Structure
         }
         
         $this->set($selector, $value);
+        return $this;
+    }
+    
+    public function isModified($selector = null)
+    {
+        if(!$this->_modifiedFields) {
+            return false;
+        }
+        
+        if(!$selector) {
+            return (bool) $this->_modifiedFields;
+        }
+        
+        foreach($this->_modifiedFields as $modifiedField) {
+            if(preg_match('/^' . $selector . '($|.)/', $modifiedField)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    public function getModifiedFields()
+    {
+        return $this->_modifiedFields;
+    }
+    
+    public function setNotModified()
+    {
+        $this->_modifiedFields = array();
         return $this;
     }
         

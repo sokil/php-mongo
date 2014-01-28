@@ -75,6 +75,29 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     }
     
+    public function testIsStored()
+    {
+        // not stored
+        $document = self::$collection->createDocument(array('k' => 'v'));
+        $this->assertFalse($document->isStored());
+        
+        // stored
+        self::$collection->saveDocument($document);
+        $this->assertTrue($document->isStored());
+    }
+    
+    public function testIsStoredWhenIdSet()
+    {
+        // not stored
+        $document = self::$collection->createDocument(array('k' => 'v'));
+        $document->setId(new \MongoId);
+        $this->assertFalse($document->isStored());
+        
+        // stored
+        self::$collection->saveDocument($document);
+        $this->assertTrue($document->isStored());
+    }
+    
     public function testSet()
     {
         $document = self::$collection->createDocument(array(
@@ -103,6 +126,22 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value2', $document->get('a.b.c'));
         $this->assertEquals(array('c' => 'value2'), $document->get('a.b'));
         $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
+    }
+    
+    public function testSetDate()
+    {
+        $date = new \MongoDate;
+        
+        // save
+        $document = self::$collection->createDocument()
+            ->set('d', $date);
+        
+        self::$collection->saveDocument($document);
+        
+        //read
+        $document = self::$collection->getDocument($document->getId());
+        
+        $this->assertEquals($date, $document->get('d'));
     }
     
     public function testAppend()
@@ -457,7 +496,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $doc->push('key', $object2);
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array((array)$object1, (array)$object2), self::$collection->getDocument($doc->getId())->key);
+        $this->assertEquals(
+            array((array)$object1, (array)$object2), 
+            $doc->key
+        );
+        
+        $this->assertEquals(
+            array((array)$object1, (array)$object2), 
+            self::$collection->getDocument($doc->getId())->key
+        );
     }
     
     public function testPushArrayToEmptyOnExistedDocument()
@@ -664,7 +711,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $doc->pull('some', 'some2');
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array('some1'), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(
+            array('some1'), 
+            $doc->some
+        );
+        
+        $this->assertEquals(
+            array('some1'), 
+            self::$collection->getDocument($doc->getId())->some
+        );
     }
     
     public function testPullFromTwoDimensionalArray()
@@ -818,5 +873,47 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             $this->fail('\Sokil\Mongo\Document\Exception\Validate expected, ' . get_class($e) . ' found');
         }
         
+    }
+    
+    public function testFromArrayOnUpdate()
+    {
+        // save document
+        $document = self::$collection->createDocument(array(
+            'p' => 'pv',
+        ));
+        self::$collection->saveDocument($document);
+           
+        // update document
+        $document
+            ->set('f1', 'fv1')
+            ->fromArray(array(
+                'a1'    => 'av1',
+                'a2'    => 'av2',
+            ));
+        
+        $documentData = $document->toArray();
+        unset($documentData['_id']);
+        
+        $this->assertEquals(array(
+            'p'     => 'pv',
+            'f1'    => 'fv1',
+            'a1'    => 'av1',
+            'a2'    => 'av2',
+        ), $documentData);
+        
+        self::$collection->saveDocument($document);
+        
+        // test
+        $foundDocumentData = self::$collection->getDocumentDirectly($document->getId())
+            ->toArray();
+        
+        unset($foundDocumentData['_id']);
+        
+        $this->assertEquals(array(
+            'p'     => 'pv',
+            'f1'    => 'fv1',
+            'a1'    => 'av1',
+            'a2'    => 'av2',
+        ), $foundDocumentData);
     }
 }

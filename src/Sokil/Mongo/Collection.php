@@ -14,6 +14,8 @@ class Collection
      */
     private $_collection;
     
+    private $_documentsPool = array();
+    
     public function __construct(\MongoCollection $collection)
     {
         $this->_collection = $collection;
@@ -82,6 +84,15 @@ class Collection
     }
     
     /**
+     * 
+     * @return \Sokil\Mongo\Operator
+     */
+    public function operator()
+    {
+        return new Operator;
+    }
+    
+    /**
      * Create document query builder
      * 
      * @return \Sokil\Mongo\QueryBuilder
@@ -102,6 +113,21 @@ class Collection
      */
     public function getDocument($id)
     {
+        if(!isset($this->_documentsPool[(string) $id])) {
+            $this->_documentsPool[(string) $id] = $this->getDocumentDirectly($id);
+        }
+        
+        return $this->_documentsPool[(string) $id];
+    }
+    
+    /**
+     * Get document by id directly omiting cache
+     * 
+     * @param type $id
+     * @return \Sokil\Mongo\Document|null
+     */
+    public function getDocumentDirectly($id)
+    {
         return $this->find()->byId($id)->findOne();
     }
     
@@ -113,7 +139,17 @@ class Collection
      */
     public function getDocuments(array $idList)
     {
-        return $this->find()->byIdList($idList)->findAll();
+        $documents = $this->find()->byIdList($idList)->findAll();
+        if(!$documents) {
+            return array();
+        }
+        
+        $this->_documentsPool = array_merge(
+            $this->_documentsPool,
+            $documents
+        );
+        
+        return $documents;
     }
     
     /**
@@ -129,19 +165,17 @@ class Collection
             $document->validate();
         }
         
-        $data = $document->toArray();
-        
         // handle beforeSave event
         $document->triggerEvent('beforeSave');
         
         // update
-        if($document->getId()) {
+        if($document->isStored()) {
             
             $document->triggerEvent('beforeUpdate');
             
-            if($document->hasUpdateOperations()) {
+            if($document->getOperator()->isDefined()) {
                 
-                $updateOperations = $document->getUpdateOperations();
+                $updateOperations = $document->getOperator()->getAll();
                 
                 $status = $this->_collection->update(
                     array('_id' => $document->getId()),
@@ -149,21 +183,24 @@ class Collection
                 );
                 
                 if($status['ok'] != 1) {
-                    throw new Exception($status['err']);
+                    throw new Exception('Update error: ' . $status['err']);
                 }
                 
-                $document->resetUpdateOperations();
-                
-                // get updated data if some field incremented
-                if(isset($updateOperations['$inc'])) {
+                if($document->getOperator()->isReloadRequired()) {
                     $data = $this->_collection->findOne(array('_id' => $document->getId()));
                     $document->fromArray($data);
                 }
+                
+                $document->getOperator()->reset();
             }
             else {
-                $status = $this->_collection->save($document->toArray());
+                $status = $this->_collection->update(
+                    array('_id' => $document->getId()),
+                    $document->toArray()
+                );
+                
                 if($status['ok'] != 1) {
-                    throw new Exception($status['err']);
+                    throw new Exception('Update error: ' . $status['err']);
                 }
             }
 
@@ -174,20 +211,29 @@ class Collection
             
             $document->triggerEvent('beforeInsert');
             
-            // save data
-            $status = $this->_collection->save($data);
-            if($status['ok'] != 1) {
-                throw new Exception($status['err']);
-            }
+            $data = $document->toArray();
             
+            // save data
+            $status = $this->_collection->insert($data);
+            if($status['ok'] != 1) {
+                throw new Exception('Insert error: ' . $status['err']);
+            }
+
+            // set id
+            $document->defineId($data['_id']);
+            
+            // store to document's bool 
+            $this->_documentsPool[(string) $data['_id']] = $document;
+            
+            // event
             $document->triggerEvent('afterInsert');
         }
         
         // handle afterSave event
         $document->triggerEvent('afterSave');
         
-        // set id
-        $document->setId($data['_id']);
+        // set document as not modified
+        $document->setNotModified();
         
         return $this;
     }
@@ -203,7 +249,31 @@ class Collection
         $document->triggerEvent('afterDelete');
         
         if($status['ok'] != 1) {
-            throw new Exception($status['err']);
+            throw new Exception('Delete error: ' . $status['err']);
+        }
+        
+        // drop from document's pool
+        unset($this->_documentsPool[(string) $document->getId()]);
+        
+        return $this;
+    }
+    
+    public function updateMultiple(Expression $expression, $updateData)
+    {
+        if($updateData instanceof Operator) {
+            $updateData = $updateData->getAll();
+        }
+        
+        $status = $this->_collection->update(
+            $expression->toArray(), 
+            $updateData,
+            array(
+                'multiple'  => true,
+            )
+        );
+        
+        if(1 != $status['ok']) {
+            throw new Exception('Multiple update error: ' . $status['err']);
         }
         
         return $this;

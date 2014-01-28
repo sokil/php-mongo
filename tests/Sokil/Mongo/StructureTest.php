@@ -144,4 +144,52 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('def-b', $structureList[0]->get('b'));
         $this->assertEquals('def-c', $structureList[0]->get('c'));
     }
+    
+    public function testGetModifiedFields()
+    {
+        $structure = new \Sokil\Mongo\Structure;
+        $structure->set('param1', 'value');
+        $structure->set('param2.subparam', 'value');
+        
+        $this->assertEquals(array(
+            'param1',
+            'param2.subparam'
+        ), $structure->getModifiedFields());
+    }
+    
+    public function testIsModified()
+    {
+        $structure = new \Sokil\Mongo\Structure;
+ 
+        $this->assertFalse($structure->isModified());
+        // 1
+        $structure->set('param1', 'value');
+        
+        $this->assertTrue($structure->isModified());
+        
+        $this->assertTrue($structure->isModified('param1'));
+        $this->assertFalse($structure->isModified('param1-unex'));
+        
+        // 2
+        $structure->set('param2.subparam', 'value');
+        
+        $this->assertTrue($structure->isModified('param2'));
+        $this->assertTrue($structure->isModified('param2.subparam'));
+        
+        $this->assertFalse($structure->isModified('param2-unex'));
+        $this->assertFalse($structure->isModified('param2-unex.subparam'));
+        $this->assertFalse($structure->isModified('param2.subparam-unex'));
+        
+        // 3
+        $structure->set('param3.subparam1.subparam', 'value');
+        
+        $this->assertTrue($structure->isModified('param3'));
+        $this->assertTrue($structure->isModified('param3.subparam1'));
+        $this->assertTrue($structure->isModified('param3.subparam1.subparam'));
+        
+        $this->assertFalse($structure->isModified('param3-unex'));
+        $this->assertFalse($structure->isModified('param3-unex.subparam1'));
+        $this->assertFalse($structure->isModified('param3.subparam1-unex'));
+        $this->assertFalse($structure->isModified('param3.subparam1.subparam-unex'));
+    }
 }

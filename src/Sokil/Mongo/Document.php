@@ -38,22 +38,26 @@ class Document extends Structure
      */
     private $_triggeredErors = array();
     
-    /**
-     *
-     * @var array list of update operations
-     */
-    private $_updateOperators = array();
-    
     private $_events = array();
     
-    public function __construct(array $data = null) {
-        
-        $this->triggerEvent('beforeConstruct');
+    /**
+     *
+     * @var \Sokil\Mongo\Operator
+     */
+    private $_operator;
+    
+    public function __construct(array $data = null)
+    {    
+        $this->beforeConstruct();   
         
         parent::__construct($data);
         
+        $this->_operator = new Operator;
+        
         $this->triggerEvent('afterConstruct');
     }
+    
+    public function beforeConstruct() {}
     
     public function __toString()
     {
@@ -144,15 +148,40 @@ class Document extends Structure
         return $this->get('_id');
     }
     
+    /**
+     * Used to define id of stored document. This id must be already presenf in db
+     * 
+     * @param type $id
+     * @return \Sokil\Mongo\Document
+     */
+    public function defineId($id) {
+        
+        if(!($id instanceof \MongoId)) {
+            $id = new \MongoId($id);
+        }
+        
+        $this->_data['_id'] = $id;
+        
+        return $this;
+    }
+    
+    /*
+     * Used to define id of unstord document. This db is manual
+     */
     public function setId($id) {
         
         if(!($id instanceof \MongoId)) {
             $id = new \MongoId($id);
         }
         
-        parent::set('_id', $id);
+        $this->set('_id', $id);
         
         return $this;
+    }
+    
+    public function isStored()
+    {
+        return $this->get('_id') && !$this->isModified('_id');
     }
     
     public function setScenario($scenario)
@@ -389,122 +418,11 @@ class Document extends Structure
         return $this;
     }
     
-    protected function _addSetUpdateOperation($fieldName, $value)
-    {        
-        if(!isset($this->_updateOperators['$set'])) {
-            $this->_updateOperators['$set'] = array();
-        }
-        
-        $this->_updateOperators['$set'][$fieldName] = $value;
-        
-        return $this;
+    public function getOperator()
+    {
+        return $this->_operator;
     }
     
-    protected function _addPushUpdateOperation($fieldName, $value)
-    {
-        // no $push operator found
-        if(!isset($this->_updateOperators['$push'])) {
-            $this->_updateOperators['$push'] = array();
-        }
-        
-        // no field name found
-        if(!isset($this->_updateOperators['$push'][$fieldName])) {
-            $this->_updateOperators['$push'][$fieldName] = $value;
-        }
-        
-        // field name found and has single value
-        else if(!is_array($this->_updateOperators['$push'][$fieldName]) || !isset($this->_updateOperators['$push'][$fieldName]['$each'])) {
-            $oldValue = $this->_updateOperators['$push'][$fieldName];
-            $this->_updateOperators['$push'][$fieldName] = array(
-                '$each' => array($oldValue, $value)
-            );
-        }
-        
-        // field name found and already $each
-        else {
-            $this->_updateOperators['$push'][$fieldName]['$each'][] = $value;
-        }
-    }
-    
-    protected function _addPushEachUpdateOperation($fieldName, array $value)
-    {
-        // no $push operator found
-        if(!isset($this->_updateOperators['$push'])) {
-            $this->_updateOperators['$push'] = array();
-        }
-        
-        // no field name found
-        if(!isset($this->_updateOperators['$push'][$fieldName])) {
-            $this->_updateOperators['$push'][$fieldName] = array(
-                '$each' => $value
-            );
-        }
-        
-        // field name found and has single value
-        else if(!isset($this->_updateOperators['$push'][$fieldName]['$each'])) {
-            $oldValue = $this->_updateOperators['$push'][$fieldName];
-            $this->_updateOperators['$push'][$fieldName] = array(
-                '$each' => array_merge(array($oldValue), $value)
-            );
-        }
-        
-        // field name found and already $each
-        else {
-            $this->_updateOperators['$push'][$fieldName]['$each'] = array_merge(
-                $this->_updateOperators['$push'][$fieldName]['$each'],
-                $value
-            );
-        }
-    }
-    
-    public function _addIncUpdateOperation($fieldName, $value)
-    {
-        // check if update operations already added
-        $oldIncrementValue = $this->getUpdateOperation('$inc', $fieldName);
-        if($oldIncrementValue) {
-            $value = $oldIncrementValue + $value;
-        }
-        
-        $this->_updateOperators['$inc'][$fieldName] = $value;
-        
-        return $this;
-    }
-    
-    public function _addPullUpdateOperation($fieldName, $value)
-    {
-        // no $push operator found
-        $this->_updateOperators['$pull'][$fieldName] = $value;
-    }
-    
-    public function hasUpdateOperations()
-    {
-        return (bool) $this->_updateOperators;
-    }
-    
-    public function resetUpdateOperations()
-    {
-        $this->_updateOperators = array();
-        return $this;
-    }
-    
-    public function getUpdateOperation($operation, $fieldName = null)
-    {
-        if($fieldName) {
-            return isset($this->_updateOperators[$operation][$fieldName])
-                ? $this->_updateOperators[$operation][$fieldName]
-                : null;
-        }
-        
-        return isset($this->_updateOperators[$operation]) 
-            ? $this->_updateOperators[$operation]
-            : null;
-    }
-    
-    public function getUpdateOperations()
-    {
-        return $this->_updateOperators;
-    }
-        
     /**
      * Update value in local cache and in DB
      * 
@@ -518,7 +436,21 @@ class Document extends Structure
         
         // if document saved - save through update
         if($this->getId()) {
-            $this->_addSetUpdateOperation($fieldName, $value);
+            $this->_operator->set($fieldName, $value);
+        }
+        
+        return $this;
+    }
+    
+    public function fromArray(array $data)
+    {        
+        if($this->isStored()) {
+            foreach($data as $fieldName => $value) {
+                $this->set($fieldName, $value);
+            }
+        }
+        else {
+            parent::fromArray($data);
         }
         
         return $this;
@@ -530,7 +462,7 @@ class Document extends Structure
         
         // if document saved - save through update
         if($this->getId()) {
-            $this->_addSetUpdateOperation($fieldName, $this->get($fieldName));
+            $this->_operator->set($fieldName, $this->get($fieldName));
         }
         
         return $this;
@@ -550,10 +482,14 @@ class Document extends Structure
             $value = $value->toArray();
         }
         
+        if(is_object($value)) {
+            $value = (array) $value;
+        }
+        
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {
-                $this->_addPushUpdateOperation($fieldName, $value);
+                $this->_operator->push($fieldName, $value);
             }
             $value = array($value);
         }
@@ -561,20 +497,20 @@ class Document extends Structure
         elseif(!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, array($value));
             if($this->getId()) {
-                $this->_addSetUpdateOperation($fieldName, $value);
+                $this->_operator->set($fieldName, $value);
             }
         }
         // field exists and is array
         else {
             if($this->getId()) {
                 // check if array because previous $set operation on single value was executed
-                $setValue = $this->getUpdateOperation('$set', $fieldName);
+                $setValue = $this->_operator->get('$set', $fieldName);
                 if($setValue) {
                     $setValue[] = $value;
-                    $this->_addSetUpdateOperation($fieldName, $setValue);
+                    $this->_operator->set($fieldName, $setValue);
                 }
                 else {
-                    $this->_addPushUpdateOperation($fieldName, $value);
+                    $this->_operator->push($fieldName, $value);
                 }
                 
             }
@@ -602,7 +538,7 @@ class Document extends Structure
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {
-                $this->_addPushUpdateOperation($fieldName, array('$each' => $value));
+                $this->_operator->push($fieldName, array('$each' => $value));
             }
             
         }
@@ -610,13 +546,13 @@ class Document extends Structure
         else if(!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, $value);
             if($this->getId()) {
-                $this->_addSetUpdateOperation($fieldName, $value);
+                $this->_operator->set($fieldName, $value);
             }
         }
         // field already exists and is array
         else {
             if($this->getId()) {
-                $this->_addPushUpdateOperation($fieldName, array('$each' => $value));
+                $this->_operator->push($fieldName, array('$each' => $value));
             }
             $value = array_merge($oldValue, $value);
         }
@@ -633,11 +569,7 @@ class Document extends Structure
      */
     public function pull($fieldName, $expression)
     {
-        if($expression instanceof Expression) {
-            $expression = $expression->toArray();
-        }
-        
-        $this->_updateOperators['$pull'][$fieldName] = $expression;
+        $this->_operator->pull($fieldName, $expression);
         return $this;
     }
     
@@ -646,7 +578,7 @@ class Document extends Structure
         parent::set($fieldName, (int) $this->get($fieldName) + $value);
         
         if($this->getId()) {
-            $this->_addIncUpdateOperation($fieldName, $value);
+            $this->_operator->increment($fieldName, $value);
         }
 
         

@@ -670,7 +670,7 @@ class SearchTest extends \PHPUnit_Framework_TestCase
     /**
      * Merging situations when all except values exual - use $in
      */
-    public function testWhereElemMatchByANDWithLogicalAnd()
+    public function _testWhereElemMatchByANDWithLogicalAnd()
     {
         self::$collection->delete();
         
