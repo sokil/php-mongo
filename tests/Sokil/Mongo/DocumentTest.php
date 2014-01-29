@@ -172,7 +172,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_RequiredField()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -191,7 +191,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldEquals()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -214,7 +214,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldNotEquals()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -237,7 +237,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldInRange()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -260,7 +260,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_NumericField()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -283,7 +283,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_NullField()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -306,7 +306,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldEqualsOnScenario()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -330,7 +330,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldEqualsExceptScenario()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -361,7 +361,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldRegexp()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -384,7 +384,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldEmail()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -832,7 +832,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testTriggerError()
     {
         try {
-            $document = new \Sokil\Mongo\Document;
+            $document = new \Sokil\Mongo\Document(self::$collection);
             $document->triggerError('field', 'rule', 'message');
             
             $document->validate();
@@ -859,7 +859,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         );
         
         try {
-            $document = new \Sokil\Mongo\Document;
+            $document = new \Sokil\Mongo\Document(self::$collection);
             $document->triggerErrors($errors);
             
             $document->validate();

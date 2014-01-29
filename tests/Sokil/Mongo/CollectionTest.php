@@ -62,8 +62,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     
     public function testSaveValidNewDocument()
     {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+        
         // create document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -74,7 +76,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $document->set('some-field-name', 'some-value');
         
         // save document
-        $collection = self::$database->getCollection('phpmongo_test_collection');
         $collection->saveDocument($document);
         
         $collection->delete();
@@ -103,8 +104,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testSaveInvalidNewDocument()
     {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+        
         // create document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -113,7 +116,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             )));
         
         // save document
-        $collection = self::$database->getCollection('phpmongo_test_collection');
+        
         $collection->saveDocument($document);
         
         $collection->delete();

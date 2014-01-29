@@ -4,14 +4,38 @@ namespace Sokil\Mongo;
 
 class Database
 {
-    private $_database;
+    /**
+     *
+     * @var \Sokil\Mongo\Client
+     */
+    private $_client;
+    
+    private $_databaseName;
+    
+    /**
+     *
+     * @var \MongoDB
+     */
+    private $_mongoDB;
     
     private $_mapping = array();
     
     private $_collectionPool = array();
     
-    public function __construct(\MongoDb $db) {
-        $this->_database = $db;
+    public function __construct(Client $client, $databaseName) {
+        $this->_client = $client;
+        $this->_databaseName = $databaseName;
+        
+        $this->_mongoDB = $this->_client->getConnection()->selectDB($databaseName);
+    }
+    
+    /**
+     * 
+     * @return \MongoDB
+     */
+    public function getMongoDB()
+    {
+        return $this->_mongoDB;
     }
     
     /**
@@ -52,7 +76,7 @@ class Database
                 $className = '\Sokil\Mongo\Collection';
             }
             
-            $this->_collectionPool[$name] = new $className($this->_database->selectCollection($name));
+            $this->_collectionPool[$name] = new $className($this, $name);
         }
         
         return $this->_collectionPool[$name];
@@ -60,31 +84,31 @@ class Database
     
     public function readPrimaryOnly()
     {
-        $this->_database->setReadPreference(\MongoClient::RP_PRIMARY);
+        $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
     
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->_database->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+        $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
     
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->_database->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+        $this->_mongoDB->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
     
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->_database->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        $this->_mongoDB->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
     
     public function readNearest(array $tags = null)
     {
-        $this->_database->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+        $this->_mongoDB->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
 }

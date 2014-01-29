@@ -23,6 +23,12 @@ class Document extends Structure
     const FIELD_TYPE_INT64                    = 18;
     const FIELD_TYPE_MIN_KEY                  = 255;
     const FIELD_TYPE_MAX_KEY                  = 127;
+
+    /**
+     *
+     * @var \Sokil\Mongo\Collection
+     */
+    private $_collection;
     
     protected $_scenario;
     
@@ -46,9 +52,11 @@ class Document extends Structure
      */
     private $_operator;
     
-    public function __construct(array $data = null)
+    public function __construct(Collection $collection, array $data = null)
     {    
         $this->beforeConstruct();   
+        
+        $this->_collection = $collection;
         
         parent::__construct($data);
         
@@ -588,5 +596,11 @@ class Document extends Structure
     public function decrement($fieldName, $value = 1)
     {
         return $this->increment($fieldName, -1 * $value);
+    }
+    
+    public function save($validate = true)
+    {
+        $this->_collection->saveDocument($this, $validate);
+        return $this;
     }
 }

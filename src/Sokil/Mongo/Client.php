@@ -105,7 +105,7 @@ class Client
                 $className = '\Sokil\Mongo\Database';
             }
             
-            $this->_databasePool[$name] = new $className($this->getConnection()->selectDB($name));
+            $this->_databasePool[$name] = new $className($this, $name);
         }
         
         return $this->_databasePool[$name];

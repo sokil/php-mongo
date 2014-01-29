@@ -8,35 +8,42 @@ class Collection
     
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
     
+    private $_database;
+    
+    private $_collectionName;
+    
     /**
      *
      * @var \MongoCollection
      */
-    private $_collection;
+    private $_mongoCollection;
     
     private $_documentsPool = array();
     
-    public function __construct(\MongoCollection $collection)
+    public function __construct(Database $database, $collectionName)
     {
-        $this->_collection = $collection;
+        $this->_database = $database;
+        $this->_collectionName = $collectionName;
+        
+        $this->_mongoCollection = $database->getMongoDB()->selectCollection($collectionName);
     }
     
     /**
      * 
      * @return MongoCollection
      */
-    public function getNativeCollection()
+    public function getMongoCollection()
     {
-        return $this->_collection;
+        return $this->_mongoCollection;
     }
     
     public function delete() {
-        $status = $this->_collection->drop();
+        $status = $this->_mongoCollection->drop();
         if($status['ok'] != 1) {
             // check if collection exists
             if('ns not found' !== $status['errmsg']) {
                 // collection exist
-                throw new Exception('Error deleting collection ' . $this->_collection->getName());
+                throw new Exception('Error deleting collection ' . $this->_mongoCollection->getName());
             }
         }
         
@@ -63,7 +70,7 @@ class Collection
     {
         $className = $this->getDocumentClassName($data);
         
-        return new $className($data);
+        return new $className($this, $data);
     }
     
     /**
@@ -177,7 +184,7 @@ class Collection
                 
                 $updateOperations = $document->getOperator()->getAll();
                 
-                $status = $this->_collection->update(
+                $status = $this->_mongoCollection->update(
                     array('_id' => $document->getId()),
                     $updateOperations
                 );
@@ -187,14 +194,14 @@ class Collection
                 }
                 
                 if($document->getOperator()->isReloadRequired()) {
-                    $data = $this->_collection->findOne(array('_id' => $document->getId()));
+                    $data = $this->_mongoCollection->findOne(array('_id' => $document->getId()));
                     $document->fromArray($data);
                 }
                 
                 $document->getOperator()->reset();
             }
             else {
-                $status = $this->_collection->update(
+                $status = $this->_mongoCollection->update(
                     array('_id' => $document->getId()),
                     $document->toArray()
                 );
@@ -214,7 +221,7 @@ class Collection
             $data = $document->toArray();
             
             // save data
-            $status = $this->_collection->insert($data);
+            $status = $this->_mongoCollection->insert($data);
             if($status['ok'] != 1) {
                 throw new Exception('Insert error: ' . $status['err']);
             }
@@ -242,7 +249,7 @@ class Collection
     {        
         $document->triggerEvent('beforeDelete');
         
-        $status = $this->_collection->remove(array(
+        $status = $this->_mongoCollection->remove(array(
             '_id'   => $document->getId()
         ));
         
@@ -264,7 +271,7 @@ class Collection
             $updateData = $updateData->getAll();
         }
         
-        $status = $this->_collection->update(
+        $status = $this->_mongoCollection->update(
             $expression->toArray(), 
             $updateData,
             array(
@@ -304,7 +311,7 @@ class Collection
             throw new Exception('Wrong pipelines specified');
         }
         
-        $status = $this->_collection->aggregate($pipelines);
+        $status = $this->_mongoCollection->aggregate($pipelines);
         
         if($status['ok'] != 1) {
             throw new Exception($status['errmsg']);
@@ -315,31 +322,31 @@ class Collection
     
     public function readPrimaryOnly()
     {
-        $this->_collection->setReadPreference(\MongoClient::RP_PRIMARY);
+        $this->_mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
     
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->_collection->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+        $this->_mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
     
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->_collection->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+        $this->_mongoCollection->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
     
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->_collection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        $this->_mongoCollection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
     
     public function readNearest(array $tags = null)
     {
-        $this->_collection->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+        $this->_mongoCollection->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
 }
