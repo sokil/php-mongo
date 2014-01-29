@@ -39,6 +39,15 @@ class Database
     }
     
     /**
+     * 
+     * @return \Sokil\Mongo\Client
+     */
+    public function getClient()
+    {
+        return $this->_client;
+    }
+    
+    /**
      * Map collection name to class
      * 
      * @param type $name

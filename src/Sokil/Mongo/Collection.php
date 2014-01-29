@@ -8,6 +8,10 @@ class Collection
     
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
     
+    /**
+     *
+     * @var \Sokil\Mongo\Database
+     */
     private $_database;
     
     private $_collectionName;
@@ -35,6 +39,15 @@ class Collection
     public function getMongoCollection()
     {
         return $this->_mongoCollection;
+    }
+    
+    /**
+     * 
+     * @return \Sokil\Mongo\Database
+     */
+    public function getDatabase()
+    {
+        return $this->_database;
     }
     
     public function delete() {
