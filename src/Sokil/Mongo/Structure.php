@@ -162,6 +162,9 @@ class Structure
             if(!isset($section[$field])) {
                 $section[$field] = array();
             }
+            elseif(!is_array($section[$field])) {
+                throw new Exception('Assigning subdocument to scalar value');
+            }
 
             $section = &$section[$field];
         }

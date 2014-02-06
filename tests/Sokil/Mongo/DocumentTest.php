@@ -144,6 +144,32 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($date, $document->get('d'));
     }
     
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     */
+    public function testSetArrayToScalarOnNewDoc()
+    {
+        $doc = self::$collection->createDocument(array(
+            'a' => 1,
+        ));
+        
+        $doc->set('a.b', 2);
+        $this->assertEquals(array('a' => array('b' => 2)), $doc->toArray());
+    }
+    
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     */
+    public function testSetArrayToScalarOnExistedDoc()
+    {
+        $doc = self::$collection
+            ->createDocument(array(
+                'a' => 1,
+            ))
+            ->save();
+        
+        $doc->set('a.b', 2)->save();
+    }
         
     public function testUnsetInNewDocument()
     {

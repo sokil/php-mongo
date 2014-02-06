@@ -45,6 +45,19 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         ), $structure->toArray());
     }
     
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     */
+    public function testSetArrayToScalar()
+    {
+        $structure = new Structure;
+        $structure->fromArray(array(
+            'a' => 1,
+        ));
+        
+        $structure->set('a.b', 2);
+    }
+    
     public function testUnset()
     {
         $structure = new Structure;
