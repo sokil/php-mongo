@@ -45,6 +45,36 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         ), $structure->toArray());
     }
     
+    public function testUnset()
+    {
+        $structure = new Structure;
+        $structure->fromArray(array(
+            'a' => array(
+                'a1'    => array(
+                    'a11'   => 1,
+                    'a12'   => 2,
+                ),
+                'a2'    => array(
+                    'a21'   => 1,
+                    'a22'   => 2,
+                ),
+            )
+        ));
+        
+        $structure->unsetField('a.a2.a21');
+        $this->assertEquals(array(
+            'a' => array(
+                'a1'    => array(
+                    'a11'   => 1,
+                    'a12'   => 2,
+                ),
+                'a2'    => array(
+                    'a22'   => 2,
+                ),
+            )
+        ), $structure->toArray());
+    }
+    
     public function testAppend()
     {
         $structure = new Structure;

@@ -149,7 +149,6 @@ class Structure
         // optimize one-level selector search
         if(1 == $chunksNum) {
             $this->_data[$selector] = $value;
-            
             return $this;
         }
         
@@ -169,6 +168,41 @@ class Structure
         
         // update local field
         $section[$arraySelector[$chunksNum - 1]] = $value;
+        
+        return $this;
+    }
+    
+    public function unsetField($selector)
+    {
+        // mark field as modified
+        $this->_modifiedFields[] = $selector;
+        
+        // modify
+        $arraySelector = explode('.', $selector);
+        $chunksNum = count($arraySelector);
+        
+        // optimize one-level selector search
+        if(1 == $chunksNum) {
+            unset($this->_data[$selector]);
+            return $this;
+        }
+        
+        // find section
+        $section = &$this->_data;
+
+        for($i = 0; $i < $chunksNum - 1; $i++) {
+
+            $field = $arraySelector[$i];
+
+            if(!isset($section[$field])) {
+                return $this;
+            }
+
+            $section = &$section[$field];
+        }
+        
+        // clone, unset in cloned and replace
+        unset($section[$arraySelector[$chunksNum - 1]]);
         
         return $this;
     }

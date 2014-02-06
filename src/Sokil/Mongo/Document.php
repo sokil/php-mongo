@@ -450,6 +450,17 @@ class Document extends Structure
         return $this;
     }
     
+    public function unsetField($fieldName)
+    {
+        parent::unsetField($fieldName);
+        
+        if($this->getId()) {
+            $this->_operator->unsetField($fieldName);
+        }
+        
+        return $this;
+    }
+    
     public function fromArray(array $data)
     {        
         if($this->isStored()) {

@@ -127,7 +127,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('c' => 'value2'), $document->get('a.b'));
         $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
     }
-    
+
     public function testSetDate()
     {
         $date = new \MongoDate;
@@ -142,6 +142,72 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $document = self::$collection->getDocument($document->getId());
         
         $this->assertEquals($date, $document->get('d'));
+    }
+    
+        
+    public function testUnsetInNewDocument()
+    {
+        $doc = self::$collection->createDocument(array(
+            'a' => array(
+                'a1'    => array(
+                    'a11'   => 1,
+                    'a12'   => 2,
+                ),
+                'a2'    => array(
+                    'a21'   => 1,
+                    'a22'   => 2,
+                ),
+            )
+        ));
+        
+        $doc->unsetField('a.a2.a21');
+        
+        $this->assertEquals(array(
+            'a' => array(
+                'a1'    => array(
+                    'a11'   => 1,
+                    'a12'   => 2,
+                ),
+                'a2'    => array(
+                    'a22'   => 2,
+                ),
+            )
+        ), $doc->toArray());
+    }
+    
+    public function testUnsetInExistedDocument()
+    {
+        $doc = self::$collection
+            ->createDocument(array(
+                'a' => array(
+                    'a1'    => array(
+                        'a11'   => 1,
+                        'a12'   => 2,
+                    ),
+                    'a2'    => array(
+                        'a21'   => 1,
+                        'a22'   => 2,
+                    ),
+                )
+            ))
+            ->save();
+        
+        $doc->unsetField('a.a2.a21')->save();
+        
+        $data = $doc->toArray();
+        unset($data['_id']);
+        
+        $this->assertEquals(array(
+            'a' => array(
+                'a1'    => array(
+                    'a11'   => 1,
+                    'a12'   => 2,
+                ),
+                'a2'    => array(
+                    'a22'   => 2,
+                ),
+            )
+        ), $data);
     }
     
     public function testAppend()
