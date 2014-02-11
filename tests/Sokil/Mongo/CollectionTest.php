@@ -153,4 +153,52 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         }
         
     }
+    
+    public function testGetDistinct()
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+    
+        // create documents
+        $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F1',
+                    'kk'    => 'A',
+                )
+            ))
+            ->save();
+        
+        $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F1',
+                    'kk'    => 'A',
+                )
+            ))
+            ->save();
+        
+        $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F1',
+                    'kk'    => 'B',
+                )
+            ))
+            ->save();
+        
+        $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F2',
+                    'kk'    => 'C',
+                )
+            ))
+            ->save();
+        
+        // get distinkt
+        $distinctValues = $collection
+            ->getDistinct('k.kk', $collection->expression()->where('k.f', 'F1'));
+        
+        $this->assertEquals(array('A', 'B'), $distinctValues);
+    }
 }

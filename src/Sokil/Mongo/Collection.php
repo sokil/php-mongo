@@ -98,6 +98,22 @@ class Collection
         ));
     }
     
+    /**
+     * Retrieve a list of distinct values for the given key across a collection.
+     * 
+     * @param string $selector field selector
+     * @param \Sokil\Mongo\Expression $expression expression to search documents
+     * @return array distinct values
+     */
+    public function getDistinct($selector, Expression $expression = null)
+    {
+        if($expression) {
+            $expression = $expression->toArray();
+        }
+        
+        return $this->_mongoCollection->distinct($selector, $expression);
+    }
+    
     public function expression()
     {        
         return new $this->_queryExpressionClass;
