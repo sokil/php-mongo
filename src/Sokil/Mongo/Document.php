@@ -90,18 +90,6 @@ class Document extends Structure
         return $this;
     }
     
-    public function onBeforeConstruct($handler) 
-    {
-        $this->_eventDispatcher->addListener('beforeConstruct', $handler);
-        return $this;
-    }
-    
-    public function onAfterConstruct($handler)
-    {
-        $this->_eventDispatcher->addListener('afterConstruct', $handler);
-        return $this;
-    }
-    
     public function onBeforeInsert($handler)
     {
         $this->_eventDispatcher->addListener('beforeInsert', $handler);
