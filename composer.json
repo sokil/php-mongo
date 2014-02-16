@@ -10,7 +10,7 @@
     ],
     "require": {
         "psr/log": "~1.0",
-        "symfony/event-dispatcher": "dev-master"
+        "symfony/event-dispatcher": "2.4.2"
     },
     "autoload": {
         "psr-0": {
