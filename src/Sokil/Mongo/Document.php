@@ -601,4 +601,9 @@ class Document extends Structure
         $this->_collection->saveDocument($this, $validate);
         return $this;
     }
+    
+    public function delete()
+    {
+        $this->_collection->deleteDocument($this);
+    }
 }
