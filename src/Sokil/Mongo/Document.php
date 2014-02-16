@@ -2,6 +2,8 @@
 
 namespace Sokil\Mongo;
 
+use \Symfony\Component\EventDispatcher\EventDispatcher;
+
 class Document extends Structure
 {
     const FIELD_TYPE_DOUBLE                   = 1;
@@ -46,6 +48,8 @@ class Document extends Structure
     
     private $_events = array();
     
+    private $_eventDispatcher;
+    
     /**
      *
      * @var \Sokil\Mongo\Operator
@@ -53,7 +57,9 @@ class Document extends Structure
     private $_operator;
     
     public function __construct(Collection $collection, array $data = null)
-    {    
+    {
+        $this->_eventDispatcher = new EventDispatcher;
+        
         $this->beforeConstruct();   
         
         $this->_collection = $collection;
@@ -62,7 +68,7 @@ class Document extends Structure
         
         $this->_operator = new Operator;
         
-        $this->triggerEvent('afterConstruct');
+        $this->_eventDispatcher->dispatch('afterConstruct');
     }
     
     public function beforeConstruct() {}
@@ -72,82 +78,75 @@ class Document extends Structure
         return (string) $this->getId();
     }
     
-    public function attachEvent($event, $handler)
+    public function triggerEvent($event)
     {
-        $this->_events[$event][] = $handler;
+        $this->_eventDispatcher->dispatch($event);
         return $this;
     }
     
-    public function triggerEvent($event)
+    public function attachEvent($event, $handler)
     {
-        if(empty($this->_events[$event])) {
-            return $this;
-        }
-        
-        foreach($this->_events[$event] as $handler) {
-            call_user_func($handler);
-        }
-        
+        $this->_eventDispatcher->addListener($event, $handler);
         return $this;
     }
     
     public function onBeforeConstruct($handler) 
     {
-        $this->_events['beforeConstruct'][] = $handler;
+        $this->_eventDispatcher->addListener('beforeConstruct', $handler);
         return $this;
     }
     
     public function onAfterConstruct($handler)
     {
-        $this->_events['afterConstruct'][] = $handler;
+        $this->_eventDispatcher->addListener('afterConstruct', $handler);
         return $this;
     }
     
     public function onBeforeInsert($handler)
     {
-        $this->_events['beforeInsert'][] = $handler;
+        $this->_eventDispatcher->addListener('beforeInsert', $handler);
         return $this;
     }
     
     public function onAfterInsert($handler)
     {
-        $this->_events['afterInsert'][] = $handler;
+        $this->_eventDispatcher->addListener('afterInsert', $handler);
         return $this;
     }
     
     public function onBeforeUpdate($handler)
     {
-        $this->_events['beforeUpdate'][] = $handler;
+        $this->_eventDispatcher->addListener('beforeUpdate', $handler);
         return $this;
     }
     
     public function onAfterUpdate($handler)
     {
-        $this->_events['afterUpdate'][] = $handler;
+        $this->_eventDispatcher->addListener('afterUpdate', $handler);
         return $this;
     }
     
     public function onBeforeSave($handler)
     {
-        $this->_events['beforeSave'][] = $handler;
+        $this->_eventDispatcher->addListener('beforeSave', $handler);
         return $this;
     }
     
     public function onAfterSave($handler)
     {
-        $this->_events['afterSave'][] = $handler;
+        $this->_eventDispatcher->addListener('afterSave', $handler);
         return $this;
     }
     
     public function onBeforeDelete($handler)
     {
-        $this->_events['beforeDelete'][] = $handler;
+        $this->_eventDispatcher->addListener('beforeDelete', $handler);
         return $this;
     }
     
     public function onAfterDelete($handler)
     {
-        $this->_events['afterDelete'][] = $handler;
+        $this->_eventDispatcher->addListener('afterDelete', $handler);
         return $this;
     }
     
