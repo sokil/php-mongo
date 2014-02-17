@@ -2,7 +2,7 @@
 
 namespace Sokil\Mongo;
 
-class DocumentTest extends \PHPUnit_Framework_TestCase
+class DocumentEventTest extends \PHPUnit_Framework_TestCase
 {
     /**
      *

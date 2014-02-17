@@ -128,20 +128,45 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
     }
 
+    public function testSetObject()
+    {
+        $obj = new \stdclass;
+        $obj->param = 'value';
+        
+        // save
+        $document = self::$collection->createDocument()
+            ->set('d', $obj)
+            ->save();
+        
+        $this->assertEquals(
+            (array) $obj, 
+            $document->d
+        );
+        
+        $this->assertEquals(
+            (array) $obj, 
+            self::$collection->getDocumentDirectly($document->getId())->d
+        );
+    }
+    
     public function testSetDate()
     {
         $date = new \MongoDate;
         
         // save
         $document = self::$collection->createDocument()
-            ->set('d', $date);
+            ->set('d', $date)
+            ->save();
         
-        self::$collection->saveDocument($document);
+        $this->assertEquals(
+            $date, 
+            $document->d
+        );
         
-        //read
-        $document = self::$collection->getDocument($document->getId());
-        
-        $this->assertEquals($date, $document->get('d'));
+        $this->assertEquals(
+            $date, 
+            self::$collection->getDocumentDirectly($document->getId())->d
+        );
     }
     
     /**
@@ -155,6 +180,30 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $doc->set('a.b', 2);
         $this->assertEquals(array('a' => array('b' => 2)), $doc->toArray());
+    }
+    
+    public function testSetMongoCode()
+    {
+        $doc = self::$collection->createDocument(array(
+            'code'  => new \MongoCode('Math.sin(45);'),
+        ))->save();
+        
+        $this->assertInstanceOf(
+            '\MongoCode',
+            self::$collection->getDocumentDirectly($doc->getId())->code
+        );
+    }
+    
+    public function testSetMongoRegex()
+    {
+        $doc = self::$collection->createDocument(array(
+            'code'  => new \MongoRegex('/[a-z]/'),
+        ))->save();
+        
+        $this->assertInstanceOf(
+            '\MongoRegex',
+            self::$collection->getDocumentDirectly($doc->getId())->code
+        );
     }
     
     /**
@@ -570,7 +619,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(array(1, 2), self::$collection->getDocument($doc->getId())->key);
     }
-    
+
     public function testPushObjectToEmptyOnExistedDocument()
     {
         // create document
@@ -595,8 +644,29 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             array((array)$object1, (array)$object2), 
-            self::$collection->getDocument($doc->getId())->key
+            self::$collection->getDocumentDirectly($doc->getId())->key
         );
+    }
+    
+    public function testPushMongoIdToEmptyOnExistedDocument()
+    {
+        // create document
+        $doc = self::$collection
+            ->createDocument(array(
+                'some' => 'some',
+            ))
+            ->save();
+        
+        $id = new \MongoId;
+        
+        // push single to empty
+        $doc
+            ->push('key', $id)
+            ->save();
+        
+        $this->assertEquals(array($id), $doc->key);
+        
+        $this->assertEquals(array($id), self::$collection->getDocumentDirectly($doc->getId())->key);
     }
     
     public function testPushArrayToEmptyOnExistedDocument()

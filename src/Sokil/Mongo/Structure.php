@@ -139,6 +139,8 @@ class Structure
      */
     public function set($selector, $value)
     {
+        $value = $this->_prepareValue($value);
+        
         // mark field as modified
         $this->_modifiedFields[] = $selector;
         
@@ -173,6 +175,24 @@ class Structure
         $section[$arraySelector[$chunksNum - 1]] = $value;
         
         return $this;
+    }
+    
+    private function _prepareValue($value)
+    {
+        if(is_array($value)) {
+            foreach($value as $k => $v) {
+                $value[$k] = $this->_prepareValue($v);
+            }
+        }
+        
+        // convert objects to arrays except internal mongo types
+        elseif(is_object($value)) {
+            if(!in_array(get_class($value), array('MongoId', 'MongoCode', 'MongoDate', 'MongoRegex', 'MongoBinData', 'MongoInt32', 'MongoInt64', 'MongoDBRef', 'MongoMinKey', 'MongoMaxKey', 'MongoTimestamp'))) {
+                $value = (array) $value;
+            }
+        }
+        
+        return $value;
     }
     
     public function unsetField($selector)
