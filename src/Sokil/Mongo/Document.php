@@ -46,8 +46,6 @@ class Document extends Structure
      */
     private $_triggeredErors = array();
     
-    private $_events = array();
-    
     private $_eventDispatcher;
     
     /**
