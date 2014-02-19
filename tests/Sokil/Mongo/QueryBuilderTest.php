@@ -746,4 +746,20 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals($documentId, self::$collection->find()->whereNotExists('unexistedFieldName')->findOne()->getId());
     }
+    
+    public function testToArray()
+    {
+        // create new document
+        self::$collection->delete();
+        
+        // find
+        $query = self::$collection->find()->where('some-field', 'some-value');
+        $queryArray = $query->toArray();
+        
+        $this->assertInternalType('array', $queryArray);
+        
+        $this->assertEquals(array(
+            'some-field' => 'some-value'
+        ), $queryArray);
+    }
 }

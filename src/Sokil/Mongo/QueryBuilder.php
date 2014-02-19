@@ -325,6 +325,11 @@ class QueryBuilder implements \Iterator, \Countable
             ->current();
     }
     
+    public function toArray()
+    {
+        return $this->_expression->toArray();
+    }
+    
     public function current()
     {
         $documentData = $this->getCursor()->current();
