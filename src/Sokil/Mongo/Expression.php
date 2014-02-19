@@ -37,6 +37,11 @@ class Expression
         ));
     }
     
+    public function whereNotEmpty($field)
+    {
+        return $this->whereNor($this->expression()->whereEmpty($field));
+    }
+    
     public function whereGreater($field, $value)
     {
         return $this->where($field, array('$gt' => $value));
