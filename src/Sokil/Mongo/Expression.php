@@ -39,7 +39,12 @@ class Expression
     
     public function whereNotEmpty($field)
     {
-        return $this->whereNor($this->expression()->whereEmpty($field));
+        return $this->where('$nor', array(
+            array($field => null),
+            array($field => ''),
+            array($field => array()),
+            array($field => array('$exists' => false))
+        ));
     }
     
     public function whereGreater($field, $value)
