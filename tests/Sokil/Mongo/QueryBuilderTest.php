@@ -506,6 +506,39 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($documentId, $document->getId());
     }
     
+    public function testWhereElemNotMatch()
+    {
+        self::$collection->delete();
+        
+        // create new document
+        $document = self::$collection->createDocument(array(
+            'param'    => array(
+                array(
+                    'subparam1'    => 10,
+                    'subparam2'    => 20,
+                ),
+                array(
+                    'subparam1'    => 200,
+                    'subparam2'    => 300,
+                ),
+            ),
+        ));
+        self::$collection->saveDocument($document);
+        $documentId = $document->getId();
+        
+        // find
+        $q = self::$collection->find();
+        
+        $search = $q->whereElemNotMatch('param', 
+            $q->expression()->where('subparam1', 10000)
+        );
+    
+        $document = $search->findOne();
+
+        $this->assertNotEmpty($document);
+        $this->assertEquals($documentId, $document->getId());
+    }
+    
     public function testWhereElemMatchWithoutHelpers()
     {
         self::$collection->delete();

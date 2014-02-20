@@ -182,6 +182,11 @@ class Expression
         return $this->where($field, array('$elemMatch' => $expression->toArray()));
     }
     
+    public function whereElemNotMatch($field, Expression $expression)
+    {
+        return $this->whereNot($this->expression()->whereElemMatch($field, $expression));
+    }
+    
     public function whereArraySize($field, $length)
     {
         return $this->where($field, array('$size' => (int) $length));
