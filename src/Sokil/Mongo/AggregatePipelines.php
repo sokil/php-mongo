@@ -45,4 +45,9 @@ class AggregatePipelines
     public function toArray() {
         return $this->_pipelines;
     }
+    
+    public function limit($limit) {
+        $this->_add('$limit', (int) $limit);
+        return $this;
+    }
 }
