@@ -50,4 +50,9 @@ class AggregatePipelines
         $this->_add('$limit', (int) $limit);
         return $this;
     }
+    
+    public function skip($skip) {
+        $this->_add('$skip', (int) $skip);
+        return $this;
+    }
 }
