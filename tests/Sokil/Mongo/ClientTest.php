@@ -6,71 +6,70 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 {
     /**
      *
-     * @var \Sokil\Mongo\Collection
+     * @var \Sokil\Mongo\Client
      */
-    private static $collection;
+    private static $client;
     
     public static function setUpBeforeClass()
     {
         // connect to mongo
-        $client = new Client('mongodb://127.0.0.1');
-        
-        // select database
-        $database = $client->getDatabase('test');
-        
-        // select collection
-        self::$collection = $database->getCollection('phpmongo_test_collection');
+        self::$client = new Client('mongodb://127.0.0.1');
     }
     
     public static function tearDownAfterClass() {
-        self::$collection->delete();
+        
     }
     
-    public function testUsecase() 
-    {        
-        /**
-         * Create document
-         */
+    public function testMapDeclaredCollectionToClass()
+    {
+        self::$client->map([
+            'db1'   => [
+                'db1Collection1'  => '\Db1Collection1Class',
+                'db1Collection2'  => '\Db1Collection2Class',
+            ],
+            'db2'   => '\Some\Class\Prefix\\',
+        ]);
         
-        // create document
-        $document = self::$collection->createDocument(array(
-            'l1'   => array(
-                'l11'   => 'l11value',
-                'l12'   => 'l12value',
-            ),
-            'l2'   => array(
-                'l21'   => 'l21value',
-                'l22'   => 'l22value',
-            ),
-        ));
+        $this->assertEquals(
+            '\Db1Collection2Class',
+            self::$client->getDatabase('db1')->getCollectionClassName('db1Collection2')
+        );
+    }
+    
+    public function testMapUndeclaredCollectionToClass()
+    {
+        self::$client->map([
+            'db1'   => [
+                'db1Collection1'  => '\Db1Collection1Class',
+                'db1Collection2'  => '\Db1Collection2Class',
+            ],
+            'db2'   => '\Some\Class\Prefix\\',
+        ]);
         
-        // insert document
-        self::$collection->saveDocument($document);
-        $documentId = (string) $document->getId();
+        $this->assertEquals(
+            '\Sokil\Mongo\Collection',
+            self::$client->getDatabase('db1')->getCollectionClassName('undeclaredCollection')
+        );
         
-        // test
-        $this->assertNotEmpty($documentId);
+        $this->assertEquals(
+            '\Sokil\Mongo\Collection',
+            self::$client->getDatabase('undeclaredDatabase')->getCollectionClassName('undeclaredCollection')
+        );
+    }
+    
+    public function testMapCollectionToClassPrefix()
+    {
+        self::$client->map([
+            'db1'   => [
+                'db1Collection1'  => '\Db1Collection1Class',
+                'db1Collection2'  => '\Db1Collection2Class',
+            ],
+            'db2'   => '\Some\Class\Prefix\\',
+        ]);
         
-        /**
-         * Update document
-         */
-        
-        // update
-        $document->set('l1.l12', 'updated');
-        $document->set('l3', 'add new key');
-        self::$collection->saveDocument($document);
-        
-        // test
-        $document = self::$collection->getDocument($documentId);
-        
-        $this->assertEquals('updated', $document->get('l1.l12'));
-        $this->assertEquals('add new key', $document->get('l3'));
-        
-        /**
-         * Delete document
-         */
-        self::$collection->deleteDocument($document);
-        
-        $this->assertEmpty(self::$collection->getDocument($documentId));
+        $this->assertEquals(
+            '\Some\Class\Prefix\Some\Collection\Name',
+            self::$client->getDatabase('db2')->getCollectionClassName('some.collection.name')
+        );
     }
 }

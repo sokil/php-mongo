@@ -20,6 +20,8 @@ class Database
     
     private $_mapping = array();
     
+    private $_classPrefix;
+    
     private $_collectionPool = array();
     
     public function __construct(Client $client, $databaseName) {
@@ -50,20 +52,44 @@ class Database
     /**
      * Map collection name to class
      * 
-     * @param type $name
-     * @param type $class
+     * @param string|array $name collection name or array like [collectionName => collectionClass, ...]
+     * @param string|null $class if $name is string, then full class name, else ommited
      * @return \Sokil\Mongo\Client
      */
     public function map($name, $class = null) {
         
+        // map collections to classes
         if(is_array($name)) {
             $this->_mapping = array_merge($this->_mapping, $name);
         }
-        else {
+        // map collection to class
+        elseif($class) {
             $this->_mapping[$name] = $class;
+        }
+        // define class prefix
+        else {
+            $this->_classPrefix = rtrim($name, '\\');
         }
         
         return $this;
+    }
+    
+    /**
+     * Get class name mapped to collection
+     * @param string $name name of collection
+     * @return string name of class
+     */
+    public function getCollectionClassName($name)
+    {        
+        if(isset($this->_mapping[$name])) {
+            $className = $this->_mapping[$name];
+        } elseif($this->_classPrefix) {
+            $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', strtolower($name))));
+        } else {
+            $className = '\Sokil\Mongo\Collection';
+        }
+        
+        return $className;
     }
     
     /**
@@ -73,16 +99,9 @@ class Database
      */
     public function getCollection($name) {
         if(!isset($this->_collectionPool[$name])) {
-            
-            if(isset($this->_mapping[$name])) {
-                $className = $this->_mapping[$name];
-            }
-            else {
-                $className = '\\' . get_called_class() . '\\' . implode('\\', array_map('ucfirst', array_map('strtolower', explode('.', $name))));
-            }
-                
+            $className = $this->getCollectionClassName($name);
             if(!class_exists($className)) {
-                $className = '\Sokil\Mongo\Collection';
+                throw new Exception('Class ' . $className . ' not found while map collection name to class');
             }
             
             $this->_collectionPool[$name] = new $className($this, $name);
