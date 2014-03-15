@@ -294,6 +294,28 @@ class Collection
         return $this;
     }
     
+    public function insertMultiple($rows)
+    {
+        $document = $this->createDocument();
+        
+        foreach($rows as $row) {
+            $document->fromArray($row);
+            
+            if(!$document->isValid()) {
+                throw new Exception('Document invalid');
+            }
+            
+            $document->reset();
+        }
+        
+        $result = $this->_mongoCollection->batchInsert($rows);
+        if(!$result || $result['ok'] != 1) {
+            throw new Exception('Batch insert error: ' . $result['err']);
+        }
+        
+        return $this;
+    }
+    
     public function updateMultiple(Expression $expression, $updateData)
     {
         if($updateData instanceof Operator) {

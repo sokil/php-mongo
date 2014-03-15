@@ -56,20 +56,31 @@ class Document extends Structure
     
     public function __construct(Collection $collection, array $data = null)
     {
-        $this->_eventDispatcher = new EventDispatcher;
-        
-        $this->beforeConstruct();   
-        
         $this->_collection = $collection;
         
-        parent::__construct($data);
+        $this->reset();
         
-        $this->_operator = new Operator;
+        $this->beforeConstruct();
+        
+        parent::__construct($data);
         
         $this->_eventDispatcher->dispatch('afterConstruct');
     }
     
     public function beforeConstruct() {}
+    
+        
+    public function reset()
+    {
+        parent::reset();
+        
+        $this->_eventDispatcher = new EventDispatcher;
+        $this->_operator        = new Operator;
+        $this->_errors          = array();
+        $this->_triggeredErors  = array();
+        
+        return $this;
+    }
     
     public function __toString()
     {

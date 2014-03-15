@@ -201,4 +201,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(array('A', 'B'), $distinctValues);
     }
+    
+    public function testInsertMultiple()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection');
+        
+        $collection->insertMultiple(array(
+            array('a' => 1, 'b' => 2),
+            array('a' => 3, 'b' => 4),
+        ));
+        
+        $document = $collection->find()->where('a', 1)->findOne();
+        
+        $this->assertNotEmpty($document);
+        
+        $this->assertEquals(2, $document->b);
+    }
 }

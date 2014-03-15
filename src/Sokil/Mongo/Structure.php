@@ -15,6 +15,14 @@ class Structure
         }
     }
     
+    public function reset()
+    {
+        $this->_data = array();
+        $this->_modifiedFields = array();
+        
+        return $this;
+    }
+    
     public function __get($name)
     {
         return isset($this->_data[$name]) ? $this->_data[$name] : null;
