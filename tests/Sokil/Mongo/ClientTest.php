@@ -72,4 +72,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             self::$client->getDatabase('db2')->getCollectionClassName('some.collection.name')
         );
     }
+    
+    public function testUseDatabase()
+    {
+        $collection = self::$client
+            ->useDatabase('test')
+            ->getCollection('some-collection');
+        
+        $this->assertInstanceOf('\Sokil\Mongo\Collection', $collection);
+    }
 }
