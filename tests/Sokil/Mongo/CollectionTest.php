@@ -218,4 +218,25 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(2, $document->b);
     }
+    
+    public function testValidateOnNotExistedCollection()
+    {
+        $result = self::$database
+            ->getCollection('phpmongo_unexisted_collection')
+            ->validate(true);
+        
+        $this->assertEquals($result, 'ns not found');
+    }
+    
+    public function testValidateOnExistedCollection()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection');
+        
+        $collection->createDocument(array('param' => 1))->save();
+       
+        $result = $collection->validate(true);
+        
+        $this->assertInternalType('array', $result);
+    }
 }

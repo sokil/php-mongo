@@ -371,6 +371,16 @@ class Collection
         return $status['result'];
     }
     
+    public function validate($full = false)
+    {
+        $response = $this->_mongoCollection->validate($full);
+        if(!$response || $response['ok'] != 1) {
+            throw new Exception($response['errmsg']);
+        }
+        
+        return $response;
+    }
+    
     public function readPrimaryOnly()
     {
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY);
