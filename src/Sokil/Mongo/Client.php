@@ -24,6 +24,8 @@ class Client
         
     private $_logger;
     
+    private $_currentDatabaseName;
+    
     /**
      * 
      * @param type $dsn
@@ -93,7 +95,12 @@ class Client
      * @param string $name database name
      * @return \Sokil\Mongo\Database
      */
-    public function getDatabase($name) {
+    public function getDatabase($name = null) {
+        
+        if(!$name) {
+            $name = $this->getCurrentDatabaseName();
+        }
+        
         if(!isset($this->_databasePool[$name])) {
             $this->_databasePool[$name] = new Database($this, $name);
             
@@ -103,6 +110,41 @@ class Client
         }
         
         return $this->_databasePool[$name];
+    }
+    
+    /**
+     * Select database
+     * 
+     * @param string $databaseName
+     * @return \Sokil\Mongo\Client
+     */
+    public function useDatabase($name)
+    {
+        $this->_currentDatabaseName = $name;
+        return $this;
+    }
+    
+    public function getCurrentDatabaseName()
+    {
+        if(!$this->_currentDatabaseName) {
+            throw new Exception('Database not selected');
+        }
+
+        return $this->_currentDatabaseName;
+    }
+    
+    /**
+     * Get collection from presiously seletced database by self::useDatabase()
+     * 
+     * @param string $name
+     * @return \Sokil\Mongo\Collection
+     * @throws Exception
+     */
+    public function getCollection($name)
+    {        
+        return $this
+            ->getDatabase($this->getCurrentDatabaseName())
+            ->getCollection($name);
     }
     
     public function readPrimaryOnly()
