@@ -2,6 +2,7 @@ PHPMongo
 ========
 
 Wrapper to PECL Mongo driver
+[![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master)](https://travis-ci.org/sokil/php-mongo)
 
 Basic example
 -------
