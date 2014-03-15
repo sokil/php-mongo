@@ -1,8 +1,9 @@
+[![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master)](https://travis-ci.org/sokil/php-mongo)
+
 PHPMongo
 ========
 
-Wrapper to PECL Mongo driver
-[![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master)](https://travis-ci.org/sokil/php-mongo)
+Object Document Mapper for MongoDB
 
 Basic example
 -------
