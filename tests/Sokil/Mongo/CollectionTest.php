@@ -225,7 +225,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidateOnNotExistedCollection()
     {
-        $result = self::$database
+        self::$database
             ->getCollection('phpmongo_unexisted_collection')
             ->validate(true);
     }
