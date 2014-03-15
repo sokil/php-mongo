@@ -4,6 +4,8 @@ namespace Sokil\Mongo;
 
 use \Symfony\Component\EventDispatcher\EventDispatcher;
 
+use Sokil\Mongo\Behavior;
+
 class Document extends Structure
 {
     const FIELD_TYPE_DOUBLE                   = 1;
@@ -38,13 +40,13 @@ class Document extends Structure
      *
      * @var array validator errors
      */
-    private $_errors = array();
+    private $_errors;
     
     /**
      *
      * @var array manually added validator errors
      */
-    private $_triggeredErors = array();
+    private $_triggeredErors;
     
     private $_eventDispatcher;
     
@@ -53,6 +55,8 @@ class Document extends Structure
      * @var \Sokil\Mongo\Operator
      */
     private $_operator;
+    
+    private $_behaviors;
     
     public function __construct(Collection $collection, array $data = null)
     {
@@ -79,12 +83,27 @@ class Document extends Structure
         $this->_errors          = array();
         $this->_triggeredErors  = array();
         
+        $this->_behaviors       = array();
+        $this->attachBehaviors($this->behaviors());
+        
         return $this;
     }
     
     public function __toString()
     {
         return (string) $this->getId();
+    }
+    
+    public function __call($name, $arguments) {
+        
+        // behaviors
+        foreach($this->_behaviors as $behavior) {
+            if(!method_exists($behavior, $name)) {
+                continue;
+            }
+            
+            return call_user_func_array(array($behavior, $name), $arguments);
+        }
     }
     
     public function triggerEvent($event)
@@ -425,6 +444,39 @@ class Document extends Structure
     public function triggerErrors(array $errors)
     {
         $this->_triggeredErors = array_merge_recursive($this->_triggeredErors, $errors);
+        return $this;
+    }
+    
+    public function behaviors()
+    {
+        return array();
+    }
+    
+    public function attachBehaviors(array $behaviors)
+    {
+        foreach($behaviors as $name => $behavior) {
+            
+            if(!($behavior instanceof Behavior)) {
+                if(empty($behavior['class'])) {
+                    throw new Exception('Behavior class not specified');
+                }
+
+                $className = $behavior['class'];
+                unset($behavior['class']);
+
+                $behavior = new $className($behavior);
+            }
+            
+            $this->attachBehavior($name, $behavior);
+        }
+        
+        return $this;
+    }
+    
+    public function attachBehavior($name, Behavior $behavior)
+    {
+        $this->_behaviors[$name] = $behavior;
+        
         return $this;
     }
     

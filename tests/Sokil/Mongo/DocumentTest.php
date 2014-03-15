@@ -1078,4 +1078,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'a2'    => 'av2',
         ), $foundDocumentData);
     }
+    
+    public function testExecuteBehavior()
+    {
+        $document = self::$collection->createDocument(array('param' => 0));
+        
+        $document->attachBehavior('get42', new \Sokil\Mongo\DocumentTest\SomeBehavior());
+        
+        $this->assertEquals(42, $document->return42());
+    }
 }
