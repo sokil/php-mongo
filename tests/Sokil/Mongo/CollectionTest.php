@@ -219,13 +219,15 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $document->b);
     }
     
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage ns not found
+     */
     public function testValidateOnNotExistedCollection()
     {
         $result = self::$database
             ->getCollection('phpmongo_unexisted_collection')
             ->validate(true);
-        
-        $this->assertEquals($result, 'ns not found');
     }
     
     public function testValidateOnExistedCollection()
