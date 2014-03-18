@@ -555,52 +555,140 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     }
     
-    public function testIncrement()
+    /**
+     * @covers \Sokil\Mongo\Document::increment
+     */
+    public function testIncrementNotExistedKeyOfUnsavedDocument()
     {
-        // create document
-        $doc = self::$collection->createDocument(array('i' => 1));
+        /**
+         * Increment unsaved
+         */
+        $doc = self::$collection
+            ->createDocument(array('i' => 1));
         
-        // increment unsaved
+        // increment
+        $doc->increment('j', 2);
+        $doc->increment('j', 4);
+        
+        // test
+        $this->assertEquals(6, $doc->get('j'));
+        
+        // save
+        $doc->save();
+        
+        /**
+         * Test increment of document in cache
+         */
+        $doc = self::$collection->getDocument($doc->getId());
+        $this->assertEquals(6, $doc->get('j'));
+        
+        /**
+         * Test increment after reread from db
+         */
+        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $this->assertEquals(6, $doc->get('j'));
+    }
+    
+    /**
+     * @covers \Sokil\Mongo\Document::increment
+     */
+    public function testIncrementNotExistedKeyOfSavedDocument()
+    {
+        $doc = self::$collection
+            ->createDocument(array('i' => 1))
+            ->save();
+        
+        /**
+         * Increment saved
+         */
+        $doc->increment('j', 2); // existed key
+        $doc->increment('j', 4);
+        
+        // test
+        $this->assertEquals(6, $doc->get('j'));
+        
+        // save
+        $doc->save();
+        
+        /**
+         * Test increment of document in cache
+         */
+        $doc = self::$collection->getDocument($doc->getId());
+        $this->assertEquals(6, $doc->get('j'));
+        
+        /**
+         * Test increment after reread from db
+         */
+        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $this->assertEquals(6, $doc->get('j'));
+    }
+    
+    /**
+     * @covers \Sokil\Mongo\Document::increment
+     */
+    public function testIncrementExistedKeyOfUnsavedDocument()
+    {
+        /**
+         * Increment unsaved
+         */
+        $doc = self::$collection
+            ->createDocument(array('i' => 1));
+        
+        // increment
         $doc->increment('i', 2);
         $doc->increment('i', 4);
-        $doc->set('j', 8);
         
-        // test unsaved
+        // test
         $this->assertEquals(7, $doc->get('i'));
-        $this->assertEquals(8, $doc->get('j'));
         
         // save
-        self::$collection->saveDocument($doc);
+        $doc->save();
         
-        // test saved
+        /**
+         * Test increment of document in cache
+         */
         $doc = self::$collection->getDocument($doc->getId());
-        
         $this->assertEquals(7, $doc->get('i'));
-        $this->assertEquals(8, $doc->get('j'));
         
-        // increment saved
-        $doc->increment('i', 16); // existed key
-        $doc->increment('i', 32);
+        /**
+         * Test increment after reread from db
+         */
+        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $this->assertEquals(7, $doc->get('i'));
+    }
+    
+    /**
+     * @covers \Sokil\Mongo\Document::increment
+     */
+    public function testIncrementExistedKeyOfSavedDocument()
+    {
+        $doc = self::$collection
+            ->createDocument(array('i' => 1))
+            ->save();
         
-        $doc->increment('j', 64); // unexisted key
-        $doc->increment('j', 128);
+        /**
+         * Increment saved
+         */
+        $doc->increment('i', 2); // existed key
+        $doc->increment('i', 4);
         
-        $doc->set('k', 256); // set new key
-        
-        // test unsaved
-        $this->assertEquals(55, $doc->get('i'));
-        $this->assertEquals(200, $doc->get('j'));
-        $this->assertEquals(256, $doc->get('k'));
+        // test
+        $this->assertEquals(7, $doc->get('i'));
         
         // save
-        self::$collection->saveDocument($doc);
+        $doc->save();
         
-        // test saved
+        /**
+         * Test increment of document in cache
+         */
         $doc = self::$collection->getDocument($doc->getId());
+        $this->assertEquals(7, $doc->get('i'));
         
-        $this->assertEquals(55, $doc->get('i'));
-        $this->assertEquals(200, $doc->get('j'));
-        $this->assertEquals(256, $doc->get('k'));
+        /**
+         * Test increment after reread from db
+         */
+        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $this->assertEquals(7, $doc->get('i'));
     }
     
     public function testPushNumberToEmptyOnExistedDocument()

@@ -52,8 +52,6 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
     
     /**
      * Check if pipeline added as new or appended to previouse on same operator
-     * 
-     * @covers \Sokil\Mongo\AggregatePipeline::_add
      */
     public function testPipelineAppend() {
         
