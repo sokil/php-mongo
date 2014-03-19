@@ -72,4 +72,9 @@ class AggregatePipelines
     {
         return $this->_collection->aggregate($this);
     }
+    
+    public function __toString()
+    {
+        return json_encode($this->_pipelines);
+    }
 }

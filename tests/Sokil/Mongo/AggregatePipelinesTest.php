@@ -99,7 +99,49 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             array('$sort'       => array('field5' => 'value5')),
             array('$group'      => array('_id' => '$groupField', 'field6' => array('$sum' => 1))),
         ), $pipelines->toArray());
+    }
+    
+    /**
+     * Check if pipeline added as new or appended to previouse on same operator
+     */
+    public function testPipelineToString() {
         
+        $pipelines = self::$collection->createPipeline();
+        
+        // insert new match pipeline
+        $pipelines->match(array(
+            'field1'    => 'value1'
+        ));
+        
+        // insert new project pipeline
+        $pipelines->project(array(
+            'field2'    => 'value2'
+        ));
+        
+        // insert new match pipeline
+        $pipelines->match(array(
+            'field3'    => 'value3'
+        ));
+        
+        // append match pipeline to previous
+        $pipelines->match(array(
+            'field3'    => 'value3merged',
+            'field4'    => 'value4'
+        ));
+        
+        // insert new sort pipeline
+        $pipelines->sort(array(
+            'field5'    => 'value5'
+        ));
+        
+        // insert new group pipeline
+        $pipelines->group(array(
+            '_id'       => '$groupField',
+            'field6'    => array('$sum' => 1)
+        ));
+        
+        $validJson = '[{"$match":{"field1":"value1"}},{"$project":{"field2":"value2"}},{"$match":{"field3":"value3merged","field4":"value4"}},{"$sort":{"field5":"value5"}},{"$group":{"_id":"$groupField","field6":{"$sum":1}}}]';
+        $this->assertEquals($validJson, $pipelines->__toString());
     }
     
     /**
