@@ -343,7 +343,7 @@ class Collection
      * @return \Sokil\Mongo\AggregatePipelines
      */
     public function createPipeline() {
-        return new AggregatePipelines;
+        return new AggregatePipelines($this);
     }
     
     /**
