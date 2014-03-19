@@ -23,7 +23,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testPipelineAppendFewGroups() {
-        $pipelines  = new AggregatePipelines;
+        $pipelines  = self::$collection->createPipeline();
         
         $pipelines->group(array(
             '_id'   => '$field1',
@@ -148,7 +148,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
      * @expectedException \Sokil\Mongo\Exception
      */
     public function testErrorOnEmptyIDInGroup() {
-        $pipelines  = new AggregatePipelines;
+        $pipelines  = self::$collection->createPipeline();
         
         $pipelines->group(array(
             'field' => 'value'
