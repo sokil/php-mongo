@@ -2,9 +2,21 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Collection;
+
 class AggregatePipelines
 {
     private $_pipelines = array();
+    
+    /**
+     * @var \Sokil\Mongo\Collection
+     */
+    private $_collection;
+    
+    public function __construct(Collection $collection)
+    {
+        $this->_collection = $collection;
+    }
     
     private function _add($operator, $pipeline) {
         $lastIndex = count($this->_pipelines) - 1;
@@ -54,5 +66,10 @@ class AggregatePipelines
     public function skip($skip) {
         $this->_add('$skip', (int) $skip);
         return $this;
+    }
+    
+    public function aggregate()
+    {
+        return $this->_collection->aggregate($this);
     }
 }
