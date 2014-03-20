@@ -795,4 +795,52 @@ class SearchTest extends \PHPUnit_Framework_TestCase
             'some-field' => 'some-value'
         ), $queryArray);
     }
+    
+    /**
+     * @covers \Sokil\Mongo\QueryBuilder::map
+     */
+    public function testMap()
+    {
+        // create new document
+        self::$collection->delete();
+        
+        self::$collection->createDocument(array(
+            'param'    => 'value1',
+        ))->save();
+        
+        self::$collection->createDocument(array(
+            'param'    => 'value2',
+        ))->save();
+        
+        // test
+        $result = self::$collection->find()->map(function(Document $document) {
+            return $document->param;
+        });
+        
+        $this->assertEquals(array('value1', 'value2'), array_values($result));
+    }
+    
+    /**
+     * @covers \Sokil\Mongo\QueryBuilder::filter
+     */
+    public function testFilter()
+    {
+        // create new document
+        self::$collection->delete();
+        
+        self::$collection->createDocument(array(
+            'param'    => 'value1',
+        ))->save();
+        
+        self::$collection->createDocument(array(
+            'param'    => 'value2',
+        ))->save();
+        
+        // test
+        $result = self::$collection->find()->filter(function(Document $document) {
+            return $document->param == 'value1';
+        });
+        
+        $this->assertEquals('value1', current($result)->param);
+    }
 }

@@ -307,6 +307,32 @@ class QueryBuilder implements \Iterator, \Countable
         return iterator_to_array($this);
     }
     
+    public function map($handler)
+    {
+        $result = array();
+        
+        foreach($this as $id => $document) {
+            $result[$id] = $handler($document);
+        }
+        
+        return $result;
+    }
+    
+    public function filter($handler)
+    {
+        $result = array();
+        
+        foreach($this as $id => $document) {
+            if(!$handler($document)) {
+                continue;
+            }
+            
+            $result[$id] = $document;
+        }
+        
+        return $result;
+    }
+    
     public function findRandom()
     {
         $count = $this->count();
