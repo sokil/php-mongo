@@ -389,7 +389,8 @@ class Document extends Structure
                         $isValidMX = true;
                         
                         if($isValidEmail && !empty($rule['mx'])) {
-                            $isValidMX =  checkdnsrr(explode('@', $value)[1], 'MX');
+                            list(, $host) = explode('@', $value);
+                            $isValidMX =  checkdnsrr($host, 'MX');
                         }
                         
                         if(!$isValidEmail || !$isValidMX) {
