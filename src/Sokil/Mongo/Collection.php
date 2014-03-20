@@ -381,6 +381,31 @@ class Collection
         return $response;
     }
     
+    public function ensureIndex($key, array $options = array())
+    {
+        $this->_mongoCollection->ensureIndex($key, $options);
+        return $this;
+    }
+    
+    public function ensureUniqueIndex($key, $dropDups = false)
+    {
+        $this->_mongoCollection->ensureIndex($key, array(
+            'unique'    => true,
+            'dropDups'  => (bool) $dropDups,
+        ));
+        
+        return $this;
+    }
+    
+    public function ensureSparseIndex($key)
+    {
+        $this->_mongoCollection->ensureIndex($key, array(
+            'sparse'    => true,
+        ));
+        
+        return $this;
+    }
+    
     public function readPrimaryOnly()
     {
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY);
