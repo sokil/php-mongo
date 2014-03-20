@@ -230,16 +230,20 @@ class Structure
     
     public function unsetField($selector)
     {
-        // mark field as modified
-        $this->_modifiedFields[] = $selector;
-        
         // modify
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
         
         // optimize one-level selector search
         if(1 == $chunksNum) {
-            unset($this->_data[$selector]);
+            // check if field exists
+            if(isset($this->_data[$selector])) {
+                // unset field
+                unset($this->_data[$selector]);
+                // mark field as modified
+                $this->_modifiedFields[] = $selector;
+            }
+            
             return $this;
         }
         
@@ -257,8 +261,13 @@ class Structure
             $section = &$section[$field];
         }
         
-        // clone, unset in cloned and replace
-        unset($section[$arraySelector[$chunksNum - 1]]);
+        // check if field exists
+        if(isset($section[$arraySelector[$chunksNum - 1]])) {
+            // unset field
+            unset($section[$arraySelector[$chunksNum - 1]]);
+            // mark field as modified
+            $this->_modifiedFields[] = $selector;
+        }
         
         return $this;
     }

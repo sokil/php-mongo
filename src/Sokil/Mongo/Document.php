@@ -509,7 +509,7 @@ class Document extends Structure
     {
         parent::unsetField($fieldName);
         
-        if($this->getId()) {
+        if($this->getId() && $this->has($fieldName)) {
             $this->_operator->unsetField($fieldName);
         }
         
