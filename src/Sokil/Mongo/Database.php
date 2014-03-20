@@ -139,4 +139,24 @@ class Database
         $this->_mongoDB->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
+    
+    public function setWriteConcern($w, $timeout)
+    {
+        if(!$this->_mongoDB->setWriteConcern($w, (int) $timeout)) {
+            throw new Exception('Error setting write concern');
+        }
+        
+        return $this;
+    }
+    
+    public function setMajorityWriteConcern($timeout)
+    {
+        $this->setWriteConcern('majority', (int) $timeout);
+        return $this;
+    }
+    
+    public function getWriteConcern()
+    {
+        return $this->_mongoDB->getWriteConcern();
+    }
 }

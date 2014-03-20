@@ -435,4 +435,24 @@ class Collection
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
+    
+    public function setWriteConcern($w, $timeout)
+    {
+        if(!$this->_mongoCollection->setWriteConcern($w, (int) $timeout)) {
+            throw new Exception('Error setting write concern');
+        }
+        
+        return $this;
+    }
+    
+    public function setMajorityWriteConcern($timeout)
+    {
+        $this->setWriteConcern('majority', (int) $timeout);
+        return $this;
+    }
+    
+    public function getWriteConcern()
+    {
+        return $this->_mongoCollection->getWriteConcern();
+    }
 }
