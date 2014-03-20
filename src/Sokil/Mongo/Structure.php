@@ -195,6 +195,21 @@ class Structure
         return $this;
     }
     
+    public function has($selector)
+    {
+        $pointer = &$this->_data;
+        
+        foreach(explode('.', $selector) as $field) {
+            if(!isset($pointer[$field])) {
+                return false;
+            }
+            
+            $pointer = &$pointer[$field];
+        }
+        
+        return true;
+    }
+    
     private function _prepareValue($value)
     {
         if(is_array($value)) {

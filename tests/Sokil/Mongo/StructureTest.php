@@ -250,4 +250,19 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         
         $this->assertFalse($structure->isModified('param1.param2'));
     }
+    
+    /**
+     * @covers \Sokil\Mongo\Structure::has
+     */
+    public function testHas()
+    {
+        $structure = new Structure(array(
+            'param1'    => array(
+                'param2'    => 'value2',
+            )
+        ));
+        
+        $this->assertTrue($structure->has('param1'));
+        $this->assertTrue($structure->has('param1.param2'));
+    }
 }
