@@ -148,17 +148,22 @@ class Structure
     public function set($selector, $value)
     {
         $value = $this->_prepareValue($value);
-        
-        // mark field as modified
-        $this->_modifiedFields[] = $selector;
-        
+
         // modify
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
         
         // optimize one-level selector search
         if(1 == $chunksNum) {
-            $this->_data[$selector] = $value;
+            
+            // update only if new value different from current
+            if(!isset($this->_data[$selector]) || $this->_data[$selector] !== $value) {
+                // modify
+                $this->_data[$selector] = $value;
+                // mark field as modified
+                $this->_modifiedFields[] = $selector;
+            }
+        
             return $this;
         }
         
@@ -179,8 +184,13 @@ class Structure
             $section = &$section[$field];
         }
         
-        // update local field
-        $section[$arraySelector[$chunksNum - 1]] = $value;
+        // update only if new value different from current
+        if(!isset($section[$arraySelector[$chunksNum - 1]]) || $section[$arraySelector[$chunksNum - 1]] !== $value) {
+            // modify
+            $section[$arraySelector[$chunksNum - 1]] = $value;
+            // mark field as modified
+            $this->_modifiedFields[] = $selector;
+        }
         
         return $this;
     }
