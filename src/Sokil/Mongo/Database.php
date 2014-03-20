@@ -149,6 +149,12 @@ class Database
         return $this;
     }
     
+    public function setUnacknowledgedWriteConcern($timeout)
+    {
+        $this->setWriteConcern(0, (int) $timeout);
+        return $this;
+    }
+    
     public function setMajorityWriteConcern($timeout)
     {
         $this->setWriteConcern('majority', (int) $timeout);
