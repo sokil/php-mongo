@@ -22,13 +22,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     
     public function testMapDeclaredCollectionToClass()
     {
-        self::$client->map([
-            'db1'   => [
+        self::$client->map(array(
+            'db1'   => array(
                 'db1Collection1'  => '\Db1Collection1Class',
                 'db1Collection2'  => '\Db1Collection2Class',
-            ],
+            ),
             'db2'   => '\Some\Class\Prefix\\',
-        ]);
+        ));
         
         $this->assertEquals(
             '\Db1Collection2Class',
@@ -38,13 +38,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     
     public function testMapUndeclaredCollectionToClass()
     {
-        self::$client->map([
-            'db1'   => [
+        self::$client->map(array(
+            'db1'   => array(
                 'db1Collection1'  => '\Db1Collection1Class',
                 'db1Collection2'  => '\Db1Collection2Class',
-            ],
+            ),
             'db2'   => '\Some\Class\Prefix\\',
-        ]);
+        ));
         
         $this->assertEquals(
             '\Sokil\Mongo\Collection',
@@ -59,13 +59,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     
     public function testMapCollectionToClassPrefix()
     {
-        self::$client->map([
-            'db1'   => [
+        self::$client->map(array(
+            'db1'   => array(
                 'db1Collection1'  => '\Db1Collection1Class',
                 'db1Collection2'  => '\Db1Collection2Class',
-            ],
+            ),
             'db2'   => '\Some\Class\Prefix\\',
-        ]);
+        ));
         
         $this->assertEquals(
             '\Some\Class\Prefix\Some\Collection\Name',
