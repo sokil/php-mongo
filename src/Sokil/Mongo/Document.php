@@ -514,7 +514,12 @@ class Document extends Structure
                             continue;
                         }
 
-                        if(!call_user_func_array(array($this, $rule[1]), $rule)) {
+                        // params, passed to rule method
+                        $params = $rule;
+                        unset($params[0]); // remove field list
+                        unset($params[1]); // remove rule name
+                        
+                        if(!call_user_func(array($this, $rule[1]), $field, $params)) {
                             if(!isset($rule['message'])) {
                                 $rule['message'] = 'Field "' . $field . '" not valid in model ' . get_called_class();
                             }
