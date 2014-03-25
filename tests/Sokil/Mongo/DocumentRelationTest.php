@@ -18,7 +18,6 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
                     'source'        => '\Sokil\Mongo\DocumentRelationTest\SourceCollection',
                     'oneoneTarget'  => '\Sokil\Mongo\DocumentRelationTest\OneoneTargetCollection',
                     'onemanyTarget'  => '\Sokil\Mongo\DocumentRelationTest\OnemanyTargetCollection',
-                    'manymanyTarget'  => '\Sokil\Mongo\DocumentRelationTest\ManymanyTargetCollection',
                 ),
             ))
             ->getDatabase('test');
