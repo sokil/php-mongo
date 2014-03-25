@@ -6,18 +6,23 @@ class Structure
 {
     protected $_data = array();
     
+    protected $_originalData = array();
+    
     protected $_modifiedFields = array();
     
     public function __construct(array $data = null)
     {
         if($data) {
-            $this->fromArray($data);
+            $this->_mergeUnmodified($this->_data, $data);
         }
+        
+        $this->_originalData = $this->_data;
+        
     }
     
     public function reset()
     {
-        $this->_data = array();
+        $this->_data = $this->_originalData;
         $this->_modifiedFields = array();
         
         return $this;
@@ -73,7 +78,7 @@ class Structure
             throw new Exception('Wring structure class specified');
         }
         
-        return clone $structure->fromArray($data);
+        return clone $structure->merge($data);
     }
     
     /**
@@ -100,7 +105,7 @@ class Structure
             }
 
             return array_map(function($dataItem) use($structure) {
-                return clone $structure->fromArray($dataItem);
+                return clone $structure->merge($dataItem);
             }, $data);
         }
         
@@ -119,7 +124,7 @@ class Structure
                     }
                 }
                 
-                return clone $structurePool[$classNameString]->fromArray($dataItem);
+                return clone $structurePool[$classNameString]->merge($dataItem);
             }, $data);
         }
         
@@ -322,10 +327,53 @@ class Structure
         return $this->_data;
     }
     
-    public function fromArray(array $data)
+    
+    /**
+     * Recursive function to merge data without setting modification mark
+     * 
+     * @param type $target
+     * @param type $source
+     */
+    private function _mergeUnmodified(&$target, $source) 
     {
-        $this->_data = array_merge($this->_data, $data);
-        
+        foreach($source as $key => $value) {
+            if(is_array($value) && isset($target[$key])) {
+                $this->_mergeUnmodified($target[$key], $value);
+            }
+            else {
+                $target[$key] = $value;
+            }
+        }
+    }
+    
+    /**
+     * Recursive function to merge data with setting modification mark
+     * 
+     * @param type $target
+     * @param type $source
+     */
+    private function _merge(&$target, $source, $prefix = null) 
+    {
+        foreach($source as $key => $value) {
+            if(is_array($value) && isset($target[$key])) {
+                $this->_merge($target[$key], $value, $prefix . $key . '.');
+            }
+            else {
+                $target[$key] = $value;
+                $this->_modifiedFields[] = $prefix . $key;
+            }
+        }
+    }
+    
+    /**
+     * Merge array to current structure
+     * 
+     * @param array $data
+     * @return \Sokil\Mongo\Structure
+     */
+    public function merge(array $data)
+    {
+        $this->_merge($this->_data, $data);
         return $this;
     }
 }

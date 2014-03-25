@@ -51,7 +51,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     public function testSetArrayToScalar()
     {
         $structure = new Structure;
-        $structure->fromArray(array(
+        $structure->merge(array(
             'a' => 1,
         ));
         
@@ -61,7 +61,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     public function testUnset()
     {
         $structure = new Structure;
-        $structure->fromArray(array(
+        $structure->merge(array(
             'a' => array(
                 'a1'    => array(
                     'a11'   => 1,

@@ -33,6 +33,21 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         self::$collection->delete();
     }
     
+    public function testReset()
+    {
+        $document = self::$collection->createDocument(array(
+            'param1'    => 'value1'
+        ));
+        
+        $document->param1 = 'changedValue';
+        
+        $this->assertEquals('changedValue', $document->get('param1'));
+        
+        $document->reset();
+        
+        $this->assertEquals('value1', $document->get('param1'));
+    }
+    
     public function testToString()
     {
         $document = self::$collection->createDocument(array(
@@ -57,7 +72,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value1', $document->get('param1'));
         $this->assertEquals('value22', $document->get('param2.param22'));
     }
-    
+
     public function testSetId()
     {
         // save document
@@ -1124,19 +1139,29 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         }
         
     }
+
+    public function testExecuteBehavior()
+    {
+        $document = self::$collection->createDocument(array('param' => 0));
+        
+        $document->attachBehavior('get42', new \Sokil\Mongo\DocumentTest\SomeBehavior());
+        
+        $this->assertEquals(42, $document->return42());
+    }
     
-    public function testFromArrayOnUpdate()
+    public function testMergeOnUpdate()
     {
         // save document
-        $document = self::$collection->createDocument(array(
-            'p' => 'pv',
-        ));
-        self::$collection->saveDocument($document);
+        $document = self::$collection
+            ->createDocument(array(
+                'p' => 'pv',
+            ))
+            ->save();
            
         // update document
         $document
             ->set('f1', 'fv1')
-            ->fromArray(array(
+            ->merge(array(
                 'a1'    => 'av1',
                 'a2'    => 'av2',
             ));
@@ -1151,10 +1176,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'a2'    => 'av2',
         ), $documentData);
         
-        self::$collection->saveDocument($document);
+       $document->save();
         
         // test
-        $foundDocumentData = self::$collection->getDocumentDirectly($document->getId())
+        $foundDocumentData = self::$collection
+            ->getDocumentDirectly($document->getId())
             ->toArray();
         
         unset($foundDocumentData['_id']);
@@ -1167,12 +1193,56 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ), $foundDocumentData);
     }
     
-    public function testExecuteBehavior()
+    public function testDefaultFields()
     {
-        $document = self::$collection->createDocument(array('param' => 0));
+        $document = new \Sokil\Mongo\DocumentTest\Document(self::$collection);
         
-        $document->attachBehavior('get42', new \Sokil\Mongo\DocumentTest\SomeBehavior());
+        $this->assertEquals('ACTIVE', $document->status);
+    }
+    
+    public function testRedefineDefaultFieldsInConstructor()
+    {
+        $document = new \Sokil\Mongo\DocumentTest\Document(self::$collection, array(
+            'balance' => 123, // not existed key
+            'status' => 'DELETED', // update value
+            'profile' => array(
+                'name'  => 'UPDATED_NAME',
+                'birth'   => array(
+                    'day'   => 11,
+                ),
+            ),
+        ));
         
-        $this->assertEquals(42, $document->return42());
+        $this->assertEquals(123, $document->get('balance'));
+        $this->assertEquals('DELETED', $document->get('status'));
+        
+        $this->assertEquals('UPDATED_NAME', $document->get('profile.name'));
+        
+        $this->assertEquals(1984, $document->get('profile.birth.year'));
+        $this->assertEquals(11, $document->get('profile.birth.day'));
+    }
+    
+    public function testMerge()
+    {
+        $document = new \Sokil\Mongo\DocumentTest\Document(self::$collection);
+        
+        $document->merge(array(
+            'balance' => 123, // not existed key
+            'status' => 'DELETED', // update value
+            'profile' => array(
+                'name'  => 'UPDATED_NAME',
+                'birth'   => array(
+                    'day'   => 11,
+                ),
+            ),
+        ));
+        
+        $this->assertEquals(123, $document->get('balance'));
+        $this->assertEquals('DELETED', $document->get('status'));
+        
+        $this->assertEquals('UPDATED_NAME', $document->get('profile.name'));
+        
+        $this->assertEquals(1984, $document->get('profile.birth.year'));
+        $this->assertEquals(11, $document->get('profile.birth.day'));
     }
 }

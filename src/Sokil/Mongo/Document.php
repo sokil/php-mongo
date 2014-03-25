@@ -46,13 +46,13 @@ class Document extends Structure
      *
      * @var array validator errors
      */
-    private $_errors;
+    private $_errors = array();
     
     /**
      *
      * @var array manually added validator errors
      */
-    private $_triggeredErors;
+    private $_triggeredErors = array();
     
     private $_eventDispatcher;
     
@@ -68,7 +68,7 @@ class Document extends Structure
     {
         $this->_collection = $collection;
         
-        $this->reset();
+        $this->_init();
         
         $this->beforeConstruct();
         
@@ -82,17 +82,28 @@ class Document extends Structure
         
     public function reset()
     {
+        // reset structure
         parent::reset();
         
-        $this->_eventDispatcher = new EventDispatcher;
-        $this->_operator        = new Operator;
+        // reset errors
         $this->_errors          = array();
         $this->_triggeredErors  = array();
         
-        $this->_behaviors       = array();
-        $this->attachBehaviors($this->behaviors());
+        // reset behaviors
+        $this->clearBehaviors();
+        
+        // init delegates
+        $this->_init();
         
         return $this;
+    }
+    
+    private function _init()
+    {
+        $this->_eventDispatcher = new EventDispatcher;
+        $this->_operator        = new Operator;
+        
+        $this->attachBehaviors($this->behaviors());
     }
     
     public function __toString()
@@ -570,6 +581,12 @@ class Document extends Structure
         return $this;
     }
     
+    public function clearBehaviors()
+    {
+        $this->_behaviors = array();
+        return $this;
+    }
+    
     public function getOperator()
     {
         return $this->_operator;
@@ -605,7 +622,18 @@ class Document extends Structure
         return $this;
     }
     
+    /**
+     * @deprecated use self::merge() instead
+     * @param array $data
+     * @return \Sokil\Mongo\Structure
+     */
     public function fromArray(array $data)
+    {
+        $this->merge($data);
+        return $this;
+    }
+    
+    public function merge(array $data)
     {        
         if($this->isStored()) {
             foreach($data as $fieldName => $value) {
@@ -613,7 +641,7 @@ class Document extends Structure
             }
         }
         else {
-            parent::fromArray($data);
+            parent::merge($data);
         }
         
         return $this;
