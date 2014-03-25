@@ -541,7 +541,10 @@ class Document extends Structure
     public function validate()
     {
         if(!$this->isValid()) {
-            throw new \Sokil\Mongo\Document\Exception\Validate('Document not valid');
+            $exception = new \Sokil\Mongo\Document\Exception\Validate('Document not valid');
+            $exception->setDocument($this);
+            
+            throw new $exception;
         }
     }
 
