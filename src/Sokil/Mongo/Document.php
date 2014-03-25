@@ -62,7 +62,7 @@ class Document extends Structure
      */
     private $_operator;
     
-    private $_behaviors;
+    private $_behaviors = array();
     
     public function __construct(Collection $collection, array $data = null)
     {
@@ -498,6 +498,27 @@ class Document extends Structure
                                 $rule['message'] = 'Value of field "' . $field . '" is not email in model ' . get_called_class();
                             }
                             
+                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                        }
+                    }
+                    break;
+                    
+                default:
+                    
+                    foreach($fields as $field) {
+                        if(!$this->get($field)) {
+                            continue;
+                        }
+
+                        if(!method_exists($this, $rule[1])) {
+                            continue;
+                        }
+
+                        if(!call_user_func_array(array($this, $rule[1]), $rule)) {
+                            if(!isset($rule['message'])) {
+                                $rule['message'] = 'Field "' . $field . '" not valid in model ' . get_called_class();
+                            }
+
                             $this->_errors[$field][$rule[1]] = $rule['message'];
                         }
                     }
