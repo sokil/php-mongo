@@ -27,7 +27,13 @@ class Document extends Structure
     const FIELD_TYPE_INT64                    = 18;
     const FIELD_TYPE_MIN_KEY                  = 255;
     const FIELD_TYPE_MAX_KEY                  = 127;
+    
+    const RELATION_HAS_ONE      = 'HAS_ONE';
+    const RELATION_BELONGS      = 'BELONGS';
+    const RELATION_HAS_MANY     = 'HAS_MANY';
 
+    private $_resolvedRelations = array();
+    
     /**
      *
      * @var \Sokil\Mongo\Collection
@@ -104,6 +110,89 @@ class Document extends Structure
             
             return call_user_func_array(array($behavior, $name), $arguments);
         }
+    }
+    
+    public function __get($name)
+    {
+        $relations = $this->relations();
+        
+        if(isset($this->_resolvedRelations[$name])) {
+            // relation already resolved
+            return $this->_resolvedRelations[$name];
+        } elseif(isset($relations[$name])) {
+            // resolve relation
+            return $this->_resolveRelation($name);
+        } else {
+            // get document parameter
+            return parent::__get($name);
+        }
+    }
+    
+        
+    /**
+     * 
+     * @return array relation description
+     */
+    public function relations()
+    {
+        // [relationName => [relationType, targetCollection, reference], ...]
+        return array();
+    }
+
+    /**
+     * Load relation
+     * @param string $name name of relation
+     */
+    private function _resolveRelation($name)
+    {
+        $relations  = $this->relations();
+        $relation   = $relations[$name];
+        
+        $relationType           = $relation[0];
+        $targetCollectionName   = $relation[1];
+        
+        switch($relationType) {
+            case self::RELATION_HAS_ONE:
+                $sourceField = '_id';
+                $targetField = $relation[2];
+                
+                $this->_resolvedRelations[$name] = $this->_collection
+                    ->getDatabase()
+                    ->getCollection($targetCollectionName)
+                    ->find()
+                    ->where($targetField, $this->get($sourceField))
+                    ->findOne();
+                    
+                break;
+            
+            case self::RELATION_BELONGS:
+                $sourceField = $relation[2];
+                $targetField = '_id';
+                
+                $this->_resolvedRelations[$name] = $this->_collection
+                    ->getDatabase()
+                    ->getCollection($targetCollectionName)
+                    ->find()
+                    ->where($targetField, $this->get($sourceField))
+                    ->findOne();
+                
+                break;
+            
+            case self::RELATION_HAS_MANY:
+                $sourceField = '_id';
+                $targetField = $relation[2];
+                
+                $this->_resolvedRelations[$name] = $this->_collection
+                    ->getDatabase()
+                    ->getCollection($targetCollectionName)
+                    ->find()
+                    ->where($targetField, $this->get($sourceField))
+                    ->findAll();
+                
+                break;
+        }
+        
+        return $this->_resolvedRelations[$name];
     }
     
     public function triggerEvent($event)
