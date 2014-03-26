@@ -226,3 +226,24 @@ Error may be triggered manually by calling method triggerError($fieldName, $rule
 ```php
 $document->triggerError('someField', 'email', 'E-mail must be at domain example.com');
 ```
+
+You may add you custom validation rule just adding method to document class and defining method name as rule:
+```php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    punlic function rules() 
+    {
+        return array(
+            array('email', 'uniqueFieldValidator', 'message' => 'E-mail must be unique in collection'),
+        );
+    }
+    
+    /**
+     * @return bool if true, validator passes, if false - failed
+     */
+    public function uniqueFieldValidator($fieldName, $params)
+    {
+        // some logic of checking unique mail. Return true if validator passes, and false otherwise
+    }
+}
+```
