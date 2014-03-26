@@ -76,6 +76,95 @@ $client->map([
 $collection = $client->getDatabase('databaseName')->getCollection('collectionName');
 ```
 
+Mapping may be specified through class prefix. 
+```php
+$client->map([
+    'databaseName'  => '\Class\Prefix',
+]);
+
+/**
+ * @var \Class\Prefix\CollectionName
+ */
+$collection = $client->getDatabase('databaseName')->getCollection('collectionName');
+
+/**
+ * @var \Class\Prefix\CollectionName\SubName
+ */
+$collection = $client->getDatabase('databaseName')->getCollection('collectionName.subName');
+```
+
+Getting documents by id
+-----------------------
+
+To get document from collection by its id:
+```php
+$document = $collection->getDocument('5332d21b253fe54adf8a9327');
+```
+
+This document object is instance of class \Sokil\Mongo\Document. If you want to use your own document class, you must configure its name in relative collection class:
+
+```php
+class CustomCollection extends \Sokil\Mongo\Collection
+{
+    public function getDocumentClassName(array $documentData = null) {
+        return '\CustomDocument';
+    }
+}
+
+class CustomDocument extends \Sokil\Mongo\Document
+{
+
+}
+```
+
+You may flexibly configure document's class in \Sokil\Mongo\Collection::getDocumentClassName() relatively to concrete document's data:
+```php
+class CustomCollection extends \Sokil\Mongo\Collection
+{
+    public function getDocumentClassName(array $documentData = null) {
+        return '\Custom' . ucfirst(strtolower($documentData['type'])) . 'Document';
+    }
+}
+```
+
+In example above class \CustomVideoDocument related to {"_id": "45..", "type": "video"}, and \CustomAudioDocument to {"_id": "45..", type: "audio"}
+
+Document schema and data
+------------------------
+
+Document's scheme is completely not required. If field is required and has default value, it can be defined in special property of document class:
+```php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'requiredField' => 'defaultValue',
+        'someField'     => [
+            'subDocumentField' => 'value',
+        ],
+    ];
+}
+```
+
+To get value of document's field you may use one of following ways:
+```php
+$document->requiredField; // defaultValue
+$document->get('requiredField'); // defaultValue
+
+$document->someField; // ['subDocumentField' => 'value']
+$document->get('someField'); // ['subDocumentField' => 'value']
+$document->get('someField.subDocumentField'); // 'value'
+
+$document->get('some.unexisted.subDocumentField'); // null
+```
+If field not exists, null value returned.
+
+To set value you may use following ways:
+```php
+$document->someField = 'someValue'; // {someField: 'someValue'}
+$document->set('someField', 'someValue'); // {someField: 'someValue'}
+$document->set('someField.sub.document.field', 'someValue'); // {someField: {sub: {document: {field: {'someValue'}}}}}
+```
+
 Document validation
 -------------------
 
