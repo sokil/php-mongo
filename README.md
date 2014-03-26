@@ -168,11 +168,9 @@ $document->set('someField.sub.document.field', 'someValue'); // {someField: {sub
 Document validation
 -------------------
 
-Document can be validated before save. To set validation rules, method roles must be redefined by validation rules.
-Supported rules are:
-
+Document can be validated before save. To set validation rules method \Sokil\Mongo\Document::roles() must be override with validation rules. Supported rules are:
 ```php
-class User except \Sokil\Mongo\Document
+class CustomDocument except \Sokil\Mongo\Document
 {
     public function rules()
     {
@@ -190,11 +188,41 @@ class User except \Sokil\Mongo\Document
 ```
 
 Document can have validation state, based on scenario. Scenarion can be specified by method Document::setScenario($scenario).
+```php
+$document->setScenario('register');
+```
 
 If some validation rule applied only for some scenarios, this scenarios must be passed on 'on' key, separated by comma.
+```php
+public function rules()
+    {
+        return array(
+            array('field' ,'null', 'on' => 'register,update'),
+        );
+    }
+```
 
 If some validation rule applied to all except some scenarios, this scenarios must be passed on 'except' key, separated by comma.
 
-If document invalid, errors may be accessed through getErrors method.
+```php
+public function rules()
+    {
+        return array(
+            array('field' ,'null', 'except' => 'register,update'),
+        );
+    }
+```
+
+If document invalid, \Sokil\Mongo\Document\Exception\Validate will trigger and errors may be accessed through Document::getErrors() method of document object. This document may be get from exception method:
+```php
+try {
+
+} catch(\Sokil\Mongo\Document\Exception\Validate $e) {
+    $e->getDocument()->getErrors();
+}
+```
 
 Error may be triggered manually by calling method triggerError($fieldName, $rule, $message)
+```php
+$document->triggerError('someField', 'email', 'E-mail must be at domain example.com');
+```
