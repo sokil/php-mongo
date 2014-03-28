@@ -38,7 +38,6 @@ To connect to replica set use next DSN:
 mongodb://server1.com,server2.com/?replicaSet=replicaSetName
 ```
 
-
 Selecting database and collection
 -----------------------
 To get instance of database class \Sokil\Mongo\Database:
@@ -93,15 +92,10 @@ $collection = $client->getDatabase('databaseName')->getCollection('collectionNam
 $collection = $client->getDatabase('databaseName')->getCollection('collectionName.subName');
 ```
 
-Getting documents by id
------------------------
+Document schema
+------------------------
 
-To get document from collection by its id:
-```php
-$document = $collection->getDocument('5332d21b253fe54adf8a9327');
-```
-
-This document object is instance of class \Sokil\Mongo\Document. If you want to use your own document class, you must configure its name in relative collection class:
+Document object is instance of class \Sokil\Mongo\Document. If you want to use your own class, you must configure its name in collection's class:
 
 ```php
 class CustomCollection extends \Sokil\Mongo\Collection
@@ -129,9 +123,6 @@ class CustomCollection extends \Sokil\Mongo\Collection
 
 In example above class \CustomVideoDocument related to {"_id": "45..", "type": "video"}, and \CustomAudioDocument to {"_id": "45..", type: "audio"}
 
-Document schema and data
-------------------------
-
 Document's scheme is completely not required. If field is required and has default value, it can be defined in special property of document class:
 ```php
 class CustomDocument extends \Sokil\Mongo\Document
@@ -144,6 +135,35 @@ class CustomDocument extends \Sokil\Mongo\Document
     ];
 }
 ```
+
+Getting documents by id
+-----------------------
+
+To get document from collection by its id:
+```php
+$document = $collection->getDocument('5332d21b253fe54adf8a9327');
+```
+
+Create new document
+-------------------
+
+Create new empty document object:
+
+```php
+$document = $collection->createDocument();
+```
+
+Or with pre-defined values:
+
+```php
+$document = $collection->createDocument([
+    'param1' => 'value1',
+    'param2' => 'value2'
+]);
+```
+
+Get and set data in document
+----------------------------
 
 To get value of document's field you may use one of following ways:
 ```php
@@ -163,6 +183,81 @@ To set value you may use following ways:
 $document->someField = 'someValue'; // {someField: 'someValue'}
 $document->set('someField', 'someValue'); // {someField: 'someValue'}
 $document->set('someField.sub.document.field', 'someValue'); // {someField: {sub: {document: {field: {'someValue'}}}}}
+```
+
+Storing document
+----------------
+
+To store document in database just save it.
+```php
+$document = $collection->createDocument(['param' => 'value'])->save();
+
+$document = $collection->getDocument('23a4...')->set('param', 'value')->save();
+```
+
+Querying documents
+------------------
+
+To query documents, which satisfy some conditions you need to use query builder:
+```php
+$cursor = $collection
+    ->find()
+    ->fields(['name', 'age'])
+    ->where('name', 'Michael')
+    ->whereGreater('age', 29)
+    ->whereIn('interests', ['php', 'snowboard', 'traveling'])
+    ->skip(20)
+    ->limit(10)
+    ->sort([
+        'name'  => 1,
+        'age'   => -1,
+    ]);
+```
+
+All "where" conditions added with logical AND. To add condition with logical OR:
+```
+$cursor = $collection
+    ->find()
+    ->whereOr(
+        $collection->expression()->where('field1', 50),
+        $collection->expression()->where('field2', 50),
+    );
+```
+
+Result of the query is iterator \Sokil\Mongo\QueryBuilder, which you can then iterate:
+```php
+foreach($cursor as $documentId => $document) {
+    echo $document->get('name');
+}
+```
+
+Or you can get result array:
+```php
+$result = $cursor->findAll();
+```
+
+To get only one result:
+```php
+$document = $cursor->findOne();
+```
+
+To get only one random result:
+```php
+$document = $cursor->findRandom();
+```
+
+
+Update few documents
+--------------------
+
+Making changes in few documents:
+```php
+$expression = $collection
+    ->expression()
+    ->where('field', 'value');
+    
+$collection
+    ->multiUpdate($expression, array('field' => 'new value'));
 ```
 
 Document validation
