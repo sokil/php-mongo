@@ -140,6 +140,9 @@ class Database
         return $this;
     }
     
+    /**
+     * @param int $timeout timeout in miliseconds
+     */
     public function setWriteConcern($w, $timeout)
     {
         if(!$this->_mongoDB->setWriteConcern($w, (int) $timeout)) {
@@ -149,12 +152,18 @@ class Database
         return $this;
     }
     
+    /**
+     * @param int $timeout timeout in miliseconds
+     */
     public function setUnacknowledgedWriteConcern($timeout)
     {
         $this->setWriteConcern(0, (int) $timeout);
         return $this;
     }
     
+    /**
+     * @param int $timeout timeout in miliseconds
+     */
     public function setMajorityWriteConcern($timeout)
     {
         $this->setWriteConcern('majority', (int) $timeout);
