@@ -5,6 +5,22 @@ PHPMongo
 
 Object Document Mapper for MongoDB
 
+* [Installation](#installation)
+* [Connecting](#connecting)
+* [Selecting database and collection](#selecting-database-and-collection)
+* [Document schema](#document-schema)
+* [Getting documents by id](#getting-documents-by-id)
+* [Create new document](#create-new-document)
+* [Get and set data in document](#get-and-set-data-in-document)
+* [Storing document](#storing-document)
+* [Querying documents](#querying-documents)
+* [Update few documents](Update few documents)
+* [Document validation](#document-validation)
+* [Deleting collections and documents](#deleting-collections-and-documents)
+* [Aggregation framework](#aggregation-framework)
+* [Read preferences](#read-preferences)
+* [Write concern](#write-concern)
+* [Debugging](#debugging)
 
 Installation
 ------------
