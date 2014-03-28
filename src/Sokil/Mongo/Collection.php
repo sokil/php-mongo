@@ -436,6 +436,10 @@ class Collection
         return $this;
     }
     
+    /**
+     * @param string|integer $w write concern
+     * @param int $timeout timeout in miliseconds
+     */
     public function setWriteConcern($w, $timeout)
     {
         if(!$this->_mongoCollection->setWriteConcern($w, (int) $timeout)) {
@@ -445,12 +449,18 @@ class Collection
         return $this;
     }
     
+    /**
+     * @param int $timeout timeout in miliseconds
+     */
     public function setUnacknowledgedWriteConcern($timeout)
     {
         $this->setWriteConcern(0, (int) $timeout);
         return $this;
     }
     
+    /**
+     * @param int $timeout timeout in miliseconds
+     */
     public function setMajorityWriteConcern($timeout)
     {
         $this->setWriteConcern('majority', (int) $timeout);
