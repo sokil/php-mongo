@@ -440,7 +440,7 @@ class Collection
      * @param string|integer $w write concern
      * @param int $timeout timeout in miliseconds
      */
-    public function setWriteConcern($w, $timeout)
+    public function setWriteConcern($w, $timeout = 10000)
     {
         if(!$this->_mongoCollection->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
@@ -452,7 +452,7 @@ class Collection
     /**
      * @param int $timeout timeout in miliseconds
      */
-    public function setUnacknowledgedWriteConcern($timeout)
+    public function setUnacknowledgedWriteConcern($timeout = 10000)
     {
         $this->setWriteConcern(0, (int) $timeout);
         return $this;
@@ -461,7 +461,7 @@ class Collection
     /**
      * @param int $timeout timeout in miliseconds
      */
-    public function setMajorityWriteConcern($timeout)
+    public function setMajorityWriteConcern($timeout = 10000)
     {
         $this->setWriteConcern('majority', (int) $timeout);
         return $this;
