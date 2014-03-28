@@ -197,6 +197,10 @@ class Client
         return (bool) $this->_logger;
     }
     
+    /**
+     * @param string|integer $w wrint concern
+     * @param int $timeout timeout in miliseconds
+     */
     public function setWriteConcern($w, $timeout)
     {
         if(!$this->getConnection()->setWriteConcern($w, (int) $timeout)) {
@@ -206,12 +210,18 @@ class Client
         return $this;
     }
     
+    /**
+     * @param int $timeout timeout in miliseconds
+     */
     public function setUnacknowledgedWriteConcern($timeout)
     {
         $this->setWriteConcern(0, (int) $timeout);
         return $this;
     }
     
+    /**
+     * @param int $timeout timeout in miliseconds
+     */
     public function setMajorityWriteConcern($timeout)
     {
         $this->setWriteConcern('majority', (int) $timeout);
