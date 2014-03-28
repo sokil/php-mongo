@@ -79,7 +79,15 @@ class Document extends Structure
     
     public function beforeConstruct() {}
     
-        
+    /**
+     * 
+     * @return \Sokil\Mongo\Collection
+     */
+    public function getCollection()
+    {
+        return $this->_collection;
+    }
+    
     public function reset()
     {
         // reset structure
