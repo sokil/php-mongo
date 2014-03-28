@@ -141,6 +141,7 @@ class Database
     }
     
     /**
+     * @param string|integer $w write concern
      * @param int $timeout timeout in miliseconds
      */
     public function setWriteConcern($w, $timeout)
