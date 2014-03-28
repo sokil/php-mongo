@@ -263,7 +263,7 @@ $collection->deleteDocument($document);
 $document->delete();
 ```
 
-Aggregation framework support
+Aggregation framework
 --------------------------------
 
 To do aggregation you need first to create pipelines object:
@@ -286,5 +286,51 @@ $pipeline-> match([
         '$lt' => new \MongoDate,
     ]
 ]);
+```
+
+Read preferences
+----------------
+[Read preference](http://docs.mongodb.org/manual/core/read-preference/) describes how MongoDB clients route read operations to members of a replica set. You can configure read preferences at any level:
+
+```php
+// in constructor
+$client = new Client($dsn, array(
+    'readPreference' => 'nearest',
+));
+
+// by passing to \Sokil\Mongo\Client instance
+$client->readNearest();
+
+// by passing to database
+$database = $client->getDatabase('databaseName')->readPrimaryOnly();
+
+// by passing to collection
+$collection = $database->getCollection('collectionName')->readSecondaryOnly();
+```
+
+Write concern
+-------------
+[Write concern](http://docs.mongodb.org/manual/core/write-concern/) describes the guarantee that MongoDB provides when reporting on the success of a write operation. You can configure write concern at any level:
+
+```php
+
+// by passing to \Sokil\Mongo\Client instance
+$client->setMajorityWriteConcern(10000);
+
+// by passing to database
+$database = $client->getDatabase('databaseName')->setMajorityWriteConcern(10000);
+
+// by passing to collection
+$collection = $database->getCollection('collectionName')->setWriteConcern(4, 1000);
+```
+
+Debugging
+---------------
+
+Library suports logging of queries. To configure logging, you need to pass logger object to instance of \Sokil\Mongo\Client. Logger must impelent \Psr\Log\LoggerInterface due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
+
+```php
+$client = new Client($dsn);
+$client->setLogger($logger);
 ```
 
