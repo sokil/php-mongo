@@ -247,3 +247,44 @@ class CustomDocument extends \Sokil\Mongo\Document
     }
 }
 ```
+Deleting collections and documents
+-----------------------------------
+
+Deleting of collection:
+```php
+$collection->delete();
+```
+
+Deleting of document:
+```php
+$document = $collection->getDocument($documentId);
+$collection->deleteDocument($document);
+// or simply
+$document->delete();
+```
+
+Aggregation framework support
+--------------------------------
+
+To do aggregation you need first to create pipelines object:
+```php
+$pipeline = $collection->createPipeline();
+````
+
+To get results of aggregation after configuring pipelines:
+```php
+/**
+ * @var array list of aggregation results
+ */
+$result = $pipeline->aggregate();
+```
+
+Match pipeline:
+```php
+$pipeline-> match([
+    'date' => [
+        '$lt' => new \MongoDate,
+    ]
+]);
+```
+
