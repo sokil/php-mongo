@@ -18,6 +18,8 @@ Object Document Mapper for MongoDB
 * [Document validation](#document-validation)
 * [Deleting collections and documents](#deleting-collections-and-documents)
 * [Aggregation framework](#aggregation-framework)
+* [Events](#events)
+* [Behaviors](#behaviors)
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
 * [Debugging](#debugging)
@@ -397,6 +399,66 @@ $pipeline-> match([
         '$lt' => new \MongoDate,
     ]
 ]);
+```
+
+
+Events
+-------
+Event support based on Symfony's Event Dispatcher component. Events can be attached in class while initialusing object or any time to the object. To attach events in Document class you need to override Document::beforeConstruct() method:
+```php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    public function beforeConstruct()
+    {
+        $this->onBeforeSave(function() {
+            $this->set('date' => new \MongoDate);
+        });
+    }
+}
+```
+
+Or you can attach event handler to document object:
+```php
+$document->onBeforeSave(function() {
+    $this->set('date' => new \MongoDate);
+});
+```
+
+Behaviors
+----------
+
+Behavior is a posibility to extend functionality of document object and reuse code among documents of different class. Behavior is a class extended from \Sokil\Mongo\Behavior:
+```php
+class SomeBehavior extends \Sokil\Mongo\Behavior
+{
+    public function return42()
+    {
+        return 42;
+    }
+}
+```
+
+You can add behavior in document class:
+```php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    public function behaviors()
+    {
+        return [
+            '42behavior' => '\SomeBehavior',
+        ];
+    }
+}
+```
+
+You can attach behavior in runtime too:
+```php
+$document->attachBehavior(new \SomeBehavior);
+```
+
+Then you can call any methods of behaviors. This methods searches in order of atraching behaviors:
+```php
+echo $document->return42();
 ```
 
 Read preferences
