@@ -20,6 +20,7 @@ Object Document Mapper for MongoDB
 * [Aggregation framework](#aggregation-framework)
 * [Events](#events)
 * [Behaviors](#behaviors)
+* [Relation](#relations)
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
 * [Debugging](#debugging)
@@ -459,6 +460,109 @@ $document->attachBehavior(new \SomeBehavior);
 Then you can call any methods of behaviors. This methods searches in order of atraching behaviors:
 ```php
 echo $document->return42();
+```
+
+Relations
+-------------
+
+You can define relations between different documents, which helps you to load related doluments. Library supports relations one-to-one and one-to-many 
+
+To define relation to other document you need to override Document::relations() method and returl array of relations in format [relationName => [relationType, targetCollection, reference], ...]
+
+### One-to-one relation
+
+We have to classes User and Profile. User has one profile, and profile belongs to User.
+
+```php
+class User extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'email'     => null,
+        'password'  => null,
+    ];
+    
+    public function relations()
+    {
+        return [
+            'profileRelation' => [self::RELATION_HAS_ONE, 'profile', 'user_id'],
+        ];
+    }
+}
+
+class Profile extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'name' => [
+            'last'  => null,
+            'first' => null,
+        ],
+        'age'   => null,
+    ];
+    
+    public function relations()
+    {
+        return [
+            'userRelation' => [self::RELATION_BELONGS, 'user', 'user_id'],
+        ];
+    }
+}
+```
+
+Now we can lazy load related documnts just calling relation name:
+```php
+$user = $userColletion->getDocument('234...');
+echo $user->profileRelation->get('age');
+
+$profile = $profileCollection->getDocument('234...');
+echo $pfofile->userRelation->get('email');
+```
+
+### One-to-many relation
+
+One-to-many relation helps you to load all related documents. Class User has few posts of class Post:
+
+```php
+class User extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'email'     => null,
+        'password'  => null,
+    ];
+    
+    public function relations()
+    {
+        return [
+            'postsRelation' => [self::RELATION_HAS_MANY, 'posts', 'user_id'],
+        ];
+    }
+}
+
+class Posts extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'user_id' => null,
+        'message'   => null,
+    ];
+    
+    public function relations()
+    {
+        return [
+            'userRelation' => [self::RELATION_BELONGS, 'user', 'user_id'],
+        ];
+    }
+    
+    public function getMessage()
+    {
+        return $this->get('message');
+    }
+}
+```
+
+Not you can load related posts of document:
+```php
+foreach($user->postsRelation as $post) {
+    echo $post->getMessage();
+}
 ```
 
 Read preferences
