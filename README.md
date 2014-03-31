@@ -2,7 +2,6 @@ PHPMongo
 ========
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master)](https://travis-ci.org/sokil/php-mongo)
 [![Latest Stable Version](https://poser.pugx.org/sokil/php-mongo/v/stable.png)](https://packagist.org/packages/sokil/php-mongo)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/sokil/php-mongo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Object Document Mapper for MongoDB
 
