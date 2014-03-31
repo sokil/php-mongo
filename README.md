@@ -63,11 +63,15 @@ Selecting database and collection
 To get instance of database class \Sokil\Mongo\Database:
 ```php
 $database = $client->getDatabase('databaseName');
+// or simply
+$database = $client->databaseName;
 ```
 
 To get instance of collection class \Sokil\Mongo\Collection:
 ```php
 $collection = $database->getCollection('collectionName');
+// or simply
+$collection = $database->collectionName;
 ```
 
 Default database may be specified to get collection directly from $client object:
