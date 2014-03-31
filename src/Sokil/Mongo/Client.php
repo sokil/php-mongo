@@ -41,6 +41,11 @@ class Client
         }
     }
     
+    public function __get($name)
+    {
+        return $this->getDatabase($name);
+    }
+    
     public function setDsn($dsn)
     {
         $this->_dsn = $dsn;

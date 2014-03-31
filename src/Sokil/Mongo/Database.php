@@ -31,6 +31,11 @@ class Database
         $this->_mongoDB = $this->_client->getConnection()->selectDB($databaseName);
     }
     
+    public function __get($name)
+    {
+        return $this->getCollection($name);
+    }
+    
     /**
      * 
      * @return \MongoDB
