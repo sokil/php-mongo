@@ -37,6 +37,11 @@ class Collection
         return $this->getDocument($name);
     }
     
+    public function getName()
+    {
+        return $this->_collectionName;
+    }
+    
     /**
      * 
      * @return MongoCollection
