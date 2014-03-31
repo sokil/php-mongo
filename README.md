@@ -2,9 +2,29 @@ PHPMongo
 ========
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master)](https://travis-ci.org/sokil/php-mongo)
 [![Latest Stable Version](https://poser.pugx.org/sokil/php-mongo/v/stable.png)](https://packagist.org/packages/sokil/php-mongo)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/sokil/php-mongo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Object Document Mapper for MongoDB
 
+* [Installation](#installation)
+* [Connecting](#connecting)
+* [Selecting database and collection](#selecting-database-and-collection)
+* [Document schema](#document-schema)
+* [Getting documents by id](#getting-documents-by-id)
+* [Create new document](#create-new-document)
+* [Get and set data in document](#get-and-set-data-in-document)
+* [Storing document](#storing-document)
+* [Querying documents](#querying-documents)
+* [Update few documents](Update few documents)
+* [Document validation](#document-validation)
+* [Deleting collections and documents](#deleting-collections-and-documents)
+* [Aggregation framework](#aggregation-framework)
+* [Events](#events)
+* [Behaviors](#behaviors)
+* [Relation](#relations)
+* [Read preferences](#read-preferences)
+* [Write concern](#write-concern)
+* [Debugging](#debugging)
 
 Installation
 ------------
@@ -381,6 +401,169 @@ $pipeline-> match([
         '$lt' => new \MongoDate,
     ]
 ]);
+```
+
+
+Events
+-------
+Event support based on Symfony's Event Dispatcher component. Events can be attached in class while initialusing object or any time to the object. To attach events in Document class you need to override Document::beforeConstruct() method:
+```php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    public function beforeConstruct()
+    {
+        $this->onBeforeSave(function() {
+            $this->set('date' => new \MongoDate);
+        });
+    }
+}
+```
+
+Or you can attach event handler to document object:
+```php
+$document->onBeforeSave(function() {
+    $this->set('date' => new \MongoDate);
+});
+```
+
+Behaviors
+----------
+
+Behavior is a posibility to extend functionality of document object and reuse code among documents of different class. Behavior is a class extended from \Sokil\Mongo\Behavior:
+```php
+class SomeBehavior extends \Sokil\Mongo\Behavior
+{
+    public function return42()
+    {
+        return 42;
+    }
+}
+```
+
+You can add behavior in document class:
+```php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    public function behaviors()
+    {
+        return [
+            '42behavior' => '\SomeBehavior',
+        ];
+    }
+}
+```
+
+You can attach behavior in runtime too:
+```php
+$document->attachBehavior(new \SomeBehavior);
+```
+
+Then you can call any methods of behaviors. This methods searches in order of atraching behaviors:
+```php
+echo $document->return42();
+```
+
+Relations
+-------------
+
+You can define relations between different documents, which helps you to load related doluments. Library supports relations one-to-one and one-to-many 
+
+To define relation to other document you need to override Document::relations() method and returl array of relations in format [relationName => [relationType, targetCollection, reference], ...]
+
+### One-to-one relation
+
+We have to classes User and Profile. User has one profile, and profile belongs to User.
+
+```php
+class User extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'email'     => null,
+        'password'  => null,
+    ];
+    
+    public function relations()
+    {
+        return [
+            'profileRelation' => [self::RELATION_HAS_ONE, 'profile', 'user_id'],
+        ];
+    }
+}
+
+class Profile extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'name' => [
+            'last'  => null,
+            'first' => null,
+        ],
+        'age'   => null,
+    ];
+    
+    public function relations()
+    {
+        return [
+            'userRelation' => [self::RELATION_BELONGS, 'user', 'user_id'],
+        ];
+    }
+}
+```
+
+Now we can lazy load related documnts just calling relation name:
+```php
+$user = $userColletion->getDocument('234...');
+echo $user->profileRelation->get('age');
+
+$profile = $profileCollection->getDocument('234...');
+echo $pfofile->userRelation->get('email');
+```
+
+### One-to-many relation
+
+One-to-many relation helps you to load all related documents. Class User has few posts of class Post:
+
+```php
+class User extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'email'     => null,
+        'password'  => null,
+    ];
+    
+    public function relations()
+    {
+        return [
+            'postsRelation' => [self::RELATION_HAS_MANY, 'posts', 'user_id'],
+        ];
+    }
+}
+
+class Posts extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'user_id' => null,
+        'message'   => null,
+    ];
+    
+    public function relations()
+    {
+        return [
+            'userRelation' => [self::RELATION_BELONGS, 'user', 'user_id'],
+        ];
+    }
+    
+    public function getMessage()
+    {
+        return $this->get('message');
+    }
+}
+```
+
+Not you can load related posts of document:
+```php
+foreach($user->postsRelation as $post) {
+    echo $post->getMessage();
+}
 ```
 
 Read preferences
