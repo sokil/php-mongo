@@ -252,10 +252,11 @@ class QueryBuilder implements \Iterator, \Countable
         
         // log request
         if($this->_client->hasLogger()) {
-            $this->_client->getLogger()->debug(get_class() . ': ' . json_encode(array(
-                'query'     => $this->_expression->toArray(),
-                'project'   => $this->_fields,
-                'sort'      => $this->_sort,
+            $this->_client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
+                'collection'    => $this->_collection->getName(), 
+                'query'         => $this->_expression->toArray(),
+                'project'       => $this->_fields,
+                'sort'          => $this->_sort,
             )));
         }
         
