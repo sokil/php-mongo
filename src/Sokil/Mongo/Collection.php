@@ -32,6 +32,11 @@ class Collection
         $this->_mongoCollection = $database->getMongoDB()->selectCollection($collectionName);
     }
     
+    public function __get($name)
+    {
+        return $this->getDocument($name);
+    }
+    
     /**
      * 
      * @return MongoCollection
