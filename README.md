@@ -192,9 +192,11 @@ To get value of document's field you may use one of following ways:
 ```php
 $document->requiredField; // defaultValue
 $document->get('requiredField'); // defaultValue
+$document->getRequiredField(); // defaultValue
 
 $document->someField; // ['subDocumentField' => 'value']
 $document->get('someField'); // ['subDocumentField' => 'value']
+$document->getSomeField(); // ['subDocumentField' => 'value']
 $document->get('someField.subDocumentField'); // 'value'
 
 $document->get('some.unexisted.subDocumentField'); // null
@@ -206,6 +208,7 @@ To set value you may use following ways:
 $document->someField = 'someValue'; // {someField: 'someValue'}
 $document->set('someField', 'someValue'); // {someField: 'someValue'}
 $document->set('someField.sub.document.field', 'someValue'); // {someField: {sub: {document: {field: {'someValue'}}}}}
+$document->setSomeField('someValue');  // {someField: 'someValue'}
 ```
 
 Storing document
