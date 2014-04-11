@@ -80,6 +80,20 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals('newValue', $document->get('param'));
     }
+    
+    /**
+     * Test call of method not gescribed in behaviors, not setter and not getter
+     * @expectedException \Exception
+     * @expectedExceptionMessage Document has no method "unexistedMethod"
+     */
+    public function testUnhandledMethodCall()
+    {
+        $document = self::$collection->createDocument(array(
+            'param' => 'value',
+        ));
+        
+        $document->unexistedMethod();
+    }
         
     public function testCreateDocumentFromArray()
     {

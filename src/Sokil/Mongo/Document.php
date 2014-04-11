@@ -139,6 +139,8 @@ class Document extends Structure
         if('set' === strtolower(substr($name, 0, 3)) && isset($arguments[0])) {
             return $this->set(lcfirst(substr($name, 3)), $arguments[0]);
         }
+        
+        throw new Exception('Document has no method "' . $name . '"');
     }
     
     public function __get($name)
