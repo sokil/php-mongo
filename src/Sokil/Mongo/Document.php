@@ -129,6 +129,16 @@ class Document extends Structure
             
             return call_user_func_array(array($behavior, $name), $arguments);
         }
+        
+        // getter
+        if('get' === strtolower(substr($name, 0, 3))) {
+            return $this->get(lcfirst(substr($name, 3)));
+        }
+        
+        // setter
+        if('set' === strtolower(substr($name, 0, 3)) && isset($arguments[0])) {
+            return $this->set(lcfirst(substr($name, 3)), $arguments[0]);
+        }
     }
     
     public function __get($name)

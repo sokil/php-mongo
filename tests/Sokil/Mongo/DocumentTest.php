@@ -58,6 +58,28 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals((string) $document, $document->getId());
     }
+    
+    public function testVirtualGetter()
+    {
+        $document = self::$collection->createDocument(array(
+            'param' => 'value',
+        ));
+        
+        $this->assertEquals('value', $document->getParam());
+        
+        $this->assertEquals(null, $document->getUnexistedParam());
+    }
+    
+    public function testVirtualSetter()
+    {
+        $document = self::$collection->createDocument(array(
+            'param' => 'value',
+        ));
+        
+        $document->setParam('newValue');
+        
+        $this->assertEquals('newValue', $document->get('param'));
+    }
         
     public function testCreateDocumentFromArray()
     {
