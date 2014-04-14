@@ -375,7 +375,7 @@ class Collection
         // log
         $client = $this->_database->getClient();
         if($client->hasLogger()) {
-            $client->getLogger()->debug(get_called_class() . ': ' . $this->__toString());
+            $client->getLogger()->debug(get_called_class() . ': ' . (string) $pipelines);
         }
         
         // aggregate
