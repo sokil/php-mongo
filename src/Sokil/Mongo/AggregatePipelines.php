@@ -70,6 +70,11 @@ class AggregatePipelines
     
     public function aggregate()
     {
+        $client = $this->_collection->getDatabase()->getClient();
+        if($client->hasLogger()) {
+            $client->getLogger()->debug(get_called_class() . ': ' . $this->__toStrinf());
+        }
+        
         return $this->_collection->aggregate($this);
     }
     
