@@ -372,6 +372,13 @@ class Collection
             throw new Exception('Wrong pipelines specified');
         }
         
+        // log
+        $client = $this->_database->getClient();
+        if($client->hasLogger()) {
+            $client->getLogger()->debug(get_called_class() . ': ' . $this->__toStrinf());
+        }
+        
+        // aggregate
         $status = $this->_mongoCollection->aggregate($pipelines);
         
         if($status['ok'] != 1) {
