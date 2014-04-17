@@ -667,9 +667,13 @@ class Document extends Structure
     
     public function unsetField($fieldName)
     {
+        if(!$this->has($fieldName)) {
+            return $this;
+        }
+        
         parent::unsetField($fieldName);
         
-        if($this->getId() && $this->has($fieldName)) {
+        if($this->getId()) {
             $this->_operator->unsetField($fieldName);
         }
         

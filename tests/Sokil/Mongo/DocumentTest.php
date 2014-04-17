@@ -336,6 +336,50 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ), $data);
     }
     
+    public function testUnsetAndSet()
+    {
+        $document = self::$collection
+            ->createDocument(array(
+                'a' => array(
+                    'a1'    => array(
+                        'a11'   => 1,
+                        'a12'   => 2,
+                    ),
+                    'a2'    => array(
+                        'a21'   => 1,
+                        'a22'   => 2,
+                    ),
+                )
+            ))
+            ->save();
+        
+        $documentId = $document->getId();
+        
+        $document
+            ->set('b', 'b')
+            ->unsetField('a.a2.a21')
+            ->save();
+        
+        $document = self::$collection
+            ->getDocumentDirectly($documentId);
+        
+        $documentData = $document->toArray();
+        unset($documentData['_id']);
+        
+        $this->assertEquals(array(
+            'a' => array(
+                'a1'    => array(
+                    'a11'   => 1,
+                    'a12'   => 2,
+                ),
+                'a2'    => array(
+                    'a22'   => 2,
+                ),
+            ),
+            'b' => 'b'
+        ), $documentData);
+    }
+    
     public function testAppend()
     {
         $document = self::$collection->createDocument(array(
