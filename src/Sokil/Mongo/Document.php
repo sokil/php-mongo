@@ -641,6 +641,11 @@ class Document extends Structure
         return $this->_operator;
     }
     
+    public function isModificationOperatorDefined()
+    {
+        return $this->_operator->isDefined();
+    }
+    
     /**
      * Update value in local cache and in DB
      * 
@@ -832,6 +837,11 @@ class Document extends Structure
     {
         $this->_collection->saveDocument($this, $validate);
         return $this;
+    }
+    
+    public function isSaveRequired()
+    {
+        return !$this->isStored() || $this->isModified() || $this->isModificationOperatorDefined();
     }
     
     public function delete()

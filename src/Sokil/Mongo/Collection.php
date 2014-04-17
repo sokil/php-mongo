@@ -207,6 +207,11 @@ class Collection
      */
     public function saveDocument(Document $document, $validate = true)
     {
+        // if document already in db and not modified - skip this method
+        if(!$document->isSaveRequired()) {
+            return $this;
+        }
+        
         if($validate) {
             $document->validate();
         }
