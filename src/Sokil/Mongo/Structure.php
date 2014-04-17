@@ -205,7 +205,7 @@ class Structure
         $pointer = &$this->_data;
         
         foreach(explode('.', $selector) as $field) {
-            if(!isset($pointer[$field])) {
+            if(!array_key_exists($field, $pointer)) {
                 return false;
             }
             

@@ -270,6 +270,28 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $doc->set('a.b', 2)->save();
     }
+    
+    public function testGetNull()
+    {
+        //save 
+        $document = self::$collection
+            ->createDocument(array(
+                'field1' => null,
+                'field2' => array(
+                    'subfield' => null
+                ),
+            ))
+            ->save();
+        
+        // get document
+        $document = self::$collection->getDocumentDirectly($document->getId());
+        
+        $this->assertTrue($document->has('field1'));
+        $this->assertNull($document->get('field1'));
+        
+        $this->assertTrue($document->has('field2.subfield'));
+        $this->assertNull($document->get('field1.subfield'));
+    }
         
     public function testUnsetInNewDocument()
     {

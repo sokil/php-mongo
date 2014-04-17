@@ -268,4 +268,13 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($structure->has('paramNONE'));
         $this->assertFalse($structure->has('paramNONE.param2'));
     }
+    
+    public function testHasNull()
+    {
+        $structure = new Structure(array(
+            'param'    => null
+        ));
+        
+        $this->assertTrue($structure->has('param'));
+    }
 }
