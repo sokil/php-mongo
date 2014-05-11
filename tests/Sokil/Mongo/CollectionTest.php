@@ -241,4 +241,27 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $this->assertInternalType('array', $result);
     }
+    
+    public function testCappedCollectionInsert()
+    {
+        $collection = self::$database
+            ->createCappedCollection('capped_collection', 3, 30);
+        
+        $collection->createDocument(array('param' => 1))->save();
+        $collection->createDocument(array('param' => 2))->save();
+        $collection->createDocument(array('param' => 3))->save();
+        $collection->createDocument(array('param' => 4))->save();
+        
+        $this->assertEquals(3, $collection->find()->count());
+        
+        $documents = $collection->find();   
+        
+        $this->assertEquals(2, $documents->current()->param);
+        
+        $documents->next();
+        $this->assertEquals(3, $documents->current()->param);
+        
+        $documents->next();
+        $this->assertEquals(4, $documents->current()->param);
+    }
 }

@@ -72,7 +72,7 @@ class Collection
             // check if collection exists
             if('ns not found' !== $status['errmsg']) {
                 // collection exist
-                throw new Exception('Error deleting collection ' . $this->_mongoCollection->getName());
+                throw new Exception('Error deleting collection ' . $this->getName());
             }
         }
         

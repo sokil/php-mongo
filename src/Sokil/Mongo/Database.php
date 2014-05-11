@@ -117,6 +117,29 @@ class Database
     /**
      * 
      * @param string $name name of collection
+     * @param int $maxElements The maximum number of elements to store in the collection.
+     * @param int $size Size in bytes.
+     * @return \Sokil\Mongo\Collection
+     * @throws Exception
+     */
+    public function createCappedCollection($name, $maxElements, $size)
+    {
+        $options = array(
+            'capped'    => true,
+            'size'      => (int) $size,
+            'max'       => (int) $maxElements,
+        );
+        
+        if(!$options['size'] && !$options['max']) {
+            throw new Exception('Size or number of elements must be defined');
+        }
+        
+        return $this->createCollection($name, $options);
+    }
+    
+    /**
+     * 
+     * @param string $name name of collection
      * @return \Sokil\Mongo\Collection
      */
     public function getCollection($name) {
