@@ -14,8 +14,6 @@ class Collection
      */
     private $_database;
     
-    private $_collectionName;
-    
     /**
      *
      * @var \MongoCollection
@@ -24,12 +22,16 @@ class Collection
     
     private $_documentsPool = array();
     
-    public function __construct(Database $database, $collectionName)
+    public function __construct(Database $database, $collection)
     {
         $this->_database = $database;
-        $this->_collectionName = $collectionName;
         
-        $this->_mongoCollection = $database->getMongoDB()->selectCollection($collectionName);
+        if($collection instanceof \MongoCollection) {
+            $this->_mongoCollection = $collection;
+        } else {
+            $this->_mongoCollection = $database->getMongoDB()->selectCollection($collection);
+        }
+        
     }
     
     public function __get($name)
@@ -37,9 +39,13 @@ class Collection
         return $this->getDocument($name);
     }
     
+    /**
+     * Get name of collection
+     * @return string name of collection
+     */
     public function getName()
     {
-        return $this->_collectionName;
+        return $this->_mongoCollection->getName();
     }
     
     /**
