@@ -641,7 +641,7 @@ $collection = $database->createCappedCollection('capped_col_name', $numOfElement
 $stats = $database->executeCommand(['collstat' => 'capped_col_name']);
 ```
 
-Result in $stat:
+Result in $stats:
 ```
 array(13) {
   'ns' =>  string(29) "test.capped_col_name"
