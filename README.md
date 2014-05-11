@@ -25,7 +25,7 @@ Object Document Mapper for MongoDB
 * [Write concern](#write-concern)
 * [Debugging](#debugging)
 * [Capped collections](#capped-collections)
-* [Executing commands](#executing commands)
+* [Executing commands](#executing-commands)
 
 Installation
 ------------
