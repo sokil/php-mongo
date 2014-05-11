@@ -98,6 +98,23 @@ class Database
     }
     
     /**
+     * Create collection
+     * 
+     * @param array $options array of options
+     * @return \Sokil\Mongo\Collection
+     */
+    public function createCollection($name, array $options = null)
+    {
+        $className = $this->getCollectionClassName($name);
+        if(!class_exists($className)) {
+            throw new Exception('Class ' . $className . ' not found while map collection name to class');
+        }
+            
+        $mongoCollection = $this->getMongoDB()->createCollection($name, $options);
+        return new $className($this, $mongoCollection);
+    }
+    
+    /**
      * 
      * @param string $name name of collection
      * @return \Sokil\Mongo\Collection
