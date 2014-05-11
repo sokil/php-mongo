@@ -499,4 +499,11 @@ class Collection
     {
         return $this->_mongoCollection->getWriteConcern();
     }
+    
+    public function stats()
+    {
+        return $this->getDatabase()->executeCommand(array(
+            'collstats' => $this->getName(),
+        ));
+    }
 }

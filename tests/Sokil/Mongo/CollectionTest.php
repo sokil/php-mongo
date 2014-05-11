@@ -264,4 +264,13 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $documents->next();
         $this->assertEquals(4, $documents->current()->param);
     }
+    
+    public function testStats()
+    {
+        $stats = self::$database
+            ->createCollection('phpmongo_test_collection')
+            ->stats();
+        
+        $this->assertEquals(1.0, $stats['ok']);
+    }
 }

@@ -220,4 +220,16 @@ class Database
     {
         return $this->_mongoDB->getWriteConcern();
     }
+    
+    public function executeCommand(array $command, array $options = array())
+    {
+        return $this->getMongoDB()->command($command, $options);
+    }
+    
+    public function stats()
+    {
+        return $this->executeCommand(array(
+            'dbstats' => 1,
+        ));
+    }
 }
