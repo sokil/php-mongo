@@ -24,6 +24,7 @@ Object Document Mapper for MongoDB
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
 * [Debugging](#debugging)
+* [Capped collections](#capped-collections)
 
 Installation
 ------------
@@ -618,3 +619,14 @@ $client = new Client($dsn);
 $client->setLogger($logger);
 ```
 
+Capped collections
+------------------
+
+To use capped collection you need previously to create it:
+```
+$numOfElements = 10;
+$sizeOfCollection = 10*1024;
+$collection = $database->createCappedCollection('capped_col_name', $numOfElements, $sizeOfCollection);
+```
+
+Now you can add only 10 documents to collection. All old documents will ve rewritted ny new elements.
