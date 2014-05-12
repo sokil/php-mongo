@@ -12,7 +12,9 @@ class Queue implements \Countable
     
     public function __construct(Database $database, $channel)
     {
-        $this->_collection = $database->getCollection($channel);
+        $this->_collection = $database
+            ->getCollection($channel)
+            ->disableDocumentPool();
     }
     
     /**

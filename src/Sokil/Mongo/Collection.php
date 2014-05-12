@@ -22,7 +22,7 @@ class Collection implements \Countable
     
     private $_documentsPool = array();
     
-    private $_documentPoolEnabled = false;
+    protected $_documentPoolEnabled = false;
     
     public function __construct(Database $database, $collection)
     {
