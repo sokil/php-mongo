@@ -688,7 +688,11 @@ echo $queue->dequeue(); // world
 echo $queue->dequeue()->get('param'); // value
 ```
 
-
+Number of messages in queue
+```php
+$queue = $database->getQueue('channel_name');
+echo count($queue);
+```
 
 
 
