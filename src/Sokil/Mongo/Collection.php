@@ -130,6 +130,10 @@ class Collection
         return $this->_mongoCollection->distinct($selector, $expression);
     }
     
+    /**
+     * 
+     * @return \Sokil\Mongo\Expression
+     */
     public function expression()
     {        
         return new $this->_queryExpressionClass;
