@@ -65,4 +65,11 @@ class QueueTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(3, $queue->dequeue()->get('param'));
     }
+    
+    public function testDequeueFromNotExistedCollection()
+    {
+        $queue = self::$database->getQueue('some_strange_unexisted_channel');
+        
+        $this->assertNull($queue->dequeue());
+    }
 }
