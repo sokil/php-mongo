@@ -22,6 +22,8 @@ class Collection implements \Countable
     
     private $_documentsPool = array();
     
+    private $_documentPoolEnabled = false;
+    
     public function __construct(Database $database, $collection)
     {
         $this->_database = $database;
@@ -166,6 +168,18 @@ class Collection implements \Countable
         ));
     }
     
+    public function disableDocumentPool()
+    {
+        $this->_documentPoolEnabled = false;
+        return $this;
+    }
+    
+    public function enableDocumentPool()
+    {
+        $this->_documentPoolEnabled = true;
+        return $this;
+    }
+    
     /**
      * Get document by id
      * 
@@ -174,6 +188,10 @@ class Collection implements \Countable
      */
     public function getDocument($id)
     {
+        if(!$this->_documentPoolEnabled) {
+            return $this->getDocumentDirectly($id);
+        }
+        
         if(!isset($this->_documentsPool[(string) $id])) {
             $this->_documentsPool[(string) $id] = $this->getDocumentDirectly($id);
         }
@@ -205,10 +223,12 @@ class Collection implements \Countable
             return array();
         }
         
-        $this->_documentsPool = array_merge(
-            $this->_documentsPool,
-            $documents
-        );
+        if($this->_documentPoolEnabled) {
+            $this->_documentsPool = array_merge(
+                $this->_documentsPool,
+                $documents
+            );
+        }
         
         return $documents;
     }
@@ -288,8 +308,10 @@ class Collection implements \Countable
             // set id
             $document->defineId($data['_id']);
             
-            // store to document's bool 
-            $this->_documentsPool[(string) $data['_id']] = $document;
+            // store to document's bool
+            if($this->_documentPoolEnabled) {
+                $this->_documentsPool[(string) $data['_id']] = $document;
+            }
             
             // event
             $document->triggerEvent('afterInsert');
