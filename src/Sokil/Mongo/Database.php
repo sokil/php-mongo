@@ -155,6 +155,16 @@ class Database
         return $this->_collectionPool[$name];
     }
     
+    /**
+     * 
+     * @param string $channel name of channel
+     * @return \Sokil\Mongo\Queue
+     */
+    public function getQueue($channel)
+    {
+        return new Queue($this, $channel);
+    }
+    
     public function readPrimaryOnly()
     {
         $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);
