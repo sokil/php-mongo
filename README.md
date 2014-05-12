@@ -24,6 +24,8 @@ Object Document Mapper for MongoDB
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
 * [Debugging](#debugging)
+* [Capped collections](#capped-collections)
+* [Executing commands](#executing-commands)
 
 Installation
 ------------
@@ -618,3 +620,44 @@ $client = new Client($dsn);
 $client->setLogger($logger);
 ```
 
+Capped collections
+------------------
+
+To use capped collection you need previously to create it:
+```php
+$numOfElements = 10;
+$sizeOfCollection = 10*1024;
+$collection = $database->createCappedCollection('capped_col_name', $numOfElements, $sizeOfCollection);
+```
+
+Now you can add only 10 documents to collection. All old documents will ve rewritted ny new elements.
+
+Executing commands
+------------------
+
+Command is universal way to do anything with mongo. Let's get stats of collection:
+```php
+$collection = $database->createCappedCollection('capped_col_name', $numOfElements, $sizeOfCollection);
+$stats = $database->executeCommand(['collstat' => 'capped_col_name']);
+```
+
+Result in $stats:
+```
+array(13) {
+  'ns' =>  string(29) "test.capped_col_name"
+  'count' =>  int(0)
+  'size' =>  int(0)
+  'storageSize' =>  int(8192)
+  'numExtents' =>  int(1)
+  'nindexes' =>  int(1)
+  'lastExtentSize' =>  int(8192)
+  'paddingFactor' =>  double(1)
+  'systemFlags' =>  int(1)
+  'userFlags' =>  int(1)
+  'totalIndexSize' =>  int(8176)
+  'indexSizes' =>  array(1) {
+    '_id_' =>    int(8176)
+  }
+  'ok' =>  double(1)
+}
+```
