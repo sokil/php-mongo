@@ -26,6 +26,7 @@ Object Document Mapper for MongoDB
 * [Debugging](#debugging)
 * [Capped collections](#capped-collections)
 * [Executing commands](#executing-commands)
+* [Queue](#queue)
 
 Installation
 ------------
@@ -661,3 +662,33 @@ array(13) {
   'ok' =>  double(1)
 }
 ```
+
+Queue
+-----
+
+Queue gives functionality to send messages from one process and get them in another process. Messages can be send to different channels. 
+
+Sending message to queue with default priority:
+```php
+$queue = $database->getQueue('channel_name');
+$queue->enqueue('world');
+$queue->enqueue(['param' => 'value']);
+```
+
+Send message with priority
+```php
+$queue->enqueue('hello', 10);
+```
+
+Reading messages from channel:
+```php
+$queue = $database->getQueue('channel_name');
+echo $queue->dequeue(); // hello
+echo $queue->dequeue(); // world
+echo $queue->dequeue()->get('param'); // value
+```
+
+
+
+
+
