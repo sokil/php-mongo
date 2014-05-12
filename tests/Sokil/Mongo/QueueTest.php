@@ -51,9 +51,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
             'param' => 1,
         ));
         
-        $queue->enqueue(array(
-            'param' => 2,
-        ), 10);
+        $queue->enqueue('priority-driven', 10);
         
         $queue->enqueue(array(
             'param' => 3,
@@ -61,7 +59,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
         
         return;
         
-        $this->assertEquals(2, $queue->dequeue()->get('param'));
+        $this->assertEquals('priority-driven', $queue->dequeue());
         
         $this->assertEquals(1, $queue->dequeue()->get('param'));
         

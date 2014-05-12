@@ -17,10 +17,10 @@ class Queue implements \Countable
     
     /**
      * 
-     * @param array $payload data to send
+     * @param mixed $payload data to send
      * @param int $priority more priority num give quicker geting from queue
      */
-    public function enqueue(array $payload, $priority = 0)
+    public function enqueue($payload, $priority = 0)
     {
         $this->_collection
             ->createDocument(array(
@@ -33,7 +33,7 @@ class Queue implements \Countable
         return $this;
     }
     
-    public function dequeueArray()
+    public function dequeuePlain()
     {
         $document = $this->_collection
             ->find()
@@ -52,7 +52,8 @@ class Queue implements \Countable
     
     public function dequeue()
     {
-        return new Structure($this->dequeueArray());
+        $value = $this->dequeuePlain();
+        return is_array($value) ? new Structure($value) : $value;
     }
     
     public function count()
