@@ -843,4 +843,57 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals('value1', current($result)->param);
     }
+    
+    public function testFindAndUpdate()
+    {
+        self::$collection->delete();
+        
+        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
+        
+        $document = self::$collection->find()
+            ->where('param1', 1)
+            ->sort(array(
+                'param2' => 1,
+            ))
+            ->findAndUpdate(self::$collection->operator()->set('newParam', '777'));
+        
+        $this->assertNotEmpty($document);
+        
+        $this->assertEquals(array(
+            'param1'    => 1, 
+            'param2'    => 1,
+            'newParam'  => '777',
+            '_id'       => $d11->getId()
+        ), $document->toArray());
+    }
+    
+    public function testFindAndRemove()
+    {
+        self::$collection->delete();
+        
+        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
+        
+        $document = self::$collection->find()
+            ->where('param1', 1)
+            ->sort(array(
+                'param2' => 1,
+            ))
+            ->findAndRemove();
+        
+        $this->assertNotEmpty($document);
+        
+        $this->assertEquals(array(
+            'param1'    => 1, 
+            'param2'    => 1,
+            '_id'       => $d11->getId()
+        ), $document->toArray());
+        
+        $this->assertEquals(3, count(self::$collection));
+    }
 }

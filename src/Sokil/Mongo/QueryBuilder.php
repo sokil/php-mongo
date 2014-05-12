@@ -308,6 +308,47 @@ class QueryBuilder implements \Iterator, \Countable
         return iterator_to_array($this);
     }
     
+    public function findAndRemove()
+    {
+        $mongoDocument = $this->_collection->getMongoCollection()->findAndModify(
+            $this->_expression->toArray(),
+            null,
+            $this->_fields,
+            array(
+                'remove'    => true,
+                'sort'      => $this->_sort, 
+            )
+        );
+        
+        if(!$mongoDocument) {
+            return null;
+        }
+        
+        $documentClassName = $this->_collection->getDocumentClassName($mongoDocument);
+        return new $documentClassName($this->_collection, $mongoDocument);
+    }
+    
+    public function findAndUpdate(Operator $operator, $upsert = false)
+    {
+        $mongoDocument = $this->_collection->getMongoCollection()->findAndModify(
+            $this->_expression->toArray(),
+            $operator ? $operator->getAll() : null,
+            $this->_fields,
+            array(
+                'new'       => true,
+                'sort'      => $this->_sort,
+                'upsert'    => $upsert,
+            )
+        );
+        
+        if(!$mongoDocument) {
+            return null;
+        }
+        
+        $documentClassName = $this->_collection->getDocumentClassName($mongoDocument);
+        return new $documentClassName($this->_collection, $mongoDocument);
+    }
+    
     public function map($handler)
     {
         $result = array();
