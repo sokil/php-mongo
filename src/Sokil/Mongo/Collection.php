@@ -2,7 +2,7 @@
 
 namespace Sokil\Mongo;
 
-class Collection
+class Collection implements \Countable
 {
     protected $_queryBuliderClass = '\Sokil\Mongo\QueryBuilder';
     
@@ -100,6 +100,11 @@ class Collection
         $className = $this->getDocumentClassName($data);
         
         return new $className($this, $data);
+    }
+    
+    public function count()
+    {
+        return $this->find()->count();
     }
     
     /**
