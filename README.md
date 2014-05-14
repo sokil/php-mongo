@@ -387,6 +387,11 @@ $collection->deleteDocument($document);
 $document->delete();
 ```
 
+Deleting of few documents:
+```php
+$collection->deleteDocuments($collection->expression()->where('param', 'value'));
+```
+
 Aggregation framework
 --------------------------------
 
