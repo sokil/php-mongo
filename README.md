@@ -14,7 +14,7 @@ Object Document Mapper for MongoDB
 * [Get and set data in document](#get-and-set-data-in-document)
 * [Storing document](#storing-document)
 * [Querying documents](#querying-documents)
-* [Update few documents](Update few documents)
+* [Update few documents](#update-few-documents)
 * [Document validation](#document-validation)
 * [Deleting collections and documents](#deleting-collections-and-documents)
 * [Aggregation framework](#aggregation-framework)
