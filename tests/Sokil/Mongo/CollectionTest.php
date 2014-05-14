@@ -122,6 +122,25 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $collection->delete();
     }
     
+    public function testDeleteDocuments()
+    {
+        // get collection
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+        $collection->delete();
+        
+        // add
+        $collection->createDocument(array('param' => 1))->save();
+        $collection->createDocument(array('param' => 2))->save();
+        $collection->createDocument(array('param' => 3))->save();
+        $collection->createDocument(array('param' => 4))->save();
+        
+        // delete
+        $collection->deleteDocuments($collection->expression()->whereGreater('param', 2));
+        
+        // test
+        $this->assertEquals(2, count($collection));
+    }
+    
     public function testDeleteUnexistedColelction()
     {
         $collection = self::$database->getCollection('UNEXISTED_COLLECTION_NAME');

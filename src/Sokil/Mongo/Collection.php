@@ -346,6 +346,16 @@ class Collection implements \Countable
         return $this;
     }
     
+    public function deleteDocuments(Expression $expression)
+    {
+        $result = $this->_mongoCollection->remove($expression->toArray());
+        if(!$result) {
+            throw new Exception('Error removing documents from collection');
+        }
+        
+        return $this;
+    }
+    
     public function insertMultiple($rows)
     {
         $document = $this->createDocument();
