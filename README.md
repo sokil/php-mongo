@@ -14,6 +14,7 @@ Object Document Mapper for MongoDB
 * [Get and set data in document](#get-and-set-data-in-document)
 * [Storing document](#storing-document)
 * [Querying documents](#querying-documents)
+* [Pagination](#pagination)
 * [Update few documents](#update-few-documents)
 * [Document validation](#document-validation)
 * [Deleting collections and documents](#deleting-collections-and-documents)
@@ -273,6 +274,21 @@ $document = $cursor->findOne();
 To get only one random result:
 ```php
 $document = $cursor->findRandom();
+```
+
+Pagination
+----------
+
+Query builder allows you to create pagination.
+```php
+$paginator = $collection->find()->where('field', 'value')->paginate(3, 20);
+$totalDocumentNumber = $paginator->getTotalRowsCount();
+$totalPageNumber = $paginator->getTotalPagesCount();
+
+// iterate through documents
+foreach($paginate as $document) {
+    echo $document->getId();
+}
 ```
 
 
