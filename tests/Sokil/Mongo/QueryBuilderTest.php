@@ -896,4 +896,35 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(3, count(self::$collection));
     }
+    
+    public function testPaginator()
+    {
+        self::$collection->delete();
+        
+        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
+        
+        $pager = self::$collection
+            ->find()
+            ->paginate(2, 2);
+        
+        $this->assertEquals(4, $pager->getTotalRowsCount());
+        
+        $this->assertEquals(2, $pager->getTotalPagesCount());
+        
+        $this->assertEquals(2, $pager->getCurrentPage());
+        
+        $this->assertEquals(
+            $d21->getId(), 
+            $pager->current()->getId()
+        );
+        
+        $pager->next();
+        $this->assertEquals(
+            $d22->getId(), 
+            $pager->current()->getId()
+        );
+    }
 }

@@ -393,6 +393,22 @@ class QueryBuilder implements \Iterator, \Countable
             ->current();
     }
     
+    /**
+     * 
+     * @param type $page
+     * @param type $itemsOnPage
+     * @return \Sokil\Mongo\Paginator
+     */
+    public function paginate($page, $itemsOnPage = 30)
+    {
+        $paginator = new Paginator($this);
+        
+        return $paginator
+            ->setCurrentPage($page)
+            ->setItemsOnPage($itemsOnPage);
+            
+    }
+    
     public function toArray()
     {
         return $this->_expression->toArray();
