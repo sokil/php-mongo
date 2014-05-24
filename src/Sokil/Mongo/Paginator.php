@@ -62,7 +62,16 @@ class Paginator implements \Iterator
     
     public function getCurrentPage()
     {
-        return $this->_currentPage;
+        // check if current page number greater than max allowed
+        $totalPageCount = $this->getTotalPagesCount();
+        
+        if($this->_currentPage <= $totalPageCount) {
+            $currentPage = $this->_currentPage;
+        } else {
+            $currentPage = $totalPageCount;
+        }
+        
+        return $currentPage;
     }
     
     public function setQueryBuilder(QueryBuilder $queryBuilder)
@@ -70,8 +79,6 @@ class Paginator implements \Iterator
         $this->_queryBuilder = clone $queryBuilder;
         
         $this->_applyLimits();
-        
-        $this->_totalRowsCount = null;
         
         return $this;
     }
@@ -98,19 +105,12 @@ class Paginator implements \Iterator
             return;
         }
         
-        // check if current page number greater than max allowed
-        $totalPageCount = $this->getTotalPagesCount();
         
-        if($this->_currentPage <= $totalPageCount) {
-            $currentPage = $this->_currentPage;
-        } else {
-            $currentPage = $totalPageCount;
-        }
         
         // get page of rows
         $this->_queryBuilder
             ->limit($this->_itemsOnPage)
-            ->skip(($currentPage - 1) * $this->_itemsOnPage);
+            ->skip(($this->getCurrentPage() - 1) * $this->_itemsOnPage);
     }
     
     /**

@@ -276,7 +276,7 @@ class QueryBuilder implements \Iterator, \Countable
     {
         return (int) $this->_collection
             ->getMongoCollection()
-            ->count($this->_expression->toArray(), $this->_limit, $this->_skip);
+            ->count($this->_expression->toArray());
     }
     
     public function findOne()
