@@ -989,4 +989,41 @@ class SearchTest extends \PHPUnit_Framework_TestCase
             $pager->current()->getId()
         );
     }
+    
+    public function testCount()
+    {
+        self::$collection->delete();
+        
+        self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        self::$collection->createDocument(array('param1' => 1, 'param2' => 3))->save();
+        self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
+        
+        $queryBuilder = self::$collection
+            ->find()
+            ->where('param1', 1)
+            ->limit(1)
+            ->skip(1);
+        
+        $this->assertEquals(3, count($queryBuilder));
+    }
+    
+    public function testLimitedCount()
+    {
+        self::$collection->delete();
+        
+        self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        self::$collection->createDocument(array('param1' => 1, 'param2' => 3))->save();
+        self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
+        
+        $queryBuilder = self::$collection
+            ->find()
+            ->where('param1', 2)
+            ->limit(10)
+            ->skip(1);
+        
+        $this->assertEquals(1, $queryBuilder->limitedCount());
+    }
 }

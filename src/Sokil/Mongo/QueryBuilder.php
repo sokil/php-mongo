@@ -272,11 +272,26 @@ class QueryBuilder implements \Iterator, \Countable
         return $this->_cursor;
     }
     
+    /**
+     * Count documents in result without applying limit and offset
+     * @return int count
+     */
     public function count()
     {
         return (int) $this->_collection
             ->getMongoCollection()
             ->count($this->_expression->toArray());
+    }
+    
+    /**
+     * Count documents in result with applying limit and offset
+     * @return int count
+     */
+    public function limitedCount()
+    {
+        return (int) $this->_collection
+            ->getMongoCollection()
+            ->count($this->_expression->toArray(), $this->_limit, $this->_skip);
     }
     
     public function findOne()
