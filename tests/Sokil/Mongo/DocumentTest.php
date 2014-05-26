@@ -35,9 +35,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testReset()
     {
-        $document = self::$collection->createDocument(array(
-            'param1'    => 'value1'
-        ));
+        $document = self::$collection
+            ->createDocument(array(
+                'param1'    => 'value1'
+            ))
+            ->save();
         
         $document->param1 = 'changedValue';
         

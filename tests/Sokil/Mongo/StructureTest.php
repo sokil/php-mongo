@@ -236,27 +236,14 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($structure->isModified('param3.subparam1.subparam-unex'));
     }
     
-    public function testIsModifiedIfValueSame()
-    {
-        $structure = new \Sokil\Mongo\Structure(array(
-            'param1'    => array(
-                'param2'    => 'value2',
-            )
-        ));
-        
-        $structure->setNotModified();
-        
-        $structure->set('param1.param2', 'value2');
-        
-        $this->assertFalse($structure->isModified('param1.param2'));
-    }
-    
     /**
      * @covers \Sokil\Mongo\Structure::has
      */
     public function testHas()
     {
-        $structure = new Structure(array(
+        $structure = new Structure;
+        
+        $structure->load(array(
             'param1'    => array(
                 'param2'    => 'value2',
             )
@@ -271,7 +258,9 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     
     public function testHasNull()
     {
-        $structure = new Structure(array(
+        $structure = new Structure;
+        
+        $structure->load(array(
             'param'    => null
         ));
         

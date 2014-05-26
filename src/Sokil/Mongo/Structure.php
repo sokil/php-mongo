@@ -10,16 +10,6 @@ class Structure
     
     protected $_modifiedFields = array();
     
-    public function __construct(array $data = null)
-    {
-        if($data) {
-            $this->_mergeUnmodified($this->_data, $data);
-        }
-        
-        $this->_originalData = $this->_data;
-        
-    }
-    
     public function reset()
     {
         $this->_data = $this->_originalData;
@@ -315,12 +305,6 @@ class Structure
     {
         return $this->_modifiedFields;
     }
-    
-    public function setNotModified()
-    {
-        $this->_modifiedFields = array();
-        return $this;
-    }
         
     public function toArray()
     {
@@ -338,12 +322,26 @@ class Structure
     {
         foreach($source as $key => $value) {
             if(is_array($value) && isset($target[$key])) {
-                $this->_mergeUnmodified($target[$key], $value);
+                $this->_merge($target[$key], $value);
             }
             else {
                 $target[$key] = $value;
             }
         }
+    }
+    
+    /**
+     * Merge array to current structure
+     * 
+     * @param array $data
+     * @return \Sokil\Mongo\Structure
+     */
+    public function mergeUnmodified(array $data)
+    {
+        $this->_mergeUnmodified($this->_data, $data);
+        $this->_mergeUnmodified($this->_originalData, $data);
+        
+        return $this;
     }
     
     /**
@@ -374,6 +372,17 @@ class Structure
     public function merge(array $data)
     {
         $this->_merge($this->_data, $data);
+        return $this;
+    }
+    
+    public function load(array $data, $modified = true)
+    {
+        if($modified) {
+            $this->merge($data);
+        } else {
+            $this->mergeUnmodified($data);
+        }
+        
         return $this;
     }
 }

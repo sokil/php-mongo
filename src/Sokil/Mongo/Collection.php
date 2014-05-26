@@ -101,7 +101,9 @@ class Collection implements \Countable
     {
         $className = $this->getDocumentClassName($data);
         
-        return new $className($this, $data);
+        return new $className($this, $data, array(
+            'stored' => false,
+        ));
     }
     
     public function count()
@@ -242,87 +244,7 @@ class Collection implements \Countable
      */
     public function saveDocument(Document $document, $validate = true)
     {
-        // if document already in db and not modified - skip this method
-        if(!$document->isSaveRequired()) {
-            return $this;
-        }
-        
-        if($validate) {
-            $document->validate();
-        }
-        
-        // handle beforeSave event
-        $document->triggerEvent('beforeSave');
-        
-        // update
-        if($document->isStored()) {
-            
-            $document->triggerEvent('beforeUpdate');
-            
-            if($document->getOperator()->isDefined()) {
-                
-                $updateOperations = $document->getOperator()->getAll();
-                
-                $status = $this->_mongoCollection->update(
-                    array('_id' => $document->getId()),
-                    $updateOperations
-                );
-                
-                if($status['ok'] != 1) {
-                    throw new Exception('Update error: ' . $status['err']);
-                }
-                
-                if($document->getOperator()->isReloadRequired()) {
-                    $data = $this->_mongoCollection->findOne(array('_id' => $document->getId()));
-                    $document->fromArray($data);
-                }
-                
-                $document->getOperator()->reset();
-            }
-            else {
-                $status = $this->_mongoCollection->update(
-                    array('_id' => $document->getId()),
-                    $document->toArray()
-                );
-                
-                if($status['ok'] != 1) {
-                    throw new Exception('Update error: ' . $status['err']);
-                }
-            }
-
-            $document->triggerEvent('afterUpdate');
-        }
-        // insert
-        else {
-            
-            $document->triggerEvent('beforeInsert');
-            
-            $data = $document->toArray();
-            
-            // save data
-            $status = $this->_mongoCollection->insert($data);
-            if($status['ok'] != 1) {
-                throw new Exception('Insert error: ' . $status['err']);
-            }
-
-            // set id
-            $document->defineId($data['_id']);
-            
-            // store to document's bool
-            if($this->_documentPoolEnabled) {
-                $this->_documentsPool[(string) $data['_id']] = $document;
-            }
-            
-            // event
-            $document->triggerEvent('afterInsert');
-        }
-        
-        // handle afterSave event
-        $document->triggerEvent('afterSave');
-        
-        // set document as not modified
-        $document->setNotModified();
-        
+        $document->save($validate);
         return $this;
     }
     

@@ -189,12 +189,16 @@ class QueryBuilder implements \Iterator, \Countable
     
     public function byId($id)
     {
-        if(!($id instanceof \MongoId)) {
-            $id = new \MongoId($id);
+        if($id instanceof \MongoId) {
+            $this->_expression->where('_id', $id);
+        } else {
+            try {
+                $this->_expression->where('_id', new \MongoId($id));
+            } catch (\MongoException $e) {
+                $this->_expression->where('_id', $id);
+            }
         }
-        
-        $this->_expression->where('_id', $id);
-        
+
         return $this;
     }
     
@@ -308,10 +312,11 @@ class QueryBuilder implements \Iterator, \Countable
             return $documentData;
         }
         
-        $className = $this->_collection
-            ->getDocumentClassName($documentData);
+        $className = $this->_collection->getDocumentClassName($documentData);
         
-        return new $className($this->_collection, $documentData);
+        return new $className($this->_collection, $documentData, array(
+            'stored' => true
+        ));
     }
     
     /**
@@ -339,8 +344,12 @@ class QueryBuilder implements \Iterator, \Countable
             return null;
         }
         
-        $documentClassName = $this->_collection->getDocumentClassName($mongoDocument);
-        return new $documentClassName($this->_collection, $mongoDocument);
+        $documentClassName = $this->_collection
+            ->getDocumentClassName($mongoDocument);
+        
+        return new $documentClassName($this->_collection, $mongoDocument, array(
+            'stored' => true
+        ));
     }
     
     public function findAndUpdate(Operator $operator, $upsert = false)
@@ -360,8 +369,12 @@ class QueryBuilder implements \Iterator, \Countable
             return null;
         }
         
-        $documentClassName = $this->_collection->getDocumentClassName($mongoDocument);
-        return new $documentClassName($this->_collection, $mongoDocument);
+        $documentClassName = $this->_collection
+            ->getDocumentClassName($mongoDocument);
+        
+        return new $documentClassName($this->_collection, $mongoDocument, array(
+            'stored' => true
+        ));
     }
     
     public function map($handler)
@@ -441,7 +454,9 @@ class QueryBuilder implements \Iterator, \Countable
         }
         
         $className = $this->_collection->getDocumentClassName($documentData);
-        return new $className($this->_collection, $documentData);
+        return new $className($this->_collection, $documentData, array(
+            'stored' => true
+        ));
     }
     
     public function key()

@@ -36,6 +36,28 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
     
+    public function testGetDocumentByStringId()
+    {
+        // create document
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+        $collection->delete();
+        
+        $document = $collection
+            ->createDocument(array(
+                '_id'   => 'abcdef',
+                'param' => 'value'
+            ));
+        
+        $document->save();
+        
+        // get document
+        $foundDocument = $collection->getDocument('abcdef');
+        
+        $this->assertNotNull($foundDocument);
+        
+        $this->assertEquals($document->getId(), $foundDocument->getId());
+    }
+    
     public function testGetDocuments()
     {
         $collection = self::$database->getCollection('phpmongo_test_collection');

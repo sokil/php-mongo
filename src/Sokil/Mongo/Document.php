@@ -64,7 +64,7 @@ class Document extends Structure
     
     private $_behaviors = array();
     
-    public function __construct(Collection $collection, array $data = null)
+    public function __construct(Collection $collection, array $data = null, array $options = array())
     {
         $this->_collection = $collection;
         
@@ -72,7 +72,17 @@ class Document extends Structure
         
         $this->beforeConstruct();
         
-        parent::__construct($data);
+        if(isset($options['stored']) && $options['stored'] === true) {
+            // load stored
+            if($data) {
+                $this->mergeUnmodified($data);
+            }
+        } else {
+            // create unstored
+            if($data) {
+                $this->merge($data);
+            }
+        }
         
         $this->_eventDispatcher->dispatch('afterConstruct');
     }
@@ -305,11 +315,16 @@ class Document extends Structure
      */
     public function defineId($id) {
         
-        if(!($id instanceof \MongoId)) {
-            $id = new \MongoId($id);
+        if($id instanceof \MongoId) {
+            try {
+                $this->_data['_id'] = new \MongoId($id);
+            } catch (\MongoException $e) {
+                $this->_data['_id'] = $id;
+            }
+        } else {
+            $this->_data['_id'] = $id;
         }
         
-        $this->_data['_id'] = $id;
         
         return $this;
     }
@@ -778,10 +793,6 @@ class Document extends Structure
     {
         $oldValue = $this->get($fieldName);
         
-        if($value instanceof Structure) {
-            $value = $value->toArray();
-        }
-        
         // field not exists
         if(!$oldValue) {
             if($this->getId()) {
@@ -839,7 +850,85 @@ class Document extends Structure
     
     public function save($validate = true)
     {
-        $this->_collection->saveDocument($this, $validate);
+        // if document already in db and not modified - skip this method
+        if(!$this->isSaveRequired()) {
+            return $this;
+        }
+        
+        if($validate) {
+            $this->validate();
+        }
+        
+        // handle beforeSave event
+        $this->triggerEvent('beforeSave');
+        
+        // update
+        if($this->isStored()) {
+            
+            $this->triggerEvent('beforeUpdate');
+            
+            if($this->getOperator()->isDefined()) {
+                
+                $updateOperations = $this->getOperator()->getAll();
+                
+                $status = $this->getCollection()->getMongoCollection()->update(
+                    array('_id' => $this->getId()),
+                    $updateOperations
+                );
+                
+                if($status['ok'] != 1) {
+                    throw new Exception('Update error: ' . $status['err']);
+                }
+                
+                if($this->getOperator()->isReloadRequired()) {
+                    $data = $this->getCollection()->getMongoCollection()->findOne(array('_id' => $this->getId()));
+                    $this->fromArray($data);
+                }
+                
+                $this->getOperator()->reset();
+            }
+            else {
+                $status = $this->getCollection()->getMongoCollection()->update(
+                    array('_id' => $this->getId()),
+                    $this->toArray()
+                );
+                
+                if($status['ok'] != 1) {
+                    throw new Exception('Update error: ' . $status['err']);
+                }
+            }
+
+            $this->triggerEvent('afterUpdate');
+        }
+        // insert
+        else {
+            
+            $this->triggerEvent('beforeInsert');
+            
+            $data = $this->toArray();
+            
+            // save data
+            $status = $this->getCollection()->getMongoCollection()->insert($data);
+            if($status['ok'] != 1) {
+                throw new Exception('Insert error: ' . $status['err']);
+            }
+
+            // set id
+            $this->defineId($data['_id']);
+            
+            // event
+            $this->triggerEvent('afterInsert');
+        }
+        
+        // handle afterSave event
+        $this->triggerEvent('afterSave');
+        
+        // set document as not modified
+        $this->_modifiedFields = array();
+        
+        // set new original data
+        $this->_originalData = $this->_data;
+        
         return $this;
     }
     
