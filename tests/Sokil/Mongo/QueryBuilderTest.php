@@ -990,6 +990,17 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         );
     }
     
+    public function testPaginatorOverEmptyList()
+    {
+        self::$collection->delete();
+        
+        $pager = self::$collection
+            ->find()
+            ->paginate(10, 20);
+        
+        $this->assertNull($pager->current());
+    }
+    
     public function testCount()
     {
         self::$collection->delete();

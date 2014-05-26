@@ -65,6 +65,11 @@ class Paginator implements \Iterator
         // check if current page number greater than max allowed
         $totalPageCount = $this->getTotalPagesCount();
         
+        // no document found - page is 1
+        if(!$totalPageCount) {
+            return 1;
+        }
+        
         if($this->_currentPage <= $totalPageCount) {
             $currentPage = $this->_currentPage;
         } else {
@@ -105,12 +110,12 @@ class Paginator implements \Iterator
             return;
         }
         
-        
+        $currentPage = $this->getCurrentPage();
         
         // get page of rows
         $this->_queryBuilder
             ->limit($this->_itemsOnPage)
-            ->skip(($this->getCurrentPage() - 1) * $this->_itemsOnPage);
+            ->skip(($currentPage - 1) * $this->_itemsOnPage);
     }
     
     /**
