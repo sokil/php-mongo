@@ -28,6 +28,7 @@ Object Document Mapper for MongoDB
 * [Capped collections](#capped-collections)
 * [Executing commands](#executing-commands)
 * [Queue](#queue)
+* [Migrations](#migrations)
 
 Installation
 ------------
@@ -715,5 +716,15 @@ $queue = $database->getQueue('channel_name');
 echo count($queue);
 ```
 
+Migrations
+----------
 
+Migrations allows you easily change schema and data versions. This functionality implemented in packet https://github.com/sokil/php-mongo-migrator and can be installed through composer:
+```javascript
+{
+    "require": {
+        "sokil/php-mongo-migrator": "dev-master"
+    }
+}
+```
 
