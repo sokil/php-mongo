@@ -18,5 +18,8 @@
         "psr-0": {
             "Sokil": "src/"
         }
+    },
+    "suggest": {
+        "sokil/php-mongo-migrator": "Add support of migrations"
     }
 }
