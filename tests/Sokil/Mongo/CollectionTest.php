@@ -192,7 +192,30 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         foreach($collection->find() as $document) {
             $this->assertArrayHasKey('k', $document->toArray());
         }
+    }
+    
+    public function testUpdateMultipleOnEmptyExpression()
+    {
+        // get collection
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+        $collection->delete();
         
+        // create documents
+        $d1 = $collection->createDocument(array('p' => 1));
+        $collection->saveDocument($d1);
+        
+        $d2 = $collection->createDocument(array('p' => 1));
+        $collection->saveDocument($d2);
+        
+        // packet update
+        $collection->updateAll(
+            $collection->operator()->set('k', 'v')
+        );
+        
+        // test
+        foreach($collection->find() as $document) {
+            $this->assertArrayHasKey('k', $document->toArray());
+        }
     }
     
     public function testGetDistinct()

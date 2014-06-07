@@ -300,6 +300,15 @@ class Collection implements \Countable
         return $this;
     }
     
+    /**
+     * Update multiple documents
+     * @param \Sokil\Mongo\Expression $expression expression to define 
+     *  which documents will change. 
+     * @param \Sokil\Mongo\Operator|array $updateData new data or commands
+     *  to update
+     * @return \Sokil\Mongo\Collection
+     * @throws Exception
+     */
     public function updateMultiple(Expression $expression, $updateData)
     {
         if($updateData instanceof Operator) {
@@ -308,6 +317,27 @@ class Collection implements \Countable
         
         $status = $this->_mongoCollection->update(
             $expression->toArray(), 
+            $updateData,
+            array(
+                'multiple'  => true,
+            )
+        );
+        
+        if(1 != $status['ok']) {
+            throw new Exception('Multiple update error: ' . $status['err']);
+        }
+        
+        return $this;
+    }
+    
+    public function updateAll($updateData)
+    {
+        if($updateData instanceof Operator) {
+            $updateData = $updateData->getAll();
+        }
+        
+        $status = $this->_mongoCollection->update(
+            array(), 
             $updateData,
             array(
                 'multiple'  => true,
