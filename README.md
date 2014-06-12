@@ -460,13 +460,25 @@ $document->onBeforeSave(function() {
 Behaviors
 ----------
 
-Behavior is a posibility to extend functionality of document object and reuse code among documents of different class. Behavior is a class extended from \Sokil\Mongo\Behavior:
+Behavior is a posibility to extend functionality of document object and reuse code among documents of different class. 
+Behavior is a class extended from \Sokil\Mongo\Behavior:
 ```php
 class SomeBehavior extends \Sokil\Mongo\Behavior
 {
     public function return42()
     {
         return 42;
+    }
+}
+```
+
+To get instance of object, to which behavior is attached, call Behavior::getOwner() method:
+```php
+class SomeBehavior extends \Sokil\Mongo\Behavior
+{
+    public function getOwnerParam($selector)
+    {
+        return $this->getOwner()->get($selector);
     }
 }
 ```
