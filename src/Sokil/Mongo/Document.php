@@ -640,6 +640,8 @@ class Document extends Structure
     
     public function attachBehavior($name, Behavior $behavior)
     {
+        $behavior->setOwner($this);
+        
         $this->_behaviors[$name] = $behavior;
         
         return $this;

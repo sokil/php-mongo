@@ -962,6 +962,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(42, $document->return42());
     }
     
+    public function testBehaviorowner()
+    {
+        $document = self::$collection->createDocument(array('param' => 42));
+        
+        $document->attachBehavior('someBehavior', new \Sokil\Mongo\DocumentTest\SomeBehavior());
+        
+        $this->assertEquals(42, $document->getOwnerParam('param'));
+    }
+    
     public function testMergeOnUpdate()
     {
         // save document

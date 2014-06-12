@@ -8,4 +8,9 @@ class SomeBehavior extends \Sokil\Mongo\Behavior
     {
         return 42;
     }
+    
+    public function getOwnerParam($name)
+    {
+        return $this->getOwner()->get($name);
+    }
 }
