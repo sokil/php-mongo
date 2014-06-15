@@ -367,7 +367,7 @@ class Collection implements \Countable
      * @return array result of aggregation
      * @throws Exception
      */
-    public function aggregate($pipelines, array $options = null) {
+    public function aggregate($pipelines, array $options = array()) {
         
         if($pipelines instanceof AggregatePipelines) {
             $pipelines = $pipelines->toArray();
