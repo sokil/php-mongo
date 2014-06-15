@@ -287,6 +287,11 @@ class QueryBuilder implements \Iterator, \Countable
             ->count($this->_expression->toArray());
     }
     
+    public function explain()
+    {
+        return $this->getCursor()->explain();
+    }
+    
     /**
      * Count documents in result with applying limit and offset
      * @return int count

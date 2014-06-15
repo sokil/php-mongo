@@ -1037,4 +1037,19 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(1, $queryBuilder->limitedCount());
     }
+    
+    public function testExplain()
+    {
+        self::$collection->delete();
+        
+        self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        
+        $explain = self::$collection
+            ->find()
+            ->where('param1', 2)
+            ->explain();
+        
+        $this->assertArrayHasKey('cursor', $explain);
+    }
 }
