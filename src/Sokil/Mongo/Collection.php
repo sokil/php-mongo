@@ -379,7 +379,10 @@ class Collection implements \Countable
         // log
         $client = $this->_database->getClient();
         if($client->hasLogger()) {
-            $client->getLogger()->debug(get_called_class() . ': ' . json_encode($pipelines));
+            $client->getLogger()->debug(
+                get_called_class() . ':<br><b>Pipelines</b>:<br>' .
+                json_encode($pipelines)) . '<br><b>Explain</b>:<br>'. 
+                $this->explainAggregate($pipelines);
         }
         
         // aggregate
