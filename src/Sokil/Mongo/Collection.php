@@ -367,7 +367,7 @@ class Collection implements \Countable
      * @return array result of aggregation
      * @throws Exception
      */
-    public function aggregate($pipelines, array $options = array()) {
+    public function aggregate($pipelines) {
         
         if($pipelines instanceof AggregatePipelines) {
             $pipelines = $pipelines->toArray();
@@ -385,20 +385,13 @@ class Collection implements \Countable
         }
         
         // aggregate
-        $status = $this->_mongoCollection->aggregate($pipelines, $options);
+        $status = $this->_mongoCollection->aggregate($pipelines);
         
         if($status['ok'] != 1) {
             throw new Exception($status['errmsg']);
         }
         
         return $status['result'];
-    }
-    
-    public function explainAggregate($pipelines)
-    {
-        return $this->aggregate($pipelines, array(
-            'explain' => true,
-        ));
     }
     
     public function validate($full = false)
