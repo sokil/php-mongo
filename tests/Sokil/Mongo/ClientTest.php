@@ -81,4 +81,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         
         $this->assertInstanceOf('\Sokil\Mongo\Collection', $collection);
     }
+    
+    public function testGetVersion()
+    {
+        $this->assertTrue(version_compare(self::$client->getVersion(), '0.9.0', '>='));
+    }
 }

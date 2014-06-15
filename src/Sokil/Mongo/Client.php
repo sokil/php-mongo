@@ -46,6 +46,15 @@ class Client
         return $this->getDatabase($name);
     }
     
+    /**
+     * 
+     * @return version of PHP driver
+     */
+    public function getVersion()
+    {
+        return \MongoClient::VERSION;
+    }
+    
     public function setDsn($dsn)
     {
         $this->_dsn = $dsn;
