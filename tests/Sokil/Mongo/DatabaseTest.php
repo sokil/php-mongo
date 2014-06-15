@@ -24,4 +24,26 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $stats = self::$database->stats();
         $this->assertEquals(1.0, $stats['ok']);
     }
+    
+    public function testDisableProfiler()
+    {
+        $result = self::$database->disableProfiler();
+        $this->assertArrayHasKey('was', $result);
+        $this->assertArrayHasKey('slowms', $result);
+    }
+    
+    public function testProfileSlowQueries()
+    {
+        $result = self::$database->profileSlowQueries();
+        var_dump($result);
+        $this->assertArrayHasKey('was', $result);
+        $this->assertArrayHasKey('slowms', $result);
+    }
+    
+    public function testProfileAllQueries()
+    {
+        $result = self::$database->profileAllQueries();
+        $this->assertArrayHasKey('was', $result);
+        $this->assertArrayHasKey('slowms', $result);
+    }
 }

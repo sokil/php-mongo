@@ -242,4 +242,27 @@ class Database
             'dbstats' => 1,
         ));
     }
+    
+    public function disableProfiler()
+    {
+        return $this->executeCommand(array(
+            'profile'   => 0,
+        ));
+    }
+    
+    public function profileSlowQueries($slowms = 100)
+    {
+        return $this->executeCommand(array(
+            'profile'   => 1,
+            'slowms'    => (int) $slowms
+        ));
+    }
+    
+    public function profileAllQueries($slowms = 100)
+    {
+        return $this->executeCommand(array(
+            'profile'   => 2,
+            'slowms'    => (int) $slowms
+        ));
+    }
 }
