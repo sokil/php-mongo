@@ -385,13 +385,33 @@ class Collection implements \Countable
         }
         
         // aggregate
-        $status = $this->_mongoCollection->aggregate($pipelines);
+        $status = $this->_database->executeCommand(array(
+            'aggregate' => $this->getName(),
+            'pipeline'  => $pipelines
+        ));
         
         if($status['ok'] != 1) {
             throw new Exception($status['errmsg']);
         }
         
         return $status['result'];
+    }
+    
+    public function explainAggregate($pipelines)
+    {
+        if($pipelines instanceof AggregatePipelines) {
+            $pipelines = $pipelines->toArray();
+        }
+        elseif(!is_array($pipelines)) {
+            throw new Exception('Wrong pipelines specified');
+        }
+        
+        // aggregate
+        return $this->_database->executeCommand(array(
+            'aggregate' => $this->getName(),
+            'pipeline'  => $pipelines,
+            'explain'   => true
+        ));
     }
     
     public function validate($full = false)

@@ -357,4 +357,25 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(9, $result[0]['sum']);
         
     }
+    
+    public function testExplainAggregate()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+            
+        $collection->createDocument(array('param' => 1))->save();
+        $collection->createDocument(array('param' => 2))->save();
+        $collection->createDocument(array('param' => 3))->save();
+        $collection->createDocument(array('param' => 4))->save();
+        
+        $pipelines = $collection->createPipeline()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')));
+        
+        $explain = $collection->explainAggregate($pipelines);
+        $this->assertArrayHasKey('stages', $explain);
+        
+        
+    }
 }
