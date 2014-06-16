@@ -373,9 +373,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->match(array('param' => array('$gte' => 2)))
             ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')));
         
-        $explain = $collection->explainAggregate($pipelines);
-        $this->assertArrayHasKey('stages', $explain);
-        
+        try {
+            $explain = $collection->explainAggregate($pipelines);
+            $this->assertArrayHasKey('stages', $explain);
+        } catch (\Exception $e) {
+            $this->assertEquals('Explain of aggregation implemented only from 2.6.0', $e->getMessage());
+        }
         
     }
 }

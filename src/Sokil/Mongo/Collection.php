@@ -399,6 +399,10 @@ class Collection implements \Countable
     
     public function explainAggregate($pipelines)
     {
+        if(version_compare($this->getDatabase()->getClient()->getDbVersion(), '2.6.0', '<')) {
+            throw new Exception('Explain of aggregation implemented only from 2.6.0');
+        }
+        
         if($pipelines instanceof AggregatePipelines) {
             $pipelines = $pipelines->toArray();
         }
