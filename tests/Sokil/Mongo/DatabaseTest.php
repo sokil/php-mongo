@@ -45,4 +45,19 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('was', $result);
         $this->assertArrayHasKey('slowms', $result);
     }
+    
+    public function testExecuteJs()
+    {
+        $result = self::$database->executeJS('return 42;');
+        $this->assertEquals(42, $result);
+    }
+    
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Error #16722: exception: ReferenceError: gversion is not defined
+     */
+    public function testExecuteInvalidJs()
+    {
+        var_dump(self::$database->executeJS('gversion()'));
+    }
 }

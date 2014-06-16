@@ -236,6 +236,16 @@ class Database
         return $this->getMongoDB()->command($command, $options);
     }
     
+    public function executeJS($code, array $args = array())
+    {
+        $response = $this->getMongoDB()->execute($code, $args);
+        if($response['ok'] == 1.0) {
+            return $response['retval'];
+        } else {
+            throw new Exception('Error #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
+        }
+    }
+    
     public function stats()
     {
         return $this->executeCommand(array(
