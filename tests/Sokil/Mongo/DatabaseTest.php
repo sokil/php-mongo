@@ -35,7 +35,6 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     public function testProfileSlowQueries()
     {
         $result = self::$database->profileSlowQueries();
-        var_dump($result);
         $this->assertArrayHasKey('was', $result);
         $this->assertArrayHasKey('slowms', $result);
     }
