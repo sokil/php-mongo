@@ -55,6 +55,11 @@ class Client
         return \MongoClient::VERSION;
     }
     
+    public function getDbVersion()
+    {
+        return $this->getDatabase('test')->executeJS('version();');
+    }
+    
     public function setDsn($dsn)
     {
         $this->_dsn = $dsn;

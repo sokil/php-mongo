@@ -86,4 +86,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertTrue(version_compare(self::$client->getVersion(), '0.9.0', '>='));
     }
+    
+    public function testGetDbVersion()
+    {
+        $version = self::$client->getDbVersion();
+
+        $this->assertEquals(1, preg_match('#^[0-9]+(\.[0-9]+(\.[0-9]+)?)?$#', $version));
+    }
 }
