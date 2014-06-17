@@ -5,7 +5,7 @@ PHPMongo
 
 #### Object Document Mapper for MongoDB.
 
-Why to use this library? You can easily work with document data through comfortable getters and setters instead of array and dont check if key exist in array. Access to subdocument use dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of dicument's life, and moth things which make you worke easier.
+Why to use this library? You can easily work with document data through comfortable getters and setters instead of array and don't check if key exist in array. Access to subdocument use dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of dicument's life, and more things which make you life easier.
 
 * [Installation](#installation)
 * [Connecting](#connecting)
