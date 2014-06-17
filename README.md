@@ -3,7 +3,9 @@ PHPMongo
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master)](https://travis-ci.org/sokil/php-mongo)
 [![Latest Stable Version](https://poser.pugx.org/sokil/php-mongo/v/stable.png)](https://packagist.org/packages/sokil/php-mongo)
 
-Object Document Mapper for MongoDB
+#### Object Document Mapper for MongoDB.
+
+Why to use this library? You can easily work with document data through comfortable getters and setters instead of array and dont check if key exist in array. Access to subdocument use dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of dicument's life, and moth things which make you worke easier.
 
 * [Installation](#installation)
 * [Connecting](#connecting)
