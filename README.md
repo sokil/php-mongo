@@ -12,6 +12,8 @@ Why to use this library? You can easily work with document data through comforta
 * PHP 5.3 or above
 * PHP MongoDB Extension 0.9 or above
 
+#### Table of contents
+
 * [Installation](#installation)
 * [Connecting](#connecting)
 * [Selecting database and collection](#selecting-database-and-collection)
