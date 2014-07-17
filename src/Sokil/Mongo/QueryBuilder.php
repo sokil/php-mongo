@@ -76,7 +76,7 @@ class QueryBuilder implements \Iterator, \Countable
      * Return only specified fields
      * 
      * @param array $fields
-     * @return \\Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\QueryBuilder
      */
     public function fields(array $fields)
     {
@@ -86,7 +86,9 @@ class QueryBuilder implements \Iterator, \Countable
     
     /**
      * Return all fields except specified
+     * 
      * @param array $fields
+     * @return \Sokil\Mongo\QueryBuilder
      */
     public function skipFields(array $fields)
     {
@@ -96,8 +98,9 @@ class QueryBuilder implements \Iterator, \Countable
     
     /**
      * Append field to accept list
+     * 
      * @param type $field
-     * @return \\Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\QueryBuilder
      */
     public function field($field)
     {
@@ -109,7 +112,7 @@ class QueryBuilder implements \Iterator, \Countable
      * Append field to skip list
      * 
      * @param type $field
-     * @return \\Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\QueryBuilder
      */
     public function skipField($field)
     {
