@@ -71,6 +71,43 @@ To connect to replica set use next DSN:
 mongodb://server1.com,server2.com/?replicaSet=replicaSetName
 ```
 
+If you have few connections you may prefer connection pool instead of managing different connections. Use \Sokil\Mongo\ClientPool instance to initialize pool object:
+
+```php
+$pool = new ClientPool(array(
+    'connect1' => array(
+        'dsn' => 'mongodb://127.0.0.1',
+        'defaultDatabase' => 'db2',
+        'mapping' => array(
+            'db1' => array(
+                'col1' => '\Collection1',
+                'col2' => '\Collection2',
+            ),
+            'db2' => array(
+                'col1' => '\Collection3',
+                'col2' => '\Collection4',
+            )
+        ),
+    ),
+    'connect2' => array(
+        'dsn' => 'mongodb://127.0.0.1',
+        'defaultDatabase' => 'db2',
+        'mappign' => array(
+            'db1' => array(
+                'col1' => '\Collection5',
+                'col2' => '\Collection6',
+            ),
+            'db2' => array(
+                'col1' => '\Collection7',
+                'col2' => '\Collection8',
+            )
+        ),
+    ),  
+));
+
+$collection = $pool->get('connect2')->getDatabase('db2')->getCollection('col2');
+```
+
 Selecting database and collection
 -----------------------
 To get instance of database class \Sokil\Mongo\Database:
