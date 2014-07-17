@@ -24,6 +24,11 @@ class ClientPool
         return $this;
     }
     
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
+    
     /**
      * Get instance of connection
      * 
