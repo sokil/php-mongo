@@ -436,12 +436,26 @@ class Collection implements \Countable
         return $response;
     }
     
+    /**
+     * Create index
+     * 
+     * @param array $key
+     * @param array $options
+     * @return \Sokil\Mongo\Collection
+     */
     public function ensureIndex($key, array $options = array())
     {
         $this->_mongoCollection->ensureIndex($key, $options);
         return $this;
     }
     
+    /**
+     * Create unique index
+     * 
+     * @param array $key
+     * @param boolean $dropDups
+     * @return \Sokil\Mongo\Collection
+     */
     public function ensureUniqueIndex($key, $dropDups = false)
     {
         $this->_mongoCollection->ensureIndex($key, array(
@@ -452,10 +466,32 @@ class Collection implements \Countable
         return $this;
     }
     
+    /**
+     * Create sparse index
+     * 
+     * @param type $key
+     * @return \Sokil\Mongo\Collection
+     */
     public function ensureSparseIndex($key)
     {
         $this->_mongoCollection->ensureIndex($key, array(
             'sparse'    => true,
+        ));
+        
+        return $this;
+    }
+    
+    /**
+     * Create TTL index
+     * 
+     * @param array $key
+     * @param int $seconds
+     * @return \Sokil\Mongo\Collection
+     */
+    public function ensureTTLIndex($key, $seconds)
+    {
+        $this->_mongoCollection->ensureIndex($key, array(
+            'expireAfterSeconds' => $seconds,
         ));
         
         return $this;
