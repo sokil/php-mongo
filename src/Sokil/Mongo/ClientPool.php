@@ -1,0 +1,60 @@
+<?php
+
+namespace Sokil\Mongo;
+
+class ClientPool
+{
+    private $_pool = array();
+    
+    private $_configuration;
+    
+    public function __construct(array $configuration)
+    {
+        $this->_configuration = $configuration;
+    }
+    
+    public function addConnection($name, $dsn, $mapping = null, $defaultDatabase = null)
+    {
+        $this->_configuration[$name] = array(
+            'dsn'               => $dsn,
+            'defaultDatabase'   => $defaultDatabase,
+            'mappign'           => $mapping,
+        );
+        
+        return $this;
+    }
+    
+    /**
+     * Get instance of connection
+     * 
+     * @param string $name
+     * @return \Sokil\Mongo\ClientPool
+     * @throws \Exception
+     */
+    public function get($name)
+    {
+        // get from cache
+        if(isset($this->_pool[$name])) {
+            return $this->_pool[$name];
+        }
+        
+        // initialise
+        if(!isset($this->_configuration[$name])) {
+            throw new \Exception('Connection with name ' . $name . ' not found');
+        }
+        
+        $client = new Client($this->_configuration[$name]['dsn']);
+        
+        if(isset($this->_configuration[$name]['mapping'])) {
+            $client->map($this->_configuration[$name]['mapping']);
+        }
+        
+        if(isset($this->_configuration[$name]['defaultDatabase'])) {
+            $client->useDatabase($this->_configuration[$name]['defaultDatabase']);
+        }
+        
+        $this->_pool[$name] = $client;
+        
+        return $client;
+    }
+}

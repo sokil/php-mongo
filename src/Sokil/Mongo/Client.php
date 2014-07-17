@@ -95,7 +95,7 @@ class Client
     /**
      * Map database and collection name to class
      * 
-     * @param array $name classpath or class prefix
+     * @param array $mapping classpath or class prefix
      * Classpath:
      *  [dbname => [collectionName => collectionClass, ...], ...]
      * Class prefix:
