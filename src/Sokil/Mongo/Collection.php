@@ -20,9 +20,17 @@ class Collection implements \Countable
      */
     private $_mongoCollection;
     
+    /**
+     *
+     * @var list of cached documents
+     */
     private $_documentsPool = array();
     
-    protected $_documentPoolEnabled = false;
+    /**
+     *
+     * @var cache or not documents
+     */
+    private $_documentPoolEnabled = false;
     
     public function __construct(Database $database, $collection)
     {
