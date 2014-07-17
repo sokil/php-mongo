@@ -105,7 +105,8 @@ $pool = new ClientPool(array(
     ),  
 ));
 
-$collection = $pool->get('connect2')->getDatabase('db2')->getCollection('col2');
+$connect1Client = $pool->get('connect1');
+$connect2Client = $pool->get('connect2');
 ```
 
 Selecting database and collection
