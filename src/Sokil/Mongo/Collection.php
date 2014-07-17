@@ -10,6 +10,12 @@ class Collection implements \Countable
     
     /**
      *
+     * @var list of indexes
+     */
+    protected $_index;
+    
+    /**
+     *
      * @var \Sokil\Mongo\Database
      */
     private $_database;
@@ -493,6 +499,29 @@ class Collection implements \Countable
         $this->_mongoCollection->ensureIndex($key, array(
             'expireAfterSeconds' => $seconds,
         ));
+        
+        return $this;
+    }
+    
+    /**
+     * Create indexes based on self::$_index metadata
+     * 
+     * @return \Sokil\Mongo\Collection
+     * @throws \Exception
+     */
+    public function initIndexes()
+    {
+        foreach($this->_index as $options) {
+            
+            if(empty($options['keys'])) {
+                throw new \Exception('Keys not specified');
+            }
+            
+            $keys = $options['keys'];
+            unset($options['keys']);
+            
+            $this->_mongoCollection->ensureIndex($keys, $options);
+        }
         
         return $this;
     }
