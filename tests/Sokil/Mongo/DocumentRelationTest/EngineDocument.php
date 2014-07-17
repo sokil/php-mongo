@@ -2,16 +2,16 @@
 
 namespace Sokil\Mongo\DocumentRelationTest;
 
-class OneoneTargetDocument extends \Sokil\Mongo\Document
+class EngineDocument extends \Sokil\Mongo\Document
 {
     protected $_data = array(
-        'source_id' => null,
+        'car_id' => null,
     );
     
     public function relations()
     {
         return array(
-            'belongs'   => array(self::RELATION_BELONGS, 'source', 'source_id'),
+            'car'   => array(self::RELATION_BELONGS, 'cars', 'car_id'),
         );
     }
 }

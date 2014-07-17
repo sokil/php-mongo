@@ -15,9 +15,9 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         self::$database = $client
             ->map(array(
                 'test'  => array(
-                    'source'        => '\Sokil\Mongo\DocumentRelationTest\SourceCollection',
-                    'oneoneTarget'  => '\Sokil\Mongo\DocumentRelationTest\OneoneTargetCollection',
-                    'onemanyTarget'  => '\Sokil\Mongo\DocumentRelationTest\OnemanyTargetCollection',
+                    'cars'      => '\Sokil\Mongo\DocumentRelationTest\CarsCollection',
+                    'engines'   => '\Sokil\Mongo\DocumentRelationTest\EnginesCollection',
+                    'wheels'    => '\Sokil\Mongo\DocumentRelationTest\WheelsCollection',
                 ),
             ))
             ->getDatabase('test');
@@ -40,29 +40,29 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testHasOne()
     {
         // collections
-        $sourceCollection = self::$database->getCollection('source');
-        $oneoneTargetCollection = self::$database->getCollection('oneoneTarget');
+        $carsCollection = self::$database->getCollection('cars');
+        $enginesCollection = self::$database->getCollection('engines');
         
         // add documents
-        $sourceDocument = $sourceCollection
+        $carDocument = $carsCollection
             ->createDocument(array('param' => 'value'))
             ->save();
         
         // add target document
-        $targetDocument = $oneoneTargetCollection
+        $engineDocument = $enginesCollection
             ->createDocument(array(
-                'source_id' => $sourceDocument->getId()
+                'car_id' => $carDocument->getId()
             ))
             ->save();
         
         // test
-        $this->assertInstanceOf('\Sokil\Mongo\DocumentRelationTest\OneoneTargetDocument', $sourceDocument->hasOne);
+        $this->assertInstanceOf('\Sokil\Mongo\DocumentRelationTest\EngineDocument', $carDocument->engine);
         
-        $this->assertEquals($targetDocument->getId(), $sourceDocument->hasOne->getId());
+        $this->assertEquals($engineDocument->getId(), $carDocument->engine->getId());
         
         // clear test
-        $sourceCollection->delete();
-        $oneoneTargetCollection->delete();
+        $carsCollection->delete();
+        $enginesCollection->delete();
     }
     
     /**
@@ -71,29 +71,29 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testBelongs()
     {
         // collections
-        $sourceCollection = self::$database->getCollection('source');
-        $oneoneTargetCollection = self::$database->getCollection('oneoneTarget');
+        $carsCollection = self::$database->getCollection('cars');
+        $enginesCollection = self::$database->getCollection('engines');
         
         // add documents
-        $sourceDocument = $sourceCollection
+        $carDocument = $carsCollection
             ->createDocument(array('param' => 'value'))
             ->save();
         
         // add target document
-        $targetDocument = $oneoneTargetCollection
+        $engineDocument = $enginesCollection
             ->createDocument(array(
-                'source_id' => $sourceDocument->getId()
+                'car_id' => $carDocument->getId()
             ))
             ->save();
         
         // test
-        $this->assertInstanceOf('\Sokil\Mongo\DocumentRelationTest\SourceDocument', $targetDocument->belongs);
+        $this->assertInstanceOf('\Sokil\Mongo\DocumentRelationTest\CarDocument', $engineDocument->car);
         
-        $this->assertEquals($sourceDocument->getId(), $targetDocument->belongs->getId());
+        $this->assertEquals($carDocument->getId(), $engineDocument->car->getId());
         
         // clear test
-        $sourceCollection->delete();
-        $oneoneTargetCollection->delete();
+        $carsCollection->delete();
+        $enginesCollection->delete();
     }
     
     /**
@@ -102,34 +102,34 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testHasMany()
     {
         // collections
-        $sourceCollection = self::$database->getCollection('source');
-        $onemanyTargetCollection = self::$database->getCollection('onemanyTarget');
+        $carsCollection = self::$database->getCollection('cars');
+        $wheelsCollection = self::$database->getCollection('wheels');
         
         // add documents
-        $sourceDocument = $sourceCollection
+        $carDocument = $carsCollection
             ->createDocument(array('param' => 'value'))
             ->save();
         
         // add target documents
-        $targetDocument1 = $onemanyTargetCollection
+        $wheelDocument1 = $wheelsCollection
             ->createDocument(array(
-                'source_id' => $sourceDocument->getId()
+                'car_id' => $carDocument->getId()
             ))
             ->save();
         
         // add target document
-        $targetDocument2 = $onemanyTargetCollection
+        $wheelDocument2 = $wheelsCollection
             ->createDocument(array(
-                'source_id' => $sourceDocument->getId()
+                'car_id' => $carDocument->getId()
             ))
             ->save();
         
         // test        
-        $this->assertArrayHasKey((string) $targetDocument1->getId(), $sourceDocument->hasMany);
-        $this->assertArrayHasKey((string) $targetDocument2->getId(), $sourceDocument->hasMany);
+        $this->assertArrayHasKey((string) $wheelDocument1->getId(), $carDocument->wheels);
+        $this->assertArrayHasKey((string) $wheelDocument2->getId(), $carDocument->wheels);
         
         // clear test
-        $sourceCollection->delete();
-        $onemanyTargetCollection->delete();
+        $carsCollection->delete();
+        $wheelsCollection->delete();
     }
 }

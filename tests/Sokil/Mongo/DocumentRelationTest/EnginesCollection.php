@@ -2,10 +2,10 @@
 
 namespace Sokil\Mongo\DocumentRelationTest;
 
-class SourceCollection extends \Sokil\Mongo\Collection
+class EnginesCollection extends \Sokil\Mongo\Collection
 {
     public function getDocumentClassName(array $documentData = null)
     {
-        return '\Sokil\Mongo\DocumentRelationTest\SourceDocument';
+        return '\Sokil\Mongo\DocumentRelationTest\EngineDocument';
     }
 }
