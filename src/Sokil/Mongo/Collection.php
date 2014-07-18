@@ -36,7 +36,7 @@ class Collection implements \Countable
      *
      * @var cache or not documents
      */
-    private $_documentPoolEnabled = false;
+    private $_documentPoolEnabled = true;
     
     public function __construct(Database $database, $collection)
     {
@@ -193,6 +193,12 @@ class Collection implements \Countable
     public function enableDocumentPool()
     {
         $this->_documentPoolEnabled = true;
+        return $this;
+    }
+    
+    public function clearDocumentPool()
+    {
+        $this->_documentsPool = array();
         return $this;
     }
     

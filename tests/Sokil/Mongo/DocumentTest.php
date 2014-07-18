@@ -903,7 +903,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                     array('b' => 4),
                 )
             )
-        ), self::$collection->getDocument($doc->getId())->some);
+        ), self::$collection->getDocumentDirectly($doc->getId())->some);
         
         // pull 2
         $doc->pull('some', array(
@@ -913,7 +913,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ));
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array(), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array(), self::$collection->getDocumentDirectly($doc->getId())->some);
     }
     
     public function testPullFromThreeDimensionalUsingExpressionArray()

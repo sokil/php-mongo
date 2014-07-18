@@ -208,14 +208,11 @@ class Document extends Structure
             
             case self::RELATION_BELONGS:
                 $sourceField = $relation[2];
-                $targetField = '_id';
                 
                 $this->_resolvedRelations[$name] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
-                    ->find()
-                    ->where($targetField, $this->get($sourceField))
-                    ->findOne();
+                    ->getDocument($this->get($sourceField));
                 
                 break;
             

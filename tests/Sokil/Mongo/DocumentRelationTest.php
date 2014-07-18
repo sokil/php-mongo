@@ -132,4 +132,40 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $carsCollection->delete();
         $wheelsCollection->delete();
     }
+    
+    public function testBelongsCache()
+    {
+        // collections
+        $carsCollection = self::$database->getCollection('cars');
+        $wheelsCollection = self::$database->getCollection('wheels');
+        
+        // add documents
+        $carDocument = $carsCollection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+        
+        // add target documents
+        $wheelDocument1 = $wheelsCollection
+            ->createDocument(array(
+                'car_id' => $carDocument->getId()
+            ))
+            ->save();
+        
+        // add target document
+        $wheelDocument2 = $wheelsCollection
+            ->createDocument(array(
+                'car_id' => $carDocument->getId()
+            ))
+            ->save();
+        
+        // modify property on car, linked to wheel1
+        $wheelDocument1->car->color = 'red';
+        
+        // test if same object        
+        $this->assertEquals('red', $wheelDocument2->car->color);
+        
+        // clear test
+        $carsCollection->delete();
+        $wheelsCollection->delete();
+    }
 }
