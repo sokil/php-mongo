@@ -123,7 +123,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
                 'p' => 'v'
             ));
         
-        $document->onBeforeSave(function() use($status) {
+        $document->onBeforeSave(function($event) use($status) {
             $status->done = true;
         });
         

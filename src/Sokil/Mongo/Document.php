@@ -54,6 +54,10 @@ class Document extends Structure
      */
     private $_triggeredErors = array();
     
+    /**
+     *
+     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     */
     private $_eventDispatcher;
     
     /**
