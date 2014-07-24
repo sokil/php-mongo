@@ -255,6 +255,24 @@ class Document extends Structure
         return $this;
     }
     
+    public function onBeforeValidate($handler)
+    {
+        $this->_eventDispatcher->addListener('beforeValidate', $handler);
+        return $this;
+    }
+    
+    public function onAfterValidate($handler)
+    {
+        $this->_eventDispatcher->addListener('afterValidate', $handler);
+        return $this;
+    }
+    
+    public function onValidateError($handler)
+    {
+        $this->_eventDispatcher->addListener('validateError', $handler);
+        return $this;
+    }
+    
     public function onBeforeInsert($handler)
     {
         $this->_eventDispatcher->addListener('beforeInsert', $handler);
@@ -580,6 +598,8 @@ class Document extends Structure
             $exception = new \Sokil\Mongo\Document\Exception\Validate('Document not valid');
             $exception->setDocument($this);
             
+            $this->triggerEvent('validateError');
+            
             throw $exception;
         }
     }
@@ -859,7 +879,9 @@ class Document extends Structure
         }
         
         if($validate) {
+            $this->triggerEvent('beforeValidate');
             $this->validate();
+            $this->triggerEvent('afterValidate');
         }
         
         // handle beforeSave event
