@@ -321,6 +321,23 @@ class Collection implements \Countable
     }
     
     /**
+     * Direct insert of array to MongoDB without creating documnt object and validation
+     * 
+     * @param array $document
+     * @return \Sokil\Mongo\Collection
+     * @throws Exception
+     */
+    public function insert(array $document)
+    {
+        $result = $this->_mongoCollection->insert($document);
+        if(!$result || $result['ok'] != 1) {
+            throw new Exception('Insert error: ' . $result['err']);
+        }
+        
+        return $this;
+    }
+    
+    /**
      * Update multiple documents
      * @param \Sokil\Mongo\Expression $expression expression to define 
      *  which documents will change. 

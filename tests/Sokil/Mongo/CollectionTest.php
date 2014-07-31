@@ -283,6 +283,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $document->b);
     }
     
+    public function testInsert()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection');
+        
+        $collection->insert(array('a' => 1, 'b' => 2));
+        
+        $document = $collection->find()->where('a', 1)->findOne();
+        
+        $this->assertNotEmpty($document);
+        
+        $this->assertEquals(2, $document->b);
+    }
+    
     /**
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage ns not found
