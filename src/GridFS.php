@@ -80,7 +80,7 @@ class GridFS
             return null;
         }
         
-        return new File($this, $file);
+        return new GridFSFile($this, $file);
     }
     
     /**
@@ -105,9 +105,9 @@ class GridFS
     /**
      * Update existed file
      * 
-     * @param \Sokil\Mongo\File $file instance of File
+     * @param \Sokil\Mongo\GridFSFile $file instance of File
      */
-    public function save(File $file)
+    public function save(GridFSFile $file)
     {
         $this->getMongoGridFS()->save($file->toArray());
     }

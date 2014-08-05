@@ -68,7 +68,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         
         $file = $fs->get($id);
         
-        $this->assertInstanceOf('\Sokil\Mongo\File', $file);
+        $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);
         
         $this->assertEquals(1, $file->get('meta1'));
     }

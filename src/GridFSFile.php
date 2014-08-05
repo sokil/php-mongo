@@ -2,7 +2,7 @@
 
 namespace Sokil\Mongo;
 
-class File extends Structure implements \Countable
+class GridFSFile extends Structure implements \Countable
 {
     /**
      *

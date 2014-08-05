@@ -171,7 +171,7 @@ class Database
      * @param string $prefix prefix of files and chunks collection
      * @return \Sokil\Mongo\GridFS
      */
-    public function getGridFs($prefix = 'fs')
+    public function getGridFS($prefix = 'fs')
     {
         return new GridFS($this, $prefix);
     }
