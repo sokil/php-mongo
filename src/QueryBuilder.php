@@ -120,6 +120,15 @@ class QueryBuilder implements \Iterator, \Countable
         return $this;
     }
     
+    /**
+     * Paginate list of subdocuments
+     *  
+     * @param string $field
+     * @param integer $limit
+     * @param integer $skip
+     * @return \Sokil\Mongo\QueryBuilder
+     * @throws Exception
+     */
     public function slice($field, $limit, $skip = null)
     {
         $limit  = (int) $limit;

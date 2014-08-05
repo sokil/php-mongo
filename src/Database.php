@@ -165,6 +165,17 @@ class Database
         return new Queue($this, $channel);
     }
     
+    /**
+     * Get instance of GridFS
+     * 
+     * @param string $prefix prefix of files and chunks collection
+     * @return \Sokil\Mongo\GridFS
+     */
+    public function getGridFs($prefix = 'fs')
+    {
+        return new GridFS($this, $prefix);
+    }
+    
     public function readPrimaryOnly()
     {
         $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);

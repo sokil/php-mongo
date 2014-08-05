@@ -15,8 +15,8 @@
         "symfony/event-dispatcher": "2.4.*"
     },
     "autoload": {
-        "psr-0": {
-            "Sokil": "src/"
+        "psr-4": {
+            "Sokil\\Mongo\\": "src/"
         }
     },
     "suggest": {

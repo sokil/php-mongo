@@ -2,6 +2,15 @@
 
 namespace Sokil\Mongo;
 
+class StructureWrapper extends \Sokil\Mongo\Structure
+{
+    protected $_data = array(
+        'a' => 'def-a',
+        'b' => 'def-b',
+        'c' => 'def-c',
+    );
+}
+
 class StructureTest extends \PHPUnit_Framework_TestCase
 {
     public function testSet()
@@ -130,13 +139,13 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         ));
         
         // get unexited key
-        $this->assertEquals(null, $structure->getObject('unexisted-param', '\Sokil\Mongo\StructureTest\StructureWrapper'));
+        $this->assertEquals(null, $structure->getObject('unexisted-param', '\Sokil\Mongo\StructureWrapper'));
         
         // get object
-        $structureWrapper = $structure->getObject('param2', '\Sokil\Mongo\StructureTest\StructureWrapper');
+        $structureWrapper = $structure->getObject('param2', '\Sokil\Mongo\StructureWrapper');
         
         // tests
-        $this->assertInstanceOf('\Sokil\Mongo\StructureTest\StructureWrapper', $structureWrapper);
+        $this->assertInstanceOf('\Sokil\Mongo\StructureWrapper', $structureWrapper);
         $this->assertEquals('b', $structureWrapper->get('b'));
         $this->assertEquals('def-c', $structureWrapper->get('c'));
     }
@@ -152,11 +161,11 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         
         // get object
         $structureWrapper = $structure->getObject('param2', function($data) {
-            return '\Sokil\Mongo\StructureTest\StructureWrapper';
+            return '\Sokil\Mongo\StructureWrapper';
         });
         
         // tests
-        $this->assertInstanceOf('\Sokil\Mongo\StructureTest\StructureWrapper', $structureWrapper);
+        $this->assertInstanceOf('\Sokil\Mongo\StructureWrapper', $structureWrapper);
         $this->assertEquals('b', $structureWrapper->get('b'));
         $this->assertEquals('def-c', $structureWrapper->get('c'));
     }
@@ -170,18 +179,18 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         ));
         
         // get unexited key
-        $this->assertEquals(array(), $structure->getObjectList('unexisted-param', '\Sokil\Mongo\StructureTest\StructureWrapper'));
+        $this->assertEquals(array(), $structure->getObjectList('unexisted-param', '\Sokil\Mongo\StructureWrapper'));
         
         // get object
         $structureList = $structure->getObjectList('param2', function($data) {
-            return '\Sokil\Mongo\StructureTest\StructureWrapper';
+            return '\Sokil\Mongo\StructureWrapper';
         });
         
         // tests
         $this->assertEquals('array', gettype($structureList));
         $this->assertEquals(1, count($structureList));
         
-        $this->assertInstanceOf('\Sokil\Mongo\StructureTest\StructureWrapper', $structureList[0]);
+        $this->assertInstanceOf('\Sokil\Mongo\StructureWrapper', $structureList[0]);
         
         $this->assertEquals('a1', $structureList[0]->get('a'));
         $this->assertEquals('def-b', $structureList[0]->get('b'));

@@ -2,6 +2,21 @@
 
 namespace Sokil\Mongo;
 
+class DocumentMock extends \Sokil\Mongo\Document
+{
+    protected $_data = array(
+        'status' => 'ACTIVE',
+        'profile' => array(
+            'name' => 'USER_NAME',
+            'birth' => array(
+                'year' => 1984,
+                'month' => 08,
+                'day' => 10,
+            )
+        ),
+    );
+}
+
 class DocumentTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -952,24 +967,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             )
         ), self::$collection->getDocument($doc->getId())->some);
     }
-
-    public function testExecuteBehavior()
-    {
-        $document = self::$collection->createDocument(array('param' => 0));
-        
-        $document->attachBehavior('get42', new \Sokil\Mongo\DocumentTest\SomeBehavior());
-        
-        $this->assertEquals(42, $document->return42());
-    }
-    
-    public function testBehaviorowner()
-    {
-        $document = self::$collection->createDocument(array('param' => 42));
-        
-        $document->attachBehavior('someBehavior', new \Sokil\Mongo\DocumentTest\SomeBehavior());
-        
-        $this->assertEquals(42, $document->getOwnerParam('param'));
-    }
     
     public function testMergeOnUpdate()
     {
@@ -1017,14 +1014,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testDefaultFields()
     {
-        $document = new \Sokil\Mongo\DocumentTest\Document(self::$collection);
+        $document = new DocumentMock(self::$collection);
         
         $this->assertEquals('ACTIVE', $document->status);
     }
     
     public function testRedefineDefaultFieldsInConstructor()
     {
-        $document = new \Sokil\Mongo\DocumentTest\Document(self::$collection, array(
+        $document = new DocumentMock(self::$collection, array(
             'balance' => 123, // not existed key
             'status' => 'DELETED', // update value
             'profile' => array(
@@ -1046,7 +1043,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testMerge()
     {
-        $document = new \Sokil\Mongo\DocumentTest\Document(self::$collection);
+        $document = new DocumentMock(self::$collection);
         
         $document->merge(array(
             'balance' => 123, // not existed key
