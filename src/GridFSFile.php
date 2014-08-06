@@ -59,7 +59,7 @@ class GridFSFile extends Structure implements \Countable
     
     public function save()
     {
-        $this->_gridFS->save($this);
+        $this->_gridFS->getMongoCollection()->save($this->_file->file);
     }
     
     public function dump($filename)

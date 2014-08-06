@@ -9,7 +9,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
      * @var \Sokil\Mongo\Database
      */
     private static $database;
-    
+        
     public static function setUpBeforeClass()
     {
         // connect to mongo
@@ -33,7 +33,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         $fs = self::$database->getGridFs('images');
         
         // store file
-        $id = $fs->createFromFile($filename, array(
+        $id = $fs->storeFile($filename, array(
             'meta1' => 1,
             'meta2' => 2,
         ));
@@ -41,32 +41,32 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\MongoId', $id);
         
         unlink($filename);
-        $fs->deleteAll();
+        $fs->delete();
     }
     
     public function testCreateFromBinary()
     {
         $fs = self::$database->getGridFs('images');
         
-        $id = $fs->createFromBinary('somebinarydata', array(
+        $id = $fs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
         
         $this->assertInstanceOf('\MongoId', $id);
-        $fs->deleteAll();
+        $fs->delete();
     }
     
     public function testGet()
     {
         $fs = self::$database->getGridFs('images');
         
-        $id = $fs->createFromBinary('somebinarydata', array(
+        $id = $fs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
         
-        $file = $fs->get($id);
+        $file = $fs->getFileById($id);
         
         $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);
         
@@ -77,15 +77,15 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
     {
         $fs = self::$database->getGridFs('images');
         
-        $id = $fs->createFromBinary('somebinarydata', array(
+        $id = $fs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
         
-        $file = $fs->get($id);
+        $file = $fs->getFileById($id);
         $file->set('meta1', 777)->save();
         
-        $file = $fs->get($id);
+        $file = $fs->getFileById($id);
         $this->assertEquals(777, $file->get('meta1'));
     }
     
@@ -93,24 +93,24 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
     {
         $fs = self::$database->getGridFs('images');
         
-        $id = $fs->createFromBinary('somebinarydata', array(
+        $id = $fs->storeBytes('somebinarydata', array(
             'filename' => '/etc/hosts',
         ));
         
-        $this->assertEquals('/etc/hosts', $fs->get($id)->getFilename());        
+        $this->assertEquals('/etc/hosts', $fs->getFileById($id)->getFilename());        
     }
     
     public function testDelete()
     {
         $fs = self::$database->getGridFs('images');
         
-        $id = $fs->createFromBinary('somebinarydata', array(
+        $id = $fs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
         
         $fs->delete($id);
         
-        $this->assertEquals(null, $fs->get($id));
+        $this->assertEquals(null, $fs->getFileById($id));
     }
 }
