@@ -113,4 +113,31 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(null, $fs->getFileById($id));
     }
+    
+    public function testFind()
+    {
+        $fs = self::$database->getGridFs('images');
+        
+        $fs->storeBytes('somebinarydata', array(
+            'meta' => 1,
+        ));
+        
+        $id = $fs->storeBytes('somebinarydata', array(
+            'meta' => 2,
+        ));
+        
+        $fs->storeBytes('somebinarydata', array(
+            'meta' => 3,
+        ));
+        
+        $file = $fs->find()->where('meta', 2)->current();
+        
+        $this->assertNotEmpty($file);
+        
+        $this->assertInstanceof('\Sokil\Mongo\GridFSFile', $file);
+        
+        $this->assertEquals($id, $file->get('_id'));
+        
+        $this->assertEquals(2, $file->meta);
+    }
 }

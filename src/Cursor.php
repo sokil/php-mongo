@@ -14,7 +14,7 @@ abstract class Cursor implements \Iterator, \Countable
      *
      * @var \Sokil\Mongo\Collection
      */
-    private $_collection;
+    protected $_collection;
     
     private $_fields = array();
     
@@ -317,23 +317,19 @@ abstract class Cursor implements \Iterator, \Countable
     
     public function findOne()
     {
-        $documentData = $this->_collection
+        $mongoDocument = $this->_collection
             ->getMongoCollection()
             ->findOne($this->_expression->toArray(), $this->_fields);
         
-        if(!$documentData) {
+        if(!$mongoDocument) {
             return null;
         }
         
         if($this->_options['arrayResult']) {
-            return $documentData;
+            return $mongoDocument;
         }
         
-        $className = $this->_collection->getDocumentClassName($documentData);
-        
-        return new $className($this->_collection, $documentData, array(
-            'stored' => true
-        ));
+        return $this->toObject($mongoDocument);
     }
     
     /**
@@ -361,12 +357,7 @@ abstract class Cursor implements \Iterator, \Countable
             return null;
         }
         
-        $documentClassName = $this->_collection
-            ->getDocumentClassName($mongoDocument);
-        
-        return new $documentClassName($this->_collection, $mongoDocument, array(
-            'stored' => true
-        ));
+        return $this->toObject($mongoDocument);
     }
     
     public function findAndUpdate(Operator $operator, $upsert = false)
@@ -386,12 +377,7 @@ abstract class Cursor implements \Iterator, \Countable
             return null;
         }
         
-        $documentClassName = $this->_collection
-            ->getDocumentClassName($mongoDocument);
-        
-        return new $documentClassName($this->_collection, $mongoDocument, array(
-            'stored' => true
-        ));
+        return $this->toObject($mongoDocument);
     }
     
     public function map($handler)
@@ -461,20 +447,22 @@ abstract class Cursor implements \Iterator, \Countable
     
     public function current()
     {
-        $documentData = $this->getCursor()->current();
-        if(!$documentData) {
+        $mongoDocument = $this->getCursor()->current();
+        if(!$mongoDocument) {
             return null;
         }
         
         if($this->_options['arrayResult']) {
-            return $documentData;
+            return $mongoDocument;
         }
         
-        $className = $this->_collection->getDocumentClassName($documentData);
-        return new $className($this->_collection, $documentData, array(
-            'stored' => true
-        ));
+        return $this->toObject($mongoDocument);
     }
+    
+    /**
+     * Convert find result to object
+     */
+    abstract protected function toObject($mongoFindResult);
     
     public function key()
     {
