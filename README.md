@@ -11,6 +11,8 @@ Why to use this library? You can easily work with document data through comforta
 
 * PHP 5.3 or above
 * PHP MongoDB Extension 0.9 or above
+* Symfony Event Dispatcher
+* PSR-3 logger interface
 
 #### Table of contents
 
