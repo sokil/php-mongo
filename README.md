@@ -38,6 +38,7 @@ Why to use this library? You can easily work with document data through comforta
 * [Executing commands](#executing-commands)
 * [Queue](#queue)
 * [Migrations](#migrations)
+* [GridFS](#gridfs)
 
 Installation
 ------------
@@ -787,3 +788,54 @@ Migrations allows you easily change schema and data versions. This functionality
 }
 ```
 
+GridFS
+------
+
+GridFS allows you to store binary data in mongo database. Details at http://docs.mongodb.org/manual/core/gridfs/.
+
+First get instance of GridFS. You can specify prefix for partitioning filesystem:
+
+```php
+$imagesFS = $database->getGridFS('image');
+$cssFS = $database->getGridFS('css');
+```
+
+Now you can store file, located on disk:
+```php
+$id = $imagesFS->storeFile('/home/sokil/images/flower.jpg');
+```
+
+You can store file from binary data:
+```php
+$id1 = $imagesFS->storeBytes('some text content');
+$id2 = $imagesFS->storeBytes(file_get_contents('/home/sokil/images/flower.jpg'));
+```
+
+You are able to store some metadata with every file:
+```php
+$id1 = $imagesFS->storeFile('/home/sokil/images/flower.jpg', [
+    'category'  => 'flower',
+    'tags'      => ['flower', 'static', 'page'],
+]);
+
+$id2 = $imagesFS->storeBytes('some text content', [
+    'category' => 'books',
+]);
+```
+
+Get file by id:
+```php
+$imagesFS->getFileById('6b5a4f53...42ha54e');
+```
+
+Find file by metadata:
+```php
+foreach($imagesFS->find()->where('category', 'books') as $file) {
+    echo $file->getFilename();
+}
+```
+
+Deleting files by id:
+```php
+$imagesFS->deleteFileById('6b5a4f53...42ha54e');
+```
