@@ -18,13 +18,13 @@ class Collection implements \Countable
      *
      * @var \Sokil\Mongo\Database
      */
-    private $_database;
+    protected $_database;
     
     /**
      *
      * @var \MongoCollection
      */
-    private $_mongoCollection;
+    protected $_mongoCollection;
     
     /**
      *
