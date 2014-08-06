@@ -72,6 +72,11 @@ class GridFSFile extends Structure implements \Countable
         return $this->_file->getBytes();
     }
     
+    public function getResource()
+    {
+        return $this->_file->getResource();
+    }
+    
     public function delete()
     {
         $this->_gridFS->deleteFileById($this->get('_id'));
