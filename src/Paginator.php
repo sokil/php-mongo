@@ -14,18 +14,18 @@ class Paginator implements \Iterator
      *
      * @var \Sokil\Mongo\QueryBuilder
      */
-    private $_queryBuilder;
+    private $_cursor;
     
-    public function __construct(QueryBuilder $queryBuilder = null)
+    public function __construct(Cursor $cursor = null)
     {
-        if($queryBuilder) {
-            $this->setQueryBuilder($queryBuilder);
+        if($cursor) {
+            $this->setCursor($cursor);
         }
     }
     
     public function __destruct()
     {
-        $this->_queryBuilder = null;
+        $this->_cursor = null;
     }
     
     /**
@@ -37,7 +37,7 @@ class Paginator implements \Iterator
     {
         $this->_itemsOnPage = (int) $itemsOnPage;
         
-        $this->_queryBuilder->limit($this->_itemsOnPage);
+        $this->_cursor->limit($this->_itemsOnPage);
         
         // define offset
         $this->_applyLimits();
@@ -79,13 +79,31 @@ class Paginator implements \Iterator
         return $currentPage;
     }
     
-    public function setQueryBuilder(QueryBuilder $queryBuilder)
+    /**
+     * Define cursor for paginator
+     * 
+     * @param \Sokil\Mongo\Cursor $cursor
+     * @return \Sokil\Mongo\Paginator
+     */
+    public function setCursor(Cursor $cursor)
     {
-        $this->_queryBuilder = clone $queryBuilder;
+        $this->_cursor = clone $cursor;
         
         $this->_applyLimits();
         
         return $this;
+    }
+    
+    /**
+     * Define cursor for paginator
+     * 
+     * @deprecated since 1.2.0 use self::setCursor()
+     * @param \Sokil\Mongo\Cursor $cursor
+     * @return type
+     */
+    public function setQueryBuilder(Cursor $cursor)
+    {
+        return $this->setCursor($cursor);
     }
     
     public function getTotalRowsCount()
@@ -94,7 +112,7 @@ class Paginator implements \Iterator
             return $this->_totalRowsCount;
         }
         
-        $this->_totalRowsCount = $this->_queryBuilder->count();
+        $this->_totalRowsCount = $this->_cursor->count();
         
         return $this->_totalRowsCount;
     }
@@ -106,14 +124,14 @@ class Paginator implements \Iterator
     
     private function _applyLimits()
     {
-        if(!$this->_queryBuilder) {
+        if(!$this->_cursor) {
             return;
         }
         
         $currentPage = $this->getCurrentPage();
         
         // get page of rows
-        $this->_queryBuilder
+        $this->_cursor
             ->limit($this->_itemsOnPage)
             ->skip(($currentPage - 1) * $this->_itemsOnPage);
     }
@@ -123,28 +141,28 @@ class Paginator implements \Iterator
      */
     public function current()
     {
-        return $this->_queryBuilder->current();
+        return $this->_cursor->current();
     }
     
     public function key()
     {
-        return $this->_queryBuilder->key();
+        return $this->_cursor->key();
     }
     
     public function next()
     {
-        $this->_queryBuilder->next();
+        $this->_cursor->next();
         return $this;
     }
     
     public function rewind()
     {
-        $this->_queryBuilder->rewind();
+        $this->_cursor->rewind();
         return $this;
     }
     
     public function valid()
     {
-        return $this->_queryBuilder->valid();
+        return $this->_cursor->valid();
     }
 }
