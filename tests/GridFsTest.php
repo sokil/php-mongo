@@ -140,4 +140,15 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(2, $file->meta);
     }
+    
+    public function testGetBytes()
+    {
+        $fs = self::$database->getGridFs('images');
+        
+        $id = $fs->storeBytes('somebinarydata', array(
+            'meta' => 1,
+        ));
+        
+        $this->assertEquals('somebinarydata', $fs->getFileById($id)->getBytes());
+    }
 }
