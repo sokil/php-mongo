@@ -109,7 +109,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
             'meta2' => 2,
         ));
         
-        $fs->delete($id);
+        $fs->deleteFileById($id);
         
         $this->assertEquals(null, $fs->getFileById($id));
     }
