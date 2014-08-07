@@ -98,6 +98,24 @@ class Database
     }
     
     /**
+     * Get class name mapped to collection
+     * @param string $name name of collection
+     * @return string name of class
+     */
+    public function getGridFSClassName($name)
+    {        
+        if(isset($this->_mapping[$name])) {
+            $className = $this->_mapping[$name];
+        } elseif($this->_classPrefix) {
+            $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', strtolower($name))));
+        } else {
+            $className = '\Sokil\Mongo\GridFS';
+        }
+        
+        return $className;
+    }
+    
+    /**
      * Create collection
      * 
      * @param array $options array of options
@@ -156,16 +174,6 @@ class Database
     }
     
     /**
-     * 
-     * @param string $channel name of channel
-     * @return \Sokil\Mongo\Queue
-     */
-    public function getQueue($channel)
-    {
-        return new Queue($this, $channel);
-    }
-    
-    /**
      * Get instance of GridFS
      * 
      * @param string $prefix prefix of files and chunks collection
@@ -173,7 +181,26 @@ class Database
      */
     public function getGridFS($prefix = 'fs')
     {
-        return new GridFS($this, $prefix);
+        if(!isset($this->_collectionPool[$prefix])) {
+            $className = $this->getGridFSClassName($prefix);
+            if(!class_exists($className)) {
+                throw new Exception('Class ' . $className . ' not found while map GridSF name to class');
+            }
+            
+            $this->_collectionPool[$prefix] = new $className($this, $prefix);
+        }
+        
+        return $this->_collectionPool[$prefix];
+    }
+    
+    /**
+     * 
+     * @param string $channel name of channel
+     * @return \Sokil\Mongo\Queue
+     */
+    public function getQueue($channel)
+    {
+        return new Queue($this, $channel);
     }
     
     public function readPrimaryOnly()
