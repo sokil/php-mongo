@@ -841,3 +841,33 @@ Deleting files by id:
 ```php
 $imagesFS->deleteFileById('6b5a4f53...42ha54e');
 ```
+
+If you want to use your own GridFSFile classes, you need to define mapping, as it does with collections:
+```php
+// define mapping of prefix to GridFS class
+$database->map([
+    'GridFSPrefix' => '\GridFSClass',
+]);
+
+// define GridFSFile class
+class GridFSClass extends \Sokil\Mongo\GridFS
+{
+    public function getFileClassName(\MongoGridFSFile $fileData = null)
+    {
+        return '\GridFSFileClass';
+    }
+}
+
+// define file class
+class GridFSFileClass extends \Sokil\Mongo\GridFSFile
+{
+    public function getMetaParam()
+    {
+        return $this->get('meta.param');
+    }
+}
+
+// get file as instance of class \GridFSFileClass
+$database->getGridFS('GridFSPrefix')->getFileById($id);
+```
+
