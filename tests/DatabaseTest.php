@@ -2,6 +2,9 @@
 
 namespace Sokil\Mongo;
 
+class CollectionMock extends Collection { }
+class GridFSMock extends GridFS { }
+
 class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -59,5 +62,17 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     public function testExecuteInvalidJs()
     {
         var_dump(self::$database->executeJS('gversion()'));
+    }
+    
+    public function testMapCollectionsToClasses()
+    {
+        self::$database->map(array(
+            'collection'    => '\Sokil\Mongo\CollectionMock',
+            'gridfs'        => '\Sokil\Mongo\GridFSMock',
+        ));
+        
+        $this->assertInstanceOf('\Sokil\Mongo\CollectionMock', self::$database->getCollection('collection'));
+        
+        $this->assertInstanceOf('\Sokil\Mongo\GridFSMock', self::$database->getCollection('gridfs'));
     }
 }
