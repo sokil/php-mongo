@@ -2,25 +2,25 @@
 
 namespace Sokil\Mongo;
 
-class CollectionMock extends Collection 
+class CarsCollection extends Collection 
 {
     public function getDocumentClassName(array $documentData = null)
     {
-        return '\Sokil\Mongo\DocumentMock';
+        return '\Sokil\Mongo\CarDocument';
     }
 }
 
-class DocumentMock extends Document {}
+class CarDocument extends Document {}
 
-class GridFSMock extends GridFS 
+class CarPhotosGridFS extends GridFS 
 {    
     public function getFileClassName(\MongoGridFSFile $fileData = null)
     {
-        return '\Sokil\Mongo\GridFSFileMock';
+        return '\Sokil\Mongo\CarPhotoGridFSFile';
     }
 }
 
-class GridFSFileMock extends GridFSFile {}
+class CarPhotoGridFSFile extends GridFSFile {}
 
 class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
@@ -84,23 +84,23 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     public function testMapCollectionsToClasses()
     {
         self::$database->map(array(
-            'collection'    => '\Sokil\Mongo\CollectionMock',
-            'gridfs'        => '\Sokil\Mongo\GridFSMock',
+            'collection'    => '\Sokil\Mongo\CarsCollection',
+            'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
         ));
         
         // create collection
-        $this->assertInstanceOf('\Sokil\Mongo\CollectionMock', self::$database->getCollection('collection'));
+        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', self::$database->getCollection('collection'));
         
         // create document
-        $this->assertInstanceOf('\Sokil\Mongo\DocumentMock', self::$database->getCollection('collection')->createDocument());
+        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', self::$database->getCollection('collection')->createDocument());
         
         // create grid fs
         $fs = self::$database->getGridFS('gridfs');
-        $this->assertInstanceOf('\Sokil\Mongo\GridFSMock', $fs);
+        $this->assertInstanceOf('\Sokil\Mongo\CarPhotosGridFS', $fs);
         
         // create file
         $id = $fs->storeBytes('hello');
         $file = $fs->getFileById($id);
-        $this->assertInstanceOf('\Sokil\Mongo\GridFSFileMock', $file);
+        $this->assertInstanceOf('\Sokil\Mongo\CarPhotoGridFSFile', $file);
     }
 }
