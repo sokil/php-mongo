@@ -187,7 +187,12 @@ class Database
                 throw new Exception('Class ' . $className . ' not found while map GridSF name to class');
             }
             
-            $this->_collectionPool[$prefix] = new $className($this, $prefix);
+            $gridFS = new $className($this, $prefix);
+            if(!$gridFS instanceof \Sokil\Mongo\GridFS) {
+                throw new \Exception('Must be GridFS');
+            }
+            
+            $this->_collectionPool[$prefix] = $gridFS;
         }
         
         return $this->_collectionPool[$prefix];
