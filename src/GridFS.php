@@ -14,6 +14,17 @@ class GridFS extends Collection
     }
     
     /**
+     * Override to define classname of file by file data
+     * 
+     * @param \MongoGridFSFile $fileData
+     * @return string Document class data
+     */
+    public function getFileClassName(\MongoGridFSFile $fileData = null)
+    {
+        return '\Sokil\Mongo\GridFSFile';
+    }
+    
+    /**
      * Create file in GridFS from file in filesystem
      * 
      * @param string $filename name of source file
@@ -53,7 +64,8 @@ class GridFS extends Collection
             return null;
         }
         
-        return new GridFSFile($this, $file);
+        $fileClassName = $this->getFileClassName($file);
+        return new $fileClassName($this, $file);
     }
     
     /**

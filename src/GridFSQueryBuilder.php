@@ -7,11 +7,17 @@ class GridFSQueryBuilder extends Cursor
     /**
      * Convert find result to object
      * 
-     * @param array|\MongoGridFSFile $file file instance or array of metadata
+     * @param \MongoGridFSFile $file file instance
      * @return \Sokil\Mongo\GridFSFile
      */
     protected function toObject($file)
     {
-        return new GridFSFile($this->_collection, $file);
+        if(!($file instanceof \MongoGridFSFile)) {
+            throw new \Exception('Must be instance of \MongoGridFSFile');
+        }
+        
+        $fileClassName = $this->_collection->getFileClassName($file);
+        
+        return new $fileClassName($this->_collection, $file);
     }
 }
