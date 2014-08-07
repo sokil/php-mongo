@@ -2,8 +2,25 @@
 
 namespace Sokil\Mongo;
 
-class CollectionMock extends Collection { }
-class GridFSMock extends GridFS { }
+class CollectionMock extends Collection 
+{
+    public function getDocumentClassName(array $documentData = null)
+    {
+        return '\Sokil\Mongo\DocumentMock';
+    }
+}
+
+class DocumentMock extends Document {}
+
+class GridFSMock extends GridFS 
+{    
+    public function getFileClassName(\MongoGridFSFile $fileData = null)
+    {
+        return '\Sokil\Mongo\GridFSFileMock';
+    }
+}
+
+class GridFSFileMock extends GridFSFile {}
 
 class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
@@ -71,8 +88,19 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             'gridfs'        => '\Sokil\Mongo\GridFSMock',
         ));
         
+        // create collection
         $this->assertInstanceOf('\Sokil\Mongo\CollectionMock', self::$database->getCollection('collection'));
         
-        $this->assertInstanceOf('\Sokil\Mongo\GridFSMock', self::$database->getCollection('gridfs'));
+        // create document
+        $this->assertInstanceOf('\Sokil\Mongo\DocumentMock', self::$database->getCollection('collection')->createDocument());
+        
+        // create grid fs
+        $fs = self::$database->getGridFS('gridfs');
+        $this->assertInstanceOf('\Sokil\Mongo\GridFSMock', $fs);
+        
+        // create file
+        $id = $fs->storeBytes('hello');
+        $file = $fs->getFileById($id);
+        $this->assertInstanceOf('\Sokil\Mongo\GridFSFileMock', $file);
     }
 }
