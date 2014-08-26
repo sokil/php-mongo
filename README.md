@@ -868,6 +868,6 @@ class GridFSFileClass extends \Sokil\Mongo\GridFSFile
 }
 
 // get file as instance of class \GridFSFileClass
-$database->getGridFS('GridFSPrefix')->getFileById($id);
+$database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 ```
 
