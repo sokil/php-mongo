@@ -43,31 +43,36 @@ class Document extends Structure
     protected $_scenario;
     
     /**
-     *
      * @var array validator errors
      */
     private $_errors = array();
     
     /**
-     *
      * @var array manually added validator errors
      */
     private $_triggeredErors = array();
     
     /**
-     *
-     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     * @var \Symfony\Component\EventDispatcher\EventDispatcher Event Dispatcher instance
      */
     private $_eventDispatcher;
     
     /**
-     *
-     * @var \Sokil\Mongo\Operator
+     * @var \Sokil\Mongo\Operator Modification operator instance
      */
     private $_operator;
     
+    /**
+     *
+     * @var array list of defined behaviors
+     */
     private $_behaviors = array();
     
+    /**
+     * @param \Sokil\Mongo\Collection $collection instance of Mongo collection
+     * @param array $data mongo document 
+     * @param array $options options of object initialization
+     */
     public function __construct(Collection $collection, array $data = null, array $options = array())
     {
         $this->_collection = $collection;
@@ -91,10 +96,14 @@ class Document extends Structure
         $this->_eventDispatcher->dispatch('afterConstruct');
     }
     
+    /**
+     * Event handler, called before running constructor.
+     * May be overriden in child classes
+     */
     public function beforeConstruct() {}
     
     /**
-     * 
+     * Get instance of collection
      * @return \Sokil\Mongo\Collection
      */
     public function getCollection()
@@ -102,6 +111,10 @@ class Document extends Structure
         return $this->_collection;
     }
     
+    /**
+     * Reset all data passed to object in run-tile, like events, behaviors, data modifications, etc.
+     * @return \Sokil\Mongo\Document
+     */
     public function reset()
     {
         // reset structure
@@ -120,6 +133,9 @@ class Document extends Structure
         return $this;
     }
     
+    /**
+     * Initialise relative classes
+     */
     private function _init()
     {
         $this->_eventDispatcher = new EventDispatcher;
@@ -175,7 +191,6 @@ class Document extends Structure
     
         
     /**
-     * 
      * @return array relation description
      */
     public function relations()
@@ -237,12 +252,23 @@ class Document extends Structure
         return $this->_resolvedRelations[$name];
     }
     
+    /**
+     * Manually trigger defined events
+     * @param string $event event name
+     * @return \Sokil\Mongo\Document
+     */
     public function triggerEvent($event)
     {
         $this->_eventDispatcher->dispatch($event);
         return $this;
     }
     
+    /**
+     * Attach event handler
+     * @param string $event event name
+     * @param callable|array|string $handler event handler
+     * @return \Sokil\Mongo\Document
+     */
     public function attachEvent($event, $handler)
     {
         $this->_eventDispatcher->addListener($event, $handler);
