@@ -41,6 +41,7 @@ Why to use this library? You can easily work with document data through comforta
 * [Queue](#queue)
 * [Migrations](#migrations)
 * [GridFS](#gridfs)
+* [Framework Adapters](#framework-adapters)
 
 Installation
 ------------
@@ -870,4 +871,8 @@ class GridFSFileClass extends \Sokil\Mongo\GridFSFile
 // get file as instance of class \GridFSFileClass
 $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 ```
+
+Framework Adapters
+------------------
+* [Symfony MongoDB Bundle](https://github.com/sokil/php-mongo-bundle)
 
