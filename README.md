@@ -875,4 +875,5 @@ $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 Framework Adapters
 ------------------
 * [Symfony MongoDB Bundle](https://github.com/sokil/php-mongo-bundle)
+* [Yii Components](https://github.com/sokil/php-mongo-yii)
 
