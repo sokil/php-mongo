@@ -54,7 +54,7 @@ You can install library through Composer:
 }
 ```
 
-If you use Symfony framework, you can use [Symfony MongoDB Bundle](https://github.com/sokil/php-mongo-bundle)
+If you use Symfony framework, you can use [Symfony MongoDB Bundle](https://github.com/sokil/php-mongo-bundle) which wraps this library
 
 ```javascript
 {
@@ -64,7 +64,7 @@ If you use Symfony framework, you can use [Symfony MongoDB Bundle](https://githu
 }
 ```
 
-If you use Yii Framework, you can use [Yii Components](https://github.com/sokil/php-mongo-yii)
+If you use Yii Framework, you can use [Yii Adapter](https://github.com/sokil/php-mongo-yii) which wraps this library
 
 ```javascript
 {
