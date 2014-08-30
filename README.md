@@ -41,7 +41,6 @@ Why to use this library? You can easily work with document data through comforta
 * [Queue](#queue)
 * [Migrations](#migrations)
 * [GridFS](#gridfs)
-* [Framework Adapters](#framework-adapters)
 
 Installation
 ------------
@@ -55,6 +54,25 @@ You can install library through Composer:
 }
 ```
 
+If you use Symfony framework, you can use [Symfony MongoDB Bundle](https://github.com/sokil/php-mongo-bundle)
+
+```javascript
+{
+    "require": {
+        "sokil/php-mongo-bundle": "dev-master"
+    }
+}
+```
+
+If you use Yii Framework, you can use [Yii Components](https://github.com/sokil/php-mongo-yii)
+
+```javascript
+{
+    "require": {
+        "sokil/php-mongo-yii": "dev-master"
+    }
+}
+```
 
 Connecting
 ----------
@@ -871,9 +889,4 @@ class GridFSFileClass extends \Sokil\Mongo\GridFSFile
 // get file as instance of class \GridFSFileClass
 $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 ```
-
-Framework Adapters
-------------------
-* [Symfony MongoDB Bundle](https://github.com/sokil/php-mongo-bundle)
-* [Yii Components](https://github.com/sokil/php-mongo-yii)
 
