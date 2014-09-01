@@ -6,6 +6,15 @@ use \Symfony\Component\EventDispatcher\EventDispatcher;
 
 use Sokil\Mongo\Behavior;
 
+/**
+ * Instance of this class is representation ow one document from collection.
+ * @link https://github.com/sokil/php-mongo#document-schema Document schema
+ * @link https://github.com/sokil/php-mongo#create-new-document Create new document
+ * @link https://github.com/sokil/php-mongo#get-and-set-data-in-document get and set data
+ * @link https://github.com/sokil/php-mongo#storing-document Saving document
+ * @link https://github.com/sokil/php-mongo#document-validation Validation
+ * @link https://github.com/sokil/php-mongo#deleting-collections-and-documents Deleting documents
+ */
 class Document extends Structure
 {
     const FIELD_TYPE_DOUBLE                   = 1;
