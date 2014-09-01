@@ -15,6 +15,8 @@ use Sokil\Mongo\Behavior;
  * @link https://github.com/sokil/php-mongo#storing-document Saving document
  * @link https://github.com/sokil/php-mongo#document-validation Validation
  * @link https://github.com/sokil/php-mongo#deleting-collections-and-documents Deleting documents
+ * @link https://github.com/sokil/php-mongo#events Event handlers
+ * @link https://github.com/sokil/php-mongo#behaviors Behaviors
  */
 class Document extends Structure
 {
