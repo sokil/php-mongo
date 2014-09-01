@@ -17,6 +17,7 @@ use Sokil\Mongo\Behavior;
  * @link https://github.com/sokil/php-mongo#deleting-collections-and-documents Deleting documents
  * @link https://github.com/sokil/php-mongo#events Event handlers
  * @link https://github.com/sokil/php-mongo#behaviors Behaviors
+ * @link https://github.com/sokil/php-mongo#relations Relations
  */
 class Document extends Structure
 {
