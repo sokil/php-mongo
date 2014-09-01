@@ -74,7 +74,7 @@ If you use Yii Framework, you can use [Yii Adapter](https://github.com/sokil/php
 }
 ```
 
-If you require migrations, you can add dependency to "sokil/php-mongo-migrator", based on this library:
+If you require migrations, you can add dependency to "[sokil/php-mongo-migrator](https://github.com/sokil/php-mongo-migrator)", based on this library:
 
 ```javascript
 {
