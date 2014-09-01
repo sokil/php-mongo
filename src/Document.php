@@ -7,7 +7,8 @@ use \Symfony\Component\EventDispatcher\EventDispatcher;
 use Sokil\Mongo\Behavior;
 
 /**
- * Instance of this class is representation ow one document from collection.
+ * Instance of this class is a representation of one document from collection.
+ * 
  * @link https://github.com/sokil/php-mongo#document-schema Document schema
  * @link https://github.com/sokil/php-mongo#create-new-document Create new document
  * @link https://github.com/sokil/php-mongo#get-and-set-data-in-document get and set data
