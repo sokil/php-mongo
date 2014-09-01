@@ -2,6 +2,15 @@
 
 namespace Sokil\Mongo;
 
+/**
+ * Instance of this class is a representation of mongo collection.
+ * It aggregates \MongoCollection instance.
+ * 
+ * @link https://github.com/sokil/php-mongo#selecting-database-and-collection Selecting collection
+ * @link https://github.com/sokil/php-mongo#querying-documents Querying documents
+ * @link https://github.com/sokil/php-mongo#update-few-documents Update few documents
+ * @link https://github.com/sokil/php-mongo#deleting-collections-and-documents Deleting collection
+ */
 class Collection implements \Countable
 {
     protected $_queryBuliderClass = '\Sokil\Mongo\QueryBuilder';
