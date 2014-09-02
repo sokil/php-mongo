@@ -19,7 +19,7 @@ class Collection implements \Countable
     
     /**
      *
-     * @var list of indexes
+     * @var array list of indexes
      */
     protected $_index;
     
@@ -37,13 +37,13 @@ class Collection implements \Countable
     
     /**
      *
-     * @var list of cached documents
+     * @var array list of cached documents
      */
     private $_documentsPool = array();
     
     /**
      *
-     * @var cache or not documents
+     * @var bool cache or not documents
      */
     private $_documentPoolEnabled = true;
     
@@ -75,7 +75,7 @@ class Collection implements \Countable
     
     /**
      * 
-     * @return MongoCollection
+     * @return \MongoCollection
      */
     public function getMongoCollection()
     {
@@ -214,7 +214,7 @@ class Collection implements \Countable
     /**
      * Get document by id
      * 
-     * @param string|MongoId $id
+     * @param string|\MongoId $id
      * @return \Sokil\Mongo\Document|null
      */
     public function getDocument($id)
@@ -233,7 +233,7 @@ class Collection implements \Countable
     /**
      * Get document by id directly omiting cache
      * 
-     * @param type $id
+     * @param string|\MongoId $id
      * @return \Sokil\Mongo\Document|null
      */
     public function getDocumentDirectly($id)
@@ -242,10 +242,10 @@ class Collection implements \Countable
     }
     
     /**
-     * Get document by id
+     * Get documents by list of id
      * 
-     * @param string|MongoId $id
-     * @return \Sokil\Mongo\Document|null
+     * @param array list of ids
+     * @return array|null
      */
     public function getDocuments(array $idList)
     {
@@ -312,7 +312,7 @@ class Collection implements \Countable
         $document = $this->createDocument();
         
         foreach($rows as $row) {
-            $document->fromArray($row);
+            $document->merge($row);
             
             if(!$document->isValid()) {
                 throw new Exception('Document invalid');
@@ -409,9 +409,9 @@ class Collection implements \Countable
     /**
      * Aggregate using pipelines
      * 
-     * @param type $pipelines
+     * @param \Sokil\Mongo\AggregatePipelines|array $pipelines list of pipelines
      * @return array result of aggregation
-     * @throws Exception
+     * @throws \Sokil\Mongo\Exception
      */
     public function aggregate($pipelines) {
         
@@ -589,8 +589,12 @@ class Collection implements \Countable
     }
     
     /**
+     * Define write concern for all requests to current collection
+     *
      * @param string|integer $w write concern
-     * @param int $timeout timeout in miliseconds
+     * @param int $timeout timeout in milliseconds
+     * @throws \Sokil\Mongo\Exception
+     * @return \Sokil\Mongo\Collection
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
@@ -602,7 +606,11 @@ class Collection implements \Countable
     }
     
     /**
-     * @param int $timeout timeout in miliseconds
+     * Define unacknowledged write concern for all requests to current collection
+     *
+     * @param int $timeout timeout in milliseconds
+     * @throws \Sokil\Mongo\Exception
+     * @return \Sokil\Mongo\Collection
      */
     public function setUnacknowledgedWriteConcern($timeout = 10000)
     {
@@ -611,19 +619,33 @@ class Collection implements \Countable
     }
     
     /**
-     * @param int $timeout timeout in miliseconds
+     * Define majority write concern for all requests to current collection
+     *
+     * @param int $timeout timeout in milliseconds
+     * @throws \Sokil\Mongo\Exception
+     * @return \Sokil\Mongo\Collection
      */
     public function setMajorityWriteConcern($timeout = 10000)
     {
         $this->setWriteConcern('majority', (int) $timeout);
         return $this;
     }
-    
+
+    /**
+     * Get currently active write concern on all requests to collection
+     *
+     * @return int|string write concern
+     */
     public function getWriteConcern()
     {
         return $this->_mongoCollection->getWriteConcern();
     }
-    
+
+    /**
+     * Get collection stat
+     *
+     * @return array collection stat
+     */
     public function stats()
     {
         return $this->getDatabase()->executeCommand(array(

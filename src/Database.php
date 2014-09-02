@@ -178,6 +178,7 @@ class Database
      * 
      * @param string $prefix prefix of files and chunks collection
      * @return \Sokil\Mongo\GridFS
+     * @throws \Sokil\Mongo\Exception
      */
     public function getGridFS($prefix = 'fs')
     {

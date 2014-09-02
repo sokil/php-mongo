@@ -946,7 +946,7 @@ class Document extends Structure
                 
                 if($this->getOperator()->isReloadRequired()) {
                     $data = $this->getCollection()->getMongoCollection()->findOne(array('_id' => $this->getId()));
-                    $this->fromArray($data);
+                    $this->merge($data);
                 }
                 
                 $this->getOperator()->reset();

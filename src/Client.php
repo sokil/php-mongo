@@ -83,7 +83,13 @@ class Client
         $this->_connection = $client;
         return $this;
     }
-    
+
+    /**
+     * Get mongo connection instance
+     *
+     * @return \MongoClient
+     * @throws \Sokil\Mongo\Exception
+     */
     public function getConnection()
     {
         if(!$this->_connection) {
@@ -223,8 +229,13 @@ class Client
     }
     
     /**
+     * Define write concern on whole requests
+     *
      * @param string|integer $w wrint concern
      * @param int $timeout timeout in miliseconds
+     * @return \Sokil\Mongo\Client
+     *
+     * @throws \Sokil\Mongo\Exception
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
@@ -236,7 +247,10 @@ class Client
     }
     
     /**
+     * Define unacknowledged write concern on whole requests
+     *
      * @param int $timeout timeout in miliseconds
+     * @return \Sokil\Mongo\Client
      */
     public function setUnacknowledgedWriteConcern($timeout = 10000)
     {
@@ -245,14 +259,22 @@ class Client
     }
     
     /**
-     * @param int $timeout timeout in miliseconds
+     * Define majority write concern on whole requests
+     *
+     * @param int $timeout timeout in milliseconds
+     * @return \Sokil\Mongo\Client
      */
     public function setMajorityWriteConcern($timeout = 10000)
     {
         $this->setWriteConcern('majority', (int) $timeout);
         return $this;
     }
-    
+
+    /**
+     * Get currently active write concern on connection level
+     *
+     * @return string|int
+     */
     public function getWriteConcern()
     {
         return $this->getConnection()->getWriteConcern();

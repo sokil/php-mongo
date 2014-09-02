@@ -17,7 +17,7 @@ class GridFSFile extends Structure implements \Countable
         
     /**
      * 
-     * @param \MongoGridFSFile $gridFS instance of GridFS
+     * @param \Sokil\Mongo\GridFS $gridFS instance of GridFS
      * @param array|\MongoGridFSFile $file instance of File or metadata array
      */
     public function __construct(GridFS $gridFS, $file = null)
