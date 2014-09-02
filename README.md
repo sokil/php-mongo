@@ -87,6 +87,8 @@ If you require migrations, you can add dependency to "[sokil/php-mongo-migrator]
 Connecting
 ----------
 
+#### Single connection
+
 Connecting to MongoDB server made through \Sokil\Mongo\Client class:
 
 ```php
@@ -102,6 +104,8 @@ To connect to replica set use next DSN:
 ```
 mongodb://server1.com,server2.com/?replicaSet=replicaSetName
 ```
+
+#### Pool of connections
 
 If you have few connections you may prefer connection pool instead of managing different connections. Use \Sokil\Mongo\ClientPool instance to initialize pool object:
 
