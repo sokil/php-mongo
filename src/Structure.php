@@ -347,10 +347,10 @@ class Structure
     /**
      * Recursive function to merge data with setting modification mark
      * 
-     * @param type $target
-     * @param type $source
+     * @param array $target
+     * @param array $source
      */
-    private function _merge(&$target, $source, $prefix = null) 
+    private function _merge(array &$target, array $source, $prefix = null)
     {
         foreach($source as $key => $value) {
             if(is_array($value) && isset($target[$key])) {
