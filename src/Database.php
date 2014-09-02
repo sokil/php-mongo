@@ -117,9 +117,11 @@ class Database
     
     /**
      * Create collection
-     * 
+     *
+     * @param string $name name of collection
      * @param array $options array of options
      * @return \Sokil\Mongo\Collection
+     * @throws \Sokil\Mongo\Exception
      */
     public function createCollection($name, array $options = null)
     {

@@ -507,7 +507,8 @@ class Collection implements \Countable
     /**
      * Create sparse index
      * 
-     * @param type $key
+     * @param string|array $key An array specifying the index's fields as its keys. For each field, the value is
+     *  either the index direction or index type. If specifying direction, specify 1 for ascending or -1 for descending.
      * @return \Sokil\Mongo\Collection
      */
     public function ensureSparseIndex($key)

@@ -99,7 +99,7 @@ abstract class Cursor implements \Iterator, \Countable
     /**
      * Append field to accept list
      * 
-     * @param type $field
+     * @param string $field field name
      * @return \Sokil\Mongo\QueryBuilder
      */
     public function field($field)
@@ -111,7 +111,7 @@ abstract class Cursor implements \Iterator, \Countable
     /**
      * Append field to skip list
      * 
-     * @param type $field
+     * @param string $field field name
      * @return \Sokil\Mongo\QueryBuilder
      */
     public function skipField($field)
@@ -173,10 +173,10 @@ abstract class Cursor implements \Iterator, \Countable
     }
     
     /**
-     * get list of MongoId objects from array of strings, MongoId's and Document's
+     * Get list of MongoId objects from array of strings, MongoId's and Document's
      * 
      * @param array $list
-     * @return type
+     * @return array list of \MongoId
      */
     public function getIdList(array $list)
     {
@@ -192,13 +192,25 @@ abstract class Cursor implements \Iterator, \Countable
             return new \MongoId($element);
         }, $list);
     }
-    
+
+    /**
+     * Filter by list of \MongoId
+     *
+     * @param array $idList list of ids
+     * @return $this
+     */
     public function byIdList(array $idList)
     {
         $this->_expression->whereIn('_id', $this->getIdList($idList));
         return $this;
     }
-    
+
+    /**
+     * Filter by id
+     *
+     * @param string|\MongoId $id id of document
+     * @return $this
+     */
     public function byId($id)
     {
         if($id instanceof \MongoId) {
@@ -213,7 +225,13 @@ abstract class Cursor implements \Iterator, \Countable
 
         return $this;
     }
-    
+
+    /**
+     * Skip defined number of documents
+     *
+     * @param int $skip number of documents to skip
+     * @return $this
+     */
     public function skip($skip)
     {
         $this->_skip = (int) $skip;
@@ -425,9 +443,10 @@ abstract class Cursor implements \Iterator, \Countable
     }
     
     /**
-     * 
-     * @param type $page
-     * @param type $itemsOnPage
+     * Get paginator
+     *
+     * @param int $page page number
+     * @param int $itemsOnPage number of items on page
      * @return \Sokil\Mongo\Paginator
      */
     public function paginate($page, $itemsOnPage = 30)

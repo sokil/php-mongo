@@ -4,8 +4,6 @@ namespace Sokil\Mongo;
 
 use \Symfony\Component\EventDispatcher\EventDispatcher;
 
-use Sokil\Mongo\Behavior;
-
 /**
  * Instance of this class is a representation of one document from collection.
  * 
@@ -368,7 +366,7 @@ class Document extends Structure
     /**
      * Used to define id of stored document. This id must be already presenf in db
      * 
-     * @param type $id
+     * @param \MongoId|string $id id of document
      * @return \Sokil\Mongo\Document
      */
     public function defineId($id) {
@@ -726,8 +724,8 @@ class Document extends Structure
     /**
      * Update value in local cache and in DB
      * 
-     * @param type $fieldName
-     * @param type $value
+     * @param string $fieldName point-delimited field name
+     * @param mixed $value value to store
      * @return \Sokil\Mongo\Document
      */
     public function set($fieldName, $value)
@@ -848,7 +846,7 @@ class Document extends Structure
     /**
      * Push each element of argument's array as single element to field value
      * 
-     * @param type $fieldName
+     * @param string $fieldName point-delimited field name
      * @param array $value
      */
     public function pushFromArray($fieldName, array $value)

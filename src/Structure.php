@@ -135,8 +135,8 @@ class Structure
     /**
      * Store value to specified selector in local cache
      * 
-     * @param type $selector
-     * @param type $value
+     * @param string $selector point-delimited field selector
+     * @param mixed $value value
      * @return \Sokil\Mongo\Document
      * @throws Exception
      */
