@@ -2,6 +2,12 @@
 
 namespace Sokil\Mongo;
 
+/**
+ * Connection manager and factory to get database and collection instances.
+ * 
+ * @link https://github.com/sokil/php-mongo#connecting Connecting
+ * @link https://github.com/sokil/php-mongo#selecting-database-and-collection Get database and collection instance
+ */
 class Client
 {
     private $_dsn;
