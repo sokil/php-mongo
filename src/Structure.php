@@ -46,7 +46,7 @@ class Structure
      * Get structure object from adocument's value
      * 
      * @param string $selector
-     * @param string|closure $className string classname or closure, which accept data and return string class name
+     * @param string|callable $className string classname or closure, which accept data and return string class name
      * @return object representation of document with class, passed as argument
      * @throws \Sokil\Mongo\Exception
      */
@@ -75,7 +75,7 @@ class Structure
      * Get list of structure objects from list of values in mongo document
      * 
      * @param string $selector
-     * @param string|closure $className string classname or closure, which accept data and return string class name
+     * @param string|callable $className class name or closure, which accept data and return string class name
      * @return object representation of document with class, passed as argument
      * @throws \Sokil\Mongo\Exception
      */
@@ -86,7 +86,7 @@ class Structure
             return array();
         }
         
-        // classname is string
+        // class name is string
         if(is_string($className)) {
             
             $structure = new $className();
@@ -124,8 +124,8 @@ class Structure
     /**
      * Handle setting params through public property
      * 
-     * @param type $name
-     * @param type $value
+     * @param string $name
+     * @param mixed $value
      */
     public function __set($name, $value)
     {

@@ -244,7 +244,7 @@ class Collection implements \Countable
     /**
      * Get documents by list of id
      * 
-     * @param array list of ids
+     * @param array $idList list of ids
      * @return array|null
      */
     public function getDocuments(array $idList)

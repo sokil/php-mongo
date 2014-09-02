@@ -40,7 +40,7 @@ abstract class Cursor implements \Iterator, \Countable
     
     /**
      *
-     * @var If specified in child class - overload config from collection class
+     * @var string If specified in child class - overload config from collection class
      */
     protected $_queryExpressionClass;
     

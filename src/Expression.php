@@ -169,8 +169,10 @@ class Expression
     
     /**
      * Find documents where the value of a field is an array that contains all the specified elements
-     * @param type $field
+     *
+     * @param string $field point-delimited field name
      * @param array $values
+     * @return \Sokil\Mongo\Expression
      */
     public function whereAll($field, array $values)
     {

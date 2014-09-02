@@ -8,7 +8,7 @@ class QueryBuilder extends Cursor
      * Convert find result to object
      * 
      * @param array $mongoDocument
-     * @return \Sokil\Mongo\className
+     * @return \Sokil\Mongo\Document
      */
     protected function toObject($mongoDocument)
     {

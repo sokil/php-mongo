@@ -34,7 +34,7 @@ class Client
     
     /**
      * 
-     * @param type $dsn
+     * @param string $dsn Data Source Name
      * @param array $options
      */
     public function __construct($dsn = null, array $options = null) {
@@ -54,7 +54,7 @@ class Client
     
     /**
      * 
-     * @return version of PHP driver
+     * @return string Version of PHP driver
      */
     public function getVersion()
     {

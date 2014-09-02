@@ -99,7 +99,7 @@ class Paginator implements \Iterator
      * 
      * @deprecated since 1.2.0 use self::setCursor()
      * @param \Sokil\Mongo\Cursor $cursor
-     * @return type
+     * @return \Sokil\Mongo\Paginator
      */
     public function setQueryBuilder(Cursor $cursor)
     {
