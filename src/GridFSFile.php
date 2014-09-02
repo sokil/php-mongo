@@ -19,22 +19,24 @@ class GridFSFile extends Structure implements \Countable
      * 
      * @param \Sokil\Mongo\GridFS $gridFS instance of GridFS
      * @param array|\MongoGridFSFile $file instance of File or metadata array
+     * @throws \Sokil\Mongo\Exception
      */
     public function __construct(GridFS $gridFS, $file = null)
     {
         $this->_gridFS = $gridFS;
         
-        if($file) {
-            if($file instanceof \MongoGridFSFile) {
-                $this->_file = $file;
-            } elseif(is_array($file)) {
-                $this->_file = new \MongoGridFSFile($gridFS, $file);
-            } else {
-                throw new Exception('Wrong file data specified');
-            }
-            
-            $this->_data = &$file->file;
+        if(!$file) {
+            return;
         }
+
+        if(is_array($file)) {
+            $file = new \MongoGridFSFile($gridFS->getMongoCollection(), $file);
+        } elseif(!($file instanceof \MongoGridFSFile)) {
+            throw new Exception('Wrong file data specified');
+        }
+
+        $this->_file = $file;
+        $this->_data = &$file->file;
     }
     
     /**

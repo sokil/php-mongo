@@ -146,7 +146,7 @@ class Client
     /**
      * Select database
      * 
-     * @param string $databaseName
+     * @param string $name
      * @return \Sokil\Mongo\Client
      */
     public function useDatabase($name)

@@ -43,7 +43,16 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         unlink($filename);
         $fs->delete();
     }
-    
+
+    public function testInitFileWithArray()
+    {
+        $file = new GridFSFile(self::$database->getGridFS('images'), array(
+            'param' => 'value'
+        ));
+
+        $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);
+    }
+
     public function testCreateFromBinary()
     {
         $fs = self::$database->getGridFs('images');

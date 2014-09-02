@@ -5,7 +5,7 @@ namespace Sokil\Mongo;
 /**
  * Representation of GridFS as collection of files
  *
- *
+ * @method \MongoGridFS getMongoCollection() Get native mongo GridFS
  * @property \MongoGridFS $_mongoCollection MongoGridFS Instance
  */
 class GridFS extends Collection
