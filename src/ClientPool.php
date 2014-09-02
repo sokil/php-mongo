@@ -2,6 +2,11 @@
 
 namespace Sokil\Mongo;
 
+/**
+ * Pool of mongo connections. May be used if few connections to different databases recuired
+ * 
+ * @link https://github.com/sokil/php-mongo/blob/master/README.md#pool-of-connections
+ */
 class ClientPool
 {
     private $_pool = array();
