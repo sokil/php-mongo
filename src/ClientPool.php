@@ -13,7 +13,7 @@ class ClientPool
     
     private $_configuration;
     
-    public function __construct(array $configuration)
+    public function __construct(array $configuration = array())
     {
         $this->_configuration = $configuration;
     }
@@ -23,7 +23,7 @@ class ClientPool
         $this->_configuration[$name] = array(
             'dsn'               => $dsn,
             'defaultDatabase'   => $defaultDatabase,
-            'mappign'           => $mapping,
+            'mapping'           => $mapping,
         );
         
         return $this;
