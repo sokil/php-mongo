@@ -315,10 +315,10 @@ class Structure
     /**
      * Recursive function to merge data without setting modification mark
      * 
-     * @param type $target
-     * @param type $source
+     * @param array $target
+     * @param array $source
      */
-    private function _mergeUnmodified(&$target, $source) 
+    private function _mergeUnmodified(array &$target, array $source)
     {
         foreach($source as $key => $value) {
             if(is_array($value) && isset($target[$key])) {
