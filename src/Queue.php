@@ -21,7 +21,8 @@ class Queue implements \Countable
      * Add item to queue
      * 
      * @param mixed $payload data to send
-     * @param int $priority more priority num give quicker geting from queue
+     * @param int $priority more priority num give quicker getting from queue
+     * @return \Sokil\Mongo\Queue
      */
     public function enqueue($payload, $priority = 0)
     {

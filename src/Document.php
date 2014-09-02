@@ -61,7 +61,7 @@ class Document extends Structure
     /**
      * @var array manually added validator errors
      */
-    private $_triggeredErors = array();
+    private $_triggeredErrors = array();
     
     /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcher Event Dispatcher instance
@@ -133,7 +133,7 @@ class Document extends Structure
         
         // reset errors
         $this->_errors          = array();
-        $this->_triggeredErors  = array();
+        $this->_triggeredErrors  = array();
         
         // reset behaviors
         $this->clearBehaviors();
@@ -364,7 +364,7 @@ class Document extends Structure
     }
     
     /**
-     * Used to define id of stored document. This id must be already presenf in db
+     * Used to define id of stored document. This id must be already present in db
      * 
      * @param \MongoId|string $id id of document
      * @return \Sokil\Mongo\Document
@@ -386,7 +386,7 @@ class Document extends Structure
     }
     
     /*
-     * Used to define id of unstord document. This db is manual
+     * Used to define id of unstored document. This db is manual
      */
     public function setId($id) {
         
@@ -517,7 +517,7 @@ class Document extends Structure
 
                         if(!in_array($this->get($field), $rule['range'])) {
                             if(!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" not in range of alloved values in model ' . get_called_class();
+                                $rule['message'] = 'Field "' . $field . '" not in range of allowed values in model ' . get_called_class();
                             }
 
                             $this->_errors[$field][$rule[1]] = $rule['message'];
@@ -643,30 +643,30 @@ class Document extends Structure
 
     public function hasErrors()
     {
-        return ($this->_errors || $this->_triggeredErors);
+        return ($this->_errors || $this->_triggeredErrors);
     }
 
     /**
      * get list of validation errors
      *
-     * Format: $errors['fieldName']['rule'] = 'mesage';
+     * Format: $errors['fieldName']['rule'] = 'message';
      *
      * @return array list of validation errors
      */
     public function getErrors()
     {
-        return array_merge_recursive($this->_errors, $this->_triggeredErors);
+        return array_merge_recursive($this->_errors, $this->_triggeredErrors);
     }
 
     public function triggerError($fieldName, $rule, $message)
     {
-        $this->_triggeredErors[$fieldName][$rule] = $message;
+        $this->_triggeredErrors[$fieldName][$rule] = $message;
         return $this;
     }
 
     public function triggerErrors(array $errors)
     {
-        $this->_triggeredErors = array_merge_recursive($this->_triggeredErors, $errors);
+        $this->_triggeredErrors = array_merge_recursive($this->_triggeredErrors, $errors);
         return $this;
     }
     
@@ -797,6 +797,7 @@ class Document extends Structure
      * 
      * @param string $fieldName
      * @param mixed $value
+     * @return \Sokil\Mongo\Document
      */
     public function push($fieldName, $value)
     {

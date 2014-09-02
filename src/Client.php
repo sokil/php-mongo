@@ -165,7 +165,7 @@ class Client
     }
     
     /**
-     * Get collection from presiously seletced database by self::useDatabase()
+     * Get collection from previously selected database by self::useDatabase()
      * 
      * @param string $name
      * @return \Sokil\Mongo\Collection

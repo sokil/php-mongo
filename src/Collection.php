@@ -156,10 +156,12 @@ class Collection implements \Countable
     public function getDistinct($selector, Expression $expression = null)
     {
         if($expression) {
-            $expression = $expression->toArray();
+            return $this->_mongoCollection->distinct($selector, $expression->toArray());
+        } else {
+            return $this->_mongoCollection->distinct($selector);
         }
         
-        return $this->_mongoCollection->distinct($selector, $expression);
+
     }
     
     /**
@@ -265,8 +267,10 @@ class Collection implements \Countable
     }
     
     /**
-     * 
+     * Save document
+     *
      * @param \Sokil\Mongo\Document $document
+     * @param bool $validate validate or not before save
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      * @throws \Sokil\Mongo\Document\Exception\Validate
@@ -330,7 +334,7 @@ class Collection implements \Countable
     }
     
     /**
-     * Direct insert of array to MongoDB without creating documnt object and validation
+     * Direct insert of array to MongoDB without creating document object and validation
      * 
      * @param array $document
      * @return \Sokil\Mongo\Collection

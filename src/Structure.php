@@ -349,6 +349,7 @@ class Structure
      * 
      * @param array $target
      * @param array $source
+     * @param string $prefix
      */
     private function _merge(array &$target, array $source, $prefix = null)
     {

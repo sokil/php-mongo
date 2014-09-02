@@ -178,7 +178,12 @@ class Expression
     {
         return $this->where($field, array('$all' => $values));
     }
-    
+
+    /**
+     * @param string $field point-delimited field name
+     * @param \Sokil\Mongo\Expression $expression
+     * @return \Sokil\Mongo\Expression
+     */
     public function whereElemMatch($field, Expression $expression)
     {
         return $this->where($field, array('$elemMatch' => $expression->toArray()));
@@ -195,11 +200,12 @@ class Expression
     }
     
     /**
-     * Selects the documents that satisfy at least one of the expressions.
-     * @param Expression $expression Instance of query
-     * @param Expression $expression ...
+     * Selects the documents that satisfy at least one of the expressions
+     *
+     * @param array|\Sokil\Mongo\Expression $expressions Array of Expression instances or comma delimited expression list
+     * @return \Sokil\Mongo\Expression
      */
-    public function whereOr($expressions = null)
+    public function whereOr($expressions = null /**, ...**/)
     {
         if($expressions instanceof Expression) {
             $expressions = func_get_args();
@@ -211,11 +217,12 @@ class Expression
     }
     
     /**
-     * Selects the documents that satisfy all the expressions in the array.
-     * @param Expression $expression Instance of query
-     * @param Expression $expression ...
+     * Select the documents that satisfy all the expressions in the array
+     *
+     * @param array|\Sokil\Mongo\Expression $expressions Array of Expression instances or comma delimited expression list
+     * @return \Sokil\Mongo\Expression
      */
-    public function whereAnd($expressions = null)
+    public function whereAnd($expressions = null /**, ...**/)
     {
         if($expressions instanceof Expression) {
             $expressions = func_get_args();
@@ -227,11 +234,12 @@ class Expression
     }
     
     /**
-     * Selects the documents that fail all the query expressions in the array.
-     * @param Expression $expression Instance of query
-     * @param Expression $expression ...
+     * Selects the documents that fail all the query expressions in the array
+     *
+     * @param array|\Sokil\Mongo\Expression $expressions Array of Expression instances or comma delimited expression list
+     * @return \Sokil\Mongo\Expression
      */
-    public function whereNor($expressions = null)
+    public function whereNor($expressions = null /**, ...**/)
     {
         if($expressions instanceof Expression) {
             $expressions = func_get_args();

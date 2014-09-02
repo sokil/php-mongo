@@ -119,7 +119,7 @@ class Database
      * Create collection
      *
      * @param string $name name of collection
-     * @param array $options array of options
+     * @param array|null $options array of options
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      */
@@ -161,6 +161,7 @@ class Database
      * 
      * @param string $name name of collection
      * @return \Sokil\Mongo\Collection
+     * @throws \Sokil\Mongo\Exception
      */
     public function getCollection($name) {
         if(!isset($this->_collectionPool[$name])) {
@@ -192,7 +193,7 @@ class Database
             
             $gridFS = new $className($this, $prefix);
             if(!$gridFS instanceof \Sokil\Mongo\GridFS) {
-                throw new \Exception('Must be GridFS');
+                throw new Exception('Must be GridFS');
             }
             
             $this->_collectionPool[$prefix] = $gridFS;
@@ -243,7 +244,9 @@ class Database
     
     /**
      * @param string|integer $w write concern
-     * @param int $timeout timeout in miliseconds
+     * @param int $timeout timeout in milliseconds
+     * @return \Sokil\Mongo\Database
+     * @throws \Sokil\Mongo\Exception
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
@@ -255,7 +258,8 @@ class Database
     }
     
     /**
-     * @param int $timeout timeout in miliseconds
+     * @param int $timeout timeout in milliseconds
+     * @return \Sokil\Mongo\Database
      */
     public function setUnacknowledgedWriteConcern($timeout = 10000)
     {
@@ -264,7 +268,8 @@ class Database
     }
     
     /**
-     * @param int $timeout timeout in miliseconds
+     * @param int $timeout timeout in milliseconds
+     * @return \Sokil\Mongo\Database
      */
     public function setMajorityWriteConcern($timeout = 10000)
     {
