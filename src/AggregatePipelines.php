@@ -2,8 +2,6 @@
 
 namespace Sokil\Mongo;
 
-use Sokil\Mongo\Collection;
-
 class AggregatePipelines
 {
     private $_pipelines = array();
