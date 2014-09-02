@@ -197,7 +197,7 @@ abstract class Cursor implements \Iterator, \Countable
      * Filter by list of \MongoId
      *
      * @param array $idList list of ids
-     * @return $this
+     * @return \Sokil\Mongo\Cursor
      */
     public function byIdList(array $idList)
     {
@@ -209,7 +209,7 @@ abstract class Cursor implements \Iterator, \Countable
      * Filter by id
      *
      * @param string|\MongoId $id id of document
-     * @return $this
+     * @return \Sokil\Mongo\Cursor
      */
     public function byId($id)
     {
@@ -238,7 +238,14 @@ abstract class Cursor implements \Iterator, \Countable
         
         return $this;
     }
-    
+
+    /**
+     * Limit result set to specified number of elements
+     *
+     * @param int $limit number of elements in result set
+     * @param int|null $offset number of elements to skip
+     * @return \Sokil\Mongo\Cursor
+     */
     public function limit($limit, $offset = null)
     {
         $this->_limit = (int) $limit;

@@ -231,8 +231,8 @@ class Client
     /**
      * Define write concern on whole requests
      *
-     * @param string|integer $w wrint concern
-     * @param int $timeout timeout in miliseconds
+     * @param string|integer $w write concern
+     * @param int $timeout timeout in milliseconds
      * @return \Sokil\Mongo\Client
      *
      * @throws \Sokil\Mongo\Exception
@@ -249,7 +249,7 @@ class Client
     /**
      * Define unacknowledged write concern on whole requests
      *
-     * @param int $timeout timeout in miliseconds
+     * @param int $timeout timeout in milliseconds
      * @return \Sokil\Mongo\Client
      */
     public function setUnacknowledgedWriteConcern($timeout = 10000)

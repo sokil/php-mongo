@@ -99,7 +99,7 @@ class Structure
             }, $data);
         }
         
-        // classname id callable
+        // class name id callable
         if(is_callable($className)) {
             
             $structurePool = array();

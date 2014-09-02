@@ -2,6 +2,12 @@
 
 namespace Sokil\Mongo;
 
+/**
+ * Representation of GridFS as collection of files
+ *
+ *
+ * @property \MongoGridFS $_mongoCollection MongoGridFS Instance
+ */
 class GridFS extends Collection
 {
     protected $_queryBuilderClass = '\Sokil\Mongo\GridFSQueryBuilder';
