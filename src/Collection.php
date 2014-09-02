@@ -13,7 +13,7 @@ namespace Sokil\Mongo;
  */
 class Collection implements \Countable
 {
-    protected $_queryBuliderClass = '\Sokil\Mongo\QueryBuilder';
+    protected $_queryBuilderClass = '\Sokil\Mongo\QueryBuilder';
     
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
     
@@ -141,7 +141,7 @@ class Collection implements \Countable
      */
     public function find()
     {
-        return new $this->_queryBuliderClass($this, array(
+        return new $this->_queryBuilderClass($this, array(
             'expressionClass'   => $this->_queryExpressionClass,
         ));
     }
@@ -187,7 +187,7 @@ class Collection implements \Countable
      */
     public function findAsArray()
     {
-        return new $this->_queryBuliderClass($this, array(
+        return new $this->_queryBuilderClass($this, array(
             'expressionClass'   => $this->_queryExpressionClass,
             'arrayResult' => true
         ));
