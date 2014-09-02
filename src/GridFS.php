@@ -4,7 +4,7 @@ namespace Sokil\Mongo;
 
 class GridFS extends Collection
 {
-    protected $_queryBuliderClass = '\Sokil\Mongo\GridFSQueryBuilder';
+    protected $_queryBuilderClass = '\Sokil\Mongo\GridFSQueryBuilder';
     
     public function __construct(Database $database, $prefix = 'fs')
     {
@@ -14,7 +14,7 @@ class GridFS extends Collection
     }
     
     /**
-     * Override to define classname of file by file data
+     * Override to define class name of file by file data
      * 
      * @param \MongoGridFSFile $fileData
      * @return string Document class data

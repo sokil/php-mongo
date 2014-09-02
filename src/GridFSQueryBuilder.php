@@ -2,6 +2,11 @@
 
 namespace Sokil\Mongo;
 
+/**
+ * Searching among files in GridFS
+ *
+ * @property \Sokil\Mongo\GridFS $_collection Link to GridFs instance
+ */
 class GridFSQueryBuilder extends Cursor
 {
     /**
@@ -9,11 +14,12 @@ class GridFSQueryBuilder extends Cursor
      * 
      * @param \MongoGridFSFile $file file instance
      * @return \Sokil\Mongo\GridFSFile
+     * @throws \Sokil\Mongo\Exception
      */
     protected function toObject($file)
     {
         if(!($file instanceof \MongoGridFSFile)) {
-            throw new \Exception('Must be instance of \MongoGridFSFile');
+            throw new Exception('Must be instance of \MongoGridFSFile');
         }
         
         $fileClassName = $this->_collection->getFileClassName($file);
