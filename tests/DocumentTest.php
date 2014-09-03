@@ -99,7 +99,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     }
     
     /**
-     * Test call of method not gescribed in behaviors, not setter and not getter
+     * Test call of method not described in behaviors, not setter and not getter
      * @expectedException \Exception
      * @expectedExceptionMessage Document has no method "unexistedMethod"
      */
