@@ -121,7 +121,7 @@ abstract class Cursor implements \Iterator, \Countable
     }
     
     /**
-     * Paginate list of subdocuments
+     * Paginate list of sub-documents
      *  
      * @param string $field
      * @param integer $limit

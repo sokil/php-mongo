@@ -105,7 +105,7 @@ class Collection implements \Countable
     }
     
     /**
-     * Override to define classname of document by document data
+     * Override to define class name of document by document data
      * 
      * @param array $documentData
      * @return string Document class data
@@ -233,7 +233,7 @@ class Collection implements \Countable
     }
     
     /**
-     * Get document by id directly omiting cache
+     * Get document by id directly omitting cache
      * 
      * @param string|\MongoId $id
      * @return \Sokil\Mongo\Document|null

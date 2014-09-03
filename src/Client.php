@@ -2,6 +2,8 @@
 
 namespace Sokil\Mongo;
 
+use \Psr\Log\LoggerInterface;
+
 /**
  * Connection manager and factory to get database and collection instances.
  * 
@@ -133,11 +135,14 @@ class Client
         }
         
         if(!isset($this->_databasePool[$name])) {
-            $this->_databasePool[$name] = new Database($this, $name);
-            
+            // init db
+            $database = new Database($this, $name);
             if(isset($this->_mapping[$name])) {
-                $this->_databasePool[$name]->map($this->_mapping[$name]);
+                $database->map($this->_mapping[$name]);
             }
+
+            // configure db
+            $this->_databasePool[$name] = $database;
         }
         
         return $this->_databasePool[$name];
@@ -208,7 +213,7 @@ class Client
         return $this;
     }
     
-    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger)
     {
         $this->_logger = $logger;
         return $this;

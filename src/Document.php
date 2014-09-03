@@ -109,7 +109,7 @@ class Document extends Structure
     
     /**
      * Event handler, called before running constructor.
-     * May be overriden in child classes
+     * May be overridden in child classes
      */
     public function beforeConstruct() {}
     

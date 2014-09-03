@@ -58,7 +58,7 @@ class Database
      * Map collection name to class
      * 
      * @param string|array $name collection name or array like [collectionName => collectionClass, ...]
-     * @param string|null $class if $name is string, then full class name, else ommited
+     * @param string|null $class if $name is string, then full class name, else ommitted
      * @return \Sokil\Mongo\Client
      */
     public function map($name, $class = null) {
@@ -192,7 +192,7 @@ class Database
             }
             
             $gridFS = new $className($this, $prefix);
-            if(!$gridFS instanceof \Sokil\Mongo\GridFS) {
+            if(!$gridFS instanceof GridFS) {
                 throw new Exception('Must be GridFS');
             }
             

@@ -43,10 +43,10 @@ class Structure
     }
     
     /**
-     * Get structure object from adocument's value
+     * Get structure object from a document's value
      * 
      * @param string $selector
-     * @param string|callable $className string classname or closure, which accept data and return string class name
+     * @param string|callable $className string class name or closure, which accept data and return string class name
      * @return object representation of document with class, passed as argument
      * @throws \Sokil\Mongo\Exception
      */
@@ -57,7 +57,7 @@ class Structure
             return null;
         }
         
-        // get classname from callable
+        // get class name from callable
         if(is_callable($className)) {
             $className = $className($data);
         }
@@ -173,7 +173,7 @@ class Structure
                 $section[$field] = array();
             }
             elseif(!is_array($section[$field])) {
-                throw new Exception('Assigning subdocument to scalar value');
+                throw new Exception('Assigning sub-document to scalar value');
             }
 
             $section = &$section[$field];
