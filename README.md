@@ -904,3 +904,5 @@ class GridFSFileClass extends \Sokil\Mongo\GridFSFile
 $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 ```
 
+<hr/>
+Pull requests, bug reports and feature requests is welmome.
