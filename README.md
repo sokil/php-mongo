@@ -905,4 +905,5 @@ $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 ```
 
 <hr/>
-Pull requests, bug reports and feature requests is welmome.
+<br/>
+Pull requests, bug reports and feature requests is welcome.
