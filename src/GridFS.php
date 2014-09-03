@@ -53,16 +53,23 @@ class GridFS extends Collection
     {
         return $this->_mongoCollection->storeBytes($bytes, $metadata);
     }
-    
+
+    /**
+     * Get file instance by id of document
+     * Used \MongoGridFS::findOne() instead of \MongoGridFS::get() due to backward compatibility with old mongo extensions
+     *
+     * @param $id
+     * @return null
+     */
     public function getFileById($id)
     {
         if($id instanceof \MongoId) {
-            $file = $this->_mongoCollection->get($id);
+            $file = $this->_mongoCollection->findOne(array('_id' => $id));
         } else {
             try {
-                $file = $this->_mongoCollection->get(new \MongoId($id));
+                $file = $this->_mongoCollection->findOne(array('_id' => new \MongoId($id)));
             } catch (\MongoException $e) {
-                $file = $this->_mongoCollection->get($id);
+                $file = $this->_mongoCollection->findOne(array('_id' => $id));
             }
         }
         

@@ -365,7 +365,12 @@ abstract class Cursor implements \Iterator, \Countable
     {
         return iterator_to_array($this);
     }
-    
+
+    /**
+     * Get document instance and remove it from collection
+     *
+     * @return \Sokil\Mongo\Document
+     */
     public function findAndRemove()
     {
         $mongoDocument = $this->_collection->getMongoCollection()->findAndModify(
@@ -487,6 +492,9 @@ abstract class Cursor implements \Iterator, \Countable
     
     /**
      * Convert find result to object
+     *
+     * @param array $mongoFindResult array of key-values, received from mongo driver
+     * @return \Sokil\Mongo\Document
      */
     abstract protected function toObject($mongoFindResult);
     
