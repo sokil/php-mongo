@@ -16,8 +16,47 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         self::$client = new Client('mongodb://127.0.0.1');
     }
     
-    public static function tearDownAfterClass() {
-        
+    public static function tearDownAfterClass()
+    {
+
+    }
+
+    public function testConstructClientWithConnectOptions()
+    {
+        $client = new Client('mongodb://127.0.0.1', array(
+            'param' => 'value',
+        ));
+
+        $this->assertEquals(array(
+            'param' => 'value',
+        ), $client->getConnectOptions());
+    }
+
+    public function testSetConnection()
+    {
+        $connection = new \MongoClient('mongodb://127.0.0.1');
+
+        $client = new Client;
+        $client->setConnection($connection);
+
+        $this->assertEquals($connection, $client->getConnection());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage DSN not specified
+     */
+    public function testGetConnectionWhenNoDSNSpecified()
+    {
+        $client = new Client;
+        $client->getConnection();
+    }
+
+    public function testGetDatabase()
+    {
+        $this->assertInstanceOf('\Sokil\Mongo\Database', self::$client->getDatabase('test'));
+
+        $this->assertInstanceOf('\Sokil\Mongo\Database', self::$client->test);
     }
     
     public function testMapDeclaredCollectionToClass()

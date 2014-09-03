@@ -79,6 +79,11 @@ class Client
         $this->_connectOptions = $options;
         return $this;
     }
+
+    public function getConnectOptions()
+    {
+        return $this->_connectOptions;
+    }
     
     public function setConnection(\MongoClient $client)
     {
@@ -133,7 +138,7 @@ class Client
         if(!$name) {
             $name = $this->getCurrentDatabaseName();
         }
-        
+
         if(!isset($this->_databasePool[$name])) {
             // init db
             $database = new Database($this, $name);
