@@ -23,6 +23,8 @@ class Database
     private $_classPrefix;
     
     private $_collectionPool = array();
+
+    private $_collectionPoolEnabled = true;
     
     public function __construct(Client $client, $databaseName) {
         $this->_client = $client;
@@ -53,7 +55,48 @@ class Database
     {
         return $this->_client;
     }
-    
+
+    public function disableCollectionPool()
+    {
+        $this->_collectionPoolEnabled = false;
+        return $this;
+    }
+
+    public function enableCollectionPool()
+    {
+        $this->_collectionPoolEnabled = true;
+        return $this;
+    }
+
+    public function clearCollectionPool()
+    {
+        $this->_collectionPool = array();
+        return $this;
+    }
+
+    /**
+     * Reset specified mapping
+     *
+     * @return \Sokil\Mongo\Client
+     */
+    public function resetMapping()
+    {
+        $this->_mapping = array();
+        $this->_classPrefix = null;
+
+        return $this;
+    }
+
+    /**
+     * Get currently configured mapping
+     *
+     * @return array mapping config
+     */
+    public function getMapping()
+    {
+        return $this->_mapping;
+    }
+
     /**
      * Map collection name to class
      * 
@@ -164,16 +207,27 @@ class Database
      * @throws \Sokil\Mongo\Exception
      */
     public function getCollection($name) {
-        if(!isset($this->_collectionPool[$name])) {
-            $className = $this->getCollectionClassName($name);
-            if(!class_exists($className)) {
-                throw new Exception('Class ' . $className . ' not found while map collection name to class');
-            }
-            
-            $this->_collectionPool[$name] = new $className($this, $name);
+
+        // return from pool
+        if($this->_collectionPoolEnabled && isset($this->_collectionPool[$name])) {
+            return $this->_collectionPool[$name];
         }
-        
-        return $this->_collectionPool[$name];
+
+        // no object in pool - init new
+        $className = $this->getCollectionClassName($name);
+        if(!class_exists($className)) {
+            throw new Exception('Class ' . $className . ' not found while map collection name to class');
+        }
+
+        $collection = new $className($this, $name);
+
+        // store to pool
+        if($this->_collectionPoolEnabled) {
+            $this->_collectionPool[$name] = $collection;
+        }
+
+        // return
+        return $collection;
     }
     
     /**
@@ -185,21 +239,30 @@ class Database
      */
     public function getGridFS($prefix = 'fs')
     {
-        if(!isset($this->_collectionPool[$prefix])) {
-            $className = $this->getGridFSClassName($prefix);
-            if(!class_exists($className)) {
-                throw new Exception('Class ' . $className . ' not found while map GridSF name to class');
-            }
-            
-            $gridFS = new $className($this, $prefix);
-            if(!$gridFS instanceof GridFS) {
-                throw new Exception('Must be GridFS');
-            }
-            
+        // get from cache if enabled
+        if($this->_collectionPoolEnabled && isset($this->_collectionPool[$prefix])) {
+            return $this->_collectionPool[$prefix];
+        }
+
+        // no object in cache - init new
+        $className = $this->getGridFSClassName($prefix);
+        if(!class_exists($className)) {
+            throw new Exception('Class ' . $className . ' not found while map GridSF name to class');
+        }
+
+        $gridFS = new $className($this, $prefix);
+        if(!$gridFS instanceof GridFS) {
+            throw new Exception('Must be GridFS');
+        }
+
+        // store to cache
+        if($this->_collectionPoolEnabled) {
             $this->_collectionPool[$prefix] = $gridFS;
         }
-        
-        return $this->_collectionPool[$prefix];
+
+        // return
+        return $gridFS;
+
     }
     
     /**
@@ -243,6 +306,9 @@ class Database
     }
     
     /**
+     * Define write concern.
+     * May be used only if mongo extension version >=1.5
+     *
      * @param string|integer $w write concern
      * @param int $timeout timeout in milliseconds
      * @return \Sokil\Mongo\Database
@@ -258,6 +324,9 @@ class Database
     }
     
     /**
+     * Define unacknowledged write concern.
+     * May be used only if mongo extension version >=1.5
+     *
      * @param int $timeout timeout in milliseconds
      * @return \Sokil\Mongo\Database
      */
@@ -268,6 +337,9 @@ class Database
     }
     
     /**
+     * Define majority write concern.
+     * May be used only if mongo extension version >=1.5
+     *
      * @param int $timeout timeout in milliseconds
      * @return \Sokil\Mongo\Database
      */
@@ -276,7 +348,13 @@ class Database
         $this->setWriteConcern('majority', (int) $timeout);
         return $this;
     }
-    
+
+    /**
+     * Get current write concern
+     * May be used only if mongo extension version >=1.5
+     *
+     * @return mixed
+     */
     public function getWriteConcern()
     {
         return $this->_mongoDB->getWriteConcern();

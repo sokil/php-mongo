@@ -37,6 +37,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         
         // select database
         self::$database = $client->getDatabase('test');
+        self::$database->disableCollectionPool();
+    }
+
+    public function setUp()
+    {
+        self::$database->resetMapping();
     }
     
     public function testStats()
@@ -102,5 +108,65 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $id = $fs->storeBytes('hello');
         $file = $fs->getFileById($id);
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotoGridFSFile', $file);
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Class \BlahBlahBlah not found while map GridSF name to class
+     */
+    public function testGetGridFs_WrongGridFSClassSpecifiedInMapping()
+    {
+        self::$database->map(array(
+            'gridfs' => '\BlahBlahBlah',
+        ));
+
+        self::$database->getGridFS('gridfs');
+
+        $this->fail('Must be exception');
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Must be GridFS
+     */
+    public function testGetGridFs_SpecifiedGridFSClassInMappingIsNotInstanceOfGridFS()
+    {
+        self::$database->map(array(
+            'gridfs' => '\stdClass',
+        ));
+
+        self::$database->getGridFS('gridfs');
+
+        $this->fail('Must be exception');
+    }
+
+    public function testSetWriteConcern()
+    {
+        self::$database->setWriteConcern('majority', 12000);
+
+        $this->assertEquals(array(
+            'w' => 'majority',
+            'wtimeout' => 12000
+        ), self::$database->getWriteConcern());
+    }
+
+    public function testSetUnacknowledgedWriteConcern()
+    {
+        self::$database->setUnacknowledgedWriteConcern(11000);
+
+        $this->assertEquals(array(
+            'w' => 0,
+            'wtimeout' => 11000
+        ), self::$database->getWriteConcern());
+    }
+
+    public function testSetMajorityWriteConcern()
+    {
+        self::$database->setMajorityWriteConcern(13000);
+
+        $this->assertEquals(array(
+            'w' => 'majority',
+            'wtimeout' => 13000
+        ), self::$database->getWriteConcern());
     }
 }
