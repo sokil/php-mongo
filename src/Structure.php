@@ -75,7 +75,7 @@ class Structure
      * Get list of structure objects from list of values in mongo document
      * 
      * @param string $selector
-     * @param string|callable $className class name or closure, which accept data and return string class name
+     * @param string|callable $className Structure class name or closure, which accept data and return string class name of Structure
      * @return object representation of document with class, passed as argument
      * @throws \Sokil\Mongo\Exception
      */
@@ -91,7 +91,7 @@ class Structure
             
             $structure = new $className();
             if(!($structure instanceof Structure)) {
-                throw new Exception('Wring structure class specified');
+                throw new Exception('Wrong structure class specified');
             }
 
             return array_map(function($dataItem) use($structure) {
@@ -102,19 +102,25 @@ class Structure
         // class name id callable
         if(is_callable($className)) {
             
-            $structurePool = array();
+            $structurePrototypePool = array();
 
-            return array_map(function($dataItem) use($structurePool, $className) {
-                
+            return array_map(function($dataItem) use($structurePrototypePool, $className) {
+
+                // get Structure class name from callable
                 $classNameString = $className($dataItem);
-                if(empty($structurePool[$classNameString])) {
-                    $structurePool[$classNameString] = new $classNameString;
-                    if(!($structurePool[$classNameString] instanceof Structure)) {
+
+                // create structure prototype
+                if(empty($structurePrototypePool[$classNameString])) {
+                    $structurePrototypePool[$classNameString] = new $classNameString;
+                    if(!($structurePrototypePool[$classNameString] instanceof Structure)) {
                         throw new Exception('Wring structure class specified');
                     }
                 }
-                
-                return clone $structurePool[$classNameString]->merge($dataItem);
+
+                // instantiate structure from related prototype
+                $structure = clone $structurePrototypePool[$classNameString];
+
+                return $structure->merge($dataItem);
             }, $data);
         }
         

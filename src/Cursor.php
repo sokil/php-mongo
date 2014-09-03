@@ -230,7 +230,7 @@ abstract class Cursor implements \Iterator, \Countable
      * Skip defined number of documents
      *
      * @param int $skip number of documents to skip
-     * @return $this
+     * @return \Sokil\Mongo\Cursor
      */
     public function skip($skip)
     {
@@ -256,7 +256,13 @@ abstract class Cursor implements \Iterator, \Countable
         
         return $this;
     }
-    
+
+    /**
+     * Sort result by specified keys and directions
+     *
+     * @param array $sort
+     * @return \Sokil\Mongo\Cursor
+     */
     public function sort(array $sort)
     {
         $this->_sort = $sort;
