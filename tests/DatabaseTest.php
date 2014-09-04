@@ -140,6 +140,79 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->fail('Must be exception');
     }
 
+    public function testReadPrimaryOnly()
+    {
+        self::$database->readPrimaryOnly();
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_PRIMARY
+        ), self::$database->getReadPreference());
+    }
+
+    public function testReadPrimaryPreferred()
+    {
+        self::$database->readPrimaryPreferred(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_PRIMARY_PREFERRED,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), self::$database->getReadPreference());
+    }
+
+    public function testReadSecondaryOnly(array $tags = null)
+    {
+        self::$database->readSecondaryOnly(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_SECONDARY,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), self::$database->getReadPreference());
+    }
+
+    public function testReadSecondaryPreferred(array $tags = null)
+    {
+        self::$database->readSecondaryPreferred(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_SECONDARY_PREFERRED,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), self::$database->getReadPreference());
+    }
+
+    public function testReadNearest(array $tags = null)
+    {
+        self::$database->readNearest(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_NEAREST,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), self::$database->getReadPreference());
+    }
+    
     public function testSetWriteConcern()
     {
         self::$database->setWriteConcern('majority', 12000);

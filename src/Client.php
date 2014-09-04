@@ -217,6 +217,11 @@ class Client
         $this->getConnection()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
+
+    public function getReadPreference()
+    {
+        return $this->getConnection()->getReadPreference();
+    }
     
     public function setLogger(LoggerInterface $logger)
     {
@@ -232,10 +237,26 @@ class Client
     {
         return $this->_logger;
     }
-    
+
+    /**
+     * Check if logger defined
+     *
+     * @return bool
+     */
     public function hasLogger()
     {
         return (bool) $this->_logger;
+    }
+
+    /**
+     * Remove logger
+     *
+     * @return \Sokil\Mongo\Client
+     */
+    public function removeLogger()
+    {
+        $this->_logger = null;
+        return $this;
     }
     
     /**

@@ -304,6 +304,11 @@ class Database
         $this->_mongoDB->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
+
+    public function getReadPreference()
+    {
+        return $this->_mongoDB->getReadPreference();
+    }
     
     /**
      * Define write concern.

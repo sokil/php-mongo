@@ -132,4 +132,129 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, preg_match('#^[0-9]+(\.[0-9]+(\.[0-9]+)?)?$#', $version));
     }
+
+    public function testReadPrimaryOnly()
+    {
+        self::$client->readPrimaryOnly();
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_PRIMARY
+        ), self::$client->getReadPreference());
+    }
+
+    public function testReadPrimaryPreferred()
+    {
+        self::$client->readPrimaryPreferred(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_PRIMARY_PREFERRED,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), self::$client->getReadPreference());
+    }
+
+    public function testReadSecondaryOnly(array $tags = null)
+    {
+        self::$client->readSecondaryOnly(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_SECONDARY,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), self::$client->getReadPreference());
+    }
+
+    public function testReadSecondaryPreferred(array $tags = null)
+    {
+        self::$client->readSecondaryPreferred(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_SECONDARY_PREFERRED,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), self::$client->getReadPreference());
+    }
+
+    public function testReadNearest(array $tags = null)
+    {
+        self::$client->readNearest(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_NEAREST,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), self::$client->getReadPreference());
+    }
+
+    public function testSetLogger()
+    {
+        self::$client->removeLogger();
+
+        $this->assertFalse(self::$client->hasLogger());
+
+        self::$client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
+
+        $this->assertTrue(self::$client->hasLogger());
+    }
+
+    public function testGetLogger()
+    {
+        self::$client->removeLogger();
+
+        $this->assertFalse(self::$client->hasLogger());
+
+        self::$client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
+
+        $this->assertInstanceOf('\Psr\Log\LoggerInterface', self::$client->getLogger());
+    }
+
+    public function testSetWriteConcern()
+    {
+        self::$client->setWriteConcern('majority', 12000);
+
+        $this->assertEquals(array(
+            'w' => 'majority',
+            'wtimeout' => 12000
+        ), self::$client->getWriteConcern());
+    }
+
+    public function testSetUnacknowledgedWriteConcern()
+    {
+        self::$client->setUnacknowledgedWriteConcern(11000);
+
+        $this->assertEquals(array(
+            'w' => 0,
+            'wtimeout' => 11000
+        ), self::$client->getWriteConcern());
+    }
+
+    public function testSetMajorityWriteConcern()
+    {
+        self::$client->setMajorityWriteConcern(13000);
+
+        $this->assertEquals(array(
+            'w' => 'majority',
+            'wtimeout' => 13000
+        ), self::$client->getWriteConcern());
+    }
 }

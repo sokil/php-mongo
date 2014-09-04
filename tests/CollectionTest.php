@@ -395,4 +395,123 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         }
         
     }
+
+    public function testReadPrimaryOnly()
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        $collection->readPrimaryOnly();
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_PRIMARY
+        ), $collection->getReadPreference());
+    }
+
+    public function testReadPrimaryPreferred()
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        $collection->readPrimaryPreferred(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_PRIMARY_PREFERRED,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), $collection->getReadPreference());
+    }
+
+    public function testReadSecondaryOnly(array $tags = null)
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        $collection->readSecondaryOnly(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_SECONDARY,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), $collection->getReadPreference());
+    }
+
+    public function testReadSecondaryPreferred(array $tags = null)
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        $collection->readSecondaryPreferred(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_SECONDARY_PREFERRED,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), $collection->getReadPreference());
+    }
+
+    public function testReadNearest(array $tags = null)
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        $collection->readNearest(array(
+            array('dc' => 'kyiv'),
+            array('dc' => 'lviv'),
+        ));
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_NEAREST,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), $collection->getReadPreference());
+    }
+
+    public function testSetWriteConcern()
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        $collection->setWriteConcern('majority', 12000);
+
+        $this->assertEquals(array(
+            'w' => 'majority',
+            'wtimeout' => 12000
+        ), $collection->getWriteConcern());
+    }
+
+    public function testSetUnacknowledgedWriteConcern()
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        $collection->setUnacknowledgedWriteConcern(11000);
+
+        $this->assertEquals(array(
+            'w' => 0,
+            'wtimeout' => 11000
+        ), $collection->getWriteConcern());
+    }
+
+    public function testSetMajorityWriteConcern()
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        $collection->setMajorityWriteConcern(13000);
+
+        $this->assertEquals(array(
+            'w' => 'majority',
+            'wtimeout' => 13000
+        ), $collection->getWriteConcern());
+    }
 }

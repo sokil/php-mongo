@@ -592,6 +592,11 @@ class Collection implements \Countable
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
+
+    public function getReadPreference()
+    {
+        return $this->_mongoCollection->getReadPreference();
+    }
     
     /**
      * Define write concern for all requests to current collection
