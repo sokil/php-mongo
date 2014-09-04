@@ -12,7 +12,7 @@ before_script:
   
 script:
   - mkdir -p build/logs
-  - phpunit --bootstrap ./tests/bootstrap.php tests --coverage-clover build/logs/clover.xml
+  - phpunit --bootstrap ./tests/bootstrap.php --coverage-clover build/logs/clover.xml tests
   
 after_script:
   - php vendor/bin/coveralls -v
