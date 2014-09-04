@@ -37,6 +37,14 @@ class Database
     {
         return $this->getCollection($name);
     }
+
+    /**
+     * @return string get name of database
+     */
+    public function getName()
+    {
+        return $this->_databaseName;
+    }
     
     /**
      * 

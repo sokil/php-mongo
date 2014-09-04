@@ -58,6 +58,24 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Sokil\Mongo\Database', self::$client->test);
     }
+
+    public function testGetDatabase_NameNotSpecified_DefaultNameSpecified()
+    {
+        $client = new Client('mongodb://127.0.0.1/');
+        $client->useDatabase('some_name');
+
+        $this->assertEquals('some_name', $client->getDatabase()->getName());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Database not selected
+     */
+    public function testGetDatabase_NameNotSpecified_DefaultNameNotSpecified()
+    {
+        $client = new Client('mongodb://127.0.0.1/');
+        $this->assertEquals('some_name', $client->getDatabase()->getName());
+    }
     
     public function testMapDeclaredCollectionToClass()
     {
@@ -226,6 +244,28 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         self::$client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
 
         $this->assertInstanceOf('\Psr\Log\LoggerInterface', self::$client->getLogger());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Error setting write concern
+     */
+    public function testErrorOnSetWriteConcern()
+    {
+        $connection = $this->getMock(
+            '\MongoClient',
+            array('setWriteConcern')
+        );
+
+        $connection
+            ->expects($this->any())
+            ->method('setWriteConcern')
+            ->will($this->returnValue(false));
+
+        $client = new Client();
+        $client->setConnection($connection);
+
+        $client->setWriteConcern(1);
     }
 
     public function testSetWriteConcern()
