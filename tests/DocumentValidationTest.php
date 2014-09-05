@@ -370,4 +370,25 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             $this->fail('\Sokil\Mongo\Document\Exception\Validate expected, ' . get_class($e) . ' found');
         }
     }
+
+    public function testGetInvalidDocumentFromException()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'numeric')
+            )));
+
+        $document->set('some-field-name', 'wrongValue');
+
+        try {
+            $document->validate();
+            $this->fail('Must be exception');
+        } catch(\Sokil\Mongo\Document\Exception\Validate $e) {
+            $this->assertEquals($document, $e->getDocument());
+        }
+    }
 }
