@@ -194,23 +194,53 @@ class Collection implements \Countable
             'arrayResult' => true
         ));
     }
-    
+
+    /**
+     * Stop storing found documents to pool
+     *
+     * @return \Sokil\Mongo\Collection
+     */
     public function disableDocumentPool()
     {
         $this->_documentPoolEnabled = false;
         return $this;
     }
-    
+
+    /**
+     * Start storing found documents to pool
+     *
+     * @return \Sokil\Mongo\Collection
+     */
     public function enableDocumentPool()
     {
         $this->_documentPoolEnabled = true;
         return $this;
+    }
+
+    /**
+     * Check if document pool enabled and requested documents store to it
+     *
+     * @return bool
+     */
+    public function isDocumentPoolEnabled()
+    {
+        return $this->_documentPoolEnabled;
     }
     
     public function clearDocumentPool()
     {
         $this->_documentsPool = array();
         return $this;
+    }
+
+    /**
+     * Check if documents are in pool
+     *
+     * @return bool
+     */
+    public function isDocumentPoolEmpty()
+    {
+        return !$this->_documentsPool;
     }
     
     /**

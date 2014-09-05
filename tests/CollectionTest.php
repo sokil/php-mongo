@@ -34,6 +34,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $foundDocument = $collection->getDocument($document->getId());
         
         $this->assertEquals($document->getId(), $foundDocument->getId());
+
+        // get document as property of collection
+        $foundDocument = $collection->{$document->getId()};
+
+        $this->assertEquals($document->getId(), $foundDocument->getId());
     }
     
     public function testGetDocumentByStringId()
@@ -80,6 +85,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $this->assertArrayHasKey((string) $document1->getId(), $foundDocuments);
         $this->assertArrayHasKey((string) $document2->getId(), $foundDocuments);
+    }
+
+    public function testGetDocuments_UnexistedIdsSpecified()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        // get documents when wrong id's
+        $this->assertEquals(array(), $collection->getDocuments(array(
+            new \MongoId,
+            new \MongoId,
+            new \MongoId,
+        )));
     }
     
     public function testSaveValidNewDocument()
@@ -217,7 +236,51 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             $this->assertArrayHasKey('k', $document->toArray());
         }
     }
-    
+
+    public function testEnableDocumentPool()
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+        $collection->clearDocumentPool();
+
+        // disable document pool
+        $collection->disableDocumentPool();
+        $this->assertFalse($collection->isDocumentPoolEnabled());
+
+        // create documents
+        $document = $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F1',
+                    'kk'    => 'A',
+                )
+            ))
+            ->save();
+
+        // read document
+        $collection->getDocument($document->getId());
+
+        // check if document in pool
+        $this->assertTrue($collection->isDocumentPoolEmpty());
+
+        // enable document pool
+        $collection->enableDocumentPool();
+        $this->assertTrue($collection->isDocumentPoolEnabled());
+
+        // read document to pool
+        $collection->getDocument($document->getId());
+
+        // check if document in pool
+        $this->assertFalse($collection->isDocumentPoolEmpty());
+
+        // clear document pool
+        $collection->clearDocumentPool();
+        $this->assertTrue($collection->isDocumentPoolEmpty());
+
+        // disable document pool
+        $collection->disableDocumentPool();
+        $this->assertFalse($collection->isDocumentPoolEnabled());
+    }
+
     public function testGetDistinct()
     {
         $collection = self::$database->getCollection('phpmongo_test_collection');
@@ -264,6 +327,54 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->getDistinct('k.kk', $collection->expression()->where('k.f', 'F1'));
         
         $this->assertEquals(array('A', 'B'), $distinctValues);
+    }
+
+    public function testGetDistinctWithoutExpression()
+    {
+        $collection = self::$database->getCollection('phpmongo_test_collection');
+
+        // create documents
+        $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F1',
+                    'kk'    => 'A',
+                )
+            ))
+            ->save();
+
+        $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F1',
+                    'kk'    => 'A',
+                )
+            ))
+            ->save();
+
+        $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F1',
+                    'kk'    => 'B',
+                )
+            ))
+            ->save();
+
+        $collection
+            ->createDocument(array(
+                'k' => array(
+                    'f'     => 'F2',
+                    'kk'    => 'C',
+                )
+            ))
+            ->save();
+
+        // get distinct
+        $distinctValues = $collection
+            ->getDistinct('k.kk');
+
+        $this->assertEquals(array('A', 'B', 'C'), $distinctValues);
     }
     
     public function testInsertMultiple()
@@ -370,6 +481,46 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(9, $result[0]['sum']);
         
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong pipelines specified
+     */
+    public function testAggregate_WrongArgument()
+    {
+        self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->aggregate('hello');
+    }
+
+    public function testLogAggregateResults()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        // create documents
+        $collection->createDocument(array('param' => 1))->save();
+        $collection->createDocument(array('param' => 2))->save();
+        $collection->createDocument(array('param' => 3))->save();
+        $collection->createDocument(array('param' => 4))->save();
+
+        // create logger
+        $logger = $this->getMock('\Psr\Log\LoggerInterface');
+        $logger
+            ->expects($this->once())
+            ->method('debug')
+            ->with('Sokil\Mongo\Collection:<br><b>Pipelines</b>:<br>[{"$match":{"param":{"$gte":2}}},{"$group":{"_id":0,"sum":{"$sum":"$param"}}}]');
+
+        // set logger to client
+        self::$database->getClient()->setLogger($logger);
+
+        // aggregate
+        $collection->createPipeline()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
+            ->aggregate();
     }
     
     public function testExplainAggregate()
