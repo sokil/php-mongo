@@ -16,4 +16,4 @@ script:
   - phpunit --bootstrap ./tests/bootstrap.php --coverage-clover build/logs/clover.xml tests
   
 after_script:
-  - php vendor/bin/coveralls -v
+  - php ./vendor/bin/coveralls -v
