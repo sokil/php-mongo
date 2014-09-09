@@ -411,7 +411,7 @@ class Collection implements \Countable
         // if write concern acknowledged
         if(is_array($result)) {
             if($result['ok'] != 1) {
-                throw new Exception('Insert error: ' . $result['err']);
+                throw new Exception('Insert error: ' . $result['err'] . ': ' . $result['errmsg']);
             }
 
             return $this;
@@ -440,37 +440,62 @@ class Collection implements \Countable
             $updateData = $updateData->getAll();
         }
         
-        $status = $this->_mongoCollection->update(
+        $result = $this->_mongoCollection->update(
             $expression->toArray(), 
             $updateData,
             array(
                 'multiple'  => true,
             )
         );
-        
-        if(1 != $status['ok']) {
-            throw new Exception('Multiple update error: ' . $status['err']);
+
+        // if write concern acknowledged
+        if(is_array($result)) {
+            if($result['ok'] != 1) {
+                throw new Exception('Multiple update error: ' . $result['err'] . ': ' . $result['errmsg']);
+            }
+
+            return $this;
+        }
+
+        // if write concern unacknowledged
+        if(!$result) {
+            throw new Exception('Multiple update error');
         }
         
         return $this;
     }
-    
+
+    /**
+     * @param $updateData
+     * @return \Sokil\Mongo\Collection
+     * @throws \Sokil\Mongo\Exception
+     */
     public function updateAll($updateData)
     {
         if($updateData instanceof Operator) {
             $updateData = $updateData->getAll();
         }
         
-        $status = $this->_mongoCollection->update(
+        $result = $this->_mongoCollection->update(
             array(), 
             $updateData,
             array(
                 'multiple'  => true,
             )
         );
-        
-        if(1 != $status['ok']) {
-            throw new Exception('Multiple update error: ' . $status['err']);
+
+        // if write concern acknowledged
+        if(is_array($result)) {
+            if($result['ok'] != 1) {
+                throw new Exception('Update error: ' . $result['err'] . ': ' . $result['errmsg']);
+            }
+
+            return $this;
+        }
+
+        // if write concern unacknowledged
+        if(!$result) {
+            throw new Exception('Update error');
         }
         
         return $this;

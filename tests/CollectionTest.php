@@ -613,6 +613,33 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $document->b);
     }
 
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Insert error: some_error: Some strange error
+     */
+    public function testInsert_Acknowledged_Error()
+    {
+        $collectionMock = $this->getMock(
+            '\MongoCollection',
+            array('insert'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $collectionMock
+            ->expects($this->once())
+            ->method('insert')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'err' => 'some_error',
+                'errmsg' => 'Some strange error',
+            )));
+
+        $collection = new Collection(self::$database, $collectionMock);
+        $collection->setWriteConcern(1);
+
+        $collection->insert(array('a' => 1, 'b' => 2));
+    }
+
     public function testInsert_Unacknowledged()
     {
         $collection = self::$database
@@ -626,6 +653,29 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($document);
 
         $this->assertEquals(2, $document->b);
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Insert error
+     */
+    public function testInsert_Unacknowledged_Error()
+    {
+        $collectionMock = $this->getMock(
+            '\MongoCollection',
+            array('insert'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $collectionMock
+            ->expects($this->once())
+            ->method('insert')
+            ->will($this->returnValue(false));
+
+        $collection = new Collection(self::$database, $collectionMock);
+        $collection->setUnacknowledgedWriteConcern();
+
+        $collection->insert(array('a' => 1, 'b' => 2));
     }
     
     /**
