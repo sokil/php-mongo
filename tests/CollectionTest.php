@@ -468,7 +468,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     {
         $collection = self::$database
             ->getCollection('phpmongo_test_collection')
-            ->setMajorityWriteConcern();
+            ->setWriteConcern(1);
         
         $collection
             ->insertMultiple(array(
@@ -602,7 +602,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     {
         $collection = self::$database
             ->getCollection('phpmongo_test_collection')
-            ->setMajorityWriteConcern();
+            ->setWriteConcern(1);
         
         $collection->insert(array('a' => 1, 'b' => 2));
         
