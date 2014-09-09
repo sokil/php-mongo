@@ -13,8 +13,18 @@ namespace Sokil\Mongo;
  */
 class Collection implements \Countable
 {
+    /**
+     * @deprecated Overloading of query builder is deprecated.
+     * In future releases this property will be removed.
+     * Overload _queryExpressionClass instead
+     *
+     * @var string query builder class
+     */
     protected $_queryBuilderClass = '\Sokil\Mongo\QueryBuilder';
-    
+
+    /**
+     * @var string expression class. This class may be overloaded to define own query methods (whereUserAgeGreatedThan(), etc.)
+     */
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
     
     /**
@@ -136,14 +146,22 @@ class Collection implements \Countable
     
     /**
      * Create document query builder
-     * 
+     *
+     * @param $callable callable|null Function to configure query builder&
      * @return \Sokil\Mongo\QueryBuilder|\Sokil\Mongo\Expression
      */
-    public function find()
+    public function find($callable = null)
     {
-        return new $this->_queryBuilderClass($this, array(
+        /** @var \Sokil\Mongo\Cursor $queryBuilder */
+        $queryBuilder = new $this->_queryBuilderClass($this, array(
             'expressionClass'   => $this->_queryExpressionClass,
         ));
+
+        if($callable) {
+            $callable($queryBuilder->getExpression());
+        }
+
+        return $queryBuilder;
     }
     
     /**

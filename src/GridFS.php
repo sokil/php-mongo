@@ -59,7 +59,7 @@ class GridFS extends Collection
      * Used \MongoGridFS::findOne() instead of \MongoGridFS::get() due to backward compatibility with old mongo extensions
      *
      * @param $id
-     * @return null
+     * @return \Sokil\Mongo\GridFSFile
      */
     public function getFileById($id)
     {

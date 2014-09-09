@@ -462,6 +462,24 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(1.0, $stats['ok']);
     }
+
+    public function testFind()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        $d1 = $collection->createDocument(array('param' => 1))->save();
+        $d2 = $collection->createDocument(array('param' => 2))->save();
+        $d3 = $collection->createDocument(array('param' => 3))->save();
+        $d4 = $collection->createDocument(array('param' => 4))->save();
+
+        $queryBuilder = $collection->find(function(\Sokil\Mongo\Expression $expression) {
+            $expression->where('param', 3);
+        });
+
+        $this->assertEquals($d3->getId(), $queryBuilder->findOne()->getId());
+    }
     
     public function testAggregate()
     {

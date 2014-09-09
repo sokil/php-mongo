@@ -361,6 +361,41 @@ To get only one random result:
 $document = $cursor->findRandom();
 ```
 
+For extending standart query builder class with custom condition methods you need to override property Collection::$_queryExpressionClass with class, which extends \Sokil\Mongo\Expression:
+
+```php
+
+// define expression in collection
+class UserCollection extends \Sokil\Mongo\Collection
+{
+    protected $_queryExpressionClass = 'UserExpression';
+}
+
+// define expression
+class UserExpression extends \Sokil\Mongo\Expression
+{
+    public function whereAgeGreaterThan($age)
+    {
+        $this->whereGreater('age', (int) $age);
+    }
+}
+
+// use custom method for searching
+$collection = $db->getCollection('user'); // instance of UserCollection
+$queryBuilder = $collection->find(); // instance of UserExpression
+
+$queryBuilder->whereAgeGreaterThan(18)->fetchRandom();
+
+// or since v.1.3.2 configure query builder through callable:
+$collection
+    ->find(function(UserExpression $e) {
+        $e->whereAgeGreaterThan(18);
+    })
+    ->fetchRandom();
+
+```
+
+
 Pagination
 ----------
 

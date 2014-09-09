@@ -155,7 +155,8 @@ abstract class Cursor implements \Iterator, \Countable
     }
     
     /**
-     * 
+     * Helper to create new expression
+     *
      * @return \Sokil\Mongo\Expression
      */
     public function expression()
@@ -166,7 +167,12 @@ abstract class Cursor implements \Iterator, \Countable
         
         return new $expressionClass;
     }
-    
+
+    /**
+     * Get query builder's expression
+     *
+     * @return Expression
+     */
     public function getExpression()
     {
         return $this->_expression;
