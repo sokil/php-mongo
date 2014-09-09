@@ -155,4 +155,12 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         ));
     }
 
+    public function testSkipLimit()
+    {
+        $pipelines  = self::$collection->createPipeline();
+
+        $pipelines->skip(11)->limit(23);
+
+        $this->assertEquals('[{"$skip":11},{"$limit":23}]', (string) $pipelines);
+    }
 }

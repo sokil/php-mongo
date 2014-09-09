@@ -50,7 +50,7 @@ class ClientPool
         
         // initialise
         if(!isset($this->_configuration[$name])) {
-            throw new \Exception('Connection with name ' . $name . ' not found');
+            throw new Exception('Connection with name ' . $name . ' not found');
         }
         
         $client = new Client($this->_configuration[$name]['dsn']);

@@ -2,6 +2,7 @@
 
 namespace Sokil\Mongo;
 
+use \Sokil\Mongo\Document\Exception\Validate as ValidateException;
 /**
  * Instance of this class is a representation of mongo collection.
  * It aggregates \MongoCollection instance.
@@ -107,7 +108,7 @@ class Collection implements \Countable
             // check if collection exists
             if('ns not found' !== $status['errmsg']) {
                 // collection exist
-                throw new Exception('Error deleting collection ' . $this->getName());
+                throw new Exception('Error deleting collection ' . $this->getName() . ': ' . $status['errmsg']);
             }
         }
         
@@ -339,8 +340,8 @@ class Collection implements \Countable
         
         $document->triggerEvent('afterDelete');
         
-        if($status['ok'] != 1) {
-            throw new Exception('Delete error: ' . $status['err']);
+        if(true !== $status && $status['ok'] != 1) {
+            throw new Exception('Delete document error: ' . $status['err']);
         }
         
         // drop from document's pool
@@ -351,9 +352,11 @@ class Collection implements \Countable
     
     public function deleteDocuments(Expression $expression)
     {
-        $result = $this->_mongoCollection->remove($expression->toArray());
-        if(!$result) {
-            throw new Exception('Error removing documents from collection');
+        $result = $this->_mongoCollection
+            ->remove($expression->toArray());
+
+        if(true !== $result && $result['ok'] != 1) {
+            throw new Exception('Error removing documents from collection: ' . $result['err']);
         }
         
         return $this;
@@ -362,22 +365,35 @@ class Collection implements \Countable
     public function insertMultiple($rows)
     {
         $document = $this->createDocument();
-        
         foreach($rows as $row) {
             $document->merge($row);
             
             if(!$document->isValid()) {
-                throw new Exception('Document invalid');
+                throw new ValidateException('Document invalid');
             }
             
             $document->reset();
         }
         
         $result = $this->_mongoCollection->batchInsert($rows);
-        if(!$result || $result['ok'] != 1) {
-            throw new Exception('Batch insert error: ' . $result['err']);
+
+        // If the w parameter is set to acknowledge the write,
+        // returns an associative array with the status of the inserts ("ok")
+        // and any error that may have occurred ("err").
+        if(is_array($result)) {
+            if($result['ok'] != 1) {
+                throw new Exception('Batch insert error: ' . $result['err']);
+            }
+
+            return $this;
         }
-        
+
+        // Otherwise, returns TRUE if the batch insert was successfully sent,
+        // FALSE otherwise.
+        if(!$result) {
+            throw new Exception('Batch insert error');
+        }
+
         return $this;
     }
     
@@ -391,10 +407,21 @@ class Collection implements \Countable
     public function insert(array $document)
     {
         $result = $this->_mongoCollection->insert($document);
-        if(!$result || $result['ok'] != 1) {
-            throw new Exception('Insert error: ' . $result['err']);
+
+        // if write concern acknowledged
+        if(is_array($result)) {
+            if($result['ok'] != 1) {
+                throw new Exception('Insert error: ' . $result['err']);
+            }
+
+            return $this;
         }
-        
+
+        // if write concern unacknowledged
+        if(!$result) {
+            throw new Exception('Insert error');
+        }
+
         return $this;
     }
     
@@ -405,7 +432,7 @@ class Collection implements \Countable
      * @param \Sokil\Mongo\Operator|array $updateData new data or commands
      *  to update
      * @return \Sokil\Mongo\Collection
-     * @throws Exception
+     * @throws \Sokil\Mongo\Exception
      */
     public function updateMultiple(Expression $expression, $updateData)
     {

@@ -162,11 +162,43 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $collection->delete();
     }
-    
+
+    public function testDeleteCollection_UnexistedCollection()
+    {
+        $collection = self::$database->getCollection('UNEXISTED_COLLECTION_NAME');
+        $collection->delete();
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Error deleting collection phpmongo_test_collection: Some strange error
+     */
+    public function testDeleteCollection_ExceptionOnCollectionDeleteError()
+    {
+        $collectionMock = $this->getMock(
+            '\MongoCollection',
+            array('drop'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $collectionMock
+            ->expects($this->once())
+            ->method('drop')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'errmsg' => 'Some strange error',
+            )));
+
+        $collection = new Collection(self::$database, $collectionMock);
+
+        $collection->delete();
+    }
+
     public function testDeleteDocuments()
     {
         // get collection
-        $collection = self::$database->getCollection('phpmongo_test_collection');
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection');
         $collection->delete();
         
         // add
@@ -181,13 +213,68 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         // test
         $this->assertEquals(2, count($collection));
     }
-    
-    public function testDeleteUnexistedColelction()
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Delete document error: Some strange error
+     */
+    public function testDeleteDocument_ErrorDeletingDocument()
     {
-        $collection = self::$database->getCollection('UNEXISTED_COLLECTION_NAME');
-        $collection->delete();
+        $collectionMock = $this->getMock(
+            '\MongoCollection',
+            array('remove'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $collectionMock
+            ->expects($this->once())
+            ->method('remove')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'err' => 'Some strange error',
+            )));
+
+        $collection = new Collection(self::$database, $collectionMock);
+
+        $document = $collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $collection->deleteDocument($document);
     }
-    
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Error removing documents from collection: Some strange error
+     */
+    public function testDeleteDocuments_ErrorDeletingDocuments()
+    {
+        $collectionMock = $this->getMock(
+            '\MongoCollection',
+            array('remove'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $collectionMock
+            ->expects($this->once())
+            ->method('remove')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'err' => 'Some strange error',
+            )));
+
+        $collection = new Collection(self::$database, $collectionMock);
+
+        $collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $collection->deleteDocuments(
+            $collection->expression()
+                ->where('param', 'value')
+        );
+    }
+
     public function testUpdateMultiple()
     {
         // get collection
@@ -377,15 +464,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('A', 'B', 'C'), $distinctValues);
     }
     
-    public function testInsertMultiple()
+    public function testInsertMultiple_Acknowledged()
     {
         $collection = self::$database
-            ->getCollection('phpmongo_test_collection');
+            ->getCollection('phpmongo_test_collection')
+            ->setMajorityWriteConcern();
         
-        $collection->insertMultiple(array(
-            array('a' => 1, 'b' => 2),
-            array('a' => 3, 'b' => 4),
-        ));
+        $collection
+            ->insertMultiple(array(
+                array('a' => 1, 'b' => 2),
+                array('a' => 3, 'b' => 4),
+            ));
         
         $document = $collection->find()->where('a', 1)->findOne();
         
@@ -393,11 +482,127 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(2, $document->b);
     }
-    
-    public function testInsert()
+
+    public function testInsertMultiple_Unacknovledged()
     {
         $collection = self::$database
-            ->getCollection('phpmongo_test_collection');
+            ->getCollection('phpmongo_test_collection')
+            ->setUnacknowledgedWriteConcern();
+
+        $collection
+            ->insertMultiple(array(
+                array('a' => 1, 'b' => 2),
+                array('a' => 3, 'b' => 4),
+            ));
+
+        $document = $collection->find()->where('a', 1)->findOne();
+
+        $this->assertNotEmpty($document);
+
+        $this->assertEquals(2, $document->b);
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Document\Exception\Validate
+     * @expectedExceptionMessage Document invalid
+     */
+    public function testInsertMultiple_ValidateError()
+    {
+        // mock collection
+        $collectionMock = $this->getMock(
+            '\Sokil\Mongo\Collection',
+            array('createDocument'),
+            array(self::$database, 'phpmongo_test_collection')
+        );
+
+        // mock document
+        $documentMock = $this->getMock(
+            'Sokil\Mongo\Document',
+            array('rules'),
+            array($collectionMock)
+        );
+
+        // implement validation rules
+        $documentMock
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('a', 'email'),
+            )));
+
+        // replace creating document with mocked
+        $collectionMock
+            ->expects($this->once())
+            ->method('createDocument')
+            ->will($this->returnValue($documentMock));
+
+        // insert multiple
+        $collectionMock->insertMultiple(array(
+            array('a' => 1, 'b' => 2),
+            array('a' => 3, 'b' => 4),
+        ));
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Batch insert error: Some strange error
+     */
+    public function testInsertMultiple_ErrorInsertingWithAcknowledgeWrite()
+    {
+        $collectionMock = $this->getMock(
+            '\MongoCollection',
+            array('batchInsert'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $collectionMock
+            ->expects($this->once())
+            ->method('batchInsert')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'err' => 'Some strange error',
+            )));
+
+        $collection = new Collection(self::$database, $collectionMock);
+
+        // insert multiple
+        $collection->insertMultiple(array(
+            array('a' => 1, 'b' => 2),
+            array('a' => 3, 'b' => 4),
+        ));
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Batch insert error
+     */
+    public function testInsertMultiple_ErrorInsertingWithUnacknowledgeWrite()
+    {
+        $collectionMock = $this->getMock(
+            '\MongoCollection',
+            array('batchInsert'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $collectionMock
+            ->expects($this->once())
+            ->method('batchInsert')
+            ->will($this->returnValue(false));
+
+        $collection = new Collection(self::$database, $collectionMock);
+
+        // insert multiple
+        $collection->insertMultiple(array(
+            array('a' => 1, 'b' => 2),
+            array('a' => 3, 'b' => 4),
+        ));
+    }
+    
+    public function testInsert_Acknowledged()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->setMajorityWriteConcern();
         
         $collection->insert(array('a' => 1, 'b' => 2));
         
@@ -405,6 +610,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $this->assertNotEmpty($document);
         
+        $this->assertEquals(2, $document->b);
+    }
+
+    public function testInsert_Unacknowledged()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->setUnacknowledgedWriteConcern();
+
+        $collection->insert(array('a' => 1, 'b' => 2));
+
+        $document = $collection->find()->where('a', 1)->findOne();
+
+        $this->assertNotEmpty($document);
+
         $this->assertEquals(2, $document->b);
     }
     

@@ -971,10 +971,7 @@ class Document extends Structure
             $data = $this->toArray();
             
             // save data
-            $status = $this->getCollection()->getMongoCollection()->insert($data);
-            if($status['ok'] != 1) {
-                throw new Exception('Insert error: ' . $status['err']);
-            }
+            $this->getCollection()->insert($data);
 
             // set id
             $this->defineId($data['_id']);

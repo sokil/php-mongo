@@ -36,13 +36,57 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 ),
             ),  
         ));
-        
+
+        $this->assertInstanceOf('\Sokil\Mongo\Client', $pool->get('connect2'));
+
+        $this->assertInstanceOf('\Sokil\Mongo\Client', $pool->connect2);
+
         $collectionClassName = $pool
             ->get('connect2')
             ->getDatabase('db2')
             ->getCollectionClassName('col2');
         
         $this->assertEquals('\Collection8', $collectionClassName);
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Connection with name unexistedConnection not found
+     */
+    public function testGetUnexistedConnection()
+    {
+        $pool = new ClientPool(array(
+            'connect1' => array(
+                'dsn' => 'mongodb://127.0.0.1',
+                'defaultDatabase' => 'db2',
+                'mapping' => array(
+                    'db1' => array(
+                        'col1' => '\Collection1',
+                        'col2' => '\Collection2',
+                    ),
+                    'db2' => array(
+                        'col1' => '\Collection3',
+                        'col2' => '\Collection4',
+                    )
+                ),
+            ),
+            'connect2' => array(
+                'dsn' => 'mongodb://127.0.0.1',
+                'defaultDatabase' => 'db2',
+                'mapping' => array(
+                    'db1' => array(
+                        'col1' => '\Collection5',
+                        'col2' => '\Collection6',
+                    ),
+                    'db2' => array(
+                        'col1' => '\Collection7',
+                        'col2' => '\Collection8',
+                    )
+                ),
+            ),
+        ));
+
+        var_dump($pool->unexistedConnection);
     }
     
     public function testGetFromDefaultDb()
