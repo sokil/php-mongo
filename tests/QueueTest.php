@@ -46,23 +46,25 @@ class QueueTest extends \PHPUnit_Framework_TestCase
     public function testDequeue()
     {
         $queue = self::$database->getQueue('queue_channel')->clear();
-        
+
+        // add normal
         $queue->enqueue(array(
             'param' => 1,
         ));
-        
+
+        // add with priority
         $queue->enqueue('priority-driven', 10);
-        
+
+        // add normal
         $queue->enqueue(array(
             'param' => 3,
         ));
-        
-        return;
-        
+
+        // check if message with priority first
         $this->assertEquals('priority-driven', $queue->dequeue());
-        
+
         $this->assertEquals(1, $queue->dequeue()->get('param'));
-        
+
         $this->assertEquals(3, $queue->dequeue()->get('param'));
     }
     

@@ -67,7 +67,14 @@ class Queue implements \Countable
     public function dequeue()
     {
         $value = $this->dequeuePlain();
-        return is_array($value) ? new Structure($value) : $value;
+        if(!is_array($value)) {
+            return $value;
+        }
+
+        $structure = new Structure();
+        $structure->mergeUnmodified($value);
+
+        return $structure;
     }
     
     /**
