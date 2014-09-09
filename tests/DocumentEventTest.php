@@ -192,4 +192,38 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         
         $this->assertTrue($status->done);
     }
+
+
+    public function testAttachEvent()
+    {
+        $document = self::$collection
+            ->createDocument(array(
+                'p' => 'v'
+            ));
+
+        $document->attachEvent('someEventName', function() {});
+
+        $this->assertTrue($document->hasEvent('someEventName'));
+
+        $this->assertFalse($document->hasEvent('someUNEXISTEDEventName'));
+    }
+
+    public function testTriggerEvent()
+    {
+        $status = new \stdclass;
+        $status->done = false;
+
+        $document = self::$collection
+            ->createDocument(array(
+                'p' => 'v'
+            ));
+
+        $document->attachEvent('someEventName', function() use($status) {
+            $status->done = true;
+        });
+
+        $document->triggerEvent('someEventName');
+
+        $this->assertTrue($status->done);
+    }
 }

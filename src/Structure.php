@@ -65,7 +65,7 @@ class Structure
         // prepare structure
         $structure =  new $className();
         if(!($structure instanceof Structure)) {
-            throw new Exception('Wring structure class specified');
+            throw new Exception('Wrong structure class specified');
         }
         
         return clone $structure->merge($data);
@@ -82,20 +82,20 @@ class Structure
     public function getObjectList($selector, $className)
     {
         $data = $this->get($selector);
-        if(!$data) {
+        if(!$data || !is_array($data)) {
             return array();
         }
-        
+
         // class name is string
         if(is_string($className)) {
-            
+
             $structure = new $className();
             if(!($structure instanceof Structure)) {
                 throw new Exception('Wrong structure class specified');
             }
 
             return array_map(function($dataItem) use($structure) {
-                return clone $structure->merge($dataItem);
+                return clone $structure->mergeUnmodified($dataItem);
             }, $data);
         }
         
@@ -113,7 +113,7 @@ class Structure
                 if(empty($structurePrototypePool[$classNameString])) {
                     $structurePrototypePool[$classNameString] = new $classNameString;
                     if(!($structurePrototypePool[$classNameString] instanceof Structure)) {
-                        throw new Exception('Wring structure class specified');
+                        throw new Exception('Wrong structure class specified');
                     }
                 }
 

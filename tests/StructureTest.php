@@ -176,7 +176,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('b' => array('c' => array('d' => 'value'))), $structure->get('a'));
     }
     
-    public function testGetObject()
+    public function testGetObject_StringClass()
     {
         $structure = new Structure;
         $structure->set('param1', 'value1');
@@ -196,8 +196,24 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('b', $structureWrapper->get('b'));
         $this->assertEquals('def-c', $structureWrapper->get('c'));
     }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong structure class specified
+     */
+    public function testGetObject_StringClass_NotExtendStructure()
+    {
+        $structure = new Structure;
+        $structure->set('param1', 'value1');
+        $structure->set('param2', array(
+            'a' => 'a',
+            'b' => 'b'
+        ));
+
+        $structure->getObject('param1', '\stdClass');
+    }
     
-    public function testGetObjectWithClusureClassName()
+    public function testGetObject_ClosureClass()
     {
         $structure = new Structure;
         $structure->set('param1', 'value1');
@@ -216,37 +232,99 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('b', $structureWrapper->get('b'));
         $this->assertEquals('def-c', $structureWrapper->get('c'));
     }
-    
-    public function testGetObjectListWithClusureClassName()
+
+    public function testGetObjectList_StringClass()
+    {
+        $structure = new Structure;
+        $structure->set('param1', array(
+            array('a' => 'a0'),
+            array('a' => 'a1'),
+        ));
+
+        // get unexited key
+        $this->assertEquals(array(), $structure->getObjectList('unexisted-param', '\Sokil\Mongo\StructureWrapper'));
+
+        // get existed key
+        $list = $structure->getObjectList('param1', '\Sokil\Mongo\StructureWrapper');
+        foreach($list as $i => $item) {
+            $this->assertInstanceOf('\Sokil\Mongo\StructureWrapper', $item);
+            $this->assertEquals('a' . $i, $item->a);
+        }
+    }
+
+    public function testGetObjectList_ClosureClass()
+    {
+        $structure = new Structure;
+        $structure->set('param1', array(
+            array('a' => 'a0'),
+            array('a' => 'a1'),
+        ));
+
+        $list = $structure->getObjectList('param1', function($data) {
+            return '\Sokil\Mongo\StructureWrapper';
+        });
+
+        $this->assertEquals('array', gettype($list));
+        $this->assertEquals(2, count($list));
+
+        foreach($list as $i => $item) {
+            $this->assertInstanceOf('\Sokil\Mongo\StructureWrapper', $item);
+            $this->assertEquals('a' . $i, $item->a);
+        }
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong structure class specified
+     */
+    public function testGetObjectList_StringClass_NotExtendStructure()
+    {
+        $structure = new Structure;
+        $structure->set('param1', array(
+            array('a' => 'a1'),
+            array('a' => 'a2'),
+        ));
+
+        $structure->getObjectList('param1', '\stdClass');
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong structure class specified
+     */
+    public function testGetObjectList_ClosureClass_NotExtendStructure()
     {
         $structure = new Structure;
         $structure->set('param1', 'value1');
         $structure->set('param2', array(
             array('a' => 'a1'),
         ));
-        
-        // get unexited key
-        $this->assertEquals(array(), $structure->getObjectList('unexisted-param', '\Sokil\Mongo\StructureWrapper'));
-        
+
         // get object
-        $structureList = $structure->getObjectList('param2', function($data) {
-            return '\Sokil\Mongo\StructureWrapper';
+        $structure->getObjectList('param2', function($data) {
+            return '\stdClass';
         });
-        
-        // tests
-        $this->assertEquals('array', gettype($structureList));
-        $this->assertEquals(1, count($structureList));
-        
-        $this->assertInstanceOf('\Sokil\Mongo\StructureWrapper', $structureList[0]);
-        
-        $this->assertEquals('a1', $structureList[0]->get('a'));
-        $this->assertEquals('def-b', $structureList[0]->get('b'));
-        $this->assertEquals('def-c', $structureList[0]->get('c'));
     }
-    
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong class name specified. Use string or closure
+     */
+    public function testGetObjectList_ClassNotClosureAndValidClassName()
+    {
+        $structure = new Structure;
+        $structure->set('param1', 'value1');
+        $structure->set('param2', array(
+            array('a' => 'a1'),
+        ));
+
+        // get object
+        $structure->getObjectList('param2', 42);
+    }
+
     public function testGetModifiedFields()
     {
-        $structure = new \Sokil\Mongo\Structure;
+        $structure = new Structure;
         $structure->set('param1', 'value');
         $structure->set('param2.subparam', 'value');
         

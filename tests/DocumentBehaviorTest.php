@@ -35,14 +35,25 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
         self::$collection = $database->getCollection('phpmongo_test_collection');
     }
     
-    
     public function testExecuteBehavior()
     {
         $document = self::$collection->createDocument(array('param' => 0));
-        
+
         $document->attachBehavior('get42', new SomeBehavior());
         
         $this->assertEquals(42, $document->return42());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Document has no method "unexistedMethod"
+     */
+    public function test__call_MethodNotFound()
+    {
+        $document = self::$collection->createDocument(array('param' => 0));
+        $document->attachBehavior('get42', new SomeBehavior());
+
+        $document->unexistedMethod();
     }
     
     public function testBehaviorOwner()

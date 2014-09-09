@@ -285,6 +285,17 @@ class Document extends Structure
         $this->_eventDispatcher->addListener($event, $handler);
         return $this;
     }
+
+    /**
+     * Check if event attached
+     *
+     * @param string $event event name
+     * @return bool
+     */
+    public function hasEvent($event)
+    {
+        return $this->_eventDispatcher->hasListeners($event);
+    }
     
     public function onAfterConstruct($handler)
     {
