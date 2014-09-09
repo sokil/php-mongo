@@ -67,7 +67,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $structure->set('a.b', 2);
     }
     
-    public function testUnset()
+    public function testUnset_ValidFieldWithDots()
     {
         $structure = new Structure;
         $structure->merge(array(
@@ -94,6 +94,53 @@ class StructureTest extends \PHPUnit_Framework_TestCase
                     'a22'   => 2,
                 ),
             )
+        ), $structure->toArray());
+    }
+
+    public function testUnset_InvalidFieldWithDots()
+    {
+        $structure = new Structure;
+        $structure->merge(array(
+            'a' => array(
+                'a1'    => array(
+                    'a11'   => 1,
+                    'a12'   => 2,
+                ),
+                'a2'    => array(
+                    'a21'   => 1,
+                    'a22'   => 2,
+                ),
+            )
+        ));
+
+        $structure->unsetField('a.zzz.a21');
+        $this->assertEquals(array(
+            'a' => array(
+                'a1'    => array(
+                    'a11'   => 1,
+                    'a12'   => 2,
+                ),
+                'a2'    => array(
+                    'a21'   => 1,
+                    'a22'   => 2,
+                ),
+            )
+        ), $structure->toArray());
+    }
+
+    public function testUnset_ValidFieldWithoutDots()
+    {
+        $structure = new Structure;
+        $structure->merge(array(
+            'a' => 1,
+            'b' => 2,
+            'c' => 3,
+        ));
+
+        $structure->unsetField('b');
+        $this->assertEquals(array(
+            'a' => 1,
+            'c' => 3,
         ), $structure->toArray());
     }
     
@@ -274,5 +321,170 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         ));
         
         $this->assertTrue($structure->has('param'));
+    }
+
+    public function testMergeUnmodified_WithoutDots_NewKey()
+    {
+        $structure = new Structure;
+        $structure->mergeUnmodified(array('param1' => 'value1'));
+        $structure->mergeUnmodified(array('param2' => 'value2'));
+
+        $this->assertEquals(array(
+            'param1' => 'value1',
+            'param2' => 'value2',
+        ), $structure->toArray());
+    }
+
+    public function testMergeUnmodified_WithDots_NewKey()
+    {
+        $structure = new Structure;
+        $structure->mergeUnmodified(array('param1' => array('sub1' => 'value1')));
+        $structure->mergeUnmodified(array('param2' => array('sub2' => 'value2')));
+
+        $this->assertEquals(array(
+            'param1' => array('sub1' => 'value1'),
+            'param2' => array('sub2' => 'value2'),
+        ), $structure->toArray());
+    }
+
+    public function testMergeUnmodified_WithoutDots_ExistedKey()
+    {
+        $structure = new Structure;
+        $structure->mergeUnmodified(array('param' => 'value1'));
+        $structure->mergeUnmodified(array('param' => 'value2'));
+
+        $this->assertEquals(array(
+            'param' => 'value2',
+        ), $structure->toArray());
+    }
+
+    public function testMergeUnmodified_WithDots_ExistedKey()
+    {
+        $structure = new Structure;
+        $structure->mergeUnmodified(array('param' => array('sub1' => 'value1')));
+        $structure->mergeUnmodified(array('param' => array('sub2' => 'value2')));
+
+        $this->assertEquals(array(
+            'param' => array(
+                'sub1' => 'value1',
+                'sub2' => 'value2',
+            )
+        ), $structure->toArray());
+    }
+
+    public function testMergeModified_WithoutDots_NewKey()
+    {
+        $structure = new Structure;
+        $structure->merge(array('param1' => 'value1'));
+        $structure->merge(array('param2' => 'value2'));
+
+        $this->assertEquals(array(
+            'param1' => 'value1',
+            'param2' => 'value2',
+        ), $structure->toArray());
+
+        $this->assertTrue($structure->isModified('param1'));
+        $this->assertTrue($structure->isModified('param2'));
+    }
+
+    public function testMergeModified_WithDots_NewKey()
+    {
+        $structure = new Structure;
+        $structure->merge(array('param1' => array('sub1' => 'value1')));
+        $structure->merge(array('param2' => array('sub2' => 'value2')));
+
+        $this->assertEquals(array(
+            'param1' => array('sub1' => 'value1'),
+            'param2' => array('sub2' => 'value2'),
+        ), $structure->toArray());
+
+        $this->assertTrue($structure->isModified('param1'));
+        $this->assertTrue($structure->isModified('param2'));
+    }
+
+    public function testMergeModified_WithoutDots_ExistedKey()
+    {
+        $structure = new Structure;
+        $structure->merge(array('param' => 'value1'));
+        $structure->merge(array('param' => 'value2'));
+
+        $this->assertEquals(array(
+            'param' => 'value2',
+        ), $structure->toArray());
+
+        $this->assertTrue($structure->isModified('param'));
+    }
+
+    public function testMergeModified_WithDots_ExistedKey()
+    {
+        $structure = new Structure;
+        $structure->merge(array('param' => array('sub1' => 'value1')));
+        $structure->merge(array('param' => array('sub2' => 'value2')));
+
+        $this->assertEquals(array(
+            'param' => array(
+                'sub1' => 'value1',
+                'sub2' => 'value2',
+            )
+        ), $structure->toArray());
+
+        $this->assertTrue($structure->isModified('param'));
+    }
+
+    public function testLoad_setModifiedWithoutDots()
+    {
+        $structure = new Structure;
+
+        $structure->load(array(
+            'param' => 'value',
+        ), true);
+
+        $this->assertEquals('value', $structure->get('param'));
+
+        $this->assertTrue($structure->isModified('param'));
+    }
+
+    public function testLoad_setModifiedWithDots()
+    {
+        $structure = new Structure;
+
+        $structure->load(array(
+            'param' => array(
+                'subparam' => 'value',
+            )
+        ), true);
+
+        $this->assertEquals('value', $structure->get('param.subparam'));
+        return;
+
+        $this->assertTrue($structure->isModified('param.subparam'));
+    }
+
+    public function testLoad_setUnmodifiedWithoutDots()
+    {
+        $structure = new Structure;
+
+        $structure->load(array(
+            'param' => 'value',
+        ), false);
+
+        $this->assertEquals('value', $structure->get('param'));
+
+        $this->assertFalse($structure->isModified('param'));
+    }
+
+    public function testLoad_setUnmodifiedWithDots()
+    {
+        $structure = new Structure;
+
+        $structure->load(array(
+            'param' => array(
+                'subparam' => 'value',
+            )
+        ), false);
+
+        $this->assertEquals('value', $structure->get('param.subparam'));
+
+        $this->assertFalse($structure->isModified('param.subparam'));
     }
 }

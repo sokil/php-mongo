@@ -328,7 +328,7 @@ class Structure
     {
         foreach($source as $key => $value) {
             if(is_array($value) && isset($target[$key])) {
-                $this->_merge($target[$key], $value);
+                $this->_mergeUnmodified($target[$key], $value);
             }
             else {
                 $target[$key] = $value;
