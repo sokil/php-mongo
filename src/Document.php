@@ -265,12 +265,15 @@ class Document extends Structure
     
     /**
      * Manually trigger defined events
-     * @param string $event event name
+     * @param string $eventName event name
      * @return \Sokil\Mongo\Document
      */
-    public function triggerEvent($event)
+    public function triggerEvent($eventName)
     {
-        $this->_eventDispatcher->dispatch($event);
+        $event = new Event;
+        $event->setTarget($this);
+
+        $this->_eventDispatcher->dispatch($eventName, $event);
         return $this;
     }
     
@@ -383,16 +386,16 @@ class Document extends Structure
     public function defineId($id) {
         
         if($id instanceof \MongoId) {
-            try {
-                $this->_data['_id'] = new \MongoId($id);
-            } catch (\MongoException $e) {
-                $this->_data['_id'] = $id;
-            }
-        } else {
+            $this->_data['_id'] = $id;
+            return $this;
+        }
+
+        try {
+            $this->_data['_id'] = new \MongoId($id);
+        } catch (\MongoException $e) {
             $this->_data['_id'] = $id;
         }
-        
-        
+
         return $this;
     }
     
@@ -401,12 +404,17 @@ class Document extends Structure
      */
     public function setId($id) {
         
-        if(!($id instanceof \MongoId)) {
-            $id = new \MongoId($id);
+        if($id instanceof \MongoId) {
+            return $this->set('_id', $id);
         }
-        
-        $this->set('_id', $id);
-        
+
+        try {
+            return $this->set('_id', new \MongoId($id));
+        } catch(\MongoException $e) {
+            return $this->set('_id', $id);
+        }
+
+
         return $this;
     }
     
@@ -642,6 +650,8 @@ class Document extends Structure
      */
     public function validate()
     {
+        $this->triggerEvent('beforeValidate');
+
         if(!$this->isValid()) {
             $exception = new \Sokil\Mongo\Document\Exception\Validate('Document not valid');
             $exception->setDocument($this);
@@ -650,6 +660,8 @@ class Document extends Structure
             
             throw $exception;
         }
+
+        $this->triggerEvent('afterValidate');
     }
 
     public function hasErrors()
@@ -928,9 +940,7 @@ class Document extends Structure
         }
         
         if($validate) {
-            $this->triggerEvent('beforeValidate');
             $this->validate();
-            $this->triggerEvent('afterValidate');
         }
         
         // handle beforeSave event

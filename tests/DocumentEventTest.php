@@ -2,6 +2,19 @@
 
 namespace Sokil\Mongo;
 
+class DocumentWithAfterConstructEvent extends Document
+{
+    public $status;
+
+    public function beforeConstruct()
+    {
+        $that = $this;
+        $this->onAfterConstruct(function() use($that) {
+            $that->status = true;
+        });
+    }
+}
+
 class DocumentEventTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -32,7 +45,90 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
     public static function tearDownAfterClass() {
         self::$collection->delete();
     }
-    
+
+    public function testOnAfterConstruct()
+    {
+        $collectionMock = $this->getMock(
+            '\Sokil\Mongo\Collection',
+            array('getDocumentClassName'),
+            array(self::$collection->getDatabase(), 'phpmongo_test_collection')
+        );
+
+        $collectionMock
+            ->expects($this->once())
+            ->method('getDocumentClassName')
+            ->will($this->returnValue('\Sokil\Mongo\DocumentWithAfterConstructEvent'));
+
+        $document = $collectionMock->createDocument();
+
+        $this->assertEquals(true, $document->status);
+
+    }
+
+    public function testOnBeforeAfterValidate()
+    {
+        $documentMock = $this->getMock(
+            '\Sokil\Mongo\Document',
+            array('rules'),
+            array(self::$collection, array(
+                'e' => 'user@gmail.com',
+            ))
+        );
+
+        $documentMock
+            ->expects($this->once())
+            ->method('rules')
+            ->will($this->returnValue(
+                array(
+                    array('e', 'email', 'mx' => false),
+                )
+            ));
+
+        $documentMock
+            ->onBeforeValidate(function( $event, $eventName, $eventDispatcher) {
+                $event->getTarget()->status .= 'a';
+            })
+            ->onAfterValidate(function( $event, $eventName, $eventDispatcher) {
+                $event->getTarget()->status .= 'b';
+            });
+
+        $documentMock->validate();
+
+        $this->assertEquals('ab', $documentMock->status);
+
+    }
+
+    public function testOnValidateError()
+    {
+        $documentMock = $this->getMock(
+            '\Sokil\Mongo\Document',
+            array('rules'),
+            array(self::$collection, array(
+                'e' => 'wrongEmail',
+            ))
+        );
+
+        $documentMock
+            ->expects($this->once())
+            ->method('rules')
+            ->will($this->returnValue(
+                array(
+                    array('e', 'email', 'mx' => false),
+                )
+            ));
+
+        $documentMock->onValidateError(function($e) {
+            $e->getTarget()->status = 'error';
+        });
+
+        try {
+            $documentMock->validate();
+            $this->fail('Must be validate exception');
+        } catch(\Sokil\Mongo\Document\Exception\Validate $e) {
+            $this->assertEquals('error', $documentMock->status);
+        }
+    }
+
     public function testBeforeInsert()
     {
         $status = new \stdclass;

@@ -244,6 +244,34 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $document->set('some-field-name', 'abc123def');
         $this->assertTrue($document->isValid());
     }
+
+    public function testIsValid_FieldNull()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document',
+            array('rules'),
+            array(self::$collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'null')
+            )));
+
+        // required field empty
+        $this->assertTrue($document->isValid());
+
+        // required field set to wrong value
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+
+        // required field set to valid value
+        $document->set('some-field-name', null);
+        $this->assertTrue($document->isValid());
+    }
     
     public function testIsValid_FieldEmail()
     {
@@ -324,6 +352,29 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         // Field invalid
         $document->set('some-field-name', 'value');
         $this->assertFalse($document->isValid());
+    }
+
+    public function testIsValid_UnexistedValidator()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document',
+            array('rules', 'someFailedValidationMethod'),
+            array(self::$collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'SomeUnexistedValidator'),
+            )));
+
+        // required field empty
+        $this->assertTrue($document->isValid());
+
+        $document->set('some-field-name', 'value');
+        $this->assertTrue($document->isValid());
     }
     
     public function testTriggerError()

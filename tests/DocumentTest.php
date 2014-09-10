@@ -126,7 +126,28 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value22', $document->get('param2.param22'));
     }
 
-    public function testSetId()
+    public function testDefineId_AsMongoIdClass()
+    {
+        $id = new \MongoId();
+        $document = self::$collection->createDocument()->defineId($id);
+        $this->assertEquals($id, $document->getId());
+    }
+
+    public function testDefineId_AsStringThatCanBeMongoIdClass()
+    {
+        $id = '541073e62de5725a2a8b4567';
+        $document = self::$collection->createDocument()->defineId($id);
+        $this->assertEquals($id, (string) $document->getId());
+    }
+
+    public function testDefineId_AsVarchar()
+    {
+        $id = 'i_am_id';
+        $document = self::$collection->createDocument()->defineId($id);
+        $this->assertEquals($id, $document->getId());
+    }
+
+    public function testSetId_AsMongoIdClass()
     {
         // save document
         $id = new \MongoId();
@@ -140,7 +161,38 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         // delete document
         self::$collection->deleteDocument($doc);
-        
+    }
+
+    public function testSetId_AsStringThatCanBeMongoIdClass()
+    {
+        // save document
+        $id = '541073e62de5725a2a8b4567';
+
+        $doc = self::$collection->createDocument(array('a' => 'a'));
+        $doc->setId($id);
+        self::$collection->saveDocument($doc);
+
+        // find document
+        $this->assertNotEmpty(self::$collection->getDocument($id));
+
+        // delete document
+        self::$collection->deleteDocument($doc);
+    }
+
+    public function testSetId_AsVarchar()
+    {
+        // save document
+        $id = 'im_a_key';
+
+        $doc = self::$collection->createDocument(array('a' => 'a'));
+        $doc->setId($id);
+        self::$collection->saveDocument($doc);
+
+        // find document
+        $this->assertNotEmpty(self::$collection->getDocument($id));
+
+        // delete document
+        self::$collection->deleteDocument($doc);
     }
     
     public function testIsStored()
@@ -287,6 +339,20 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $doc->set('a.b', 2)->save();
     }
+
+    public function testSetScenario()
+    {
+        $document = self::$collection->createDocument();
+
+        $document->setScenario('SOME_SCENARIO');
+        $this->assertEquals('SOME_SCENARIO', $document->getScenario());
+
+        $this->assertTrue($document->isScenario('SOME_SCENARIO'));
+        $this->assertFalse($document->isScenario('SOME_WRONG_SCENARIO'));
+
+        $document->setNoScenario();
+        $this->assertNull($document->getScenario());
+    }
     
     public function testGetNull()
     {
@@ -418,6 +484,12 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'b' => 'b'
         ), $documentData);
     }
+
+    public function testUnsetUnexistedField()
+    {
+        $document = self::$collection->createDocument();
+        $document->unsetField('unexistedField');
+    }
     
     public function testAppend()
     {
@@ -443,7 +515,38 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('c' => array('value1', 'value2', 'value3')), $document->get('a.b'));
         $this->assertEquals(array('b' => array('c' => array('value1', 'value2', 'value3'))), $document->get('a'));
     }
-    
+
+    public function testDecrement()
+    {
+        /**
+         * Increment unsaved
+         */
+        $doc = self::$collection
+            ->createDocument(array('i' => 10));
+
+        // increment
+        $doc->decrement('j', 2);
+        $doc->decrement('j', 4);
+
+        // test
+        $this->assertEquals(-6, $doc->get('j'));
+
+        // save
+        $doc->save();
+
+        /**
+         * Test increment of document in cache
+         */
+        $doc = self::$collection->getDocument($doc->getId());
+        $this->assertEquals(-6, $doc->get('j'));
+
+        /**
+         * Test increment after reread from db
+         */
+        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $this->assertEquals(-6, $doc->get('j'));
+    }
+
     /**
      * @covers \Sokil\Mongo\Document::increment
      */
@@ -595,6 +698,25 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         self::$collection->saveDocument($doc);
         
         $this->assertEquals(array(1, 2), self::$collection->getDocument($doc->getId())->key);
+    }
+
+    public function testPushStructure()
+    {
+        // create document
+        $doc = self::$collection->createDocument(array(
+            'some' => 'some',
+        ));
+
+        $structure = new Structure();
+        $structure->mergeUnmodified(array('param' => 'value'));
+
+        $doc->push('field', $structure);
+        $doc->push('field', $structure);
+
+        $this->assertEquals(array(
+            array('param' => 'value'),
+            array('param' => 'value'),
+        ), $doc->get('field'));
     }
 
     public function testPushObjectToEmptyOnExistedDocument()
@@ -1018,7 +1140,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals('ACTIVE', $document->status);
     }
-    
+
     public function testRedefineDefaultFieldsInConstructor()
     {
         $document = new DocumentMock(self::$collection, array(
@@ -1040,7 +1162,31 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1984, $document->get('profile.birth.year'));
         $this->assertEquals(11, $document->get('profile.birth.day'));
     }
-    
+
+    public function testFromArray()
+    {
+        $document = new DocumentMock(self::$collection);
+
+        $document->fromArray(array(
+            'balance' => 123, // not existed key
+            'status' => 'DELETED', // update value
+            'profile' => array(
+                'name'  => 'UPDATED_NAME',
+                'birth'   => array(
+                    'day'   => 11,
+                ),
+            ),
+        ));
+
+        $this->assertEquals(123, $document->get('balance'));
+        $this->assertEquals('DELETED', $document->get('status'));
+
+        $this->assertEquals('UPDATED_NAME', $document->get('profile.name'));
+
+        $this->assertEquals(1984, $document->get('profile.birth.year'));
+        $this->assertEquals(11, $document->get('profile.birth.day'));
+    }
+
     public function testMerge()
     {
         $document = new DocumentMock(self::$collection);
@@ -1063,5 +1209,22 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(1984, $document->get('profile.birth.year'));
         $this->assertEquals(11, $document->get('profile.birth.day'));
+    }
+
+    /**
+     * Check of nothing changed on document whan save not required
+     */
+    public function testSave_SaveNotRequired()
+    {
+        $document = self::$collection->createDocument(array('p' => 'v'));
+        $document->save();
+
+        $this->assertFalse($document->isSaveRequired());
+        $this->assertTrue($document->isStored());
+
+        $savedDocument = clone $document;
+        $document->save();
+
+        $this->assertEquals($savedDocument, $document);
     }
 }
