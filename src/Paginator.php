@@ -37,8 +37,6 @@ class Paginator implements \Iterator
     {
         $this->_itemsOnPage = (int) $itemsOnPage;
         
-        $this->_cursor->limit($this->_itemsOnPage);
-        
         // define offset
         $this->_applyLimits();
         

@@ -2,7 +2,7 @@
 
 namespace Sokil\Mongo;
 
-class PaginatorTest extends \PHPUnit_Framework_testCase
+class PaginatorTest extends \PHPUnit_Framework_TestCase
 {
     /**
      *
@@ -51,6 +51,46 @@ class PaginatorTest extends \PHPUnit_Framework_testCase
             $d22->getId(), 
             $pager->current()->getId()
         );
+    }
+
+    public function testSetCursor()
+    {
+        self::$collection->delete();
+
+        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
+
+        $cursor = self::$collection->find();
+
+        $pager = new Paginator;
+        $pager
+            ->setItemsOnPage(1)
+            ->setCurrentPage(2)
+            ->setCursor($cursor);
+
+        $this->assertEquals($d12->getId(), $pager->key());
+    }
+
+    public function testSetQueryBuilder()
+    {
+        self::$collection->delete();
+
+        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
+
+        $cursor = self::$collection->find();
+
+        $pager = new Paginator;
+        $pager
+            ->setItemsOnPage(1)
+            ->setCurrentPage(2)
+            ->setQueryBuilder($cursor);
+
+        $this->assertEquals($d12->getId(), $pager->key());
     }
     
     public function testPaginatorWhenPageExistsAndRowsLessThenItemsOnPage()
@@ -124,5 +164,37 @@ class PaginatorTest extends \PHPUnit_Framework_testCase
             ->paginate(10, 20);
         
         $this->assertNull($pager->current());
+    }
+
+    public function testPaginatorIteratorInterface()
+    {
+        self::$collection->delete();
+
+        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
+
+        $pager = self::$collection
+            ->find()
+            ->paginate(20, 2);
+
+        $this->assertEquals($d21->getId(), $pager->current()->getId());
+        $this->assertEquals((string) $d21->getId(), $pager->key());
+        $this->assertTrue($pager->valid());
+
+        $pager->next();
+
+        $this->assertEquals($d22->getId(), $pager->current()->getId());
+        $this->assertEquals((string) $d22->getId(), $pager->key());
+        $this->assertTrue($pager->valid());
+
+        $pager->next();
+        $this->assertFalse($pager->valid());
+
+        $pager->rewind();
+
+        $this->assertEquals($d21->getId(), $pager->current()->getId());
+        $this->assertEquals((string) $d21->getId(), $pager->key());
     }
 }

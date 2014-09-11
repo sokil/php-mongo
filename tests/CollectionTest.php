@@ -930,6 +930,28 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         ), $collection->getWriteConcern());
     }
 
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Error setting write concern
+     */
+    public function testSetWriteConcern_Error()
+    {
+        $mongoCollectionMock = $this->getMock(
+            '\MongoCollection',
+            array('setWriteConcern'),
+            array(self::$database->getMongoDB(), 'test')
+        );
+
+        $mongoCollectionMock
+            ->expects($this->once())
+            ->method('setWriteConcern')
+            ->will($this->returnValue(false));
+
+        $collection = new Collection(self::$database, $mongoCollectionMock);
+
+        $collection->setWriteConcern(1);
+    }
+
     public function testSetUnacknowledgedWriteConcern()
     {
         $collection = self::$database->getCollection('phpmongo_test_collection');
@@ -952,5 +974,100 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             'w' => 'majority',
             'wtimeout' => 13000
         ), $collection->getWriteConcern());
+    }
+
+    public function testEnsureIndex()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        $collection->ensureIndex(array(
+            'asc'    => 1,
+            'desc'   => -1,
+        ));
+
+        $indexes = $collection->getIndexes();
+
+        $this->assertEquals(array(
+            'asc'     => 1,
+            'desc'    => -1,
+        ), $indexes[1]['key']);
+
+        $collection->delete();
+
+    }
+
+    public function testEnsureSparseIndex()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        $collection->ensureSparseIndex(array(
+            'sparseAsc'     => 1,
+            'sparseDesc'    => -1,
+        ));
+
+        $indexes = $collection->getIndexes();
+
+        $this->assertEquals(array(
+            'sparseAsc'     => 1,
+            'sparseDesc'    => -1,
+        ), $indexes[1]['key']);
+
+        $this->assertArrayHasKey('sparse', $indexes[1]);
+
+        $collection->delete();
+
+    }
+
+    public function testEnsureTTLIndex()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        $collection->ensureTTLIndex(array(
+            'ttlAsc'    => 1,
+            'ttlDesc'   => -1,
+        ), 12000);
+
+        $indexes = $collection->getIndexes();
+
+        $this->assertEquals(array(
+            'ttlAsc'     => 1,
+            'ttlDesc'    => -1,
+        ), $indexes[1]['key']);
+
+        $this->assertArrayHasKey('expireAfterSeconds', $indexes[1]);
+        $this->assertEquals(12000, $indexes[1]['expireAfterSeconds']);
+
+        $collection->delete();
+
+    }
+
+    public function testEnsureUniqueIndex()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        $collection->ensureUniqueIndex(array(
+            'uniqueAsc'     => 1,
+            'uniqueDesc'    => -1,
+        ), true);
+
+        $indexes = $collection->getIndexes();
+
+        $this->assertEquals(array(
+            'uniqueAsc'     => 1,
+            'uniqueDesc'    => -1,
+        ), $indexes[1]['key']);
+
+        $this->assertArrayHasKey('dropDups', $indexes[1]);
+        $this->assertEquals(1, $indexes[1]['dropDups']);
+
+        $collection->delete();
     }
 }

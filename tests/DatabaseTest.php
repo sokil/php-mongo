@@ -378,11 +378,6 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $database = new Database(self::$database->getClient(), $mongoDatabaseMock);
 
         $database->setWriteConcern(1);
-
-        $this->assertEquals(array(
-            'w' => 'majority',
-            'wtimeout' => 12000
-        ), $database->getWriteConcern());
     }
 
     public function testSetUnacknowledgedWriteConcern()

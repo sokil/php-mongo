@@ -363,6 +363,46 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals($documentId, $document->getId());
     }
+
+    public function testWhereArraySize()
+    {
+        // create new document
+        self::$collection->delete();
+
+        self::$collection
+            ->createDocument(array(
+                'param'    => array(),
+            ))
+            ->save();
+
+        self::$collection
+            ->createDocument(array(
+                'param'    => array('value1'),
+            ))
+            ->save();
+
+        $documentId = self::$collection
+            ->createDocument(array(
+                'param'    => array('value1', 'value2'),
+            ))
+            ->save()
+            ->getId();
+
+        self::$collection
+            ->createDocument(array(
+                'param'    => array('value1', 'value2', 'value3'),
+            ))
+            ->save();
+
+        // find all rows
+        $document = self::$collection->find()
+            ->whereArraySize('param', 2)
+            ->findOne();
+
+        $this->assertNotEmpty($document);
+
+        $this->assertEquals($documentId, $document->getId());
+    }
     
     public function testWhereLike()
     {
@@ -850,6 +890,62 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'some-field' => 'some-value'
         ), $queryArray);
+    }
+
+    public function testWhereGreaterOrEqual()
+    {
+        self::$collection->delete();
+
+        for($i = 0; $i < 10; $i++) {
+            self::$collection->createDocument(array('p' => $i))->save();
+        }
+
+        $documents = self::$collection->find()->whereGreaterOrEqual('p', 4)->findAll();
+        $this->assertEquals(6, count($documents));
+        foreach($documents as $document) {
+            $this->assertGreaterThanOrEqual(4, $document->p);
+        }
+    }
+
+    public function testWhereLessOrEqual()
+    {
+        self::$collection->delete();
+
+        for($i = 0; $i < 10; $i++) {
+            self::$collection->createDocument(array('p' => $i))->save();
+        }
+
+        $documents = self::$collection->find()->whereLessOrEqual('p', 4)->findAll();
+        $this->assertEquals(5, count($documents));
+        foreach($documents as $document) {
+            $this->assertLessThanOrEqual(4, $document->p);
+        }
+    }
+
+    public function testWhereAll()
+    {
+        self::$collection->delete();
+
+        $documentId = self::$collection
+            ->createDocument(array('p' => array(
+                1, 2, 3, 4, 5
+            )))
+            ->save()
+            ->getId();
+
+        self::$collection->createDocument(array('p' => array(
+            3, 4, 5, 6, 7
+        )))->save();
+
+        $documents = self::$collection
+            ->find()
+            ->whereAll('p', array(1, 4))
+            ->findAll();
+
+        $this->assertEquals(1, count($documents));
+
+        $document = current($documents);
+        $this->assertEquals($documentId, $document->getId());
     }
     
     /**

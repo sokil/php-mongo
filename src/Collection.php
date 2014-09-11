@@ -662,6 +662,15 @@ class Collection implements \Countable
         
         return $this;
     }
+
+    /**
+     * Get index info
+     * @return array
+     */
+    public function getIndexes()
+    {
+        return $this->_mongoCollection->getIndexInfo();
+    }
     
     public function readPrimaryOnly()
     {
