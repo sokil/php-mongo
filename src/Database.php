@@ -76,10 +76,20 @@ class Database
         return $this;
     }
 
+    public function isCollectionPoolEnabled()
+    {
+        return $this->_collectionPoolEnabled;
+    }
+
     public function clearCollectionPool()
     {
         $this->_collectionPool = array();
         return $this;
+    }
+
+    public function isCollectionPoolEmpty()
+    {
+        return !$this->_collectionPool;
     }
 
     /**
@@ -140,7 +150,7 @@ class Database
         if(isset($this->_mapping[$name])) {
             $className = $this->_mapping[$name];
         } elseif($this->_classPrefix) {
-            $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', strtolower($name))));
+            $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
         } else {
             $className = '\Sokil\Mongo\Collection';
         }
@@ -158,7 +168,7 @@ class Database
         if(isset($this->_mapping[$name])) {
             $className = $this->_mapping[$name];
         } elseif($this->_classPrefix) {
-            $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', strtolower($name))));
+            $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
         } else {
             $className = '\Sokil\Mongo\GridFS';
         }

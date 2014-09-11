@@ -44,7 +44,63 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     {
         self::$database->resetMapping();
     }
-    
+
+    public function testGetCollection()
+    {
+        $this->assertInstanceof(
+            '\Sokil\Mongo\Collection',
+            self::$database->getCollection('collection')
+        );
+
+        $this->assertInstanceof(
+            '\Sokil\Mongo\Collection',
+            self::$database->collection
+        );
+    }
+
+    public function testEnableCollectionPool()
+    {
+        self::$database->clearCollectionPool();
+
+        // disable collection pool
+        self::$database->disableCollectionPool();
+        $this->assertFalse(self::$database->isCollectionPoolEnabled());
+
+        // create collection
+        self::$database->getCollection('phpmongo_test_collection_1');
+
+        // check if collection in pool
+        $this->assertTrue(self::$database->isCollectionPoolEmpty());
+
+        // enable collection pool
+        self::$database->enableCollectionPool();
+        $this->assertTrue(self::$database->isCollectionPoolEnabled());
+
+        // read collection to pool
+        self::$database->getCollection('phpmongo_test_collection_2');
+
+        // check if document in pool
+        $this->assertFalse(self::$database->isCollectionPoolEmpty());
+
+        // clear document pool
+        self::$database->clearCollectionPool();
+        $this->assertTrue(self::$database->isCollectionPoolEmpty());
+
+        // disable document pool
+        self::$database->disableCollectionPool();
+        $this->assertFalse(self::$database->isCollectionPoolEnabled());
+    }
+
+    /**
+     * @expectedException Sokil\Mongo\Exception
+     * @expectedExceptionMessage Class \WrongClass not found while map collection name to class
+     */
+    public function testCreateCollection()
+    {
+        self::$database->map('collection', '\WrongClass');
+        self::$database->createCollection('collection');
+    }
+
     public function testStats()
     {
         $stats = self::$database->stats();
@@ -108,6 +164,57 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $id = $fs->storeBytes('hello');
         $file = $fs->getFileById($id);
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotoGridFSFile', $file);
+    }
+
+    public function testMapCollectionToClass()
+    {
+        self::$database->map('collection', '\Sokil\Mongo\CarsCollection');
+        self::$database->map('gridfs', '\Sokil\Mongo\CarPhotosGridFS');
+
+        // create collection
+        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', self::$database->getCollection('collection'));
+
+        // create document
+        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', self::$database->getCollection('collection')->createDocument());
+
+        // create grid fs
+        $fs = self::$database->getGridFS('gridfs');
+        $this->assertInstanceOf('\Sokil\Mongo\CarPhotosGridFS', $fs);
+
+        // create file
+        $id = $fs->storeBytes('hello');
+        $file = $fs->getFileById($id);
+        $this->assertInstanceOf('\Sokil\Mongo\CarPhotoGridFSFile', $file);
+    }
+
+    public function testGetMapping()
+    {
+        self::$database->map(array(
+            'collection'    => '\Sokil\Mongo\CarsCollection',
+            'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
+        ));
+
+        // test if mapping exists
+        $this->assertEquals(array(
+            'collection'    => '\Sokil\Mongo\CarsCollection',
+            'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
+        ), self::$database->getMapping());
+    }
+
+    public function testGetGridFSClassName_Classpath()
+    {
+        self::$database->resetMapping();
+        self::$database->map('\Sokil\Mongo');
+
+        $this->assertEquals(
+            '\Sokil\Mongo\CarPhotosGridFS',
+            self::$database->getGridFSClassName('carPhotosGridFS')
+        );
+
+        $this->assertEquals(
+            '\Sokil\Mongo\CarPhotosGridFS',
+            self::$database->getGridFSClassName('CarPhotosGridFS')
+        );
     }
 
     /**
