@@ -93,6 +93,19 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException Sokil\Mongo\Exception
+     * @expectedExceptionMessage Size or number of elements must be defined
+     */
+    public function testCreateCappedCollection()
+    {
+        self::$database->createCappedCollection(
+            'collection',
+            'swong_size',
+            'wrong_number'
+        );
+    }
+
+    /**
+     * @expectedException Sokil\Mongo\Exception
      * @expectedExceptionMessage Class \WrongClass not found while map collection name to class
      */
     public function testCreateCollection()
@@ -189,6 +202,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMapping()
     {
+        self::$database->resetMapping();
         self::$database->map(array(
             'collection'    => '\Sokil\Mongo\CarsCollection',
             'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
@@ -199,6 +213,20 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             'collection'    => '\Sokil\Mongo\CarsCollection',
             'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
         ), self::$database->getMapping());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Class \ThisClassIsNotExists not found while map collection name to class
+     */
+    public function testGetCollection_UnexistedClassInMapping()
+    {
+        self::$database->resetMapping();
+        self::$database->map(array(
+            'collection'    => '\ThisClassIsNotExists',
+        ));
+
+        self::$database->getCollection('collection');
     }
 
     public function testGetGridFSClassName_Classpath()
@@ -328,6 +356,33 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             'w' => 'majority',
             'wtimeout' => 12000
         ), self::$database->getWriteConcern());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Error setting write concern
+     */
+    public function testSetWriteConcern_Error()
+    {
+        $mongoDatabaseMock = $this->getMock(
+            '\MongoDB',
+            array('setWriteConcern'),
+            array(self::$database->getClient()->getConnection(), 'test')
+        );
+
+        $mongoDatabaseMock
+            ->expects($this->once())
+            ->method('setWriteConcern')
+            ->will($this->returnValue(false));
+
+        $database = new Database(self::$database->getClient(), $mongoDatabaseMock);
+
+        $database->setWriteConcern(1);
+
+        $this->assertEquals(array(
+            'w' => 'majority',
+            'wtimeout' => 12000
+        ), $database->getWriteConcern());
     }
 
     public function testSetUnacknowledgedWriteConcern()

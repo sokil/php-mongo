@@ -10,8 +10,6 @@ class Database
      */
     private $_client;
     
-    private $_databaseName;
-    
     /**
      *
      * @var \MongoDB
@@ -26,11 +24,15 @@ class Database
 
     private $_collectionPoolEnabled = true;
     
-    public function __construct(Client $client, $databaseName) {
+    public function __construct(Client $client, $database) {
         $this->_client = $client;
-        $this->_databaseName = $databaseName;
-        
-        $this->_mongoDB = $this->_client->getConnection()->selectDB($databaseName);
+
+        if($database instanceof \MongoDB) {
+            $this->_mongoDB = $database;
+        } else {
+            $this->_mongoDB = $this->_client->getConnection()->selectDB($database);
+        }
+
     }
     
     public function __get($name)
@@ -43,7 +45,7 @@ class Database
      */
     public function getName()
     {
-        return $this->_databaseName;
+        return (string) $this->_mongoDB;
     }
     
     /**
