@@ -1227,4 +1227,40 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($savedDocument, $document);
     }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Update error: some_strange_error: Some strange error
+     */
+    public function testSave_UpdateError()
+    {
+        $mongoCollectionMock = $this->getMock(
+            '\MongoCollection',
+            array('update'),
+            array(
+                self::$collection->getDatabase()->getMongoDb(),
+                'phpmongo_test_collection'
+            )
+        );
+
+        $mongoCollectionMock
+            ->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue(array(
+                'ok'        => (double) 0,
+                'err'       => 'some_strange_error',
+                'errmsg'    => 'Some strange error',
+            )));
+
+        $collection = new Collection(
+            self::$collection->getDatabase(),
+            $mongoCollectionMock
+        );
+
+        // create document
+        $document = $collection->createDocument(array('p' => 'v'))->save();
+
+        // update document with error
+        $document->set('p', 'v1')->save();
+    }
 }
