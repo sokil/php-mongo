@@ -192,16 +192,41 @@ abstract class Cursor implements \Iterator, \Countable
     public static function mixedToMongoIdList(array $list)
     {
         return array_map(function($element) {
+            // MongoId
             if($element instanceof \MongoId) {
                 return $element;
             }
 
+            // \Sokil\Mongo\Document
             if($element instanceof Document) {
                 return $element->getId();
             }
 
-            return new \MongoId($element);
-        }, $list);
+            // array with id key
+            if(is_array($element)) {
+                if(!isset($element['_id'])) {
+                    throw new \InvalidArgumentException('Array must have _id key');
+                }
+                return $element['_id'];
+            }
+
+            // string
+            if(is_string($element)) {
+                try {
+                    return new \MongoId($element);
+                } catch (\MongoException $e) {
+                    return $element;
+                }
+            }
+
+            // int
+            if(is_int($element)) {
+                return $element;
+            }
+
+            throw new \InvalidArgumentException('Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer');
+
+        }, array_values($list));
     }
 
     /**

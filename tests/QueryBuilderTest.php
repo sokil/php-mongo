@@ -19,7 +19,8 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $database = $client->getDatabase('test');
         
         // select collection
-        self::$collection = $database->getCollection('phpmongo_test_collection');
+        self::$collection = $database
+            ->getCollection('phpmongo_test_collection');
     }
     
     public function testReturnSpecifiedFields()
@@ -134,21 +135,143 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         // create new document
         self::$collection->delete();
         
-        $document = self::$collection->createDocument(array(
-            'some-field'    => 'some-value',
-        ));
-        
-        self::$collection->saveDocument($document);
+        self::$collection
+            ->createDocument(array(
+                'someField'    => 'A',
+            ))
+            ->save();
+
+        self::$collection
+            ->createDocument(array(
+                'someField'    => 'B',
+            ))
+            ->save();
+
+        $documentId = self::$collection
+            ->createDocument(array(
+                'someField'    => 'C',
+            ))
+            ->save()
+            ->getId();
         
         // find existed row
-        $document = self::$collection->find()->where('some-field', 'some-value')->findOne();
-        $this->assertNotEmpty($document);
+        $document = self::$collection
+            ->find()
+            ->where('someField', 'C')
+            ->findOne();
+
+        $this->assertEquals($documentId, $document->getId());
         
         // find unexisted row
-        $document = self::$collection->find()->where('some-unexisted-field', 'some-value')->findOne();
+        $document = self::$collection
+            ->find()
+            ->where('some-unexisted-field', 'some-value')
+            ->findOne();
+
         $this->assertEmpty($document);
     }
-    
+
+    public function testQuery()
+    {
+        $exp1 = new Expression;
+        $exp1->whereGreater('b', 1);
+
+        $exp2 = new Expression;
+        $exp1->whereLess('b', 20);
+
+        $query = self::$collection->find();
+        $query->query($exp1);
+        $query->query($exp2);
+
+        $this->assertEquals(array(
+            'b' => array(
+                '$gt' => 1,
+                '$lt' => 20,
+            ),
+        ), $query->toArray());
+    }
+
+    public function testMixedToMongoIdList()
+    {
+        self::$collection->delete();
+
+        // create new document
+        $document = self::$collection
+            ->createDocument(array(
+                'p1'    => 'v',
+                'p2'    => 'doc1',
+            ))
+            ->save();
+
+        $this->assertEquals(array(
+            1,
+            'varchar_id',
+            new \MongoId('5412ac982de57284568b4567'),
+            new \MongoId('5412ac982de57284568b4568'),
+            new \MongoId('5412ac982de57284568b4569'),
+            $document->getId(),
+        ), Cursor::mixedToMongoIdList(array(
+            1,
+            'varchar_id',
+            '5412ac982de57284568b4567',
+            new \MongoId('5412ac982de57284568b4568'),
+            array('_id' => new \MongoId('5412ac982de57284568b4569'), 'param' => 'value'),
+            $document
+        )));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer
+     */
+    public function testMixedToMongoIdList_InvalidType()
+    {
+        Cursor::mixedToMongoIdList(array(
+            new \stdClass,
+        ));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Array must have _id key
+     */
+    public function testMixedToMongoIdList_ArrayWithoutIdKey()
+    {
+        Cursor::mixedToMongoIdList(array(
+            array('param' => 'value'),
+        ));
+    }
+
+    public function testGetIdList()
+    {
+        self::$collection->delete();
+
+        // create new document
+        $document1Id = self::$collection
+            ->createDocument(array(
+                'p'    => 1,
+            ))
+            ->save()
+            ->getId();
+
+        // create new document
+        $document2Id = self::$collection
+            ->createDocument(array(
+                'p'    => 1,
+            ))
+            ->save()
+            ->getId();
+
+        $this->assertEquals(array(
+            $document1Id,
+            $document2Id,
+        ), self::$collection
+            ->find()
+            ->sort(array('p' => 1))
+            ->getIdList()
+        );
+    }
+
     public function testFindRandom()
     {
         self::$collection->delete();
@@ -222,6 +345,51 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         $document = self::$collection->findAsArray()->where('some-field', 'some-value')->findOne();
         $this->assertEquals('array', gettype($document));
         
+    }
+
+    public function testSort()
+    {
+        self::$collection->createDocument(array('p' => 'A'))->save();
+        self::$collection->createDocument(array('p' => 'B'))->save();
+        self::$collection->createDocument(array('p' => 'C'))->save();
+
+        $documentId = self::$collection
+            ->createDocument(array('p' => 'D'))
+            ->save()
+            ->getId();
+
+        $document = self::$collection
+            ->find()
+            ->sort(array('p' => -1));
+
+        $this->assertEquals('D', $document->current()->p);
+    }
+
+    public function testLogger()
+    {
+        self::$collection->delete();
+
+        // create documents
+        self::$collection->createDocument(array('param' => 1))->save();
+        self::$collection->createDocument(array('param' => 2))->save();
+        self::$collection->createDocument(array('param' => 3))->save();
+        self::$collection->createDocument(array('param' => 4))->save();
+
+        // create logger
+        $logger = $this->getMock('\Psr\Log\LoggerInterface');
+        $logger
+            ->expects($this->once())
+            ->method('debug')
+            ->with('Sokil\Mongo\QueryBuilder: {"collection":"phpmongo_test_collection","query":{"param":2},"project":[],"sort":[]}');
+
+        // set logger to client
+        self::$collection
+            ->getDatabase()
+            ->getClient()
+            ->setLogger($logger);
+
+        // aggregate
+        self::$collection->find()->where('param', 2)->findAll();
     }
     
     public function testSearchInArrayField()
@@ -1021,6 +1189,20 @@ class SearchTest extends \PHPUnit_Framework_TestCase
             '_id'       => $d11->getId()
         ), $document->toArray());
     }
+
+    public function testFindAndUpdate_NoDocumentsFound()
+    {
+        self::$collection->delete();
+
+        $document = self::$collection
+            ->find()
+            ->where('param1', 1)
+            ->findAndUpdate(
+                self::$collection->operator()->set('newParam', '777')
+            );
+
+        $this->assertNull($document);
+    }
     
     public function testFindAndRemove()
     {
@@ -1048,7 +1230,32 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(3, count(self::$collection));
     }
-    
+
+    public function testLimit()
+    {
+        self::$collection->delete();
+
+        self::$collection->createDocument(array('param' => 1))->save();
+        self::$collection->createDocument(array('param' => 2))->save();
+        self::$collection->createDocument(array('param' => 3))->save();
+        self::$collection->createDocument(array('param' => 4))->save();
+
+        $list = self::$collection
+            ->find()
+            ->limit(2, 2)
+            ->findAll();
+
+        $this->assertEquals(2, count($list));
+
+        $document = current($list);
+        $this->assertEquals(3, $document->param);
+
+        next($list);
+
+        $document = current($list);
+        $this->assertEquals(4, $document->param);
+    }
+
     public function testCount()
     {
         self::$collection->delete();
@@ -1099,5 +1306,103 @@ class SearchTest extends \PHPUnit_Framework_TestCase
             ->explain();
         
         $this->assertArrayHasKey('cursor', $explain);
+    }
+
+    public function testReadPrimaryOnly()
+    {
+        $qb = self::$collection
+            ->find()
+            ->readPrimaryOnly();
+
+        $this->assertEquals(array(
+            'type'      => \MongoClient::RP_PRIMARY,
+            'tagsets' => array(),
+        ), $qb->getReadPreference());
+
+        $qb->current();
+
+        $this->assertEquals(array(
+            'type'      => \MongoClient::RP_PRIMARY,
+        ), $qb->getReadPreference());
+    }
+
+    public function testReadPrimaryPreferred()
+    {
+        $qb = self::$collection
+            ->find()
+            ->readPrimaryPreferred(array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ));
+
+        $qb->current();
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_PRIMARY_PREFERRED,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), $qb->getReadPreference());
+    }
+
+    public function testReadSecondaryOnly(array $tags = null)
+    {
+        $qb = self::$collection
+            ->find()
+            ->readSecondaryOnly(array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ));
+
+        $qb->current();
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_SECONDARY,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), $qb->getReadPreference());
+    }
+
+    public function testReadSecondaryPreferred(array $tags = null)
+    {
+        $qb = self::$collection
+            ->find()
+            ->readSecondaryPreferred(array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ));
+
+        $qb->current();
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_SECONDARY_PREFERRED,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), $qb->getReadPreference());
+    }
+
+    public function testReadNearest(array $tags = null)
+    {
+        $qb = self::$collection
+            ->find()
+            ->readNearest(array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ));
+
+        $qb->current();
+
+        $this->assertEquals(array(
+            'type' => \MongoClient::RP_NEAREST,
+            'tagsets' => array(
+                array('dc' => 'kyiv'),
+                array('dc' => 'lviv'),
+            ),
+        ), $qb->getReadPreference());
     }
 }
