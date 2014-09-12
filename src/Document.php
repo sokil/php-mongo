@@ -867,6 +867,26 @@ class Document extends Structure
         return $this;
     }
 
+    public function pushEach($fieldName, array $values)
+    {
+        // document already saved - need command
+        if($this->getId()) {
+            $this->_operator->pushEach($fieldName, $values);
+        }
+
+        // update local value
+        $oldValue = $this->get($fieldName);
+
+        parent::set(
+            $fieldName,
+            $oldValue
+                ? array_merge((array) $oldValue, $values)
+                : $values
+        );
+
+        return $this;
+    }
+
     /**
      * Push each element of argument's array as single element to field value
      *

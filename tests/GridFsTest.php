@@ -56,21 +56,42 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\MongoId', $id);
         $fs->delete();
     }
-    
-    public function testGet()
+
+    public function testGetFileById_MongoIdArgument()
     {
         $fs = self::$database->getGridFs('images');
-        
+
         $id = $fs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
-        
-        $file = $fs->getFileById($id);
-        
-        $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);
-        
-        $this->assertEquals(1, $file->get('meta1'));
+
+        $this->assertNotEmpty($fs->getFileById($id));
+    }
+
+    public function testGetFileById_StringArgument()
+    {
+        $fs = self::$database->getGridFs('images');
+
+        $id = $fs->storeBytes('somebinarydata', array(
+            'meta1' => 1,
+            'meta2' => 2,
+        ));
+
+        $this->assertNotEmpty($fs->getFileById((string) $id));
+    }
+
+    public function testGetFileById_VarcharArgument()
+    {
+        $fs = self::$database->getGridFs('images');
+
+        $id = $fs->storeBytes('somebinarydata', array(
+            '_id'   => 'varchar_id',
+            'meta1' => 1,
+            'meta2' => 2,
+        ));
+
+        $this->assertNotEmpty($fs->getFileById('varchar_id'));
     }
     
     public function testDelete()
@@ -134,5 +155,33 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         ));
         
         $this->assertTrue(is_resource($fs->getFileById($id)->getResource()));
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Error deleting file: some_error: Some error message
+     */
+    public function testDeleteFileById_WithAcknowledgedWriteConcern()
+    {
+        $mongoGridFsMock = $this->getMock(
+            '\MongoGridFS',
+            array('delete'),
+            array(self::$database->getMongoDB(), 'images')
+        );
+
+        $mongoGridFsMock
+            ->expects($this->once())
+            ->method('delete')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'err' => 'some_error',
+                'errmsg' => 'Some error message',
+            )));
+
+        $gridFS = new GridFS(self::$database, $mongoGridFsMock);
+
+        $id = $gridFS->storeBytes('data');
+
+        $gridFS->deleteFileById($id);
     }
 }

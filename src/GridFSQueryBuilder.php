@@ -18,10 +18,6 @@ class GridFSQueryBuilder extends Cursor
      */
     protected function toObject($file)
     {
-        if(!($file instanceof \MongoGridFSFile)) {
-            throw new Exception('Must be instance of \MongoGridFSFile');
-        }
-        
         $fileClassName = $this->_collection->getFileClassName($file);
         
         return new $fileClassName($this->_collection, $file);

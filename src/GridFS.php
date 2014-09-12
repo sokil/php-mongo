@@ -12,11 +12,15 @@ class GridFS extends Collection
 {
     protected $_queryBuilderClass = '\Sokil\Mongo\GridFSQueryBuilder';
     
-    public function __construct(Database $database, $prefix = 'fs')
+    public function __construct(Database $database, $collection = 'fs')
     {
         $this->_database = $database;
 
-        $this->_mongoCollection = new \MongoGridFS($database->getMongoDB(), $prefix);
+        if($collection instanceof \MongoGridFS) {
+            $this->_mongoCollection = $collection;
+        } else {
+           $this->_mongoCollection = new \MongoGridFS($database->getMongoDB(), $collection);
+        }
     }
     
     /**
@@ -92,7 +96,7 @@ class GridFS extends Collection
     {
         $result = $this->_mongoCollection->delete($id);
         if($result['ok'] !== (double) 1) {
-            throw new Exception('Error deleting file');
+            throw new Exception('Error deleting file: ' . $result['err'] . ': ' . $result['errmsg']);
         }
         
         return $this;
