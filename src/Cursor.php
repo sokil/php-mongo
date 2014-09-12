@@ -36,7 +36,7 @@ abstract class Cursor implements \Iterator, \Countable
     
     private $_sort = array();
     
-    private $_readPreferences = array();
+    private $_readPreference = array();
     
     /**
      *
@@ -135,10 +135,6 @@ abstract class Cursor implements \Iterator, \Countable
         $skip   = (int) $skip;
         
         if($skip) {
-            if(!$limit) {
-                throw new Exception('Limit must be specified');
-            }
-            
             $this->_fields[$field] = array('$slice' => array($skip, $limit));
         }
         else {
@@ -177,24 +173,33 @@ abstract class Cursor implements \Iterator, \Countable
     {
         return $this->_expression;
     }
-    
+
+    /**
+     * Gte list of \MongoId of current search query
+     * @return array
+     */
+    public function getIdList()
+    {
+        return self::mixedToMongoIdList($this->findAll());
+    }
+
     /**
      * Get list of MongoId objects from array of strings, MongoId's and Document's
-     * 
+     *
      * @param array $list
      * @return array list of \MongoId
      */
-    public function getIdList(array $list)
+    public static function mixedToMongoIdList(array $list)
     {
         return array_map(function($element) {
             if($element instanceof \MongoId) {
                 return $element;
             }
-            
+
             if($element instanceof Document) {
                 return $element->getId();
             }
-            
+
             return new \MongoId($element);
         }, $list);
     }
@@ -207,7 +212,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function byIdList(array $idList)
     {
-        $this->_expression->whereIn('_id', $this->getIdList($idList));
+        $this->_expression->whereIn('_id', self::mixedToMongoIdList($idList));
         return $this;
     }
 
@@ -306,7 +311,7 @@ abstract class Cursor implements \Iterator, \Countable
         // log request
         if($this->_client->hasLogger()) {
             $this->_client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
-                'collection'    => $this->_collection->getName(), 
+                'collection'    => $this->_collection->getName(),
                 'query'         => $this->_expression->toArray(),
                 'project'       => $this->_fields,
                 'sort'          => $this->_sort,
@@ -316,10 +321,11 @@ abstract class Cursor implements \Iterator, \Countable
         $this->_cursor->rewind();
         
         // define read preferences
-        if($this->_readPreferences) {
-            foreach($this->_readPreferences as $readPreference => $tags) {
-                $this->_cursor->setReadPreference($readPreference, $tags);
-            }
+        if($this->_readPreference) {
+            $this->_cursor->setReadPreference(
+                $this->_readPreference['type'],
+                $this->_readPreference['tagsets']
+            );
         }
         
         return $this->_cursor;
@@ -401,19 +407,30 @@ abstract class Cursor implements \Iterator, \Countable
         
         return $this->toObject($mongoDocument);
     }
-    
-    public function findAndUpdate(Operator $operator, $upsert = false)
+
+    /**
+     * Find first document and update it
+     *
+     * @param Operator $operator operations with document to update
+     * @param bool $upsert if document not found - create
+     * @param bool $returnUpdated if true - return updated document
+     *
+     * @return null|Document
+     */
+    public function findAndUpdate(Operator $operator, $upsert = false, $returnUpdated = true)
     {
-        $mongoDocument = $this->_collection->getMongoCollection()->findAndModify(
-            $this->_expression->toArray(),
-            $operator ? $operator->getAll() : null,
-            $this->_fields,
-            array(
-                'new'       => true,
-                'sort'      => $this->_sort,
-                'upsert'    => $upsert,
-            )
-        );
+        $mongoDocument = $this->_collection
+            ->getMongoCollection()
+            ->findAndModify(
+                $this->_expression->toArray(),
+                $operator ? $operator->getAll() : null,
+                $this->_fields,
+                array(
+                    'new'       => $returnUpdated,
+                    'sort'      => $this->_sort,
+                    'upsert'    => $upsert,
+                )
+            );
         
         if(!$mongoDocument) {
             return null;
@@ -534,31 +551,60 @@ abstract class Cursor implements \Iterator, \Countable
     
     public function readPrimaryOnly()
     {
-        $this->_readPreferences[\MongoClient::RP_PRIMARY] = null;
+        $this->_readPreference = array(
+            'type'      => \MongoClient::RP_PRIMARY,
+            'tagsets'   => array(),
+        );
+
         return $this;
     }
     
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->_readPreferences[\MongoClient::RP_PRIMARY_PREFERRED] = $tags;
+        $this->_readPreference = array(
+            'type'      => \MongoClient::RP_PRIMARY_PREFERRED,
+            'tagsets'   => $tags,
+        );
+
         return $this;
     }
     
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->_readPreferences[\MongoClient::RP_SECONDARY] = $tags;
+        $this->_readPreference = array(
+            'type'      => \MongoClient::RP_SECONDARY,
+            'tagsets'   => $tags,
+        );
+
         return $this;
     }
     
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->_readPreferences[\MongoClient::RP_SECONDARY_PREFERRED] = $tags;
+        $this->_readPreference = array(
+            'type'      => \MongoClient::RP_SECONDARY_PREFERRED,
+            'tagsets'   => $tags,
+        );
+
         return $this;
     }
     
     public function readNearest(array $tags = null)
     {
-        $this->_readPreferences[\MongoClient::RP_NEAREST] = $tags;
+        $this->_readPreference = array(
+            'type'      => \MongoClient::RP_NEAREST,
+            'tagsets'   => $tags,
+        );
+
         return $this;
+    }
+
+    public function getReadPreference()
+    {
+        if($this->_cursor) {
+            return $this->_cursor->getReadPreference();
+        }
+
+        return $this->_readPreference;
     }
 }
