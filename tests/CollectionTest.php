@@ -275,11 +275,13 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testUpdateMultiple()
+    public function testUpdateMultiple_WithAcknowledgedWriteConcern()
     {
         // get collection
-        $collection = self::$database->getCollection('phpmongo_test_collection');
-        $collection->delete();
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete()
+            ->setWriteConcern(1);
         
         // create documents
         $d1 = $collection->createDocument(array('p' => 1));
@@ -299,12 +301,41 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             $this->assertArrayHasKey('k', $document->toArray());
         }
     }
-    
-    public function testUpdateMultipleOnEmptyExpression()
+
+    public function testUpdateMultiple_WithUnacknowledgedWriteConcern()
     {
         // get collection
-        $collection = self::$database->getCollection('phpmongo_test_collection');
-        $collection->delete();
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete()
+            ->setUnacknowledgedWriteConcern();
+
+        // create documents
+        $d1 = $collection->createDocument(array('p' => 1));
+        $collection->saveDocument($d1);
+
+        $d2 = $collection->createDocument(array('p' => 1));
+        $collection->saveDocument($d2);
+
+        // packet update
+        $collection->updateMultiple(
+            $collection->expression()->where('p', 1),
+            $collection->operator()->set('k', 'v')
+        );
+
+        // test
+        foreach($collection->find() as $document) {
+            $this->assertArrayHasKey('k', $document->toArray());
+        }
+    }
+    
+    public function testUpdateAll_WithAcknowledgedWriteConcern()
+    {
+        // get collection
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete()
+            ->setWriteConcern(1);
         
         // create documents
         $d1 = $collection->createDocument(array('p' => 1));
@@ -322,6 +353,160 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         foreach($collection->find() as $document) {
             $this->assertArrayHasKey('k', $document->toArray());
         }
+    }
+
+    public function testUpdateAll_WithUnacknowledgedWriteConcern()
+    {
+        // get collection
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete()
+            ->setUnacknowledgedWriteConcern();
+
+        // create documents
+        $d1 = $collection->createDocument(array('p' => 1));
+        $collection->saveDocument($d1);
+
+        $d2 = $collection->createDocument(array('p' => 1));
+        $collection->saveDocument($d2);
+
+        // packet update
+        $collection->updateAll(
+            $collection->operator()->set('k', 'v')
+        );
+
+        // test
+        foreach($collection->find() as $document) {
+            $this->assertArrayHasKey('k', $document->toArray());
+        }
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Multiple update error: some_strange_error: Some strange error
+     */
+    public function testUpdateMultiple_ErrorWithWriteConcern()
+    {
+        // mock mongo's collection
+        $mongoCollectionMock = $this->getMock(
+            '\MongoCollection',
+            array('update'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $mongoCollectionMock
+            ->expects($this->once())
+            ->method('update')
+            ->with(
+                $this->isType('array'),
+                $this->isType('array'),
+                $this->arrayHasKey('multiple')
+            )
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'err' => 'some_strange_error',
+                'errmsg' => 'Some strange error',
+            )));
+
+        // create collection with mocked original mongo collection
+        $collection = new Collection(self::$database, $mongoCollectionMock);
+        $collection->setWriteConcern(1);
+
+        $collection->updateMultiple(new Expression(), new Operator());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Multiple update error
+     */
+    public function testUpdateMultiple_ErrorWithUnacknowledgedWriteConcern()
+    {
+        // mock mongo's collection
+        $mongoCollectionMock = $this->getMock(
+            '\MongoCollection',
+            array('update'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $mongoCollectionMock
+            ->expects($this->once())
+            ->method('update')
+            ->with(
+                $this->isType('array'),
+                $this->isType('array'),
+                $this->arrayHasKey('multiple')
+            )
+            ->will($this->returnValue(false));
+
+        // create collection with mocked original mongo collection
+        $collection = new Collection(self::$database, $mongoCollectionMock);
+        $collection->setUnacknowledgedWriteConcern();
+
+        $collection->updateMultiple(new Expression(), new Operator());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Update error: some_strange_error: Some strange error
+     */
+    public function testUpdateAll_ErrorWithWriteConcern()
+    {
+        // mock mongo's collection
+        $mongoCollectionMock = $this->getMock(
+            '\MongoCollection',
+            array('update'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $mongoCollectionMock
+            ->expects($this->once())
+            ->method('update')
+            ->with(
+                $this->isType('array'),
+                $this->isType('array'),
+                $this->arrayHasKey('multiple')
+            )
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'err' => 'some_strange_error',
+                'errmsg' => 'Some strange error',
+            )));
+
+        // create collection with mocked original mongo collection
+        $collection = new Collection(self::$database, $mongoCollectionMock);
+        $collection->setWriteConcern(1);
+
+        $collection->updateAll(new Operator());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Update error
+     */
+    public function testUpdateAll_ErrorWithUnacknowledgedWriteConcern()
+    {
+        // mock mongo's collection
+        $mongoCollectionMock = $this->getMock(
+            '\MongoCollection',
+            array('update'),
+            array(self::$database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $mongoCollectionMock
+            ->expects($this->once())
+            ->method('update')
+            ->with(
+                $this->isType('array'),
+                $this->isType('array'),
+                $this->arrayHasKey('multiple')
+            )
+            ->will($this->returnValue(false));
+
+        // create collection with mocked original mongo collection
+        $collection = new Collection(self::$database, $mongoCollectionMock);
+        $collection->setUnacknowledgedWriteConcern();
+
+        $collection->updateAll(new Operator());
     }
 
     public function testEnableDocumentPool()
@@ -782,6 +967,35 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->aggregate('hello');
     }
 
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Aggregate error: some_error
+     */
+    public function testAggregate_ServerSideError()
+    {
+        $mongoDatabaseMock = $this->getMock(
+            '\MongoDB',
+            array('command'),
+            array(self::$database->getClient()->getConnection(), 'test')
+        );
+
+        $mongoDatabaseMock
+            ->expects($this->once())
+            ->method('command')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'errmsg' => 'some_error',
+                'code' => 1785342,
+            )));
+
+        $database = new Database(self::$database->getClient(), $mongoDatabaseMock);
+        $database
+            ->getCollection('phpmongo_test_collection')
+            ->aggregate(array(
+                array('$match' => array('field' => 'value'))
+            ));
+    }
+
     public function testLogAggregateResults()
     {
         $collection = self::$database
@@ -833,6 +1047,56 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals('Explain of aggregation implemented only from 2.6.0', $e->getMessage());
         }
         
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Explain of aggregation implemented only from 2.6.0
+     */
+    public function testExplainAggregate_UnsupportedDbVersion()
+    {
+        // define db version where aggregate explanation supported
+        $clientMock = $this->getMock(
+            '\Sokil\Mongo\Client',
+            array('getDbVersion')
+        );
+
+        $clientMock
+            ->expects($this->once())
+            ->method('getDbVersion')
+            ->will($this->returnValue('2.4.0'));
+
+        $clientMock->setConnection(self::$database->getClient()->getConnection());
+
+        $clientMock
+            ->getDatabase('test')
+            ->getCollection('phpmongo_test_collection')
+            ->explainAggregate(array());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong pipelines specified
+     */
+    public function testExplainAggregate_WrongArgument()
+    {
+        // define db version where aggregate explanation supported
+        $clientMock = $this->getMock(
+            '\Sokil\Mongo\Client',
+            array('getDbVersion')
+        );
+
+        $clientMock
+            ->expects($this->once())
+            ->method('getDbVersion')
+            ->will($this->returnValue('2.6.0'));
+
+        $clientMock->setConnection(self::$database->getClient()->getConnection());
+
+        $collection = $clientMock
+            ->getDatabase('test')
+            ->getCollection('phpmongo_test_collection')
+            ->explainAggregate('wrong_argument');
     }
 
     public function testReadPrimaryOnly()
@@ -1067,6 +1331,71 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('dropDups', $indexes[1]);
         $this->assertEquals(1, $indexes[1]['dropDups']);
+
+        $collection->delete();
+    }
+
+    public function testInitIndexes()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        $reflection = new \ReflectionClass($collection);
+        $property = $reflection->getProperty('_index');
+        $property->setAccessible(true);
+
+        $property->setValue($collection, array(
+            array(
+                'keys' => array('asc' => 1, 'desc' => -1),
+                'unique' => true,
+            ),
+        ));
+
+        $collection->initIndexes();
+
+        $indexes = $collection->getIndexes();
+
+        $this->assertEquals(array(
+            'asc'     => 1,
+            'desc'    => -1,
+        ), $indexes[1]['key']);
+
+        $this->assertArrayHasKey('unique', $indexes[1]);
+
+        $collection->delete();
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Keys not specified
+     */
+    public function testInitIndexes_KeysNotSpecified()
+    {
+        $collection = self::$database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
+
+        $reflection = new \ReflectionClass($collection);
+        $property = $reflection->getProperty('_index');
+        $property->setAccessible(true);
+
+        $property->setValue($collection, array(
+            array(
+                'unique' => true,
+            ),
+        ));
+
+        $collection->initIndexes();
+
+        $indexes = $collection->getIndexes();
+
+        $this->assertEquals(array(
+            'asc'     => 1,
+            'desc'    => -1,
+        ), $indexes[1]['key']);
+
+        $this->assertArrayHasKey('unique', $indexes[1]);
 
         $collection->delete();
     }

@@ -29,7 +29,18 @@ class Collection implements \Countable
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
     
     /**
+     * List of arrays, where each item array is an index definition.
+     * Every index definition must contain key 'keys' with list of fields and orders,
+     * and optional options from @link http://php.net/manual/en/mongocollection.createindex.php:
      *
+     * Example:
+     * array(
+     *     array(
+     *         'keys' => array('field1' => 1, 'field2' => -1),
+     *         'unique' => true
+     *     ),
+     *     ...
+     * )
      * @var array list of indexes
      */
     protected $_index;
@@ -541,7 +552,7 @@ class Collection implements \Countable
         ));
         
         if($status['ok'] != 1) {
-            throw new Exception($status['errmsg']);
+            throw new Exception('Aggregate error: ' . $status['errmsg']);
         }
         
         return $status['result'];
@@ -651,7 +662,7 @@ class Collection implements \Countable
         foreach($this->_index as $options) {
             
             if(empty($options['keys'])) {
-                throw new \Exception('Keys not specified');
+                throw new Exception('Keys not specified');
             }
             
             $keys = $options['keys'];
