@@ -28,6 +28,7 @@ Why to use this library? You can easily work with document data through comforta
 * [Querying documents](#querying-documents)
 * [Pagination](#pagination)
 * [Update few documents](#update-few-documents)
+* [Persistence (Unit of Work)](#persistence-unit-of-work)
 * [Document validation](#document-validation)
 * [Deleting collections and documents](#deleting-collections-and-documents)
 * [Aggregation framework](#aggregation-framework)
@@ -424,6 +425,45 @@ $expression = $collection
 $collection
     ->multiUpdate($expression, array('field' => 'new value'));
 ```
+
+Persistence (Unit of Work)
+--------------------------
+
+Instead of saving and removing objects right now, we can queue this job and execute all changes at once. This may be done through well-known pattern Unit of Work.
+
+Lets create persistance manager
+```php
+$persistence = $client->createPersistence();
+```
+
+Now we can add some documents to be saved or removed later
+```php
+$persistence->persist($document1);
+$persistence->persist($document2);
+
+$persistence->remove($document3);
+$persistence->remove($document4);
+```
+
+If later we decice do not save or remove document, we may detach it from persistence manager
+```php
+$persistence->detach($document1);
+$persistence->detach($document3);
+```
+
+Or we even may remove them all:
+```php
+$persistence->clear();
+```
+
+Note that after detaching document from persistence manager, it's changes do not removed and document still may be saved directly or by adding to persistence manager.
+
+If we decide to store changes to databasae we may flush this changes:
+```php
+$persistence->flush();
+```
+
+Note that persisted documents do not deleted from persistence manager after flush, but removed will be deleted.
 
 Document validation
 -------------------
