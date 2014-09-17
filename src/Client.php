@@ -310,4 +310,13 @@ class Client
     {
         return $this->getConnection()->getWriteConcern();
     }
+
+    /**
+     * Create new persistence manager
+     * @return \Sokil\Mongo\Persistence
+     */
+    public function createPersistence()
+    {
+        return new Persistence($this);
+    }
 }
