@@ -28,7 +28,7 @@ Why to use this library? You can easily work with document data through comforta
 * [Querying documents](#querying-documents)
 * [Pagination](#pagination)
 * [Update few documents](#update-few-documents)
-* [Persistence (Unit of Work)](#persistence-unit-of-work))
+* [Persistence (Unit of Work)](#persistence-unit-of-work)
 * [Document validation](#document-validation)
 * [Deleting collections and documents](#deleting-collections-and-documents)
 * [Aggregation framework](#aggregation-framework)
