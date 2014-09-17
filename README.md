@@ -458,7 +458,7 @@ $persistence->clear();
 
 Note that after detaching document from persistence manager, it's changes do not removed and document still may be saved directly or by adding to persistence manager.
 
-If we decide to store changes to databasae we may fluch this changes:
+If we decide to store changes to databasae we may flush this changes:
 ```php
 $persistence->flush();
 ```
