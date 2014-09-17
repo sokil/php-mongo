@@ -13,7 +13,7 @@ before_script:
 script:
   - mongod --version
   - mkdir -p build/logs
-  - phpunit --bootstrap ./tests/bootstrap.php --coverage-clover build/logs/clover.xml tests
+  - phpunit --bootstrap ./tests/bootstrap.php -c tests/configuration.xml --coverage-clover build/logs/clover.xml tests
   
 after_script:
   - php ./vendor/bin/coveralls -v
