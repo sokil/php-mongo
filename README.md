@@ -441,8 +441,8 @@ Now we can add some documents to be saved or removed later
 $persistence->persist($document1);
 $persistence->persist($document2);
 
-$persistence->remova($document3);
-$persistence->remova($document4);
+$persistence->remove($document3);
+$persistence->remove($document4);
 ```
 
 If later we decice do not save or remove document, we may detach it from persistence manager
