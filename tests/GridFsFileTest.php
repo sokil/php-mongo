@@ -147,4 +147,13 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($fs->getFileById($id));
     }
+    
+    public function testGetMd5Checksum()
+    {
+        $fs = self::$database->getGridFs('images');
+        $id = $fs->storeBytes('somebinarydata');
+        $file = $fs->getFileById($id);
+        
+        $this->assertEquals(md5('somebinarydata'), $file->getMd5Checksum());
+    }
 }

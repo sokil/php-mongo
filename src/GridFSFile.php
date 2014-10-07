@@ -59,6 +59,11 @@ class GridFSFile extends Structure implements \Countable
         return $this->_file->getSize();
     }
     
+    public function getMd5Checksum()
+    {
+        return $this->_file->file['md5'];
+    }
+    
     public function save()
     {
         $this->_gridFS->getMongoCollection()->save($this->_file->file);
