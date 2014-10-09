@@ -47,7 +47,7 @@ class Operator
         }
     }
     
-    public function pushEach($fieldName, array $value)
+    public function pushEach($fieldName, array $values)
     {
         // no $push operator found
         if(!isset($this->_operators['$push'])) {
@@ -57,7 +57,7 @@ class Operator
         // no field name found
         if(!isset($this->_operators['$push'][$fieldName])) {
             $this->_operators['$push'][$fieldName] = array(
-                '$each' => $value
+                '$each' => $values
             );
         }
         
@@ -65,7 +65,7 @@ class Operator
         else if(!is_array($this->_operators['$push'][$fieldName]) || !isset($this->_operators['$push'][$fieldName]['$each'])) {
             $oldValue = $this->_operators['$push'][$fieldName];
             $this->_operators['$push'][$fieldName] = array(
-                '$each' => array_merge(array($oldValue), $value)
+                '$each' => array_merge(array($oldValue), $values)
             );
         }
         
@@ -73,9 +73,63 @@ class Operator
         else {
             $this->_operators['$push'][$fieldName]['$each'] = array_merge(
                 $this->_operators['$push'][$fieldName]['$each'],
-                $value
+                $values
             );
         }
+    }
+    
+    public function pushEachSlice($field, $slice)
+    {
+        $slice = (int) $slice;
+        
+        // add modifiers
+        if($slice <= 0) {
+            throw new Exception('Slice must be greater 0');
+        }
+        
+        if(!isset($this->_operators['$push'][$field]['$each'])) {
+            throw new Exception('Field ' . $field . ' must be pushed wit $each modifier');
+        }
+        
+        $this->_operators['$push'][$field]['$slice'] = $slice;
+        
+        return $this;
+    }
+    
+    public function pushEachSort($field, array $sort)
+    {
+        $slice = (int) $slice;
+        
+        // add modifiers
+        if(!$sort) {
+            throw new Exception('Sort condition is empty');
+        }
+        
+        if(!isset($this->_operators['$push'][$field]['$each'])) {
+            throw new Exception('Field ' . $field . ' must be pushed wit $each modifier');
+        }
+        
+        $this->_operators['$push'][$field]['$sort'] = $slice;
+        
+        return $this;
+    }
+    
+    public function pushEachPosition($field, $position)
+    {
+        $position = (int) $position;
+        
+        // add modifiers
+        if($position <= 0) {
+            throw new Exception('Position must be greater 0');
+        }
+        
+        if(!isset($this->_operators['$push'][$field]['$each'])) {
+            throw new Exception('Field ' . $field . ' must be pushed wit $each modifier');
+        }
+        
+        $this->_operators['$push'][$field]['$position'] = $position;
+        
+        return $this;
     }
     
     public function increment($fieldName, $value)
