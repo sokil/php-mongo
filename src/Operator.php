@@ -54,6 +54,9 @@ class Operator
     
     public function pushEach($fieldName, array $values)
     {
+        // value must be list, not dictionary
+        $values = array_values($values);
+        
         // no $push operator found
         if(!isset($this->_operators['$push'])) {
             $this->_operators['$push'] = array();
