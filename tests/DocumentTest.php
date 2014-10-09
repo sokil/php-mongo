@@ -700,53 +700,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(1, 2), self::$collection->getDocument($doc->getId())->key);
     }
 
-    public function testPushEach_OnUnsavedDocument()
-    {
-        // create document
-        $doc = self::$collection
-            ->createDocument(array(
-                'some' => 'some',
-            ));
-
-        // push single to empty
-        $doc->pushEach('key', array(1, 2));
-        $doc->push('key', 3);
-        $doc->pushEach('key', array(4, 5));
-
-        $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
-
-        self::$collection->saveDocument($doc);
-
-        $this->assertEquals(
-            array(1, 2, 3, 4, 5),
-            self::$collection->getDocumentDirectly($doc->getId())->key
-        );
-    }
-
-    public function testPushEach_OnSavedDocument()
-    {
-        // create document
-        $doc = self::$collection
-            ->createDocument(array(
-                'some' => 'some',
-            ))
-        ->save();
-
-        // push single to empty
-        $doc->pushEach('key', array(1, 2));
-        $doc->push('key', 3);
-        $doc->pushEach('key', array(4, 5));
-
-        $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
-
-        self::$collection->saveDocument($doc);
-
-        $this->assertEquals(
-            array(1, 2, 3, 4, 5),
-            self::$collection->getDocumentDirectly($doc->getId())->key
-        );
-    }
-
     public function testPushStructure()
     {
         // create document
@@ -956,7 +909,54 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('some1', 'some2', array('some3')), self::$collection->getDocument($doc->getId())->some);
     }
     
-    public function testPushFromArrayToEmptyOnExistedDocument()
+    public function testPushEach_OnUnsavedDocument()
+    {
+        // create document
+        $doc = self::$collection
+            ->createDocument(array(
+                'some' => 'some',
+            ));
+
+        // push single to empty
+        $doc->pushEach('key', array(1, 2));
+        $doc->push('key', 3);
+        $doc->pushEach('key', array(4, 5));
+
+        $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
+
+        self::$collection->saveDocument($doc);
+
+        $this->assertEquals(
+            array(1, 2, 3, 4, 5),
+            self::$collection->getDocumentDirectly($doc->getId())->key
+        );
+    }
+
+    public function testPushEach_OnSavedDocument()
+    {
+        // create document
+        $doc = self::$collection
+            ->createDocument(array(
+                'some' => 'some',
+            ))
+        ->save();
+
+        // push single to empty
+        $doc->pushEach('key', array(1, 2));
+        $doc->push('key', 3);
+        $doc->pushEach('key', array(4, 5));
+
+        $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
+
+        self::$collection->saveDocument($doc);
+
+        $this->assertEquals(
+            array(1, 2, 3, 4, 5),
+            self::$collection->getDocumentDirectly($doc->getId())->key
+        );
+    }
+    
+    public function testPushFromArray_ToEmpty_OnExistedDocument()
     {
         // create document
         $doc = self::$collection->createDocument(array(
@@ -973,7 +973,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     }
     
-    public function testPushFromArrayToSingleOnExistedDocument()
+    public function testPushFromArray_ToSingle_OnExistedDocument()
     {
         // create document
         $doc = self::$collection->createDocument(array(
@@ -990,7 +990,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     }
     
-    public function testPushFromArrayToArrayOnExistedDocument()
+    public function testPushFromArray_ToArray_OnExistedDocument()
     {
         // create document
         $doc = self::$collection->createDocument(array(
