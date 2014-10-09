@@ -867,57 +867,47 @@ class Document extends Structure
         return $this;
     }
 
+    /**
+     * Push each element of argument's array as single element to field value
+     * 
+     * @param string $fieldName
+     * @param array $values
+     * @return \Sokil\Mongo\Document
+     */
     public function pushEach($fieldName, array $values)
     {
-        // document already saved - need command
-        if($this->getId()) {
-            $this->_operator->pushEach($fieldName, $values);
-        }
-
-        // update local value
         $oldValue = $this->get($fieldName);
 
-        parent::set(
-            $fieldName,
-            $oldValue
-                ? array_merge((array) $oldValue, $values)
-                : $values
-        );
+        if ($this->getId()) {
+            if (!$oldValue) {
+                $this->_operator->pushEach($fieldName, $values);
+            } elseif (!is_array($oldValue)) {
+                $values = array_merge((array)$oldValue, $values);
+                $this->_operator->set($fieldName, $values);
+            } else {
+                $this->_operator->pushEach($fieldName, $values);
+                $values = array_merge($oldValue, $values);
+            }
+        } else {
+            if ($oldValue) {
+                $values = array_merge((array) $oldValue, $values);
+            }
+        }
 
-        return $this;
+        // update local data
+        parent::set($fieldName, $values);
     }
 
     /**
      * Push each element of argument's array as single element to field value
      *
+     * @deprecated since 1.6.0 use self::pushEach() instead
      * @param string $fieldName point-delimited field name
-     * @param array $value
+     * @param array $values
      */
-    public function pushFromArray($fieldName, array $value)
+    public function pushFromArray($fieldName, array $values)
     {
-        $oldValue = $this->get($fieldName);
-
-        if ($this->getId()) {
-            // field not exists
-            if (!$oldValue) {
-                $this->_operator->pushEach($fieldName, $value);
-            } // field already exist and has single value
-            else if (!is_array($oldValue)) {
-                $value = array_merge((array)$oldValue, $value);
-                $this->_operator->set($fieldName, $value);
-            } // field already exists and is array
-            else {
-                $this->_operator->pushEach($fieldName, $value);
-                $value = array_merge($oldValue, $value);
-            }
-        } else {
-            if ($oldValue) {
-                $value = array_merge((array) $oldValue, $value);
-            }
-        }
-
-        // update local data
-        parent::set($fieldName, $value);
+        return $this->pushEach($fieldName, $values);
     }
 
     /**
