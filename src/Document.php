@@ -189,14 +189,9 @@ class Document extends Structure
 
     public function __get($name)
     {
-        $relations = $this->relations();
-
-        if (isset($this->_resolvedRelations[$name])) {
-            // relation already resolved
-            return $this->_resolvedRelations[$name];
-        } elseif (isset($relations[$name])) {
+        if($this->_isRelationNameValid($name)) {
             // resolve relation
-            return $this->_resolveRelation($name);
+            return $this->getRelations($name);
         } else {
             // get document parameter
             return parent::__get($name);
@@ -214,12 +209,33 @@ class Document extends Structure
     }
 
     /**
-     * Load relation
-     * @param string $name name of relation
+     * Check if relation with specified name configured
+     * @param string $name
+     * @return boolean
      */
-    private function _resolveRelation($name)
+    private function _isRelationNameValid($name)
     {
         $relations = $this->relations();
+        
+        return isset($relations[$name]);
+    }
+    
+    /**
+     * Get related documents
+     * @param string $name name of relation
+     */
+    public function getRelations($name)
+    {
+        // check if relation already resolved
+        if (isset($this->_resolvedRelations[$name])) {
+            return $this->_resolvedRelations[$name];
+        }
+        
+        $relations = $this->relations();
+        if(!isset($relations[$name])) {
+            throw new Exception('Relation withg name "' . $name . '" not found');
+        }
+        
         $relation = $relations[$name];
 
         $relationType = $relation[0];
@@ -264,6 +280,16 @@ class Document extends Structure
         }
 
         return $this->_resolvedRelations[$name];
+    }
+    
+    public function addRelation($relationName, Document $document)
+    {
+        throw new \Exception('Not implemented');
+    }
+    
+    public function removeRelation($relationName, Document $document)
+    {
+        throw new \Exception('Not implemented');
     }
 
     /**
