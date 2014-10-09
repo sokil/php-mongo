@@ -189,15 +189,23 @@ class Document extends Structure
 
     public function __get($name)
     {
-        if($this->_isRelationNameValid($name)) {
+        if($this->_isRelationExists($name)) {
             // resolve relation
-            return $this->getRelations($name);
+            return $this->getRelated($name);
         } else {
             // get document parameter
             return parent::__get($name);
         }
     }
 
+    public function belongsToCollection(Collection $collection)
+    {
+        if($collection->getDatabase()->getName() !== $this->getCollection()->getDatabase()->getName()) {
+            return false;
+        }
+        
+        return $collection->getName() == $this->getCollection()->getName();
+    }
 
     /**
      * @return array relation description
@@ -213,7 +221,7 @@ class Document extends Structure
      * @param string $name
      * @return boolean
      */
-    private function _isRelationNameValid($name)
+    private function _isRelationExists($name)
     {
         $relations = $this->relations();
         
@@ -224,7 +232,7 @@ class Document extends Structure
      * Get related documents
      * @param string $name name of relation
      */
-    public function getRelations($name)
+    public function getRelated($name)
     {
         // check if relation already resolved
         if (isset($this->_resolvedRelations[$name])) {
@@ -284,7 +292,35 @@ class Document extends Structure
     
     public function addRelation($relationName, Document $document)
     {
-        throw new \Exception('Not implemented');
+        if(!$this->_isRelationExists($relationName)) {
+            throw new \Exception('Relation ' . $relationName . ' not configured');
+        }
+        
+        $relations = $this->relations();
+        $relation = $relations[$relationName];
+        
+        list($relationType, $relatedCollectionName, $field) = $relation;
+        
+        $relatedCollection = $this
+            ->getCollection()
+            ->getDatabase()
+            ->getCollection($relatedCollectionName);
+        
+        if(!$relatedCollection->hasDocuments($document)) {
+            throw new Exeption('Document must belongs to related collection');
+        }
+        
+        switch($relationType) {
+            case self::RELATION_BELONGS:
+                $this->set($field, $document->getId());
+                break;
+            case self::RELATION_HAS_MANY:
+                $document->push($field, $this->getId())->save();
+                break;
+            case self::RELATION_HAS_ONE;
+                $document->set($field, $this->getId())->save();
+                break;
+        }
     }
     
     public function removeRelation($relationName, Document $document)

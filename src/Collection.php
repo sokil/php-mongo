@@ -292,6 +292,7 @@ class Collection implements \Countable
         return $this->_documentsPool[(string) $id];
     }
     
+    
     /**
      * Get document by id directly omitting cache
      * 
@@ -301,6 +302,16 @@ class Collection implements \Countable
     public function getDocumentDirectly($id)
     {
         return $this->find()->byId($id)->findOne();
+    }
+    
+    /**
+     * Check if document belongs to collection
+     * 
+     * @param \Sokil\Mongo\Document $document
+     * @return type
+     */
+    public function hasDocument(Document $document) {
+        return (bool) $this->getDocument($document->getId());
     }
     
     /**

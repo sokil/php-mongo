@@ -37,7 +37,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     /**
      * A -> HAS_ONE -> B
      */
-    public function testHasOne()
+    public function testGetRelations_HasOne()
     {
         // collections
         $carsCollection = self::$database->getCollection('cars');
@@ -68,7 +68,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     /**
      * B -> BELONGS -> A
      */
-    public function testBelongs()
+    public function testGetRelations_Belongs()
     {
         // collections
         $carsCollection = self::$database->getCollection('cars');
@@ -99,7 +99,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     /**
      * A -> HAS_MANY -> B
      */
-    public function testHasMany()
+    public function testGetRelations_HasMany()
     {
         // collections
         $carsCollection = self::$database->getCollection('cars');
@@ -133,7 +133,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $wheelsCollection->delete();
     }
     
-    public function testBelongsCache()
+    public function testGetRelations_Belongs_Cache()
     {
         // collections
         $carsCollection = self::$database->getCollection('cars');
