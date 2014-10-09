@@ -62,7 +62,7 @@ class Operator
         }
         
         // field name found and has single value
-        else if(!isset($this->_operators['$push'][$fieldName]['$each'])) {
+        else if(!is_array($this->_operators['$push'][$fieldName]) || !isset($this->_operators['$push'][$fieldName]['$each'])) {
             $oldValue = $this->_operators['$push'][$fieldName];
             $this->_operators['$push'][$fieldName] = array(
                 '$each' => array_merge(array($oldValue), $value)
