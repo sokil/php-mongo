@@ -168,4 +168,34 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $carsCollection->delete();
         $wheelsCollection->delete();
     }
+    
+    public function testAddRelation_Belongs()
+    {
+        
+    }
+    
+    public function testAddRelation_HasOne()
+    {
+        
+    }
+    
+    public function testAddRelation_HasMany()
+    {
+        
+    }
+    
+    public function testRemoveRelation_Belongs()
+    {
+        
+    }
+    
+    public function testRemoveRelation_HasOne()
+    {
+        
+    }
+    
+    public function testRemoveRelation_HasMany()
+    {
+        
+    }
 }
