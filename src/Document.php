@@ -897,24 +897,23 @@ class Document extends Structure
     {
         $oldValue = $this->get($fieldName);
 
-        // field not exists
-        if (!$oldValue) {
-            if ($this->getId()) {
+        if ($this->getId()) {
+            // field not exists
+            if (!$oldValue) {
                 $this->_operator->push($fieldName, array('$each' => $value));
-            }
-
-        } // field already exist and has single value
-        else if (!is_array($oldValue)) {
-            $value = array_merge((array)$oldValue, $value);
-            if ($this->getId()) {
+            } // field already exist and has single value
+            else if (!is_array($oldValue)) {
+                $value = array_merge((array)$oldValue, $value);
                 $this->_operator->set($fieldName, $value);
-            }
-        } // field already exists and is array
-        else {
-            if ($this->getId()) {
+            } // field already exists and is array
+            else {
                 $this->_operator->push($fieldName, array('$each' => $value));
+                $value = array_merge($oldValue, $value);
             }
-            $value = array_merge($oldValue, $value);
+        } else {
+            if ($oldValue) {
+                $value = array_merge((array) $oldValue, $value);
+            }
         }
 
         // update local data
