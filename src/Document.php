@@ -900,14 +900,14 @@ class Document extends Structure
         if ($this->getId()) {
             // field not exists
             if (!$oldValue) {
-                $this->_operator->push($fieldName, array('$each' => $value));
+                $this->_operator->pushEach($fieldName, $value);
             } // field already exist and has single value
             else if (!is_array($oldValue)) {
                 $value = array_merge((array)$oldValue, $value);
                 $this->_operator->set($fieldName, $value);
             } // field already exists and is array
             else {
-                $this->_operator->push($fieldName, array('$each' => $value));
+                $this->_operator->pushEach($fieldName, $value);
                 $value = array_merge($oldValue, $value);
             }
         } else {

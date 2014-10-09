@@ -969,7 +969,10 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $doc->pushFromArray('key', array(1));
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array(1), self::$collection->getDocument($doc->getId())->key);
+        $this->assertEquals(
+            array(1), 
+            self::$collection->getDocumentDirectly($doc->getId())->key
+        );
         
     }
     
@@ -986,7 +989,10 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $doc->pushFromArray('some', array('another'));
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', 'another'), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(
+            array('some', 'another'), 
+            self::$collection->getDocumentDirectly($doc->getId())->some
+        );
         
     }
     
@@ -1003,7 +1009,10 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $doc->pushFromArray('some', array('some3'));
         self::$collection->saveDocument($doc);
         
-        $this->assertEquals(array('some1', 'some2', 'some3'), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(
+            array('some1', 'some2', 'some3'), 
+            self::$collection->getDocumentDirectly($doc->getId())->some
+        );
     }
     
     public function testPullFromOneDimensionalArray()

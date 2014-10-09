@@ -23,6 +23,11 @@ class Operator
     
     public function push($fieldName, $value)
     {
+        // value must be list, not dictionary
+        if(is_array($value)) {
+            $value = array_values($value);
+        }
+        
         // no $push operator found
         if(!isset($this->_operators['$push'])) {
             $this->_operators['$push'] = array();
