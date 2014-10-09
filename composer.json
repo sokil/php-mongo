@@ -25,6 +25,7 @@
     },
     "suggest": {
         "sokil/php-mongo-migrator": "Add support of migrations",
-        "sokil/php-mongo-bundle": "Symfony Bundle"
+        "sokil/php-mongo-bundle": "Symfony Bundle",
+        "sokil/php-mongo-yii": "Yii Framework component"
     }
 }
