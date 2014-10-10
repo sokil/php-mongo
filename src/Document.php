@@ -334,9 +334,47 @@ class Document extends Structure
         return $this;
     }
     
-    public function removeRelation($relationName, Document $document)
+    public function removeRelation($relationName, Document $document = null)
     {
-        throw new \Exception('Not implemented');
+        if(!$this->_isRelationExists($relationName)) {
+            throw new \Exception('Relation ' . $relationName . ' not configured');
+        }
+        
+        $relations = $this->relations();
+        $relation = $relations[$relationName];
+        
+        list($relationType, $relatedCollectionName, $field) = $relation;
+        
+        $relatedCollection = $this
+            ->getCollection()
+            ->getDatabase()
+            ->getCollection($relatedCollectionName);
+        
+        if($document && !$relatedCollection->hasDocument($document)) {
+            throw new Exeption('Document must belongs to related collection');
+        }
+        
+        switch($relationType) {
+            case self::RELATION_BELONGS:
+                $this->unsetField($field)->save();
+                break;
+            case self::RELATION_HAS_ONE;
+                $document = $this->getRelated($relationName);
+                if(!$document) {
+                    // relation not exists
+                    return $this;
+                }
+                $document->unsetField($field)->save();
+                break;
+            case self::RELATION_HAS_MANY:
+                if(!$document) {
+                    throw new Exception('Related document must be defined');
+                }
+                $document->unsetField($field)->save();
+                break;
+        }
+        
+        return $this;
     }
 
     /**

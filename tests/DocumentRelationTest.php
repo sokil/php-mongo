@@ -233,16 +233,73 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     
     public function testRemoveRelation_Belongs()
     {
+        // collections
+        $carsCollection = self::$database->getCollection('cars');
+        $wheelsCollection = self::$database->getCollection('wheels');
         
+        // add documents
+        $carDocument = $carsCollection
+            ->createDocument(array('brand' => 'Nissan'))
+            ->save();
+        
+        // add target documents
+        $wheelDocument = $wheelsCollection
+            ->createDocument(array(
+                'diameter' => 30,
+                'car_id' => $carDocument->getId(),
+            ))
+            ->save();
+        
+        // remove relation
+        $wheelDocument->removeRelation('car');
+        
+        // check
+        $this->assertEmpty($wheelDocument->car_id);
     }
     
     public function testRemoveRelation_HasOne()
     {
+        // collections
+        $carsCollection = self::$database->getCollection('cars');
+        $enginesCollection = self::$database->getCollection('engines');
         
+        $carDocument = $carsCollection
+            ->createDocument(array('brand' => 'Nissan'))
+            ->save();
+        
+        $engineDocument = $enginesCollection
+            ->createDocument([
+                'car_id' => $carDocument->getId(),
+            ])
+            ->save();
+
+        $carDocument->removeRelation('engine');
+        
+        $this->assertEmpty(
+            $enginesCollection
+                ->getDocumentDirectly($engineDocument->getId())
+                ->car_id
+        );
     }
     
     public function testRemoveRelation_HasMany()
     {
+        // collections
+        $carsCollection = self::$database->getCollection('cars');
+        $wheelsCollection = self::$database->getCollection('wheels');
         
+        $carDocument = $carsCollection
+            ->createDocument(array('brand' => 'Nissan'))
+            ->save();
+        
+        $wheelDocument = $wheelsCollection
+            ->createDocument(array(
+                'car_id' => $carDocument->getId(),
+            ))
+            ->save();
+
+        $carDocument->removeRelation('wheels', $wheelDocument);
+        
+        $this->assertEmpty($carDocument->wheels);
     }
 }
