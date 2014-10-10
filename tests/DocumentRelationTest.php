@@ -198,9 +198,9 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $enginesCollection = self::$database->getCollection('engines');
         
         $engineDocument = $enginesCollection
-            ->createDocument([
+            ->createDocument(array(
                 'power' => 300,
-            ])
+            ))
             ->save();
 
         $carDocument = $carsCollection
@@ -268,9 +268,9 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
             ->save();
         
         $engineDocument = $enginesCollection
-            ->createDocument([
+            ->createDocument(array(
                 'car_id' => $carDocument->getId(),
-            ])
+            ))
             ->save();
 
         $carDocument->removeRelation('engine');
