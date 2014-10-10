@@ -306,21 +306,32 @@ class Document extends Structure
             ->getDatabase()
             ->getCollection($relatedCollectionName);
         
-        if(!$relatedCollection->hasDocuments($document)) {
+        if(!$relatedCollection->hasDocument($document)) {
             throw new Exeption('Document must belongs to related collection');
         }
         
         switch($relationType) {
             case self::RELATION_BELONGS:
+                if(!$document->isStored()) {
+                    throw new Exception('Document ' . get_class($document) . ' must be saved before adding relation');
+                }
                 $this->set($field, $document->getId());
                 break;
-            case self::RELATION_HAS_MANY:
-                $document->push($field, $this->getId())->save();
-                break;
             case self::RELATION_HAS_ONE;
+                if(!$this->isStored()) {
+                    throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
+                }
+                $document->set($field, $this->getId())->save();
+                break;
+            case self::RELATION_HAS_MANY:
+                if(!$this->isStored()) {
+                    throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
+                }
                 $document->set($field, $this->getId())->save();
                 break;
         }
+        
+        return $this;
     }
     
     public function removeRelation($relationName, Document $document)

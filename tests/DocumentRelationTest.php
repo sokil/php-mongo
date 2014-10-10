@@ -171,17 +171,64 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     
     public function testAddRelation_Belongs()
     {
+        // collections
+        $carsCollection = self::$database->getCollection('cars');
+        $wheelsCollection = self::$database->getCollection('wheels');
         
+        // add documents
+        $carDocument = $carsCollection
+            ->createDocument(array('brand' => 'Nissan'))
+            ->save();
+        
+        // add target documents
+        $wheelDocument = $wheelsCollection
+            ->createDocument(array(
+                'diameter' => 30,
+            ))
+            ->addRelation('car', $carDocument)
+            ->save();
+        
+        $this->assertEquals($carDocument->getId(), $wheelDocument->car_id);
     }
     
     public function testAddRelation_HasOne()
     {
+        // collections
+        $carsCollection = self::$database->getCollection('cars');
+        $enginesCollection = self::$database->getCollection('engines');
         
+        $engineDocument = $enginesCollection
+            ->createDocument([
+                'power' => 300,
+            ])
+            ->save();
+
+        $carDocument = $carsCollection
+            ->createDocument(array('brand' => 'Nissan'))
+            ->save()
+            ->addRelation('engine', $engineDocument);
+        
+        $this->assertEquals($carDocument->getId(), $engineDocument->car_id);
     }
     
     public function testAddRelation_HasMany()
     {
+        // collections
+        $carsCollection = self::$database->getCollection('cars');
+        $wheelsCollection = self::$database->getCollection('wheels');
         
+        $wheelDocument = $wheelsCollection
+            ->createDocument(array(
+                'diameter' => 30,
+            ))
+            ->save();
+
+        $carDocument = $carsCollection
+            ->createDocument(array('brand' => 'Nissan'))
+            ->save()
+            ->addRelation('wheels', $wheelDocument);
+        
+        $this->assertEquals($carDocument->getId(), $wheelDocument->car_id);
     }
     
     public function testRemoveRelation_Belongs()
