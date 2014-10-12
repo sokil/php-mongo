@@ -40,7 +40,7 @@ Why to use this library? You can easily work with document data through comforta
   * [One-to-many relation](#one-to-many-relation)
   * [Many-to-many relation](#many-to-many-relation)
   * [Add relation](#add-relation)
-  * [Remove relation)(#remove-relation)
+  * [Remove relation](#remove-relation)
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
 * [Debugging](#debugging)
