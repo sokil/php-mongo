@@ -159,26 +159,6 @@ class Collection implements \Countable
     }
     
     /**
-     * Create document query builder
-     *
-     * @param $callable callable|null Function to configure query builder&
-     * @return \Sokil\Mongo\QueryBuilder|\Sokil\Mongo\Expression
-     */
-    public function find($callable = null)
-    {
-        /** @var \Sokil\Mongo\Cursor $queryBuilder */
-        $queryBuilder = new $this->_queryBuilderClass($this, array(
-            'expressionClass'   => $this->_queryExpressionClass,
-        ));
-
-        if($callable) {
-            $callable($queryBuilder->getExpression());
-        }
-
-        return $queryBuilder;
-    }
-    
-    /**
      * Retrieve a list of distinct values for the given key across a collection.
      * 
      * @param string $selector field selector
@@ -216,15 +196,34 @@ class Collection implements \Countable
     
     /**
      * Create document query builder
+     *
+     * @param $callable callable|null Function to configure query builder&
+     * @return \Sokil\Mongo\QueryBuilder|\Sokil\Mongo\Expression
+     */
+    public function find($callable = null)
+    {
+        /** @var \Sokil\Mongo\Cursor $queryBuilder */
+        $queryBuilder = new $this->_queryBuilderClass($this, array(
+            'expressionClass'   => $this->_queryExpressionClass,
+        ));
+
+        if($callable) {
+            $callable($queryBuilder->getExpression());
+        }
+
+        return $queryBuilder;
+    }
+    
+    /**
+     * Create document query builder
      * 
      * @return \Sokil\Mongo\QueryBuilder
      */
-    public function findAsArray()
+    public function findAsArray($callable = null)
     {
-        return new $this->_queryBuilderClass($this, array(
-            'expressionClass'   => $this->_queryExpressionClass,
-            'arrayResult' => true
-        ));
+        return $this
+            ->find($callable, true)
+            ->asArray();
     }
 
     /**

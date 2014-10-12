@@ -2,7 +2,7 @@
 
 namespace Sokil\Mongo;
 
-class SearchTest extends \PHPUnit_Framework_TestCase
+class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 {
     /**
      *
@@ -324,6 +324,74 @@ class SearchTest extends \PHPUnit_Framework_TestCase
         
         $firstDocument = current($documents->findAll());
         $this->assertEquals($firstDocument->getId(), $document->getId());
+    }
+    
+    public function testPluck_findAsObject_SimpleField()
+    {
+        self::$collection
+            ->delete()
+            ->insertMultiple(array(
+                array('field' => 1),
+                array('field' => 2),
+                array('field' => 3),
+                array('field' => 4),
+            ));
+        
+        $this->assertEquals(
+            array(1, 2, 3, 4),
+            array_values(self::$collection->find()->pluck('field'))
+        );
+    }
+    
+    public function testPluck_findAsObject_CompoundField()
+    {
+        self::$collection
+            ->delete()
+            ->insertMultiple(array(
+                array('field' => array('f1' => 'a1', 'f2' => 'b1')),
+                array('field' => array('f1' => 'a2', 'f2' => 'b2')),
+                array('field' => array('f1' => 'a3', 'f2' => 'b3')),
+                array('field' => array('f1' => 'a4', 'f2' => 'b4')),
+            ));
+        
+        $this->assertEquals(
+            array('b1', 'b2', 'b3', 'b4'),
+            array_values(self::$collection->find()->pluck('field.f2'))
+        );
+    }
+    
+    public function testPluck_findAsArray_SimpleField()
+    {
+        self::$collection
+            ->delete()
+            ->insertMultiple(array(
+                array('field' => 1),
+                array('field' => 2),
+                array('field' => 3),
+                array('field' => 4),
+            ));
+        
+        $this->assertEquals(
+            array(1, 2, 3 ,4),
+            array_values(self::$collection->findAsArray()->pluck('field'))
+        );
+    }
+    
+    public function testPluck_findAsArray_CompoundField()
+    {
+        self::$collection
+            ->delete()
+                ->insertMultiple(array(
+                array('field' => array('f1' => 'a1', 'f2' => 'b1')),
+                array('field' => array('f1' => 'a2', 'f2' => 'b2')),
+                array('field' => array('f1' => 'a3', 'f2' => 'b3')),
+                array('field' => array('f1' => 'a4', 'f2' => 'b4')),
+            ));
+        
+        $this->assertEquals(
+            array('b1', 'b2', 'b3', 'b4'),
+            array_values(self::$collection->findAsArray()->pluck('field.f2'))
+        );
     }
     
     public function testReturnAsArray()

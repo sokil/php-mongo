@@ -46,10 +46,15 @@ abstract class Cursor implements \Iterator, \Countable
     
     /**
      *
+     * @var type Return result as array or as Document instance
+     */
+    protected $_resultAsArray = false;
+    
+    /**
+     *
      * @var boolean results are arrays instead of objects
      */
     private $_options = array(
-        'arrayResult'       => false,
         'expressionClass'   => '\Sokil\Mongo\Expression'
     );
     
@@ -393,11 +398,33 @@ abstract class Cursor implements \Iterator, \Countable
             return null;
         }
         
-        if($this->_options['arrayResult']) {
+        if($this->_resultAsArray) {
             return $mongoDocument;
         }
         
         return $this->toObject($mongoDocument);
+    }
+    
+    public function asArray()
+    {
+        $this->_resultAsArray = true;
+        return $this;
+    }
+    
+    public function asObject()
+    {
+        $this->_resultAsArray = false;
+        return $this;
+    }
+    
+    /**
+     * Check if result returned as array
+     * 
+     * @return bool
+     */
+    public function isResultAsArray()
+    {
+        return $this->_resultAsArray;
     }
     
     /**
@@ -407,6 +434,45 @@ abstract class Cursor implements \Iterator, \Countable
     public function findAll()
     {
         return iterator_to_array($this);
+    }
+    
+    public function pluck($fieldName)
+    {
+        // use native php function if field without subdocument
+        if(false === strpos($fieldName, '.') && function_exists('array_column')) {
+            if($this->isResultAsArray()) {
+                $result = $this->findAll();
+            } else {
+                $queryBuilder = clone $this;
+                $result = $queryBuilder->asArray()->findAll();
+                unset($queryBuilder);
+            }
+            
+            return array_column($result, $fieldName, '_id');
+        }
+        
+        // if field with subdocument or native php function not exists
+        return $this->_pluck($fieldName);
+    }
+    
+    private function _pluck($fieldName)
+    {
+        if($this->isResultAsArray()) {
+            $queryBuilder = clone $this;
+            $result = $queryBuilder->asObject()->findAll();
+            unset($queryBuilder);
+        } else {
+            $result = $this->findAll();
+        }
+        
+        var_dump($result);
+        
+        $list = array();
+        foreach($result as $key => $document) {
+            $list[$key] = $document->get($fieldName);
+        }
+        
+        return $list;
     }
 
     /**
@@ -537,7 +603,7 @@ abstract class Cursor implements \Iterator, \Countable
             return null;
         }
         
-        if($this->_options['arrayResult']) {
+        if($this->_resultAsArray) {
             return $mongoDocument;
         }
         
