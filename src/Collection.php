@@ -11,6 +11,8 @@ use \Sokil\Mongo\Document\Exception\Validate as ValidateException;
  * @link https://github.com/sokil/php-mongo#querying-documents Querying documents
  * @link https://github.com/sokil/php-mongo#update-few-documents Update few documents
  * @link https://github.com/sokil/php-mongo#deleting-collections-and-documents Deleting collection
+ * 
+ * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
 class Collection implements \Countable
 {

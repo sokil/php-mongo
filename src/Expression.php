@@ -2,6 +2,12 @@
 
 namespace Sokil\Mongo;
 
+/**
+ * This class represents all expressions used to query document from collection
+ * 
+ * @link http://docs.mongodb.org/manual/reference/operator/query/
+ * @author Dmytro Sokil <dmytro.sokil@gmail.com>
+ */
 class Expression
 {    
     protected $_expression = array();
@@ -72,6 +78,14 @@ class Expression
         return $this->where($field, array('$ne' => $value));
     }
     
+    /**
+     * Selects the documents where the value of a 
+     * field equals any value in the specified array.
+     * 
+     * @param type $field
+     * @param array $values
+     * @return type
+     */
     public function whereIn($field, array $values)
     {
         return $this->where($field, array('$in' => $values));
@@ -180,6 +194,9 @@ class Expression
     }
 
     /**
+     * Matches documents in a collection that contain an array field with at 
+     * least one element that matches all the specified query criteria.
+     * 
      * @param string $field point-delimited field name
      * @param \Sokil\Mongo\Expression $expression
      * @return \Sokil\Mongo\Expression
@@ -189,11 +206,26 @@ class Expression
         return $this->where($field, array('$elemMatch' => $expression->toArray()));
     }
     
+    /**
+     * Matches documents in a collection that contain an array field with elements
+     * that do not matches all the specified query criteria.
+     * 
+     * @param type $field
+     * @param \Sokil\Mongo\Expression $expression
+     * @return type
+     */
     public function whereElemNotMatch($field, Expression $expression)
     {
         return $this->whereNot($this->expression()->whereElemMatch($field, $expression));
     }
     
+    /**
+     * Selects documents if the array field is a specified size.
+     * 
+     * @param type $field
+     * @param type $length
+     * @return type
+     */
     public function whereArraySize($field, $length)
     {
         return $this->where($field, array('$size' => (int) $length));

@@ -16,6 +16,8 @@ use \Symfony\Component\EventDispatcher\EventDispatcher;
  * @link https://github.com/sokil/php-mongo#events Event handlers
  * @link https://github.com/sokil/php-mongo#behaviors Behaviors
  * @link https://github.com/sokil/php-mongo#relations Relations
+ * 
+ * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
 class Document extends Structure
 {
@@ -42,6 +44,7 @@ class Document extends Structure
     const RELATION_HAS_ONE = 'HAS_ONE';
     const RELATION_BELONGS = 'BELONGS';
     const RELATION_HAS_MANY = 'HAS_MANY';
+    const RELATION_MANY_MANY = 'MANY_MANY';
 
     private $_resolvedRelations = array();
 
@@ -241,7 +244,7 @@ class Document extends Structure
         
         $relations = $this->relations();
         if(!isset($relations[$name])) {
-            throw new Exception('Relation withg name "' . $name . '" not found');
+            throw new Exception('Relation with name "' . $name . '" not found');
         }
         
         $relation = $relations[$name];
@@ -251,40 +254,72 @@ class Document extends Structure
 
         switch ($relationType) {
             case self::RELATION_HAS_ONE:
-                $sourceField = '_id';
-                $targetField = $relation[2];
+                $internalField = '_id';
+                $externalField = $relation[2];
 
                 $this->_resolvedRelations[$name] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
                     ->find()
-                    ->where($targetField, $this->get($sourceField))
+                    ->where($externalField, $this->get($internalField))
                     ->findOne();
 
                 break;
 
             case self::RELATION_BELONGS:
-                $sourceField = $relation[2];
+                $internalField = $relation[2];
 
                 $this->_resolvedRelations[$name] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
-                    ->getDocument($this->get($sourceField));
+                    ->getDocument($this->get($internalField));
 
                 break;
 
             case self::RELATION_HAS_MANY:
-                $sourceField = '_id';
-                $targetField = $relation[2];
+                $internalField = '_id';
+                $externalField = $relation[2];
 
                 $this->_resolvedRelations[$name] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
                     ->find()
-                    ->where($targetField, $this->get($sourceField))
+                    ->where($externalField, $this->get($internalField))
                     ->findAll();
 
                 break;
+            
+            case self::RELATION_MANY_MANY:
+                $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
+                if($isRelationListStoredInternally) {
+                    // relation list stored in this document
+                    $internalField = $relation[2];
+                    $relatedIdList = $this->get($internalField);
+                    
+                    $externalField = '_id';
+                    
+                    $this->_resolvedRelations[$name] = $this->_collection
+                        ->getDatabase()
+                        ->getCollection($targetCollectionName)
+                        ->find()
+                        ->whereIn($externalField, $relatedIdList)
+                        ->findAll();
+                } else {
+                    // relation list stored in external document
+                    $internalField = '_id';
+                    $externalField = $relation[2];
+                    
+                    $this->_resolvedRelations[$name] = $this->_collection
+                        ->getDatabase()
+                        ->getCollection($targetCollectionName)
+                        ->find()
+                        ->where($externalField, $this->get($internalField))
+                        ->findAll();
+                }
+                break;
+            
+            default:
+                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $name . '"');
         }
 
         return $this->_resolvedRelations[$name];

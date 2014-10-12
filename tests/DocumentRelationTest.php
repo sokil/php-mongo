@@ -18,6 +18,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
                     'cars'      => '\Sokil\Mongo\DocumentRelationTest\CarsCollection',
                     'engines'   => '\Sokil\Mongo\DocumentRelationTest\EnginesCollection',
                     'wheels'    => '\Sokil\Mongo\DocumentRelationTest\WheelsCollection',
+                    'drivers'   => '\Sokil\Mongo\DocumentRelationTest\DriversCollection',
                 ),
             ))
             ->getDatabase('test');
@@ -37,7 +38,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     /**
      * A -> HAS_ONE -> B
      */
-    public function testGetRelations_HasOne()
+    public function testGetRelated_HasOne()
     {
         // collections
         $carsCollection = self::$database->getCollection('cars');
@@ -68,7 +69,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     /**
      * B -> BELONGS -> A
      */
-    public function testGetRelations_Belongs()
+    public function testGetRelated_Belongs()
     {
         // collections
         $carsCollection = self::$database->getCollection('cars');
@@ -99,7 +100,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     /**
      * A -> HAS_MANY -> B
      */
-    public function testGetRelations_HasMany()
+    public function testGetRelated_HasMany()
     {
         // collections
         $carsCollection = self::$database->getCollection('cars');
@@ -133,7 +134,78 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $wheelsCollection->delete();
     }
     
-    public function testGetRelations_Belongs_Cache()
+    public function testGetRelated_ManyMany_RequestFromCollectionWithLocalyStoredRelationData()
+    {
+        $carsCollection = self::$database->getCollection('cars');
+        $driversCollection = self::$database->getCollection('drivers');
+        
+        $driver1 = $driversCollection->createDocument(array('name' => 'Dmytro'))->save();
+        $driver2 = $driversCollection->createDocument(array('name' => 'Natalia'))->save();
+        
+        $car1 = $carsCollection->createDocument(array(
+            'number' => 'AA0123AK',
+            'driver_id' => array(
+                $driver1->getId(),
+                $driver2->getId(),
+            ),
+        ))->save();
+        
+        $car2 = $carsCollection->createDocument(array(
+            'number' => 'AA4567AK',
+            'driver_id' => array(
+                $driver1->getId(),
+                $driver2->getId(),
+            ),
+        ))->save();
+        
+        // check emdedded relation fields
+        $this->assertEquals(array(
+            $driver1,
+            $driver2,
+        ), array_values($car1->getRelated('drivers')));
+        
+        $this->assertEquals(array(
+            $driver1,
+            $driver2,
+        ), array_values($car2->getRelated('drivers')));
+    }
+    
+    public function testGetRelated_ManyMany_RequestFromCollectionWithoutLocalyStoredRelationData()
+    {
+        $carsCollection = self::$database->getCollection('cars');
+        $driversCollection = self::$database->getCollection('drivers');
+        
+        $driver1 = $driversCollection->createDocument(array('name' => 'Dmytro'))->save();
+        $driver2 = $driversCollection->createDocument(array('name' => 'Natalia'))->save();
+        
+        $car1 = $carsCollection->createDocument(array(
+            'number' => 'AA0123AK',
+            'driver_id' => array(
+                $driver1->getId(),
+                $driver2->getId(),
+            ),
+        ))->save();
+        
+        $car2 = $carsCollection->createDocument(array(
+            'number' => 'AA4567AK',
+            'driver_id' => array(
+                $driver1->getId(),
+                $driver2->getId(),
+            ),
+        ))->save();
+        
+        $this->assertEquals(array(
+            $car1,
+            $car2,
+        ), array_values($driver1->getRelated('cars')));
+        
+        $this->assertEquals(array(
+            $car1,
+            $car2,
+        ), array_values($driver2->getRelated('cars')));
+    }
+    
+    public function testGetRelated_Belongs_Cache()
     {
         // collections
         $carsCollection = self::$database->getCollection('cars');
