@@ -437,7 +437,7 @@ abstract class Cursor implements \Iterator, \Countable
     }
     
     /**
-     *  Return the values from a single field in the result set of dicuments
+     *  Return the values from a single field in the result set of documents
      * @param type $fieldName
      * @return type
      */
