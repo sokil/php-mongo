@@ -430,6 +430,19 @@ class Document extends Structure
                 $document->unsetField($field)->save();
                 break;
                 
+                
+            case self::RELATION_MANY_MANY:
+                if(!$document) {
+                    throw new Exception('Related document must be defined');
+                }
+                $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
+                if($isRelationListStoredInternally) {
+                    $this->pull($field, $document->getId())->save();
+                } else {
+                    $document->pull($field, $this->getId())->save();
+                }
+                break;
+            
             default:
                 throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
@@ -1082,7 +1095,8 @@ class Document extends Structure
     }
 
     /**
-     *
+     * Removes from an existing array all instances of a value or values that match a specified query
+     * 
      * @param string $fieldName
      * @param integer|string|array|\Sokil\Mongo\Expression $expression
      * @return \Sokil\Mongo\Document

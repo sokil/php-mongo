@@ -412,4 +412,45 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEmpty($carDocument->wheels);
     }
+    
+    public function testRemoveRelation_ManyMany()
+    {
+        $carsCollection = self::$database->getCollection('cars');
+        $driversCollection = self::$database->getCollection('drivers');
+        
+        $driver1 = $driversCollection->createDocument(array('name' => 'Dmytro'))->save();
+        $driver2 = $driversCollection->createDocument(array('name' => 'Natalia'))->save();
+        
+        $car1 = $carsCollection
+            ->createDocument(array(
+                'number' => 'AA0123AK',
+                'driver_id' => array(
+                    $driver1->getId(),
+                    $driver2->getId(),
+                )
+            ))
+            ->save();
+        
+        $car2 = $carsCollection
+            ->createDocument(array(
+                'number' => 'AA4567AK',
+                'driver_id' => array(
+                    $driver1->getId(),
+                    $driver2->getId(),
+                )
+            ))
+            ->save();
+        
+        $car1->removeRelation('drivers', $driver1);
+        $driver2->removeRelation('cars', $car2);
+        
+        // check emdedded relation fields
+        $this->assertEquals(array(
+            $driver2,
+        ), array_values($car1->getRelated('drivers')));
+        
+        $this->assertEquals(array(
+            $driver1,
+        ), array_values($car2->getRelated('drivers')));
+    }
 }
