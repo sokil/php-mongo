@@ -36,6 +36,11 @@ Why to use this library? You can easily work with document data through comforta
 * [Events](#events)
 * [Behaviors](#behaviors)
 * [Relation](#relations)
+  * [One-to-one relation](#one-to-one-relation)
+  * [One-to-many relation](#one-to-many-relation)
+  * [Many-to-many relation](#many-to-many-relation)
+  * [Add relation](#add-relation)
+  * [Remove relation)(#remove-relation)
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
 * [Debugging](#debugging)
@@ -812,6 +817,32 @@ foreach($car->drivers as $driver) {
     echo $driver->name;
 }
 ```
+
+### Add relation
+
+There is helper to add related document, if you don't 
+want modify relation field directly:
+
+```php
+$car->addRelation('drivers', $driver);
+```
+
+This helper automatically resolves collection and field
+where to store relation data.
+
+### Remove relation
+
+There is helper to remove related document, if you don't 
+want modify relation field directly:
+
+```php
+$car->removeRelation('drivers', $driver);
+```
+
+This helper automatically resolves collection and field
+where to remove relation data. If relation type is HAS_MANY or BELONS_TO, 
+second parameter wich defined related object may be omitted.
+
 
 Read preferences
 ----------------
