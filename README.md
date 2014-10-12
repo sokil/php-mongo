@@ -772,7 +772,7 @@ class Posts extends \Sokil\Mongo\Document
 }
 ```
 
-Not you can load related posts of document:
+Now you can load related posts of document:
 ```php
 foreach($user->postsRelation as $post) {
     echo $post->getMessage();
@@ -816,7 +816,7 @@ class DriverDocument extends \Sokil\Mongo\Document
 }
 ```
 
-Not you can load related documents:
+Now you can load related documents:
 ```php
 foreach($car->drivers as $driver) {
     echo $driver->name;
