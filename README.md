@@ -769,6 +769,50 @@ foreach($user->postsRelation as $post) {
 }
 ```
 
+### Many-to-many relation
+
+Many-to-many relation in relational databases uses intermediate table with stored ids of related rows from both tables. In mongo this table equivalent embeds to one of two related documents. Element of relation definition at position 3 must be set to true in this document.
+
+
+```php
+
+// this document contains field 'driver_id' where array of ids stored
+class CarDocument extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'brand' => null,
+    ];
+    
+    public function relations()
+    {
+        return array(
+            'drivers'   => array(self::RELATION_MANY_MANY, 'drivers', 'driver_id', true),
+        );
+    }
+}
+
+class DriverDocument extends \Sokil\Mongo\Document
+{
+    protected $_data = [
+        'name' => null,
+    ];
+    
+    public function relations()
+    {
+        return array(
+            'cars'    => array(self::RELATION_MANY_MANY, 'cars', 'driver_id'),
+        );
+    }
+}
+```
+
+Not you can load related documents:
+```php
+foreach($car->drivers as $driver) {
+    echo $driver->name;
+}
+```
+
 Read preferences
 ----------------
 [Read preference](http://docs.mongodb.org/manual/core/read-preference/) describes how MongoDB clients route read operations to members of a replica set. You can configure read preferences at any level:
