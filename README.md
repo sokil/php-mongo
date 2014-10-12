@@ -368,6 +368,11 @@ To get only one random result:
 $document = $cursor->findRandom();
 ```
 
+To get values from a single field in the result set of documents:
+```php
+$columnValues = $cursor->pluck('some.field.name');
+```
+
 For extending standart query builder class with custom condition methods you need to override property Collection::$_queryExpressionClass with class, which extends \Sokil\Mongo\Expression:
 
 ```php
