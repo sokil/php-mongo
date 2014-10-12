@@ -436,6 +436,11 @@ abstract class Cursor implements \Iterator, \Countable
         return iterator_to_array($this);
     }
     
+    /**
+     *  Return the values from a single field in the result set of dicuments
+     * @param type $fieldName
+     * @return type
+     */
     public function pluck($fieldName)
     {
         // use native php function if field without subdocument
