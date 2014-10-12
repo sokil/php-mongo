@@ -303,6 +303,44 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($carDocument->getId(), $wheelDocument->car_id);
     }
     
+    public function testAddRelation_ManyMany()
+    {
+        $carsCollection = self::$database->getCollection('cars');
+        $driversCollection = self::$database->getCollection('drivers');
+        
+        $driver1 = $driversCollection->createDocument(array('name' => 'Dmytro'))->save();
+        $driver2 = $driversCollection->createDocument(array('name' => 'Natalia'))->save();
+        
+        $car1 = $carsCollection
+            ->createDocument(array(
+                'number' => 'AA0123AK',
+            ))
+            ->save();
+        
+        $car2 = $carsCollection
+            ->createDocument(array(
+                'number' => 'AA4567AK',
+            ))
+            ->save();
+        
+        $car1->addRelation('drivers', $driver1);
+        $driver2->addRelation('cars', $car1);
+        
+        $car2->addRelation('drivers', $driver1);
+        $driver2->addRelation('cars', $car2);
+        
+        // check emdedded relation fields
+        $this->assertEquals(array(
+            $driver1,
+            $driver2,
+        ), array_values($car1->getRelated('drivers')));
+        
+        $this->assertEquals(array(
+            $driver1,
+            $driver2,
+        ), array_values($car2->getRelated('drivers')));
+    }
+    
     public function testRemoveRelation_Belongs()
     {
         // collections

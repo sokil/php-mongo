@@ -233,21 +233,21 @@ class Document extends Structure
     
     /**
      * Get related documents
-     * @param string $name name of relation
+     * @param string $relationName name of relation
      */
-    public function getRelated($name)
+    public function getRelated($relationName)
     {
         // check if relation already resolved
-        if (isset($this->_resolvedRelations[$name])) {
-            return $this->_resolvedRelations[$name];
+        if (isset($this->_resolvedRelations[$relationName])) {
+            return $this->_resolvedRelations[$relationName];
         }
         
         $relations = $this->relations();
-        if(!isset($relations[$name])) {
-            throw new Exception('Relation with name "' . $name . '" not found');
+        if(!isset($relations[$relationName])) {
+            throw new Exception('Relation with name "' . $relationName . '" not found');
         }
         
-        $relation = $relations[$name];
+        $relation = $relations[$relationName];
 
         $relationType = $relation[0];
         $targetCollectionName = $relation[1];
@@ -257,7 +257,7 @@ class Document extends Structure
                 $internalField = '_id';
                 $externalField = $relation[2];
 
-                $this->_resolvedRelations[$name] = $this->_collection
+                $this->_resolvedRelations[$relationName] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
                     ->find()
@@ -269,7 +269,7 @@ class Document extends Structure
             case self::RELATION_BELONGS:
                 $internalField = $relation[2];
 
-                $this->_resolvedRelations[$name] = $this->_collection
+                $this->_resolvedRelations[$relationName] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
                     ->getDocument($this->get($internalField));
@@ -280,7 +280,7 @@ class Document extends Structure
                 $internalField = '_id';
                 $externalField = $relation[2];
 
-                $this->_resolvedRelations[$name] = $this->_collection
+                $this->_resolvedRelations[$relationName] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
                     ->find()
@@ -295,10 +295,14 @@ class Document extends Structure
                     // relation list stored in this document
                     $internalField = $relation[2];
                     $relatedIdList = $this->get($internalField);
+                    if(!$relatedIdList) {
+                        $this->_resolvedRelations[$relationName] = array();
+                        break;
+                    }
                     
                     $externalField = '_id';
                     
-                    $this->_resolvedRelations[$name] = $this->_collection
+                    $this->_resolvedRelations[$relationName] = $this->_collection
                         ->getDatabase()
                         ->getCollection($targetCollectionName)
                         ->find()
@@ -309,7 +313,7 @@ class Document extends Structure
                     $internalField = '_id';
                     $externalField = $relation[2];
                     
-                    $this->_resolvedRelations[$name] = $this->_collection
+                    $this->_resolvedRelations[$relationName] = $this->_collection
                         ->getDatabase()
                         ->getCollection($targetCollectionName)
                         ->find()
@@ -319,16 +323,16 @@ class Document extends Structure
                 break;
             
             default:
-                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $name . '"');
+                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
 
-        return $this->_resolvedRelations[$name];
+        return $this->_resolvedRelations[$relationName];
     }
     
     public function addRelation($relationName, Document $document)
     {
         if(!$this->_isRelationExists($relationName)) {
-            throw new \Exception('Relation ' . $relationName . ' not configured');
+            throw new \Exception('Relation "' . $relationName . '" not configured');
         }
         
         $relations = $this->relations();
@@ -346,24 +350,39 @@ class Document extends Structure
         }
         
         switch($relationType) {
+            
             case self::RELATION_BELONGS:
                 if(!$document->isStored()) {
                     throw new Exception('Document ' . get_class($document) . ' must be saved before adding relation');
                 }
                 $this->set($field, $document->getId());
                 break;
+            
             case self::RELATION_HAS_ONE;
                 if(!$this->isStored()) {
                     throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
                 }
                 $document->set($field, $this->getId())->save();
                 break;
+                
             case self::RELATION_HAS_MANY:
                 if(!$this->isStored()) {
                     throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
                 }
                 $document->set($field, $this->getId())->save();
                 break;
+                
+            case self::RELATION_MANY_MANY:
+                $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
+                if($isRelationListStoredInternally) {
+                    $this->push($field, $document->getId())->save();
+                } else {
+                    $document->push($field, $this->getId())->save();
+                }
+                break;
+                
+            default:
+                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
         
         return $this;
@@ -390,9 +409,11 @@ class Document extends Structure
         }
         
         switch($relationType) {
+            
             case self::RELATION_BELONGS:
                 $this->unsetField($field)->save();
                 break;
+            
             case self::RELATION_HAS_ONE;
                 $document = $this->getRelated($relationName);
                 if(!$document) {
@@ -401,12 +422,16 @@ class Document extends Structure
                 }
                 $document->unsetField($field)->save();
                 break;
+                
             case self::RELATION_HAS_MANY:
                 if(!$document) {
                     throw new Exception('Related document must be defined');
                 }
                 $document->unsetField($field)->save();
                 break;
+                
+            default:
+                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
         
         return $this;
