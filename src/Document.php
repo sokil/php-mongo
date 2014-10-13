@@ -693,22 +693,6 @@ class Document extends Structure
                     }
                     break;
 
-                case 'regexp':
-                    foreach ($fields as $field) {
-                        if (!$this->get($field)) {
-                            continue;
-                        }
-
-                        if (!preg_match($rule['pattern'], $this->get($field))) {
-                            if (!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" not match regexp ' . $rule['pattern'] . ' in model ' . get_called_class();
-                            }
-
-                            $this->_errors[$field][$rule[1]] = $rule['message'];
-                        }
-                    }
-                    break;
-
                 case 'email':
                     foreach ($fields as $field) {
                         $value = $this->get($field);
