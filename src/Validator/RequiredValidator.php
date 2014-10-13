@@ -2,7 +2,7 @@
 
 namespace Sokil\Mongo\Validator;
 
-class Required extends \Sokil\Mongo\Validator
+class RequiredValidator extends \Sokil\Mongo\Validator
 {
     public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
     {

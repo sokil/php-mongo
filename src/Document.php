@@ -693,18 +693,6 @@ class Document extends Structure
                     }
                     break;
 
-                case 'null':
-                    foreach ($fields as $field) {
-                        if (null !== $this->get($field)) {
-                            if (!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" must be null in model ' . get_called_class();
-                            }
-
-                            $this->_errors[$field][$rule[1]] = $rule['message'];
-                        }
-                    }
-                    break;
-
                 case 'regexp':
                     foreach ($fields as $field) {
                         if (!$this->get($field)) {
@@ -767,7 +755,7 @@ class Document extends Structure
                         // validator class
                         $validatorClassName = null;
                         foreach ($this->_validatorNamespaces as $namespace) {
-                            $validatorClassName = $namespace . '\\' . ucfirst(strtolower($ruleName));
+                            $validatorClassName = $namespace . '\\' . ucfirst(strtolower($ruleName)) . 'Validator';
                             if (!class_exists($validatorClassName)) {
                                 $validatorClassName = null;
                                 continue;
