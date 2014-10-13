@@ -693,22 +693,6 @@ class Document extends Structure
                     }
                     break;
 
-                case 'in':
-                    foreach ($fields as $field) {
-                        if (!$this->get($field)) {
-                            continue;
-                        }
-
-                        if (!in_array($this->get($field), $rule['range'])) {
-                            if (!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" not in range of allowed values in model ' . get_called_class();
-                            }
-
-                            $this->_errors[$field][$rule[1]] = $rule['message'];
-                        }
-                    }
-                    break;
-
                 case 'numeric':
                     foreach ($fields as $field) {
                         if (!$this->get($field)) {
