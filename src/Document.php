@@ -693,22 +693,6 @@ class Document extends Structure
                     }
                     break;
 
-                case 'numeric':
-                    foreach ($fields as $field) {
-                        if (!$this->get($field)) {
-                            continue;
-                        }
-
-                        if (!is_numeric($this->get($field))) {
-                            if (!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" not numeric in model ' . get_called_class();
-                            }
-
-                            $this->_errors[$field][$rule[1]] = $rule['message'];
-                        }
-                    }
-                    break;
-
                 case 'null':
                     foreach ($fields as $field) {
                         if (null !== $this->get($field)) {
