@@ -675,22 +675,6 @@ class Document extends Structure
 
             // validate
             switch ($ruleName) {
-                case 'equals':
-
-                    foreach ($fields as $field) {
-                        if (!$this->get($field)) {
-                            continue;
-                        }
-
-                        if ($this->get($field) !== $rule['to']) {
-                            if (!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" must be equals to "' . $rule['to'] . '" in model ' . get_called_class();
-                            }
-
-                            $this->_errors[$field][$rule[1]] = $rule['message'];
-                        }
-                    }
-                    break;
 
                 case 'not_equals':
 
