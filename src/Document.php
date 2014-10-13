@@ -655,6 +655,8 @@ class Document extends Structure
 
         foreach ($this->rules() as $rule) {
             $fields = array_map('trim', explode(',', $rule[0]));
+            $ruleName = $rule[1];
+            $params = array_slice($rule, 2);
 
             // check scenario
             if (!empty($rule['on'])) {
@@ -672,20 +674,7 @@ class Document extends Structure
             }
 
             // validate
-            switch ($rule[1]) {
-                case 'required':
-
-                    foreach ($fields as $field) {
-                        if (!$this->get($field)) {
-                            if (!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" required in model ' . get_called_class();
-                            }
-
-                            $this->_errors[$field][$rule[1]] = $rule['message'];
-                        }
-                    }
-                    break;
-
+            switch ($ruleName) {
                 case 'equals':
 
                     foreach ($fields as $field) {
@@ -807,33 +796,26 @@ class Document extends Structure
 
                 default:
 
-                    // method
-                    if (method_exists($this, $rule[1])) {
-
+                    if (method_exists($this, $ruleName)) {
+                        // method
                         foreach ($fields as $field) {
-
                             if (!$this->get($field)) {
                                 continue;
                             }
 
-                            // method in current class
-                            $params = $rule;
-                            unset($params[0]); // remove field list
-                            unset($params[1]); // remove rule name
-
-                            if (!call_user_func(array($this, $rule[1]), $field, $params)) {
+                            if (!call_user_func(array($this, $ruleName), $field, $params)) {
                                 if (!isset($rule['message'])) {
                                     $rule['message'] = 'Field "' . $field . '" not valid in model ' . get_called_class();
                                 }
 
-                                $this->_errors[$field][$rule[1]] = $rule['message'];
+                                $this->_errors[$field][$ruleName] = $rule['message'];
                             }
                         }
                     } else {
                         // validator class
                         $validatorClassName = null;
                         foreach ($this->_validatorNamespaces as $namespace) {
-                            $validatorClassName = $namespace . '\\' . ucfirst(strtolower($rule[1]));
+                            $validatorClassName = $namespace . '\\' . ucfirst(strtolower($ruleName));
                             if (!class_exists($validatorClassName)) {
                                 $validatorClassName = null;
                                 continue;
@@ -841,12 +823,16 @@ class Document extends Structure
                         }
 
                         if (!$validatorClassName) {
-                            throw new Exception('Validator with name ' . $rule[1] . ' not found');
+                            throw new Exception('Validator with name ' . $ruleName . ' not found');
                         }
 
                         /* @var $validator \Sokil\Mongo\Validator */
                         $validator = new $validatorClassName;
-                        $validator->validate($this, $fields);
+                        if(!$validator instanceof \Sokil\Mongo\Validator) {
+                            throw new Exception('Validator class must implement \Sokil\Mongo\Validator class');
+                        }
+                        
+                        $validator->validate($this, $fields, $params);
                     }
 
                     break;
@@ -893,9 +879,15 @@ class Document extends Structure
         return array_merge_recursive($this->_errors, $this->_triggeredErrors);
     }
 
-    public function triggerError($fieldName, $rule, $message)
+    public function addError($fieldName, $ruleName, $message)
     {
-        $this->_triggeredErrors[$fieldName][$rule] = $message;
+        $this->_errors[$fieldName][$ruleName] = $message;
+        return $this;
+    }
+    
+    public function triggerError($fieldName, $ruleName, $message)
+    {
+        $this->_triggeredErrors[$fieldName][$ruleName] = $message;
         return $this;
     }
 

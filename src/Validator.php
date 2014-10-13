@@ -4,12 +4,18 @@ namespace Sokil\Mongo;
 
 abstract class Validator
 {
-    abstract public function validateField(Document $document, $fieldName);
+    public function getName()
+    {
+        $class = explode('\\', get_called_class());
+        return strtolower(array_pop($class));
+    }
     
-    public function validate(Document $document, array $fieldNameList)
+    abstract public function validateField(Document $document, $fieldName, array $params);
+    
+    public function validate(Document $document, array $fieldNameList, array $params)
     {
         foreach($fieldNameList as $fieldName) {           
-            $this->validateField($document, $fieldName);
+            $this->validateField($document, $fieldName, $params);
         }
     }
 }
