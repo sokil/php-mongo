@@ -354,6 +354,10 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($document->isValid());
     }
 
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Validator with name SomeUnexistedValidator not found
+     */
     public function testIsValid_UnexistedValidator()
     {
         // mock of document
@@ -370,11 +374,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
                 array('some-field-name', 'SomeUnexistedValidator'),
             )));
 
-        // required field empty
-        $this->assertTrue($document->isValid());
-
-        $document->set('some-field-name', 'value');
-        $this->assertTrue($document->isValid());
+        $document->isValid();
     }
     
     public function testTriggerError()

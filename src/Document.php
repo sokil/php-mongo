@@ -21,6 +21,7 @@ use \Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class Document extends Structure
 {
+
     const FIELD_TYPE_DOUBLE = 1;
     const FIELD_TYPE_STRING = 2;
     const FIELD_TYPE_OBJECT = 3;
@@ -40,7 +41,6 @@ class Document extends Structure
     const FIELD_TYPE_INT64 = 18;
     const FIELD_TYPE_MIN_KEY = 255;
     const FIELD_TYPE_MAX_KEY = 127;
-
     const RELATION_HAS_ONE = 'HAS_ONE';
     const RELATION_BELONGS = 'BELONGS';
     const RELATION_HAS_MANY = 'HAS_MANY';
@@ -53,7 +53,6 @@ class Document extends Structure
      * @var \Sokil\Mongo\Collection
      */
     private $_collection;
-
     protected $_scenario;
 
     /**
@@ -81,6 +80,9 @@ class Document extends Structure
      * @var array list of defined behaviors
      */
     private $_behaviors = array();
+    private $_validatorNamespaces = array(
+        '\Sokil\Mongo\Validator',
+    );
 
     /**
      * @param \Sokil\Mongo\Collection $collection instance of Mongo collection
@@ -116,6 +118,7 @@ class Document extends Structure
      */
     public function beforeConstruct()
     {
+        
     }
 
     /**
@@ -162,7 +165,7 @@ class Document extends Structure
 
     public function __toString()
     {
-        return (string)$this->getId();
+        return (string) $this->getId();
     }
 
     public function __call($name, $arguments)
@@ -192,7 +195,7 @@ class Document extends Structure
 
     public function __get($name)
     {
-        if($this->_isRelationExists($name)) {
+        if ($this->_isRelationExists($name)) {
             // resolve relation
             return $this->getRelated($name);
         } else {
@@ -203,10 +206,10 @@ class Document extends Structure
 
     public function belongsToCollection(Collection $collection)
     {
-        if($collection->getDatabase()->getName() !== $this->getCollection()->getDatabase()->getName()) {
+        if ($collection->getDatabase()->getName() !== $this->getCollection()->getDatabase()->getName()) {
             return false;
         }
-        
+
         return $collection->getName() == $this->getCollection()->getName();
     }
 
@@ -227,10 +230,10 @@ class Document extends Structure
     private function _isRelationExists($name)
     {
         $relations = $this->relations();
-        
+
         return isset($relations[$name]);
     }
-    
+
     /**
      * Get related documents
      * @param string $relationName name of relation
@@ -241,12 +244,12 @@ class Document extends Structure
         if (isset($this->_resolvedRelations[$relationName])) {
             return $this->_resolvedRelations[$relationName];
         }
-        
+
         $relations = $this->relations();
-        if(!isset($relations[$relationName])) {
+        if (!isset($relations[$relationName])) {
             throw new Exception('Relation with name "' . $relationName . '" not found');
         }
-        
+
         $relation = $relations[$relationName];
 
         $relationType = $relation[0];
@@ -288,20 +291,20 @@ class Document extends Structure
                     ->findAll();
 
                 break;
-            
+
             case self::RELATION_MANY_MANY:
                 $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
-                if($isRelationListStoredInternally) {
+                if ($isRelationListStoredInternally) {
                     // relation list stored in this document
                     $internalField = $relation[2];
                     $relatedIdList = $this->get($internalField);
-                    if(!$relatedIdList) {
+                    if (!$relatedIdList) {
                         $this->_resolvedRelations[$relationName] = array();
                         break;
                     }
-                    
+
                     $externalField = '_id';
-                    
+
                     $this->_resolvedRelations[$relationName] = $this->_collection
                         ->getDatabase()
                         ->getCollection($targetCollectionName)
@@ -312,7 +315,7 @@ class Document extends Structure
                     // relation list stored in external document
                     $internalField = '_id';
                     $externalField = $relation[2];
-                    
+
                     $this->_resolvedRelations[$relationName] = $this->_collection
                         ->getDatabase()
                         ->getCollection($targetCollectionName)
@@ -321,132 +324,132 @@ class Document extends Structure
                         ->findAll();
                 }
                 break;
-            
+
             default:
                 throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
 
         return $this->_resolvedRelations[$relationName];
     }
-    
+
     public function addRelation($relationName, Document $document)
     {
-        if(!$this->_isRelationExists($relationName)) {
+        if (!$this->_isRelationExists($relationName)) {
             throw new \Exception('Relation "' . $relationName . '" not configured');
         }
-        
+
         $relations = $this->relations();
         $relation = $relations[$relationName];
-        
+
         list($relationType, $relatedCollectionName, $field) = $relation;
-        
+
         $relatedCollection = $this
             ->getCollection()
             ->getDatabase()
             ->getCollection($relatedCollectionName);
-        
-        if(!$relatedCollection->hasDocument($document)) {
+
+        if (!$relatedCollection->hasDocument($document)) {
             throw new Exeption('Document must belongs to related collection');
         }
-        
-        switch($relationType) {
-            
+
+        switch ($relationType) {
+
             case self::RELATION_BELONGS:
-                if(!$document->isStored()) {
+                if (!$document->isStored()) {
                     throw new Exception('Document ' . get_class($document) . ' must be saved before adding relation');
                 }
                 $this->set($field, $document->getId());
                 break;
-            
+
             case self::RELATION_HAS_ONE;
-                if(!$this->isStored()) {
+                if (!$this->isStored()) {
                     throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
                 }
                 $document->set($field, $this->getId())->save();
                 break;
-                
+
             case self::RELATION_HAS_MANY:
-                if(!$this->isStored()) {
+                if (!$this->isStored()) {
                     throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
                 }
                 $document->set($field, $this->getId())->save();
                 break;
-                
+
             case self::RELATION_MANY_MANY:
                 $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
-                if($isRelationListStoredInternally) {
+                if ($isRelationListStoredInternally) {
                     $this->push($field, $document->getId())->save();
                 } else {
                     $document->push($field, $this->getId())->save();
                 }
                 break;
-                
+
             default:
                 throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
-        
+
         return $this;
     }
-    
+
     public function removeRelation($relationName, Document $document = null)
     {
-        if(!$this->_isRelationExists($relationName)) {
+        if (!$this->_isRelationExists($relationName)) {
             throw new \Exception('Relation ' . $relationName . ' not configured');
         }
-        
+
         $relations = $this->relations();
         $relation = $relations[$relationName];
-        
+
         list($relationType, $relatedCollectionName, $field) = $relation;
-        
+
         $relatedCollection = $this
             ->getCollection()
             ->getDatabase()
             ->getCollection($relatedCollectionName);
-        
-        if($document && !$relatedCollection->hasDocument($document)) {
+
+        if ($document && !$relatedCollection->hasDocument($document)) {
             throw new Exeption('Document must belongs to related collection');
         }
-        
-        switch($relationType) {
-            
+
+        switch ($relationType) {
+
             case self::RELATION_BELONGS:
                 $this->unsetField($field)->save();
                 break;
-            
+
             case self::RELATION_HAS_ONE;
                 $document = $this->getRelated($relationName);
-                if(!$document) {
+                if (!$document) {
                     // relation not exists
                     return $this;
                 }
                 $document->unsetField($field)->save();
                 break;
-                
+
             case self::RELATION_HAS_MANY:
-                if(!$document) {
+                if (!$document) {
                     throw new Exception('Related document must be defined');
                 }
                 $document->unsetField($field)->save();
                 break;
-                
-                
+
+
             case self::RELATION_MANY_MANY:
-                if(!$document) {
+                if (!$document) {
                     throw new Exception('Related document must be defined');
                 }
                 $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
-                if($isRelationListStoredInternally) {
+                if ($isRelationListStoredInternally) {
                     $this->pull($field, $document->getId())->save();
                 } else {
                     $document->pull($field, $this->getId())->save();
                 }
                 break;
-            
+
             default:
                 throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
-        
+
         return $this;
     }
 
@@ -590,6 +593,7 @@ class Document extends Structure
     /*
      * Used to define id of unstored document. This db is manual
      */
+
     public function setId($id)
     {
 
@@ -803,28 +807,48 @@ class Document extends Structure
 
                 default:
 
-                    foreach ($fields as $field) {
-                        if (!$this->get($field)) {
-                            continue;
-                        }
+                    // method
+                    if (method_exists($this, $rule[1])) {
 
-                        if (!method_exists($this, $rule[1])) {
-                            continue;
-                        }
+                        foreach ($fields as $field) {
 
-                        // params, passed to rule method
-                        $params = $rule;
-                        unset($params[0]); // remove field list
-                        unset($params[1]); // remove rule name
-
-                        if (!call_user_func(array($this, $rule[1]), $field, $params)) {
-                            if (!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" not valid in model ' . get_called_class();
+                            if (!$this->get($field)) {
+                                continue;
                             }
 
-                            $this->_errors[$field][$rule[1]] = $rule['message'];
+                            // method in current class
+                            $params = $rule;
+                            unset($params[0]); // remove field list
+                            unset($params[1]); // remove rule name
+
+                            if (!call_user_func(array($this, $rule[1]), $field, $params)) {
+                                if (!isset($rule['message'])) {
+                                    $rule['message'] = 'Field "' . $field . '" not valid in model ' . get_called_class();
+                                }
+
+                                $this->_errors[$field][$rule[1]] = $rule['message'];
+                            }
                         }
+                    } else {
+                        // validator class
+                        $validatorClassName = null;
+                        foreach ($this->_validatorNamespaces as $namespace) {
+                            $validatorClassName = $namespace . '\\' . ucfirst(strtolower($rule[1]));
+                            if (!class_exists($validatorClassName)) {
+                                $validatorClassName = null;
+                                continue;
+                            }
+                        }
+
+                        if (!$validatorClassName) {
+                            throw new Exception('Validator with name ' . $rule[1] . ' not found');
+                        }
+
+                        /* @var $validator \Sokil\Mongo\Validator */
+                        $validator = new $validatorClassName;
+                        $validator->validate($this, $fields);
                     }
+
                     break;
             }
         }
@@ -1025,7 +1049,7 @@ class Document extends Structure
             $value = array($value);
         } // field already exist and has single value
         elseif (!is_array($oldValue)) {
-            $value = array_merge((array)$oldValue, array($value));
+            $value = array_merge((array) $oldValue, array($value));
             if ($this->getId()) {
                 $this->_operator->set($fieldName, $value);
             }
@@ -1040,7 +1064,6 @@ class Document extends Structure
                 } else {
                     $this->_operator->push($fieldName, $value);
                 }
-
             }
             $value = array_merge($oldValue, array($value));
         }
@@ -1066,7 +1089,7 @@ class Document extends Structure
             if (!$oldValue) {
                 $this->_operator->pushEach($fieldName, $values);
             } elseif (!is_array($oldValue)) {
-                $values = array_merge((array)$oldValue, $values);
+                $values = array_merge((array) $oldValue, $values);
                 $this->_operator->set($fieldName, $values);
             } else {
                 $this->_operator->pushEach($fieldName, $values);
@@ -1109,7 +1132,7 @@ class Document extends Structure
 
     public function increment($fieldName, $value = 1)
     {
-        parent::set($fieldName, (int)$this->get($fieldName) + $value);
+        parent::set($fieldName, (int) $this->get($fieldName) + $value);
 
         if ($this->getId()) {
             $this->_operator->increment($fieldName, $value);
@@ -1146,8 +1169,7 @@ class Document extends Structure
             $updateOperations = $this->getOperator()->getAll();
 
             $status = $this->getCollection()->getMongoCollection()->update(
-                array('_id' => $this->getId()),
-                $updateOperations
+                array('_id' => $this->getId()), $updateOperations
             );
 
             if ($status['ok'] != 1) {
@@ -1201,4 +1223,5 @@ class Document extends Structure
     {
         $this->_collection->deleteDocument($this);
     }
+
 }
