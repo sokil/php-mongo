@@ -111,6 +111,18 @@ class Document extends Structure
 
         $this->_eventDispatcher->dispatch('afterConstruct');
     }
+    
+    /**
+     * Add own namespace of validators
+     * 
+     * @param type $namespace
+     * @return \Sokil\Mongo\Document
+     */
+    public function addValidatornamespace($namespace)
+    {
+        $this->_validatorNamespaces[] = rtrim($namespace, '\\');
+        return $this;
+    }
 
     /**
      * Event handler, called before running constructor.

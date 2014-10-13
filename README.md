@@ -569,7 +569,54 @@ class CustomDocument extends \Sokil\Mongo\Document
 }
 ```
 
+You may create your own validator class, if you want to use validator in few classes.
+Just extnd your class from abstract validator class \Sokil\Mongo\Validator and register your own validator namespace:
 
+```php
+namespace Vendor\Mongo\Validator;
+
+/**
+ * Validator class
+ */
+class MyOwnEqualsValidator extends \Sokil\Mongo\Validator
+{
+    public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
+    {
+        if (!$document->get($fieldName)) {
+            return;
+        }
+
+        if ($document->get($fieldName) === $params['to']) {
+            return;
+        }
+        
+        if (!isset($params['message'])) {
+            $params['message'] = 'Field "' . $fieldName . '" must be equals to "' . $params['to'] . '" in model ' . get_called_class();
+        }
+
+        $document->addError($fieldName, $this->getName(), $params['message']);
+    }
+}
+
+/**
+ * Registering validator in document
+ */
+
+class SomeDocument extends \Sokil\Mongo\Document
+{
+    public function beforeConstruct()
+    {
+        $this->addValidatorNamespace('Vendor\Mongo\Validator');
+    }
+
+    public function rules()
+    {
+        return array(
+            // 'my_own_equals_validator' converts to 'MyOwnEqualsValidator' class name
+            array('field', 'my_own_equals_validator', 'to' => 42, 'message' => 'Not equals'),
+        );
+    }
+}
 
 Deleting collections and documents
 -----------------------------------
