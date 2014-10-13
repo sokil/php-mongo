@@ -879,21 +879,67 @@ class Document extends Structure
         return array_merge_recursive($this->_errors, $this->_triggeredErrors);
     }
 
+    /**
+     * Add validator error from validator classes and methods. This error 
+     * reset on every revalidation
+     * 
+     * @param type $fieldName
+     * @param type $ruleName
+     * @param type $message
+     * @return \Sokil\Mongo\Document
+     */
     public function addError($fieldName, $ruleName, $message)
     {
         $this->_errors[$fieldName][$ruleName] = $message;
         return $this;
     }
     
+    /**
+     * Add errors
+     * 
+     * @param array $errors
+     * @return \Sokil\Mongo\Document
+     */
+    public function addErrors(array $errors)
+    {
+        $this->_errors = array_merge_recursive($this->_errors, $errors);
+        return $this;
+    }
+    
+    /**
+     * Add custom error which not reset after validation
+     * 
+     * @param type $fieldName
+     * @param type $ruleName
+     * @param type $message
+     * @return \Sokil\Mongo\Document
+     */
     public function triggerError($fieldName, $ruleName, $message)
     {
         $this->_triggeredErrors[$fieldName][$ruleName] = $message;
         return $this;
     }
 
+    /**
+     * Add custom errors
+     * 
+     * @param array $errors
+     * @return \Sokil\Mongo\Document
+     */
     public function triggerErrors(array $errors)
     {
         $this->_triggeredErrors = array_merge_recursive($this->_triggeredErrors, $errors);
+        return $this;
+    }
+    
+    /**
+     * Remove custom errors
+     * 
+     * @return \Sokil\Mongo\Document
+     */
+    public function clearTriggeredErrors()
+    {
+        $this->_triggeredErrors = array();
         return $this;
     }
 
