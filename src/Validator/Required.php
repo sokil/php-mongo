@@ -6,7 +6,6 @@ class Required extends \Sokil\Mongo\Validator
 {
     public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
     {
-        var_dump($document->getErrors());
         if ($document->get($fieldName)) {
             return;
         }
