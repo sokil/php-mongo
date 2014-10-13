@@ -308,50 +308,20 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     
     public function testIsValid_FieldValidatedByMethod_Passed()
     {
-        // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules', 'somePassedValidationMethod'), array(self::$collection));
-        $document
-            ->expects($this->any())
-            ->method('rules')
-            ->will($this->returnValue(array(
-                array('some-field-name', 'somePassedValidationMethod'),
-            )));
-        
-        $document    
-            ->expects($this->any())
-            ->method('somePassedValidationMethod')
-            ->will($this->returnValue(true));
-        
-        // required field empty
-        $this->assertTrue($document->isValid());
-        
-        // Field invalid
-        $document->set('some-field-name', 'value');
-        $this->assertTrue($document->isValid());
+        $document = new DocumentWithMethodValidator(self::$collection);
+        $this->assertTrue($document->set('field', 42)->isValid());
     }
     
     public function testIsValid_FieldValidatedByMethod_Failed()
     {
-        // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules', 'someFailedValidationMethod'), array(self::$collection));
-        $document
-            ->expects($this->any())
-            ->method('rules')
-            ->will($this->returnValue(array(
-                array('some-field-name', 'someFailedValidationMethod'),
-            )));
+        $document = new DocumentWithMethodValidator(self::$collection);
+        $this->assertFalse($document->set('field', 43)->isValid());
         
-        $document
-            ->expects($this->any())
-            ->method('someFailedValidationMethod')
-            ->will($this->returnValue(false));
-        
-        // required field empty
-        $this->assertTrue($document->isValid());
-        
-        // Field invalid
-        $document->set('some-field-name', 'value');
-        $this->assertFalse($document->isValid());
+        $this->assertEquals(array(
+            'field' => array(
+                'validateEquals42' => 'Not equals to 42',
+            ),
+        ), $document->getErrors());
     }
 
     /**
@@ -440,6 +410,27 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             $this->fail('Must be exception');
         } catch(\Sokil\Mongo\Document\Exception\Validate $e) {
             $this->assertEquals($document, $e->getDocument());
+        }
+    }
+}
+
+class DocumentWithMethodValidator extends \Sokil\Mongo\Document
+{
+    public function rules()
+    {
+        return array(
+            array('field', 'validateEquals42'),
+        );
+    }
+    
+    public function validateEquals42($fieldName, array $params)
+    {
+        if(42 !== $this->get($fieldName)) {
+            $errorMessage = isset($params['message'])
+                ? $params['message']
+                : 'Not equals to 42';
+            
+            $this->addError($fieldName, 'validateEquals42', $errorMessage);
         }
     }
 }

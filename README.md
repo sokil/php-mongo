@@ -545,19 +545,32 @@ class CustomDocument extends \Sokil\Mongo\Document
     punlic function rules() 
     {
         return array(
-            array('email', 'uniqueFieldValidator', 'message' => 'E-mail must be unique in collection'),
+            array(
+                'email', 
+                'uniqueFieldValidator', 
+                'message' => 'E-mail must be unique in collection'
+            ),
         );
     }
     
     /**
-     * @return bool if true, validator passes, if false - failed
+     * Validator
      */
     public function uniqueFieldValidator($fieldName, $params)
     {
-        // some logic of checking unique mail. Return true if validator passes, and false otherwise
+        // Some logic of checking unique mail.
+        // 
+        // Before version 1.7 this method must return true if validator passes, 
+        // and false otherwise.
+        // 
+        // Since version 1.7 this method return no values and must call 
+        // Document::addError() method to add error into stack.
     }
 }
 ```
+
+
+
 Deleting collections and documents
 -----------------------------------
 

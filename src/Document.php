@@ -694,17 +694,7 @@ class Document extends Structure
             if (method_exists($this, $ruleName)) {
                 // method
                 foreach ($fields as $field) {
-                    if (!$this->get($field)) {
-                        continue;
-                    }
-
-                    if (!call_user_func(array($this, $ruleName), $field, $params)) {
-                        if (!isset($rule['message'])) {
-                            $rule['message'] = 'Field "' . $field . '" not valid in model ' . get_called_class();
-                        }
-
-                        $this->addError($field, $ruleName, $rule['message']);
-                    }
+                    $this->{$ruleName}($field, $params);
                 }
             } else {
                 // validator class
