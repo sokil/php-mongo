@@ -570,7 +570,7 @@ class CustomDocument extends \Sokil\Mongo\Document
 ```
 
 You may create your own validator class, if you want to use validator in few classes.
-Just extnd your class from abstract validator class \Sokil\Mongo\Validator and register your own validator namespace:
+Just extend your class from abstract validator class \Sokil\Mongo\Validator and register your own validator namespace:
 
 ```php
 namespace Vendor\Mongo\Validator;
