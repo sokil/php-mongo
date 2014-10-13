@@ -645,6 +645,24 @@ class Document extends Structure
         return array();
     }
 
+    private function getValidatorClassNameByRuleName($ruleName)
+    {
+        if(false !== strpos($ruleName, '_')) {
+            $className = implode('', array_map('ucfirst', explode('_', strtolower($ruleName))));
+        } else {
+            $className = ucfirst(strtolower($ruleName));
+        }
+        
+        foreach ($this->_validatorNamespaces as $namespace) {
+            $fullyQualifiedClassName = $namespace . '\\' . $className . 'Validator';
+            if (class_exists($fullyQualifiedClassName)) {
+                return $fullyQualifiedClassName;
+            }
+        }
+
+        throw new Exception('Validator with name ' . $ruleName . ' not found');
+    }
+
     /**
      * check if filled model params is valid
      * @return boolean
@@ -673,68 +691,32 @@ class Document extends Structure
                 }
             }
 
-            // validate
-            switch ($ruleName) {
-
-                case 'not_equals':
-
-                    foreach ($fields as $field) {
-                        if (!$this->get($field)) {
-                            continue;
-                        }
-
-                        if ($this->get($field) === $rule['to']) {
-                            if (!isset($rule['message'])) {
-                                $rule['message'] = 'Field "' . $field . '" must not be equals to "' . $rule['to'] . '" in model ' . get_called_class();
-                            }
-
-                            $this->_errors[$field][$rule[1]] = $rule['message'];
-                        }
-                    }
-                    break;
-
-                default:
-
-                    if (method_exists($this, $ruleName)) {
-                        // method
-                        foreach ($fields as $field) {
-                            if (!$this->get($field)) {
-                                continue;
-                            }
-
-                            if (!call_user_func(array($this, $ruleName), $field, $params)) {
-                                if (!isset($rule['message'])) {
-                                    $rule['message'] = 'Field "' . $field . '" not valid in model ' . get_called_class();
-                                }
-
-                                $this->_errors[$field][$ruleName] = $rule['message'];
-                            }
-                        }
-                    } else {
-                        // validator class
-                        $validatorClassName = null;
-                        foreach ($this->_validatorNamespaces as $namespace) {
-                            $validatorClassName = $namespace . '\\' . ucfirst(strtolower($ruleName)) . 'Validator';
-                            if (!class_exists($validatorClassName)) {
-                                $validatorClassName = null;
-                                continue;
-                            }
-                        }
-
-                        if (!$validatorClassName) {
-                            throw new Exception('Validator with name ' . $ruleName . ' not found');
-                        }
-
-                        /* @var $validator \Sokil\Mongo\Validator */
-                        $validator = new $validatorClassName;
-                        if(!$validator instanceof \Sokil\Mongo\Validator) {
-                            throw new Exception('Validator class must implement \Sokil\Mongo\Validator class');
-                        }
-                        
-                        $validator->validate($this, $fields, $params);
+            if (method_exists($this, $ruleName)) {
+                // method
+                foreach ($fields as $field) {
+                    if (!$this->get($field)) {
+                        continue;
                     }
 
-                    break;
+                    if (!call_user_func(array($this, $ruleName), $field, $params)) {
+                        if (!isset($rule['message'])) {
+                            $rule['message'] = 'Field "' . $field . '" not valid in model ' . get_called_class();
+                        }
+
+                        $this->addError($field, $ruleName, $rule['message']);
+                    }
+                }
+            } else {
+                // validator class
+                $validatorClassName = $this->getValidatorClassNameByRuleName($ruleName);
+
+                /* @var $validator \Sokil\Mongo\Validator */
+                $validator = new $validatorClassName;
+                if (!$validator instanceof \Sokil\Mongo\Validator) {
+                    throw new Exception('Validator class must implement \Sokil\Mongo\Validator class');
+                }
+
+                $validator->validate($this, $fields, $params);
             }
         }
 
@@ -792,7 +774,7 @@ class Document extends Structure
         $this->_errors[$fieldName][$ruleName] = $message;
         return $this;
     }
-    
+
     /**
      * Add errors
      * 
@@ -804,7 +786,7 @@ class Document extends Structure
         $this->_errors = array_merge_recursive($this->_errors, $errors);
         return $this;
     }
-    
+
     /**
      * Add custom error which not reset after validation
      * 
@@ -830,7 +812,7 @@ class Document extends Structure
         $this->_triggeredErrors = array_merge_recursive($this->_triggeredErrors, $errors);
         return $this;
     }
-    
+
     /**
      * Remove custom errors
      * 
