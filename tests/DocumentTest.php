@@ -37,10 +37,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         self::$collection = $database->getCollection('phpmongo_test_collection');
     }
     
-    public function setUp() {
+    public function setUp() 
+    {
+        self::$collection->delete();
     }
     
-    public function tearDown() {
+    public function tearDown()
+    {
 
     }
     
@@ -220,9 +223,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testSet()
     {
-        $document = self::$collection->createDocument(array(
-            'param' => 'value',
-        ));
+        $document = self::$collection
+            ->delete()
+            ->createDocument(array(
+                'param' => 'value',
+            ));
         
         $document->set('a.b.c', 'value1');
         $this->assertEquals('value1', $document->get('a.b.c'));
