@@ -468,15 +468,17 @@ class Document extends Structure
     /**
      * Manually trigger defined events
      * @param string $eventName event name
-     * @return \Sokil\Mongo\Document
+     * @return \Sokil\Mongo\Event
      */
-    public function triggerEvent($eventName)
+    public function triggerEvent($eventName, \Sokil\Mongo\Event $event = null)
     {
-        $event = new Event;
+        if(!$event) {
+            $event = new Event;
+        }
+        
         $event->setTarget($this);
 
-        $this->_eventDispatcher->dispatch($eventName, $event);
-        return $this;
+        return $this->_eventDispatcher->dispatch($eventName, $event);
     }
 
     /**
