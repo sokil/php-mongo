@@ -355,7 +355,9 @@ class Collection implements \Countable
     
     public function deleteDocument(Document $document)
     {        
-        $document->triggerEvent('beforeDelete');
+        if($document->triggerEvent('beforeDelete')->isCancelled()) {
+            return $this;
+        }
         
         $status = $this->_mongoCollection->remove(array(
             '_id'   => $document->getId()
