@@ -8,9 +8,9 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Collection
      */
-    private static $collection;
+    private $collection;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
@@ -19,27 +19,18 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $database = $client->getDatabase('test');
         
         // select collection
-        self::$collection = $database->getCollection('phpmongo_test_collection');
+        $this->collection = $database->getCollection('phpmongo_test_collection');
     }
     
-    public function setUp() 
+    public function tearDown()
     {
-        self::$collection->delete();
-    }
-    
-    public function tearDown() {
-
-    }
-    
-    public static function tearDownAfterClass() 
-    {
-        self::$collection->delete();
+        $this->collection->delete();
     }
     
     public function testIsValid_RequiredField()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -58,7 +49,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldEquals()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -81,7 +72,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldNotEquals()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -104,7 +95,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldInRange()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -127,7 +118,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_NumericField()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -150,7 +141,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_NullField()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -173,7 +164,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldEqualsOnScenario()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -197,7 +188,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldEqualsExceptScenario()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -228,7 +219,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldRegexp()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -254,7 +245,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $document = $this->getMock(
             '\Sokil\Mongo\Document',
             array('rules'),
-            array(self::$collection)
+            array($this->collection)
         );
 
         $document
@@ -279,7 +270,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testIsValid_FieldEmail()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
@@ -311,13 +302,13 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     
     public function testIsValid_FieldValidatedByMethod_Passed()
     {
-        $document = new DocumentWithMethodValidator(self::$collection);
+        $document = new DocumentWithMethodValidator($this->collection);
         $this->assertTrue($document->set('field', 42)->isValid());
     }
     
     public function testIsValid_FieldValidatedByMethod_Failed()
     {
-        $document = new DocumentWithMethodValidator(self::$collection);
+        $document = new DocumentWithMethodValidator($this->collection);
         $this->assertFalse($document->set('field', 43)->isValid());
         
         $this->assertEquals(array(
@@ -337,7 +328,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $document = $this->getMock(
             '\Sokil\Mongo\Document',
             array('rules', 'someFailedValidationMethod'),
-            array(self::$collection)
+            array($this->collection)
         );
 
         $document
@@ -353,7 +344,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testTriggerError()
     {
         try {
-            $document = new \Sokil\Mongo\Document(self::$collection);
+            $document = new \Sokil\Mongo\Document($this->collection);
             $document->triggerError('field', 'rule', 'message');
             
             $document->validate();
@@ -380,7 +371,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         );
         
         try {
-            $document = new \Sokil\Mongo\Document(self::$collection);
+            $document = new \Sokil\Mongo\Document($this->collection);
             $document->triggerErrors($errors);
             
             $document->validate();
@@ -398,7 +389,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
     public function testGetInvalidDocumentFromException()
     {
         // mock of document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array(self::$collection));
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
         $document
             ->expects($this->any())
             ->method('rules')
