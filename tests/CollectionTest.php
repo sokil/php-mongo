@@ -871,8 +871,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     {
         $stats = $this->collection->stats();
         
+        // error occuned - ns not found
         $this->assertEquals((double) 0, $stats['ok']);
-        $this->assertEquals('Collection [test.phpmongo_test_collection] not found.', $stats['errmsg']);
     }
 
     public function testFind()
