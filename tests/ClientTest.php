@@ -8,17 +8,12 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Client
      */
-    private static $client;
+    private $client;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
-        self::$client = new Client('mongodb://127.0.0.1');
-    }
-    
-    public static function tearDownAfterClass()
-    {
-
+        $this->client = new Client('mongodb://127.0.0.1');
     }
 
     public function testConstructClientWithConnectOptions()
@@ -54,9 +49,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDatabase()
     {
-        $this->assertInstanceOf('\Sokil\Mongo\Database', self::$client->getDatabase('test'));
+        $this->assertInstanceOf('\Sokil\Mongo\Database', $this->client->getDatabase('test'));
 
-        $this->assertInstanceOf('\Sokil\Mongo\Database', self::$client->test);
+        $this->assertInstanceOf('\Sokil\Mongo\Database', $this->client->test);
     }
 
     public function testGetDatabase_NameNotSpecified_DefaultNameSpecified()
@@ -79,7 +74,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     
     public function testMapDeclaredCollectionToClass()
     {
-        self::$client->map(array(
+        $this->client->map(array(
             'db1'   => array(
                 'db1Collection1'  => '\Db1Collection1Class',
                 'db1Collection2'  => '\Db1Collection2Class',
@@ -89,13 +84,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             '\Db1Collection2Class',
-            self::$client->getDatabase('db1')->getCollectionClassName('db1Collection2')
+            $this->client->getDatabase('db1')->getCollectionClassName('db1Collection2')
         );
     }
     
     public function testMapUndeclaredCollectionToClass()
     {
-        self::$client->map(array(
+        $this->client->map(array(
             'db1'   => array(
                 'db1Collection1'  => '\Db1Collection1Class',
                 'db1Collection2'  => '\Db1Collection2Class',
@@ -105,18 +100,18 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             '\Sokil\Mongo\Collection',
-            self::$client->getDatabase('db1')->getCollectionClassName('undeclaredCollection')
+            $this->client->getDatabase('db1')->getCollectionClassName('undeclaredCollection')
         );
         
         $this->assertEquals(
             '\Sokil\Mongo\Collection',
-            self::$client->getDatabase('undeclaredDatabase')->getCollectionClassName('undeclaredCollection')
+            $this->client->getDatabase('undeclaredDatabase')->getCollectionClassName('undeclaredCollection')
         );
     }
     
     public function testMapCollectionToClassPrefix()
     {
-        self::$client->map(array(
+        $this->client->map(array(
             'db1'   => array(
                 'db1Collection1'  => '\Db1Collection1Class',
                 'db1Collection2'  => '\Db1Collection2Class',
@@ -126,13 +121,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             '\Some\Class\Prefix\Some\Collection\Name',
-            self::$client->getDatabase('db2')->getCollectionClassName('some.collection.name')
+            $this->client->getDatabase('db2')->getCollectionClassName('some.collection.name')
         );
     }
     
     public function testUseDatabase()
     {
-        $collection = self::$client
+        $collection = $this->client
             ->useDatabase('test')
             ->getCollection('some-collection');
         
@@ -141,28 +136,28 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     
     public function testGetVersion()
     {
-        $this->assertTrue(version_compare(self::$client->getVersion(), '0.9.0', '>='));
+        $this->assertTrue(version_compare($this->client->getVersion(), '0.9.0', '>='));
     }
     
     public function testGetDbVersion()
     {
-        $version = self::$client->getDbVersion();
+        $version = $this->client->getDbVersion();
 
         $this->assertEquals(1, preg_match('#^[0-9]+(\.[0-9]+(\.[0-9]+)?)?$#', $version));
     }
 
     public function testReadPrimaryOnly()
     {
-        self::$client->readPrimaryOnly();
+        $this->client->readPrimaryOnly();
 
         $this->assertEquals(array(
             'type' => \MongoClient::RP_PRIMARY
-        ), self::$client->getReadPreference());
+        ), $this->client->getReadPreference());
     }
 
     public function testReadPrimaryPreferred()
     {
-        self::$client->readPrimaryPreferred(array(
+        $this->client->readPrimaryPreferred(array(
             array('dc' => 'kyiv'),
             array('dc' => 'lviv'),
         ));
@@ -173,12 +168,12 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), self::$client->getReadPreference());
+        ), $this->client->getReadPreference());
     }
 
     public function testReadSecondaryOnly(array $tags = null)
     {
-        self::$client->readSecondaryOnly(array(
+        $this->client->readSecondaryOnly(array(
             array('dc' => 'kyiv'),
             array('dc' => 'lviv'),
         ));
@@ -189,12 +184,12 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), self::$client->getReadPreference());
+        ), $this->client->getReadPreference());
     }
 
     public function testReadSecondaryPreferred(array $tags = null)
     {
-        self::$client->readSecondaryPreferred(array(
+        $this->client->readSecondaryPreferred(array(
             array('dc' => 'kyiv'),
             array('dc' => 'lviv'),
         ));
@@ -205,12 +200,12 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), self::$client->getReadPreference());
+        ), $this->client->getReadPreference());
     }
 
     public function testReadNearest(array $tags = null)
     {
-        self::$client->readNearest(array(
+        $this->client->readNearest(array(
             array('dc' => 'kyiv'),
             array('dc' => 'lviv'),
         ));
@@ -221,29 +216,29 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), self::$client->getReadPreference());
+        ), $this->client->getReadPreference());
     }
 
     public function testSetLogger()
     {
-        self::$client->removeLogger();
+        $this->client->removeLogger();
 
-        $this->assertFalse(self::$client->hasLogger());
+        $this->assertFalse($this->client->hasLogger());
 
-        self::$client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
+        $this->client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
 
-        $this->assertTrue(self::$client->hasLogger());
+        $this->assertTrue($this->client->hasLogger());
     }
 
     public function testGetLogger()
     {
-        self::$client->removeLogger();
+        $this->client->removeLogger();
 
-        $this->assertFalse(self::$client->hasLogger());
+        $this->assertFalse($this->client->hasLogger());
 
-        self::$client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
+        $this->client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
 
-        $this->assertInstanceOf('\Psr\Log\LoggerInterface', self::$client->getLogger());
+        $this->assertInstanceOf('\Psr\Log\LoggerInterface', $this->client->getLogger());
     }
 
     /**
@@ -270,31 +265,31 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testSetWriteConcern()
     {
-        self::$client->setWriteConcern('majority', 12000);
+        $this->client->setWriteConcern('majority', 12000);
 
         $this->assertEquals(array(
             'w' => 'majority',
             'wtimeout' => 12000
-        ), self::$client->getWriteConcern());
+        ), $this->client->getWriteConcern());
     }
 
     public function testSetUnacknowledgedWriteConcern()
     {
-        self::$client->setUnacknowledgedWriteConcern(11000);
+        $this->client->setUnacknowledgedWriteConcern(11000);
 
         $this->assertEquals(array(
             'w' => 0,
             'wtimeout' => 11000
-        ), self::$client->getWriteConcern());
+        ), $this->client->getWriteConcern());
     }
 
     public function testSetMajorityWriteConcern()
     {
-        self::$client->setMajorityWriteConcern(13000);
+        $this->client->setMajorityWriteConcern(13000);
 
         $this->assertEquals(array(
             'w' => 'majority',
             'wtimeout' => 13000
-        ), self::$client->getWriteConcern());
+        ), $this->client->getWriteConcern());
     }
 }

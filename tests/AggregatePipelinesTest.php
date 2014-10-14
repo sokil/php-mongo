@@ -8,9 +8,9 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Collection
      */
-    private static $collection;
+    private $collection;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
@@ -19,11 +19,11 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $database = $client->getDatabase('test');
         
         // select collection
-        self::$collection = $database->getCollection('phpmongo_test_collection');
+        $this->collection = $database->getCollection('phpmongo_test_collection');
     }
     
     public function testPipelineAppendFewGroups() {
-        $pipelines  = self::$collection->createPipeline();
+        $pipelines  = $this->collection->createPipeline();
         
         $pipelines->group(array(
             '_id'   => '$field1',
@@ -55,7 +55,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
      */
     public function testPipelineAppend() {
         
-        $pipelines = self::$collection->createPipeline();
+        $pipelines = $this->collection->createPipeline();
         
         // insert new match pipeline
         $pipelines->match(array(
@@ -106,7 +106,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
      */
     public function testPipelineToString() {
         
-        $pipelines = self::$collection->createPipeline();
+        $pipelines = $this->collection->createPipeline();
         
         // insert new match pipeline
         $pipelines->match(array(
@@ -148,7 +148,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
      * @expectedException \Sokil\Mongo\Exception
      */
     public function testErrorOnEmptyIDInGroup() {
-        $pipelines  = self::$collection->createPipeline();
+        $pipelines  = $this->collection->createPipeline();
         
         $pipelines->group(array(
             'field' => 'value'
@@ -157,7 +157,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
 
     public function testSkipLimit()
     {
-        $pipelines  = self::$collection->createPipeline();
+        $pipelines  = $this->collection->createPipeline();
 
         $pipelines->skip(11)->limit(23);
 
