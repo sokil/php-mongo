@@ -22,6 +22,11 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $this->collection = $database->getCollection('phpmongo_test_collection');
     }
     
+    public function tearDown()
+    {
+        $this->collection->delete();
+    }
+    
     public function testPipelineAppendFewGroups() {
         $pipelines  = $this->collection->createPipeline();
         
