@@ -322,4 +322,104 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($status->done);
     }
+    
+    public function testCancelledEventHandlerNotPropageted()
+    {
+        $testCase = $this;
+        
+        $status = new \stdClass;
+        $status->done = false;
+        
+        self::$collection
+            ->createDocument()
+            ->onBeforeInsert(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) use($status) {
+                $status->done = true;
+                $event->cancel();
+            })
+            ->onBeforeInsert(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) use($testCase) {
+                $testCase->fail('Event propagation not stoped on event handling cancel');
+            })
+            ->save();
+            
+        $this->assertTrue($status->done);
+    }
+    
+    public function testCancelOperation_BeforeInsert()
+    {
+        self::$collection
+            ->delete()
+            ->createDocument(array('field' => 'value'))
+            ->onBeforeInsert(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) {
+                $event->cancel();
+            })
+            ->save();
+            
+        $this->assertEquals(0, self::$collection->count());
+    }
+    
+    public function testCancelOperation_BeforeUpdate()
+    {
+        $document = self::$collection
+            ->delete()
+            ->createDocument(array('field' => 'value'))
+            ->save()
+            ->onBeforeUpdate(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) {
+                $event->cancel();
+            })
+            ->set('field', 'updatedValue')
+            ->save();
+            
+        $this->assertEquals(
+            'value', 
+            self::$collection
+                ->getDocumentDirectly($document->getId())
+                ->get('field')
+        );
+    }
+    
+    public function testCancelOperation_BeforeSave()
+    {
+        self::$collection
+            ->delete()
+            ->createDocument(array('field' => 'value'))
+            ->onBeforeSave(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) {
+                $event->cancel();
+            })
+            ->save();
+            
+        $this->assertEquals(0, self::$collection->count());
+    }
+    
+    public function testCancelOperation_BeforeDelete()
+    {
+        $document = self::$collection
+            ->delete()
+            ->createDocument(array('field' => 'value'))
+            ->save()
+            ->onBeforeDelete(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) {
+                $event->cancel();
+            })
+            ->delete();
+            
+        $this->assertEquals(1, self::$collection->count());
+    }
+    
+    public function testCancelOperation_BeforeValidate()
+    {
+        $documentMock = $this
+            ->getMockBuilder('\Sokil\Mongo\Document')
+            ->setMethods(array('isValid'))
+            ->setConstructorArgs(array(self::$collection))
+            ->getMock();
+        
+        $documentMock
+            ->expects($this->never())
+            ->method('isValid');
+        
+        $documentMock
+            ->onBeforeValidate(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) {
+                $event->cancel();
+            })
+            ->save();
+    }
 }
