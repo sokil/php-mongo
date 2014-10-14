@@ -8,9 +8,9 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Collection
      */
-    private static $collection;
+    private $collection;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
@@ -19,27 +19,30 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $database = $client->getDatabase('test');
         
         // select collection
-        self::$collection = $database
-            ->getCollection('phpmongo_test_collection');
+        $this->collection = $database->getCollection('phpmongo_test_collection');
+    }
+    
+    public function tearDown()
+    {
+        $this->collection->delete();
     }
     
     public function testReturnSpecifiedFields()
-    {
-        self::$collection->delete();
-        
+    {        
         // create new document
-        $document = self::$collection->createDocument(array(
-            'a'    => 'a1',
-            'b'    => 'b1',
-            'c'    => 'c1',
-            'd'    => 'd1',
-        ));
+        $document = $this->collection
+            ->createDocument(array(
+                'a'    => 'a1',
+                'b'    => 'b1',
+                'c'    => 'c1',
+                'd'    => 'd1',
+            ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // fild some fields of document
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->fields(array(
                 'a', 'c'
             ))
@@ -55,22 +58,20 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testSkipSpecifiedFields()
-    {
-        self::$collection->delete();
-        
+    {        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'a'    => 'a1',
             'b'    => 'b1',
             'c'    => 'c1',
             'd'    => 'd1',
         ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // fild some fields of document
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->skipFields(array(
                 'a', 'c'
             ))
@@ -87,22 +88,20 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
      * @expectedException \MongoCursorException
      */
     public function testErrorOnAcceptedAndSkippedFieldsPassed()
-    {
-        self::$collection->delete();
-        
+    {        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'a'    => 'a1',
             'b'    => 'b1',
             'c'    => 'c1',
             'd'    => 'd1',
         ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // fild some fields of document
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->fields(array(
                 'a', 'c'
             ))
@@ -111,43 +110,38 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testSlice()
-    {
-        self::$collection->delete();
-        
+    {        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'key'    => array('a', 'b', 'c', 'd', 'e', 'f'),
         ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
         // only limit defined
-        $this->assertEquals(array('a', 'b'), self::$collection->find()->slice('key', 2)->findOne()->key);
-        $this->assertEquals(array('e', 'f'), self::$collection->find()->slice('key', -2)->findOne()->key);
+        $this->assertEquals(array('a', 'b'), $this->collection->find()->slice('key', 2)->findOne()->key);
+        $this->assertEquals(array('e', 'f'), $this->collection->find()->slice('key', -2)->findOne()->key);
         
         // limit and skip defined
-        $this->assertEquals(array('c'), self::$collection->find()->slice('key', 1, 2)->findOne()->key);
-        $this->assertEquals(array('e'), self::$collection->find()->slice('key', 1, -2)->findOne()->key);
+        $this->assertEquals(array('c'), $this->collection->find()->slice('key', 1, 2)->findOne()->key);
+        $this->assertEquals(array('e'), $this->collection->find()->slice('key', 1, -2)->findOne()->key);
     }
     
     public function testFindOne()
-    {
-        // create new document
-        self::$collection->delete();
-        
-        self::$collection
+    {        
+        $this->collection
             ->createDocument(array(
                 'someField'    => 'A',
             ))
             ->save();
 
-        self::$collection
+        $this->collection
             ->createDocument(array(
                 'someField'    => 'B',
             ))
             ->save();
 
-        $documentId = self::$collection
+        $documentId = $this->collection
             ->createDocument(array(
                 'someField'    => 'C',
             ))
@@ -155,7 +149,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->getId();
         
         // find existed row
-        $document = self::$collection
+        $document = $this->collection
             ->find()
             ->where('someField', 'C')
             ->findOne();
@@ -163,7 +157,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($documentId, $document->getId());
         
         // find unexisted row
-        $document = self::$collection
+        $document = $this->collection
             ->find()
             ->where('some-unexisted-field', 'some-value')
             ->findOne();
@@ -179,7 +173,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $exp2 = new Expression;
         $exp1->whereLess('b', 20);
 
-        $query = self::$collection->find();
+        $query = $this->collection->find();
         $query->query($exp1);
         $query->query($exp2);
 
@@ -193,10 +187,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testMixedToMongoIdList()
     {
-        self::$collection->delete();
-
         // create new document
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p1'    => 'v',
                 'p2'    => 'doc1',
@@ -244,10 +236,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testGetIdList()
     {
-        self::$collection->delete();
-
         // create new document
-        $document1Id = self::$collection
+        $document1Id = $this->collection
             ->createDocument(array(
                 'p'    => 1,
             ))
@@ -255,7 +245,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->getId();
 
         // create new document
-        $document2Id = self::$collection
+        $document2Id = $this->collection
             ->createDocument(array(
                 'p'    => 1,
             ))
@@ -265,7 +255,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             $document1Id,
             $document2Id,
-        ), self::$collection
+        ), $this->collection
             ->find()
             ->sort(array('p' => 1))
             ->getIdList()
@@ -273,54 +263,49 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testFindRandom()
-    {
-        self::$collection->delete();
-        
+    {        
         // create new document
-        $document1 = self::$collection->createDocument(array(
+        $document1 = $this->collection->createDocument(array(
             'p1'    => 'v',
             'p2'    => 'doc1',
         ));
-        self::$collection->saveDocument($document1);
+        $this->collection->saveDocument($document1);
         
-        $document2 = self::$collection->createDocument(array(
+        $document2 = $this->collection->createDocument(array(
             'p1'    => 'v',
             'p2'    => 'doc2',
         ));
-        self::$collection->saveDocument($document2);
+        $this->collection->saveDocument($document2);
         
-        $document3 = self::$collection->createDocument(array(
+        $document3 = $this->collection->createDocument(array(
             'p1'    => 'other_v',
             'p2'    => 'doc3',
         ));
-        self::$collection->saveDocument($document3);
+        $this->collection->saveDocument($document3);
         
         // find unexisted random document
-        $document = self::$collection->find()->where('pZZZ', 'v')->findRandom();
+        $document = $this->collection->find()->where('pZZZ', 'v')->findRandom();
         $this->assertEmpty($document);
         
         // find random documents if only one document match query
-        $document = self::$collection->find()->where('p1', 'other_v')->findRandom();
+        $document = $this->collection->find()->where('p1', 'other_v')->findRandom();
         $this->assertEquals($document->getId(), $document3->getId());
         
         // find random document among two existed documents
-        $document = self::$collection->find()->where('p1', 'v')->findRandom();
+        $document = $this->collection->find()->where('p1', 'v')->findRandom();
         $this->assertTrue(in_array($document->getId(), array($document1->getId(), $document2->getId())));
     }
     
     public function testFindAll()
-    {
-        // create new document
-        self::$collection->delete();
-        
+    {        
         // add doc
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'some-field'    => 'some-value',
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
         // find
-        $documents = self::$collection->find()->where('some-field', 'some-value');
+        $documents = $this->collection->find()->where('some-field', 'some-value');
         
         $firstDocument = current($documents->findAll());
         $this->assertEquals($firstDocument->getId(), $document->getId());
@@ -328,8 +313,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testPluck_findAsObject_SimpleField()
     {
-        self::$collection
-            ->delete()
+        $this->collection
             ->insertMultiple(array(
                 array('field' => 1),
                 array('field' => 2),
@@ -339,14 +323,13 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             array(1, 2, 3, 4),
-            array_values(self::$collection->find()->pluck('field'))
+            array_values($this->collection->find()->pluck('field'))
         );
     }
     
     public function testPluck_findAsObject_CompoundField()
     {
-        self::$collection
-            ->delete()
+        $this->collection
             ->insertMultiple(array(
                 array('field' => array('f1' => 'a1', 'f2' => 'b1')),
                 array('field' => array('f1' => 'a2', 'f2' => 'b2')),
@@ -356,14 +339,13 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             array('b1', 'b2', 'b3', 'b4'),
-            array_values(self::$collection->find()->pluck('field.f2'))
+            array_values($this->collection->find()->pluck('field.f2'))
         );
     }
     
     public function testPluck_findAsArray_SimpleField()
     {
-        self::$collection
-            ->delete()
+        $this->collection
             ->insertMultiple(array(
                 array('field' => 1),
                 array('field' => 2),
@@ -373,60 +355,56 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             array(1, 2, 3 ,4),
-            array_values(self::$collection->findAsArray()->pluck('field'))
+            array_values($this->collection->findAsArray()->pluck('field'))
         );
     }
     
     public function testPluck_findAsArray_CompoundField()
     {
-        self::$collection
-            ->delete()
-                ->insertMultiple(array(
-                array('field' => array('f1' => 'a1', 'f2' => 'b1')),
-                array('field' => array('f1' => 'a2', 'f2' => 'b2')),
-                array('field' => array('f1' => 'a3', 'f2' => 'b3')),
-                array('field' => array('f1' => 'a4', 'f2' => 'b4')),
-            ));
+        $this->collection
+            ->insertMultiple(array(
+            array('field' => array('f1' => 'a1', 'f2' => 'b1')),
+            array('field' => array('f1' => 'a2', 'f2' => 'b2')),
+            array('field' => array('f1' => 'a3', 'f2' => 'b3')),
+            array('field' => array('f1' => 'a4', 'f2' => 'b4')),
+        ));
         
         $this->assertEquals(
             array('b1', 'b2', 'b3', 'b4'),
-            array_values(self::$collection->findAsArray()->pluck('field.f2'))
+            array_values($this->collection->findAsArray()->pluck('field.f2'))
         );
     }
     
     public function testReturnAsArray()
-    {
-        // create new document
-        self::$collection->delete();
-        
-        $document = self::$collection->createDocument(array(
+    {        
+        $document = $this->collection->createDocument(array(
             'some-field'    => 'some-value',
         ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
         // find all rows
-        $document = self::$collection->findAsArray()->where('some-field', 'some-value')->rewind()->current();
+        $document = $this->collection->findAsArray()->where('some-field', 'some-value')->rewind()->current();
         $this->assertEquals('array', gettype($document));
         
         // find one row
-        $document = self::$collection->findAsArray()->where('some-field', 'some-value')->findOne();
+        $document = $this->collection->findAsArray()->where('some-field', 'some-value')->findOne();
         $this->assertEquals('array', gettype($document));
         
     }
 
     public function testSort()
     {
-        self::$collection->createDocument(array('p' => 'A'))->save();
-        self::$collection->createDocument(array('p' => 'B'))->save();
-        self::$collection->createDocument(array('p' => 'C'))->save();
+        $this->collection->createDocument(array('p' => 'A'))->save();
+        $this->collection->createDocument(array('p' => 'B'))->save();
+        $this->collection->createDocument(array('p' => 'C'))->save();
 
-        $documentId = self::$collection
+        $documentId = $this->collection
             ->createDocument(array('p' => 'D'))
             ->save()
             ->getId();
 
-        $document = self::$collection
+        $document = $this->collection
             ->find()
             ->sort(array('p' => -1));
 
@@ -435,13 +413,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testLogger()
     {
-        self::$collection->delete();
-
         // create documents
-        self::$collection->createDocument(array('param' => 1))->save();
-        self::$collection->createDocument(array('param' => 2))->save();
-        self::$collection->createDocument(array('param' => 3))->save();
-        self::$collection->createDocument(array('param' => 4))->save();
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
 
         // create logger
         $logger = $this->getMock('\Psr\Log\LoggerInterface');
@@ -451,46 +427,43 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->with('Sokil\Mongo\QueryBuilder: {"collection":"phpmongo_test_collection","query":{"param":2},"project":[],"sort":[]}');
 
         // set logger to client
-        self::$collection
+        $this->collection
             ->getDatabase()
             ->getClient()
             ->setLogger($logger);
 
         // aggregate
-        self::$collection->find()->where('param', 2)->findAll();
+        $this->collection->find()->where('param', 2)->findAll();
     }
     
     public function testSearchInArrayField()
     {
         // create document
-        $document = self::$collection->createDocument();
+        $document = $this->collection->createDocument();
         
         $document->push('param', 'value1');
         $document->push('param', 'value2');
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
         // find document
-        $document = self::$collection->find()->where('param', 'value1')->findOne();
+        $document = $this->collection->find()->where('param', 'value1')->findOne();
         
         $this->assertEquals(array('value1', 'value2'), $document->param);
     }
     
     public function testWhereIn()
-    {
-        // create new document
-        self::$collection->delete();
-        
-        $document = self::$collection->createDocument(array(
+    {        
+        $document = $this->collection->createDocument(array(
             'param'    => 'value1',
         ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
         $documentId = $document->getId();
         
         // find all rows
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->whereIn('param', array('value1', 'value2', 'value3'))
             ->findOne();
         
@@ -501,54 +474,50 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereEmpty()
     {
-        // create new document
-        self::$collection->delete();
         
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'f_null'      => null,
             'f_string'    => '',
             'f_array'     => array(),
         ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
         $documentId = $document->getId();
         
         // find all rows
-        $this->assertEquals($documentId, self::$collection->find()->whereEmpty('f_null')->findOne()->getId());
-        $this->assertEquals($documentId, self::$collection->find()->whereEmpty('f_string')->findOne()->getId());
-        $this->assertEquals($documentId, self::$collection->find()->whereEmpty('f_array')->findOne()->getId());
-        $this->assertEquals($documentId, self::$collection->find()->whereEmpty('f_unexisted_field')->findOne()->getId());
+        $this->assertEquals($documentId, $this->collection->find()->whereEmpty('f_null')->findOne()->getId());
+        $this->assertEquals($documentId, $this->collection->find()->whereEmpty('f_string')->findOne()->getId());
+        $this->assertEquals($documentId, $this->collection->find()->whereEmpty('f_array')->findOne()->getId());
+        $this->assertEquals($documentId, $this->collection->find()->whereEmpty('f_unexisted_field')->findOne()->getId());
     }
 
     public function testWhereNotEmpty()
     {
-        // create new document
-        self::$collection->delete();
 
         // null field
-        self::$collection
+        $this->collection
             ->createDocument(array(
                 'param'    => null,
             ))
             ->save();
 
         // empty array field
-        self::$collection
+        $this->collection
             ->createDocument(array(
                 'param'    => array(),
             ))
             ->save();
 
         // empty string field
-        self::$collection
+        $this->collection
             ->createDocument(array(
                 'param'    => '',
             ))
             ->save();
 
         // NOT EMPTY FIELD
-        $documentId = self::$collection
+        $documentId = $this->collection
             ->createDocument(array(
                 'param'    => 'value',
             ))
@@ -556,14 +525,14 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->getId();
 
         // unexisted field
-        self::$collection
+        $this->collection
             ->createDocument(array(
                 'fieldName'    => 'value',
             ))
             ->save();
 
         // find all rows
-        $documents = self::$collection
+        $documents = $this->collection
             ->find()
             ->whereNotEmpty('param')
             ->findAll();
@@ -579,19 +548,16 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereNotIn()
     {
-        // create new document
-        self::$collection->delete();
-        
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => 'value',
         ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
         $documentId = $document->getId();
         
         // find all rows
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->whereNotIn('param', array('value1', 'value2', 'value3'))
             ->findOne();
         
@@ -602,36 +568,33 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testWhereArraySize()
     {
-        // create new document
-        self::$collection->delete();
-
-        self::$collection
+        $this->collection
             ->createDocument(array(
                 'param'    => array(),
             ))
             ->save();
 
-        self::$collection
+        $this->collection
             ->createDocument(array(
                 'param'    => array('value1'),
             ))
             ->save();
 
-        $documentId = self::$collection
+        $documentId = $this->collection
             ->createDocument(array(
                 'param'    => array('value1', 'value2'),
             ))
             ->save()
             ->getId();
 
-        self::$collection
+        $this->collection
             ->createDocument(array(
                 'param'    => array('value1', 'value2', 'value3'),
             ))
             ->save();
 
         // find all rows
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->whereArraySize('param', 2)
             ->findOne();
 
@@ -642,17 +605,16 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereLike()
     {
-        self::$collection->delete();
         
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => 'abcd',
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find all rows
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->whereLike('param', 'ab[a-z]{2}')
             ->findOne();
         
@@ -661,10 +623,9 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testFileType()
     {
-        self::$collection->delete();
         
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'f_double'          => 1.1,
             'f_string'          => 'string',
             'f_object'          => array('key' => 'value'),
@@ -675,32 +636,31 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             'f_date'            => new \MongoDate,
             'f_null'            => null,
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
-        $this->assertNotEmpty(self::$collection->find()->whereDouble('f_double')->findOne());
-        $this->assertNotEmpty(self::$collection->find()->whereString('f_string')->findOne());
-        $this->assertNotEmpty(self::$collection->find()->whereObject('f_object')->findOne());
-        $this->assertNotEmpty(self::$collection->find()->whereArray('f_array')->findOne());
-        $this->assertNotEmpty(self::$collection->find()->whereArrayOfArrays('f_array_of_array')->findOne());
-        $this->assertNotEmpty(self::$collection->find()->whereObjectId('f_objectId')->findOne());
-        $this->assertNotEmpty(self::$collection->find()->whereBoolean('f_boolean')->findOne());
-        $this->assertNotEmpty(self::$collection->find()->whereDate('f_date')->findOne());
-        $this->assertNotEmpty(self::$collection->find()->whereNull('f_null')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereDouble('f_double')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereString('f_string')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereObject('f_object')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereArray('f_array')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereArrayOfArrays('f_array_of_array')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereObjectId('f_objectId')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereBoolean('f_boolean')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereDate('f_date')->findOne());
+        $this->assertNotEmpty($this->collection->find()->whereNull('f_null')->findOne());
     }
     
     public function testCombinedWhereWithLikeAndNotIn()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => 'abcd',
         ));
-        self::$collection->saveDocument($document);
+        
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // try to found - must be empty result
-        $document= self::$collection->find()
+        $document= $this->collection->find()
             ->whereLike('param', 'wrongregex[a-z]{2}')
             ->whereNotIn('param', array('abzz'))
             ->findOne();
@@ -708,7 +668,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($document);
         
         // try to found - must be empty result
-        $document= self::$collection->find()
+        $document= $this->collection->find()
             ->whereLike('param', 'ab[a-z]{2}')
             ->whereNotIn('param', array('abcd'))
             ->findOne();
@@ -716,7 +676,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($document);
         
         // try to found - must be one result
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->whereLike('param', 'ab[a-z]{2}')
             ->whereNotIn('param', array('abzz'))
             ->findOne();
@@ -726,31 +686,29 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereOr()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document1 = self::$collection->createDocument(array(
+        $document1 = $this->collection->createDocument(array(
             'param1'    => 'p11',
             'param2'    => 'p12',
         ));
-        self::$collection->saveDocument($document1);
+        $this->collection->saveDocument($document1);
         $document1Id = $document1->getId();
         
-        $document2 = self::$collection->createDocument(array(
+        $document2 = $this->collection->createDocument(array(
             'param1'    => 'p21',
             'param2'    => 'p22',
         ));
-        self::$collection->saveDocument($document2);
+        $this->collection->saveDocument($document2);
         $document2Id = $document2->getId();
         
         // find
-        $q1 = self::$collection->find();
+        $q1 = $this->collection->find();
         $this->assertEquals($document1Id, $q1->whereOr(
             $q1->expression()->where('param1', 'p11')->where('param2', 'p12'),
             $q1->expression()->where('param1', 'p11')->where('some', 'some')
         )->findOne()->getId());
         
-        $q2 = self::$collection->find();
+        $q2 = $this->collection->find();
         $this->assertEquals($document2Id, $q2->whereOr(
             $q2->expression()->where('param1', 'p21'),
             $q2->expression()->where('param', '2')
@@ -759,17 +717,15 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereNor()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => '1',
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find
-        $q = self::$collection->find();
+        $q = $this->collection->find();
         $this->assertEquals($documentId, $q->whereNor(
             $q->expression()->whereGreater('param', 100)->where('some', 'some'),
             $q->expression()->where('param', 5)
@@ -778,23 +734,21 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereNot()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => '1',
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // scalar value
-        $q1 = self::$collection->find();
+        $q1 = $this->collection->find();
         $this->assertEquals($documentId, $q1->whereNot(
             $q1->expression()->where('param', 2)
         )->findOne()->getId());
         
         // operator-expression
-        $q2 = self::$collection->find();
+        $q2 = $this->collection->find();
         $this->assertEquals($documentId, $q2->whereNot(
             $q2->expression()->whereGreater('param', 5)
         )->findOne()->getId());
@@ -802,10 +756,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereElemMatch()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => array(
                 array(
                     'subparam1'    => 10,
@@ -817,11 +769,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find
-        $q = self::$collection->find();
+        $q = $this->collection->find();
         
         $search = $q->whereElemMatch('param', 
             $q->expression()
@@ -840,10 +792,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereElemNotMatch()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => array(
                 array(
                     'subparam1'    => 10,
@@ -855,11 +805,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find
-        $q = self::$collection->find();
+        $q = $this->collection->find();
         
         $search = $q->whereElemNotMatch('param', 
             $q->expression()->where('subparam1', 10000)
@@ -873,10 +823,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereElemMatchWithoutHelpers()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => array(
                 array(
                     'subparam1'    => 10,
@@ -888,11 +836,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find
-        $search = self::$collection->find()->where('param', array('$elemMatch' => array(
+        $search = $this->collection->find()->where('param', array('$elemMatch' => array(
             'subparam1' => array(
                 '$gt'   => 0,
             ),
@@ -910,10 +858,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereElemMatchWithLogicalOr()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => array(
                 array(
                     'subparam1'    => 10,
@@ -925,11 +871,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find
-        $q = self::$collection->find();
+        $q = $this->collection->find();
         $search = $q->whereOr(
             $q->expression()->whereElemMatch('param', 
                 $q->expression()
@@ -957,10 +903,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereElemMatchWithLogicalAnd()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => array(
                 array(
                     'subparam1'    => 10,
@@ -972,11 +916,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find
-        $q = self::$collection->find();
+        $q = $this->collection->find();
         $search = $q->whereAnd(
             $q->expression()->whereElemMatch('param', 
                 $q->expression()
@@ -1004,10 +948,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereElemMatchWithLogicalNot()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => array(
                 array(
                     'subparam1'    => 10,
@@ -1019,11 +961,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find
-        $q = self::$collection->find();
+        $q = $this->collection->find();
         $q->whereNot($q->expression()->whereElemMatch('param', $q->expression()->where('subparam1', 777)));
         
         $document = $q->findOne();
@@ -1037,10 +979,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function _testWhereElemMatchByANDWithLogicalAnd()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param'    => array(
                 array(
                     'subparam1'    => 10,
@@ -1052,11 +992,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // find
-        $q = self::$collection->find();
+        $q = $this->collection->find();
         $search = $q
             ->whereElemMatch('param', 
                 $q->expression()
@@ -1082,43 +1022,36 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testWhereFieldExists()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'fieldName'    => '1',
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
         // scalar value
-        $this->assertEmpty(self::$collection->find()->whereExists('unexistedFieldName')->findOne());
-        $this->assertEquals($documentId, self::$collection->find()->whereExists('fieldName')->findOne()->getId());
+        $this->assertEmpty($this->collection->find()->whereExists('unexistedFieldName')->findOne());
+        $this->assertEquals($documentId, $this->collection->find()->whereExists('fieldName')->findOne()->getId());
     }
     
     public function testWhereFieldNotExists()
     {
-        self::$collection->delete();
-        
         // create new document
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'fieldName'    => '1',
         ));
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $documentId = $document->getId();
         
-        $this->assertEmpty(self::$collection->find()->whereNotExists('fieldName')->findOne());
+        $this->assertEmpty($this->collection->find()->whereNotExists('fieldName')->findOne());
         
-        $this->assertEquals($documentId, self::$collection->find()->whereNotExists('unexistedFieldName')->findOne()->getId());
+        $this->assertEquals($documentId, $this->collection->find()->whereNotExists('unexistedFieldName')->findOne()->getId());
     }
     
     public function testToArray()
     {
-        // create new document
-        self::$collection->delete();
-        
         // find
-        $query = self::$collection->find()->where('some-field', 'some-value');
+        $query = $this->collection->find()->where('some-field', 'some-value');
         $queryArray = $query->toArray();
         
         $this->assertInternalType('array', $queryArray);
@@ -1130,13 +1063,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testWhereGreaterOrEqual()
     {
-        self::$collection->delete();
-
         for($i = 0; $i < 10; $i++) {
-            self::$collection->createDocument(array('p' => $i))->save();
+            $this->collection->createDocument(array('p' => $i))->save();
         }
 
-        $documents = self::$collection->find()->whereGreaterOrEqual('p', 4)->findAll();
+        $documents = $this->collection->find()->whereGreaterOrEqual('p', 4)->findAll();
         $this->assertEquals(6, count($documents));
         foreach($documents as $document) {
             $this->assertGreaterThanOrEqual(4, $document->p);
@@ -1145,13 +1076,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testWhereLessOrEqual()
     {
-        self::$collection->delete();
-
         for($i = 0; $i < 10; $i++) {
-            self::$collection->createDocument(array('p' => $i))->save();
+            $this->collection->createDocument(array('p' => $i))->save();
         }
 
-        $documents = self::$collection->find()->whereLessOrEqual('p', 4)->findAll();
+        $documents = $this->collection->find()->whereLessOrEqual('p', 4)->findAll();
         $this->assertEquals(5, count($documents));
         foreach($documents as $document) {
             $this->assertLessThanOrEqual(4, $document->p);
@@ -1160,20 +1089,18 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testWhereAll()
     {
-        self::$collection->delete();
-
-        $documentId = self::$collection
+        $documentId = $this->collection
             ->createDocument(array('p' => array(
                 1, 2, 3, 4, 5
             )))
             ->save()
             ->getId();
 
-        self::$collection->createDocument(array('p' => array(
+        $this->collection->createDocument(array('p' => array(
             3, 4, 5, 6, 7
         )))->save();
 
-        $documents = self::$collection
+        $documents = $this->collection
             ->find()
             ->whereAll('p', array(1, 4))
             ->findAll();
@@ -1189,19 +1116,16 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testMap()
     {
-        // create new document
-        self::$collection->delete();
-        
-        self::$collection->createDocument(array(
+        $this->collection->createDocument(array(
             'param'    => 'value1',
         ))->save();
         
-        self::$collection->createDocument(array(
+        $this->collection->createDocument(array(
             'param'    => 'value2',
         ))->save();
         
         // test
-        $result = self::$collection->find()->map(function(Document $document) {
+        $result = $this->collection->find()->map(function(Document $document) {
             return $document->param;
         });
         
@@ -1213,19 +1137,16 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testFilter()
     {
-        // create new document
-        self::$collection->delete();
-        
-        self::$collection->createDocument(array(
+        $this->collection->createDocument(array(
             'param'    => 'value1',
         ))->save();
         
-        self::$collection->createDocument(array(
+        $this->collection->createDocument(array(
             'param'    => 'value2',
         ))->save();
         
         // test
-        $result = self::$collection->find()->filter(function(Document $document) {
+        $result = $this->collection->find()->filter(function(Document $document) {
             return $document->param == 'value1';
         });
         
@@ -1234,19 +1155,17 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testFindAndUpdate()
     {
-        self::$collection->delete();
+        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
         
-        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->where('param1', 1)
             ->sort(array(
                 'param2' => 1,
             ))
-            ->findAndUpdate(self::$collection->operator()->set('newParam', '777'));
+            ->findAndUpdate($this->collection->operator()->set('newParam', '777'));
         
         $this->assertNotEmpty($document);
         
@@ -1260,13 +1179,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testFindAndUpdate_NoDocumentsFound()
     {
-        self::$collection->delete();
-
-        $document = self::$collection
+        $document = $this->collection
             ->find()
             ->where('param1', 1)
             ->findAndUpdate(
-                self::$collection->operator()->set('newParam', '777')
+                $this->collection->operator()->set('newParam', '777')
             );
 
         $this->assertNull($document);
@@ -1274,14 +1191,12 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testFindAndRemove()
     {
-        self::$collection->delete();
+        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
         
-        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
-        $document = self::$collection->find()
+        $document = $this->collection->find()
             ->where('param1', 1)
             ->sort(array(
                 'param2' => 1,
@@ -1296,19 +1211,17 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             '_id'       => $d11->getId()
         ), $document->toArray());
         
-        $this->assertEquals(3, count(self::$collection));
+        $this->assertEquals(3, count($this->collection));
     }
 
     public function testLimit()
     {
-        self::$collection->delete();
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
 
-        self::$collection->createDocument(array('param' => 1))->save();
-        self::$collection->createDocument(array('param' => 2))->save();
-        self::$collection->createDocument(array('param' => 3))->save();
-        self::$collection->createDocument(array('param' => 4))->save();
-
-        $list = self::$collection
+        $list = $this->collection
             ->find()
             ->limit(2, 2)
             ->findAll();
@@ -1326,14 +1239,12 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testCount()
     {
-        self::$collection->delete();
+        $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $this->collection->createDocument(array('param1' => 1, 'param2' => 3))->save();
+        $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
         
-        self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        self::$collection->createDocument(array('param1' => 1, 'param2' => 3))->save();
-        self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
-        $queryBuilder = self::$collection
+        $queryBuilder = $this->collection
             ->find()
             ->where('param1', 1)
             ->limit(1)
@@ -1344,15 +1255,13 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testLimitedCount()
     {
-        self::$collection->delete();
+        $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $this->collection->createDocument(array('param1' => 1, 'param2' => 3))->save();
+        $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
         
-        self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        self::$collection->createDocument(array('param1' => 1, 'param2' => 3))->save();
-        self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
-        $queryBuilder = self::$collection
+        $queryBuilder = $this->collection
             ->find()
             ->where('param1', 2)
             ->limit(10)
@@ -1363,12 +1272,10 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     
     public function testExplain()
     {
-        self::$collection->delete();
+        $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
         
-        self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        
-        $explain = self::$collection
+        $explain = $this->collection
             ->find()
             ->where('param1', 2)
             ->explain();
@@ -1378,7 +1285,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadPrimaryOnly()
     {
-        $qb = self::$collection
+        $qb = $this->collection
             ->find()
             ->readPrimaryOnly();
 
@@ -1396,7 +1303,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadPrimaryPreferred()
     {
-        $qb = self::$collection
+        $qb = $this->collection
             ->find()
             ->readPrimaryPreferred(array(
                 array('dc' => 'kyiv'),
@@ -1416,7 +1323,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadSecondaryOnly(array $tags = null)
     {
-        $qb = self::$collection
+        $qb = $this->collection
             ->find()
             ->readSecondaryOnly(array(
                 array('dc' => 'kyiv'),
@@ -1436,7 +1343,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadSecondaryPreferred(array $tags = null)
     {
-        $qb = self::$collection
+        $qb = $this->collection
             ->find()
             ->readSecondaryPreferred(array(
                 array('dc' => 'kyiv'),
@@ -1456,7 +1363,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadNearest(array $tags = null)
     {
-        $qb = self::$collection
+        $qb = $this->collection
             ->find()
             ->readNearest(array(
                 array('dc' => 'kyiv'),
