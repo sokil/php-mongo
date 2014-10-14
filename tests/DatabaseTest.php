@@ -28,67 +28,61 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Database
      */
-    private static $database;
+    private $database;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
         
         // select database
-        self::$database = $client->getDatabase('test');
-        self::$database->disableCollectionPool();
-    }
-
-    public function setUp()
-    {
-        self::$database->resetMapping();
+        $this->database = $client->getDatabase('test');
     }
 
     public function testGetCollection()
     {
         $this->assertInstanceof(
             '\Sokil\Mongo\Collection',
-            self::$database->getCollection('collection')
+            $this->database->getCollection('collection')
         );
 
         $this->assertInstanceof(
             '\Sokil\Mongo\Collection',
-            self::$database->collection
+            $this->database->collection
         );
     }
 
     public function testEnableCollectionPool()
     {
-        self::$database->clearCollectionPool();
+        $this->database->clearCollectionPool();
 
         // disable collection pool
-        self::$database->disableCollectionPool();
-        $this->assertFalse(self::$database->isCollectionPoolEnabled());
+        $this->database->disableCollectionPool();
+        $this->assertFalse($this->database->isCollectionPoolEnabled());
 
         // create collection
-        self::$database->getCollection('phpmongo_test_collection_1');
+        $this->database->getCollection('phpmongo_test_collection_1');
 
         // check if collection in pool
-        $this->assertTrue(self::$database->isCollectionPoolEmpty());
+        $this->assertTrue($this->database->isCollectionPoolEmpty());
 
         // enable collection pool
-        self::$database->enableCollectionPool();
-        $this->assertTrue(self::$database->isCollectionPoolEnabled());
+        $this->database->enableCollectionPool();
+        $this->assertTrue($this->database->isCollectionPoolEnabled());
 
         // read collection to pool
-        self::$database->getCollection('phpmongo_test_collection_2');
+        $this->database->getCollection('phpmongo_test_collection_2');
 
         // check if document in pool
-        $this->assertFalse(self::$database->isCollectionPoolEmpty());
+        $this->assertFalse($this->database->isCollectionPoolEmpty());
 
         // clear document pool
-        self::$database->clearCollectionPool();
-        $this->assertTrue(self::$database->isCollectionPoolEmpty());
+        $this->database->clearCollectionPool();
+        $this->assertTrue($this->database->isCollectionPoolEmpty());
 
         // disable document pool
-        self::$database->disableCollectionPool();
-        $this->assertFalse(self::$database->isCollectionPoolEnabled());
+        $this->database->disableCollectionPool();
+        $this->assertFalse($this->database->isCollectionPoolEnabled());
     }
 
     /**
@@ -97,7 +91,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateCappedCollection()
     {
-        self::$database->createCappedCollection(
+        $this->database->createCappedCollection(
             'collection',
             'swong_size',
             'wrong_number'
@@ -110,40 +104,40 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateCollection()
     {
-        self::$database->map('collection', '\WrongClass');
-        self::$database->createCollection('collection');
+        $this->database->map('collection', '\WrongClass');
+        $this->database->createCollection('collection');
     }
 
     public function testStats()
     {
-        $stats = self::$database->stats();
+        $stats = $this->database->stats();
         $this->assertEquals(1.0, $stats['ok']);
     }
     
     public function testDisableProfiler()
     {
-        $result = self::$database->disableProfiler();
+        $result = $this->database->disableProfiler();
         $this->assertArrayHasKey('was', $result);
         $this->assertArrayHasKey('slowms', $result);
     }
     
     public function testProfileSlowQueries()
     {
-        $result = self::$database->profileSlowQueries();
+        $result = $this->database->profileSlowQueries();
         $this->assertArrayHasKey('was', $result);
         $this->assertArrayHasKey('slowms', $result);
     }
     
     public function testProfileAllQueries()
     {
-        $result = self::$database->profileAllQueries();
+        $result = $this->database->profileAllQueries();
         $this->assertArrayHasKey('was', $result);
         $this->assertArrayHasKey('slowms', $result);
     }
     
     public function testExecuteJs()
     {
-        $result = self::$database->executeJS('return 42;');
+        $result = $this->database->executeJS('return 42;');
         $this->assertEquals(42, $result);
     }
     
@@ -153,24 +147,24 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testExecuteInvalidJs()
     {
-        var_dump(self::$database->executeJS('gversion()'));
+        var_dump($this->database->executeJS('gversion()'));
     }
     
     public function testMapCollectionsToClasses()
     {
-        self::$database->map(array(
+        $this->database->map(array(
             'collection'    => '\Sokil\Mongo\CarsCollection',
             'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
         ));
         
         // create collection
-        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', self::$database->getCollection('collection'));
+        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', $this->database->getCollection('collection'));
         
         // create document
-        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', self::$database->getCollection('collection')->createDocument());
+        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', $this->database->getCollection('collection')->createDocument());
         
         // create grid fs
-        $fs = self::$database->getGridFS('gridfs');
+        $fs = $this->database->getGridFS('gridfs');
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotosGridFS', $fs);
         
         // create file
@@ -183,17 +177,17 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     public function testMapCollectionToClass()
     {
-        self::$database->map('collection', '\Sokil\Mongo\CarsCollection');
-        self::$database->map('gridfs', '\Sokil\Mongo\CarPhotosGridFS');
+        $this->database->map('collection', '\Sokil\Mongo\CarsCollection');
+        $this->database->map('gridfs', '\Sokil\Mongo\CarPhotosGridFS');
 
         // create collection
-        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', self::$database->getCollection('collection'));
+        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', $this->database->getCollection('collection'));
 
         // create document
-        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', self::$database->getCollection('collection')->createDocument());
+        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', $this->database->getCollection('collection')->createDocument());
 
         // create grid fs
-        $fs = self::$database->getGridFS('gridfs');
+        $fs = $this->database->getGridFS('gridfs');
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotosGridFS', $fs);
 
         // create file
@@ -206,8 +200,8 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMapping()
     {
-        self::$database->resetMapping();
-        self::$database->map(array(
+        $this->database->resetMapping();
+        $this->database->map(array(
             'collection'    => '\Sokil\Mongo\CarsCollection',
             'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
         ));
@@ -216,7 +210,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'collection'    => '\Sokil\Mongo\CarsCollection',
             'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
-        ), self::$database->getMapping());
+        ), $this->database->getMapping());
     }
 
     /**
@@ -225,27 +219,27 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCollection_UnexistedClassInMapping()
     {
-        self::$database->resetMapping();
-        self::$database->map(array(
+        $this->database->resetMapping();
+        $this->database->map(array(
             'collection'    => '\ThisClassIsNotExists',
         ));
 
-        self::$database->getCollection('collection');
+        $this->database->getCollection('collection');
     }
 
     public function testGetGridFSClassName_Classpath()
     {
-        self::$database->resetMapping();
-        self::$database->map('\Sokil\Mongo');
+        $this->database->resetMapping();
+        $this->database->map('\Sokil\Mongo');
 
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
-            self::$database->getGridFSClassName('carPhotosGridFS')
+            $this->database->getGridFSClassName('carPhotosGridFS')
         );
 
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
-            self::$database->getGridFSClassName('CarPhotosGridFS')
+            $this->database->getGridFSClassName('CarPhotosGridFS')
         );
     }
 
@@ -255,11 +249,11 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetGridFs_WrongGridFSClassSpecifiedInMapping()
     {
-        self::$database->map(array(
+        $this->database->map(array(
             'gridfs' => '\BlahBlahBlah',
         ));
 
-        self::$database->getGridFS('gridfs');
+        $this->database->getGridFS('gridfs');
 
         $this->fail('Must be exception');
     }
@@ -270,27 +264,27 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetGridFs_SpecifiedGridFSClassInMappingIsNotInstanceOfGridFS()
     {
-        self::$database->map(array(
+        $this->database->map(array(
             'gridfs' => '\stdClass',
         ));
 
-        self::$database->getGridFS('gridfs');
+        $this->database->getGridFS('gridfs');
 
         $this->fail('Must be exception');
     }
 
     public function testReadPrimaryOnly()
     {
-        self::$database->readPrimaryOnly();
+        $this->database->readPrimaryOnly();
 
         $this->assertEquals(array(
             'type' => \MongoClient::RP_PRIMARY
-        ), self::$database->getReadPreference());
+        ), $this->database->getReadPreference());
     }
 
     public function testReadPrimaryPreferred()
     {
-        self::$database->readPrimaryPreferred(array(
+        $this->database->readPrimaryPreferred(array(
             array('dc' => 'kyiv'),
             array('dc' => 'lviv'),
         ));
@@ -301,12 +295,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), self::$database->getReadPreference());
+        ), $this->database->getReadPreference());
     }
 
     public function testReadSecondaryOnly(array $tags = null)
     {
-        self::$database->readSecondaryOnly(array(
+        $this->database->readSecondaryOnly(array(
             array('dc' => 'kyiv'),
             array('dc' => 'lviv'),
         ));
@@ -317,12 +311,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), self::$database->getReadPreference());
+        ), $this->database->getReadPreference());
     }
 
     public function testReadSecondaryPreferred(array $tags = null)
     {
-        self::$database->readSecondaryPreferred(array(
+        $this->database->readSecondaryPreferred(array(
             array('dc' => 'kyiv'),
             array('dc' => 'lviv'),
         ));
@@ -333,12 +327,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), self::$database->getReadPreference());
+        ), $this->database->getReadPreference());
     }
 
     public function testReadNearest(array $tags = null)
     {
-        self::$database->readNearest(array(
+        $this->database->readNearest(array(
             array('dc' => 'kyiv'),
             array('dc' => 'lviv'),
         ));
@@ -349,17 +343,17 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), self::$database->getReadPreference());
+        ), $this->database->getReadPreference());
     }
     
     public function testSetWriteConcern()
     {
-        self::$database->setWriteConcern('majority', 12000);
+        $this->database->setWriteConcern('majority', 12000);
 
         $this->assertEquals(array(
             'w' => 'majority',
             'wtimeout' => 12000
-        ), self::$database->getWriteConcern());
+        ), $this->database->getWriteConcern());
     }
 
     /**
@@ -371,7 +365,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $mongoDatabaseMock = $this->getMock(
             '\MongoDB',
             array('setWriteConcern'),
-            array(self::$database->getClient()->getConnection(), 'test')
+            array($this->database->getClient()->getConnection(), 'test')
         );
 
         $mongoDatabaseMock
@@ -379,28 +373,28 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ->method('setWriteConcern')
             ->will($this->returnValue(false));
 
-        $database = new Database(self::$database->getClient(), $mongoDatabaseMock);
+        $database = new Database($this->database->getClient(), $mongoDatabaseMock);
 
         $database->setWriteConcern(1);
     }
 
     public function testSetUnacknowledgedWriteConcern()
     {
-        self::$database->setUnacknowledgedWriteConcern(11000);
+        $this->database->setUnacknowledgedWriteConcern(11000);
 
         $this->assertEquals(array(
             'w' => 0,
             'wtimeout' => 11000
-        ), self::$database->getWriteConcern());
+        ), $this->database->getWriteConcern());
     }
 
     public function testSetMajorityWriteConcern()
     {
-        self::$database->setMajorityWriteConcern(13000);
+        $this->database->setMajorityWriteConcern(13000);
 
         $this->assertEquals(array(
             'w' => 'majority',
             'wtimeout' => 13000
-        ), self::$database->getWriteConcern());
+        ), $this->database->getWriteConcern());
     }
 }
