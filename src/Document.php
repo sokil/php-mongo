@@ -730,10 +730,13 @@ class Document extends Structure
     /**
      *
      * @throws \Sokil\Mongo\Document\Exception\Validate
+     * @return \Sokil\Mongo\Document
      */
     public function validate()
     {
-        $this->triggerEvent('beforeValidate');
+        if($this->triggerEvent('beforeValidate')->isCancelled()) {
+            return $this;
+        }
 
         if (!$this->isValid()) {
             $exception = new \Sokil\Mongo\Document\Exception\Validate('Document not valid');
@@ -745,6 +748,8 @@ class Document extends Structure
         }
 
         $this->triggerEvent('afterValidate');
+        
+        return $this;
     }
 
     public function hasErrors()
