@@ -1089,7 +1089,9 @@ class Document extends Structure
         // update
         if ($this->isStored()) {
 
-            $this->triggerEvent('beforeUpdate');
+            if($this->triggerEvent('beforeUpdate')->isCancelled()) {
+                return $this;
+            }
 
             $updateOperations = $this->getOperator()->getAll();
 
