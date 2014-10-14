@@ -1082,7 +1082,9 @@ class Document extends Structure
         }
 
         // handle beforeSave event
-        $this->triggerEvent('beforeSave');
+        if($this->triggerEvent('beforeSave')->isCancelled()) {
+            return $this;
+        }
 
         // update
         if ($this->isStored()) {
