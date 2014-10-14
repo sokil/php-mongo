@@ -34,6 +34,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             ->delete();
     }
     
+    public function tearDown()
+    {
+        $this->collection->delete();
+    }
+    
     public function testReset()
     {
         $document = $this->collection
