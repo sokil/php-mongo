@@ -23,23 +23,19 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Collection
      */
-    private static $collection;
+    private $collection;
     
     public static function setUpBeforeClass()
     {
-        // connect to mongo
-        $client = new Client('mongodb://127.0.0.1');
-        
-        // select database
-        $database = $client->getDatabase('test');
-        
-        // select collection
-        self::$collection = $database->getCollection('phpmongo_test_collection');
     }
     
     public function setUp() 
     {
-        self::$collection->delete();
+        $client = new Client('mongodb://127.0.0.1');
+        $database = $client->getDatabase('test');
+        $this->collection = $database
+            ->getCollection('phpmongo_test_collection')
+            ->delete();
     }
     
     public function tearDown()
@@ -48,12 +44,12 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     }
     
     public static function tearDownAfterClass() {
-        self::$collection->delete();
+        $this->collection->delete();
     }
     
     public function testReset()
     {
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'param1'    => 'value1'
             ))
@@ -70,18 +66,18 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testToString()
     {
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param1'    => 'value1'
         ));
         
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         
         $this->assertEquals((string) $document, $document->getId());
     }
     
     public function testVirtualGetter()
     {
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param' => 'value',
         ));
         
@@ -92,7 +88,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testVirtualSetter()
     {
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param' => 'value',
         ));
         
@@ -108,7 +104,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnhandledMethodCall()
     {
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param' => 'value',
         ));
         
@@ -117,7 +113,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     public function testCreateDocumentFromArray()
     {
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param1'    => 'value1',
             'param2'    => array(
                 'param21'   => 'value21',
@@ -132,21 +128,21 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testDefineId_AsMongoIdClass()
     {
         $id = new \MongoId();
-        $document = self::$collection->createDocument()->defineId($id);
+        $document = $this->collection->createDocument()->defineId($id);
         $this->assertEquals($id, $document->getId());
     }
 
     public function testDefineId_AsStringThatCanBeMongoIdClass()
     {
         $id = '541073e62de5725a2a8b4567';
-        $document = self::$collection->createDocument()->defineId($id);
+        $document = $this->collection->createDocument()->defineId($id);
         $this->assertEquals($id, (string) $document->getId());
     }
 
     public function testDefineId_AsVarchar()
     {
         $id = 'i_am_id';
-        $document = self::$collection->createDocument()->defineId($id);
+        $document = $this->collection->createDocument()->defineId($id);
         $this->assertEquals($id, $document->getId());
     }
 
@@ -155,15 +151,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         // save document
         $id = new \MongoId();
         
-        $doc = self::$collection->createDocument(array('a' => 'a'));
+        $doc = $this->collection->createDocument(array('a' => 'a'));
         $doc->setId($id);
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // find document
-        $this->assertNotEmpty(self::$collection->getDocument($id));
+        $this->assertNotEmpty($this->collection->getDocument($id));
         
         // delete document
-        self::$collection->deleteDocument($doc);
+        $this->collection->deleteDocument($doc);
     }
 
     public function testSetId_AsStringThatCanBeMongoIdClass()
@@ -171,15 +167,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         // save document
         $id = '541073e62de5725a2a8b4567';
 
-        $doc = self::$collection->createDocument(array('a' => 'a'));
+        $doc = $this->collection->createDocument(array('a' => 'a'));
         $doc->setId($id);
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
 
         // find document
-        $this->assertNotEmpty(self::$collection->getDocument($id));
+        $this->assertNotEmpty($this->collection->getDocument($id));
 
         // delete document
-        self::$collection->deleteDocument($doc);
+        $this->collection->deleteDocument($doc);
     }
 
     public function testSetId_AsVarchar()
@@ -187,43 +183,43 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         // save document
         $id = 'im_a_key';
 
-        $doc = self::$collection->createDocument(array('a' => 'a'));
+        $doc = $this->collection->createDocument(array('a' => 'a'));
         $doc->setId($id);
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
 
         // find document
-        $this->assertNotEmpty(self::$collection->getDocument($id));
+        $this->assertNotEmpty($this->collection->getDocument($id));
 
         // delete document
-        self::$collection->deleteDocument($doc);
+        $this->collection->deleteDocument($doc);
     }
     
     public function testIsStored()
     {
         // not stored
-        $document = self::$collection->createDocument(array('k' => 'v'));
+        $document = $this->collection->createDocument(array('k' => 'v'));
         $this->assertFalse($document->isStored());
         
         // stored
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $this->assertTrue($document->isStored());
     }
     
     public function testIsStoredWhenIdSet()
     {
         // not stored
-        $document = self::$collection->createDocument(array('k' => 'v'));
+        $document = $this->collection->createDocument(array('k' => 'v'));
         $document->setId(new \MongoId);
         $this->assertFalse($document->isStored());
         
         // stored
-        self::$collection->saveDocument($document);
+        $this->collection->saveDocument($document);
         $this->assertTrue($document->isStored());
     }
     
-    public function testSet()
+    public function testSet_Unsaved()
     {
-        $document = self::$collection
+        $document = $this->collection
             ->delete()
             ->createDocument(array(
                 'param' => 'value',
@@ -238,9 +234,18 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value2', $document->get('a.b.c'));
         $this->assertEquals(array('c' => 'value2'), $document->get('a.b'));
         $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
+    }
+    
+    public function testSet_Saved()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'param' => 'value',
+            ))
+            ->save();
         
-        self::$collection->saveDocument($document);
-        $document = self::$collection->getDocument($document->getId());
+        $document = $this->collection
+            ->getDocumentDirectly($document->getId());
         
         $document->set('a.b.c', 'value1');
         $this->assertEquals('value1', $document->get('a.b.c'));
@@ -259,7 +264,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $obj->param = 'value';
         
         // save
-        $document = self::$collection->createDocument()
+        $document = $this->collection->createDocument()
             ->set('d', $obj)
             ->save();
         
@@ -270,7 +275,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             (array) $obj, 
-            self::$collection->getDocumentDirectly($document->getId())->d
+            $this->collection->getDocumentDirectly($document->getId())->d
         );
     }
     
@@ -279,7 +284,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $date = new \MongoDate;
         
         // save
-        $document = self::$collection->createDocument()
+        $document = $this->collection->createDocument()
             ->set('d', $date)
             ->save();
         
@@ -290,7 +295,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             $date, 
-            self::$collection->getDocumentDirectly($document->getId())->d
+            $this->collection->getDocumentDirectly($document->getId())->d
         );
     }
     
@@ -299,7 +304,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetArrayToScalarOnNewDoc()
     {
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'a' => 1,
         ));
         
@@ -309,25 +314,25 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testSetMongoCode()
     {
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'code'  => new \MongoCode('Math.sin(45);'),
         ))->save();
         
         $this->assertInstanceOf(
             '\MongoCode',
-            self::$collection->getDocumentDirectly($doc->getId())->code
+            $this->collection->getDocumentDirectly($doc->getId())->code
         );
     }
     
     public function testSetMongoRegex()
     {
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'code'  => new \MongoRegex('/[a-z]/'),
         ))->save();
         
         $this->assertInstanceOf(
             '\MongoRegex',
-            self::$collection->getDocumentDirectly($doc->getId())->code
+            $this->collection->getDocumentDirectly($doc->getId())->code
         );
     }
     
@@ -336,7 +341,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetArrayToScalarOnExistedDoc()
     {
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array(
                 'a' => 1,
             ))
@@ -347,7 +352,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testSetScenario()
     {
-        $document = self::$collection->createDocument();
+        $document = $this->collection->createDocument();
 
         $document->setScenario('SOME_SCENARIO');
         $this->assertEquals('SOME_SCENARIO', $document->getScenario());
@@ -362,7 +367,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testGetNull()
     {
         //save 
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'field1' => null,
                 'field2' => array(
@@ -372,7 +377,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             ->save();
         
         // get document
-        $document = self::$collection->getDocumentDirectly($document->getId());
+        $document = $this->collection->getDocumentDirectly($document->getId());
         
         $this->assertTrue($document->has('field1'));
         $this->assertNull($document->get('field1'));
@@ -383,7 +388,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
     public function testUnsetInNewDocument()
     {
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'a' => array(
                 'a1'    => array(
                     'a11'   => 1,
@@ -413,7 +418,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testUnsetInExistedDocument()
     {
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array(
                 'a' => array(
                     'a1'    => array(
@@ -448,7 +453,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testUnsetAndSet()
     {
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'a' => array(
                     'a1'    => array(
@@ -470,7 +475,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             ->unsetField('a.a2.a21')
             ->save();
         
-        $document = self::$collection
+        $document = $this->collection
             ->getDocumentDirectly($documentId);
         
         $documentData = $document->toArray();
@@ -492,13 +497,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testUnsetUnexistedField()
     {
-        $document = self::$collection->createDocument();
+        $document = $this->collection->createDocument();
         $document->unsetField('unexistedField');
     }
     
     public function testAppend()
     {
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'param' => 'value',
         ));
         
@@ -512,8 +517,8 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('c' => array('value1', 'value2')), $document->get('a.b'));
         $this->assertEquals(array('b' => array('c' => array('value1', 'value2'))), $document->get('a'));
         
-        self::$collection->saveDocument($document);
-        $document = self::$collection->getDocument($document->getId());
+        $this->collection->saveDocument($document);
+        $document = $this->collection->getDocument($document->getId());
         
         $document->append('a.b.c', 'value3');
         $this->assertEquals(array('value1', 'value2', 'value3'), $document->get('a.b.c'));
@@ -526,7 +531,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         /**
          * Increment unsaved
          */
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array('i' => 10));
 
         // increment
@@ -542,13 +547,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         /**
          * Test increment of document in cache
          */
-        $doc = self::$collection->getDocument($doc->getId());
+        $doc = $this->collection->getDocument($doc->getId());
         $this->assertEquals(-6, $doc->get('j'));
 
         /**
          * Test increment after reread from db
          */
-        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $doc = $this->collection->getDocumentDirectly($doc->getId());
         $this->assertEquals(-6, $doc->get('j'));
     }
 
@@ -560,7 +565,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         /**
          * Increment unsaved
          */
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array('i' => 1));
         
         // increment
@@ -576,13 +581,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         /**
          * Test increment of document in cache
          */
-        $doc = self::$collection->getDocument($doc->getId());
+        $doc = $this->collection->getDocument($doc->getId());
         $this->assertEquals(6, $doc->get('j'));
         
         /**
          * Test increment after reread from db
          */
-        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $doc = $this->collection->getDocumentDirectly($doc->getId());
         $this->assertEquals(6, $doc->get('j'));
     }
     
@@ -591,7 +596,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      */
     public function testIncrementNotExistedKeyOfSavedDocument()
     {
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array('i' => 1))
             ->save();
         
@@ -610,13 +615,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         /**
          * Test increment of document in cache
          */
-        $doc = self::$collection->getDocument($doc->getId());
+        $doc = $this->collection->getDocument($doc->getId());
         $this->assertEquals(6, $doc->get('j'));
         
         /**
          * Test increment after reread from db
          */
-        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $doc = $this->collection->getDocumentDirectly($doc->getId());
         $this->assertEquals(6, $doc->get('j'));
     }
     
@@ -628,7 +633,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         /**
          * Increment unsaved
          */
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array('i' => 1));
         
         // increment
@@ -644,13 +649,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         /**
          * Test increment of document in cache
          */
-        $doc = self::$collection->getDocument($doc->getId());
+        $doc = $this->collection->getDocument($doc->getId());
         $this->assertEquals(7, $doc->get('i'));
         
         /**
          * Test increment after reread from db
          */
-        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $doc = $this->collection->getDocumentDirectly($doc->getId());
         $this->assertEquals(7, $doc->get('i'));
     }
     
@@ -659,7 +664,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      */
     public function testIncrementExistedKeyOfSavedDocument()
     {
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array('i' => 1))
             ->save();
         
@@ -678,37 +683,37 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         /**
          * Test increment of document in cache
          */
-        $doc = self::$collection->getDocument($doc->getId());
+        $doc = $this->collection->getDocument($doc->getId());
         $this->assertEquals(7, $doc->get('i'));
         
         /**
          * Test increment after reread from db
          */
-        $doc = self::$collection->getDocumentDirectly($doc->getId());
+        $doc = $this->collection->getDocumentDirectly($doc->getId());
         $this->assertEquals(7, $doc->get('i'));
     }
     
     public function testPushNumberToEmptyOnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push single to empty
         $doc->push('key', 1);
         $doc->push('key', 2);
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array(1, 2), self::$collection->getDocument($doc->getId())->key);
+        $this->assertEquals(array(1, 2), $this->collection->getDocument($doc->getId())->key);
     }
 
     public function testPushStructure()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
 
@@ -727,11 +732,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testPushObjectToEmptyOnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         $object1 = new \stdclass;
         $object2 = new \stdclass;
@@ -739,7 +744,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         // push single to empty
         $doc->push('key', $object1);
         $doc->push('key', $object2);
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         $this->assertEquals(
             array((array)$object1, (array)$object2), 
@@ -748,14 +753,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             array((array)$object1, (array)$object2), 
-            self::$collection->getDocumentDirectly($doc->getId())->key
+            $this->collection->getDocumentDirectly($doc->getId())->key
         );
     }
     
     public function testPushMongoIdToEmptyOnExistedDocument()
     {
         // create document
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array(
                 'some' => 'some',
             ))
@@ -770,154 +775,154 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(array($id), $doc->key);
         
-        $this->assertEquals(array($id), self::$collection->getDocumentDirectly($doc->getId())->key);
+        $this->assertEquals(array($id), $this->collection->getDocumentDirectly($doc->getId())->key);
     }
     
     public function testPushArrayToEmptyOnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to empty
         $doc->push('key', array(1));
         $doc->push('key', array(2));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array(array(1),array(2)), self::$collection->getDocument($doc->getId())->key);
+        $this->assertEquals(array(array(1),array(2)), $this->collection->getDocument($doc->getId())->key);
         
     }
     
     public function testPushArrayToEmptyOnNewDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
         // push array to empty
         $doc->push('key', array(1));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array(array(1)), self::$collection->getDocument($doc->getId())->key);
+        $this->assertEquals(array(array(1)), $this->collection->getDocument($doc->getId())->key);
     }
     
     public function testPushSingleToSingleOnNewDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
         // push single to single
         $doc->push('some', 'another1');
         $doc->push('some', 'another2');
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', 'another1', 'another2'), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array('some', 'another1', 'another2'), $this->collection->getDocument($doc->getId())->some);
     }
     
     public function testPushSingleToSingleOnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push single to single
         $doc->push('some', 'another1');
         $doc->push('some', 'another2');
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', 'another1', 'another2'), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array('some', 'another1', 'another2'), $this->collection->getDocument($doc->getId())->some);
     }
     
     public function testPushArrayToSingleOnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to single
         $doc->push('some', array('another'));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', array('another')), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array('some', array('another')), $this->collection->getDocument($doc->getId())->some);
     }
     
     public function testPushArrayToSingleOnNewDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
         // push array to single
         $doc->push('some', array('another'));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array('some', array('another')), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array('some', array('another')), $this->collection->getDocument($doc->getId())->some);
     }
     
     public function testPushSingleToArrayOnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => array('some1', 'some2'),
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push single to array
         $doc->push('some', 'some3');
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array('some1', 'some2', 'some3'), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array('some1', 'some2', 'some3'), $this->collection->getDocument($doc->getId())->some);
         
     }
     
     public function testPushArrayToArrayOnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => array('some1', 'some2'),
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to array
         $doc->push('some', array('some3'));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array('some1', 'some2', array('some3')), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array('some1', 'some2', array('some3')), $this->collection->getDocument($doc->getId())->some);
     }
     
     public function testPushArrayToArrayOnNewDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => array('some1', 'some2'),
         ));
         
         // push array to array
         $doc->push('some', array('some3'));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array('some1', 'some2', array('some3')), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array('some1', 'some2', array('some3')), $this->collection->getDocument($doc->getId())->some);
     }
     
     public function testPushEach_OnUnsavedDocument()
     {
         // create document
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array(
                 'some' => 'some',
             ));
@@ -929,18 +934,18 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
 
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
 
         $this->assertEquals(
             array(1, 2, 3, 4, 5),
-            self::$collection->getDocumentDirectly($doc->getId())->key
+            $this->collection->getDocumentDirectly($doc->getId())->key
         );
     }
 
     public function testPushEach_OnSavedDocument()
     {
         // create document
-        $doc = self::$collection
+        $doc = $this->collection
             ->createDocument(array(
                 'some' => 'some',
             ))
@@ -953,30 +958,30 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
 
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
 
         $this->assertEquals(
             array(1, 2, 3, 4, 5),
-            self::$collection->getDocumentDirectly($doc->getId())->key
+            $this->collection->getDocumentDirectly($doc->getId())->key
         );
     }
     
     public function testPushFromArray_ToEmpty_OnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to empty
         $doc->pushFromArray('key', array(1));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         $this->assertEquals(
             array(1), 
-            self::$collection->getDocumentDirectly($doc->getId())->key
+            $this->collection->getDocumentDirectly($doc->getId())->key
         );
         
     }
@@ -984,19 +989,19 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testPushFromArray_ToSingle_OnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => 'some',
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to single
         $doc->pushFromArray('some', array('another'));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         $this->assertEquals(
             array('some', 'another'), 
-            self::$collection->getDocumentDirectly($doc->getId())->some
+            $this->collection->getDocumentDirectly($doc->getId())->some
         );
         
     }
@@ -1004,34 +1009,34 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testPushFromArray_ToArray_OnExistedDocument()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => array('some1', 'some2'),
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to array
         $doc->pushFromArray('some', array('some3'));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         $this->assertEquals(
             array('some1', 'some2', 'some3'), 
-            self::$collection->getDocumentDirectly($doc->getId())->some
+            $this->collection->getDocumentDirectly($doc->getId())->some
         );
     }
     
     public function testPullFromOneDimensionalArray()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => array('some1', 'some2'),
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to array
         $doc->pull('some', 'some2');
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         $this->assertEquals(
             array('some1'), 
@@ -1040,37 +1045,37 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(
             array('some1'), 
-            self::$collection->getDocument($doc->getId())->some
+            $this->collection->getDocument($doc->getId())->some
         );
     }
     
     public function testPullFromTwoDimensionalArray()
     {
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => array(
                 array('sub'  => 1), 
                 array('sub'  => 2)
             ),
         ));
         
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to array
         $doc->pull('some', array(
             'sub'  => 2
         ));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array(array('sub' => 1)), self::$collection->getDocument($doc->getId())->some);
+        $this->assertEquals(array(array('sub' => 1)), $this->collection->getDocument($doc->getId())->some);
     }
     
     public function testPullFromThreeDimensionalArray()
     {
-        self::$collection->delete();
+        $this->collection->delete();
         
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => array(
                 array(
                     'sub'  => array(
@@ -1086,13 +1091,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                 )
             ),
         ));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // pull 1
         $doc->pull('some', array(
             'sub.a'  => 1
         ));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         $this->assertEquals(array(
             array(
@@ -1101,7 +1106,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                     array('b' => 4),
                 )
             )
-        ), self::$collection->getDocumentDirectly($doc->getId())->some);
+        ), $this->collection->getDocumentDirectly($doc->getId())->some);
         
         // pull 2
         $doc->pull('some', array(
@@ -1109,17 +1114,17 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                 'a' => 3,
             )
         ));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
-        $this->assertEquals(array(), self::$collection->getDocumentDirectly($doc->getId())->some);
+        $this->assertEquals(array(), $this->collection->getDocumentDirectly($doc->getId())->some);
     }
     
     public function testPullFromThreeDimensionalUsingExpressionArray()
     {
-        self::$collection->delete();
+        $this->collection->delete();
         
         // create document
-        $doc = self::$collection->createDocument(array(
+        $doc = $this->collection->createDocument(array(
             'some' => array(
                 array(
                     'sub'  => array(
@@ -1135,11 +1140,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                 )
             ),
         ));
-        self::$collection->saveDocument($doc);
+        $this->collection->saveDocument($doc);
         
         // push array to array
-        $doc->pull('some', self::$collection->expression()->where('sub.a', 1));
-        self::$collection->saveDocument($doc);
+        $doc->pull('some', $this->collection->expression()->where('sub.a', 1));
+        $this->collection->saveDocument($doc);
         
         $this->assertEquals(array(
             array(
@@ -1148,13 +1153,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                     array('b' => 4),
                 )
             )
-        ), self::$collection->getDocument($doc->getId())->some);
+        ), $this->collection->getDocument($doc->getId())->some);
     }
     
     public function testMergeOnUpdate()
     {
         // save document
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'pv',
             ))
@@ -1181,7 +1186,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
        $document->save();
         
         // test
-        $foundDocumentData = self::$collection
+        $foundDocumentData = $this->collection
             ->getDocumentDirectly($document->getId())
             ->toArray();
         
@@ -1197,14 +1202,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function testDefaultFields()
     {
-        $document = new DocumentMock(self::$collection);
+        $document = new DocumentMock($this->collection);
         
         $this->assertEquals('ACTIVE', $document->status);
     }
 
     public function testRedefineDefaultFieldsInConstructor()
     {
-        $document = new DocumentMock(self::$collection, array(
+        $document = new DocumentMock($this->collection, array(
             'balance' => 123, // not existed key
             'status' => 'DELETED', // update value
             'profile' => array(
@@ -1226,7 +1231,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testFromArray()
     {
-        $document = new DocumentMock(self::$collection);
+        $document = new DocumentMock($this->collection);
 
         $document->fromArray(array(
             'balance' => 123, // not existed key
@@ -1250,7 +1255,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testMerge()
     {
-        $document = new DocumentMock(self::$collection);
+        $document = new DocumentMock($this->collection);
         
         $document->merge(array(
             'balance' => 123, // not existed key
@@ -1277,7 +1282,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      */
     public function testSave_SaveNotRequired()
     {
-        $document = self::$collection->createDocument(array('p' => 'v'));
+        $document = $this->collection->createDocument(array('p' => 'v'));
         $document->save();
 
         $this->assertFalse($document->isSaveRequired());
@@ -1299,7 +1304,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             '\MongoCollection',
             array('update'),
             array(
-                self::$collection->getDatabase()->getMongoDb(),
+                $this->collection->getDatabase()->getMongoDb(),
                 'phpmongo_test_collection'
             )
         );
@@ -1314,7 +1319,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             )));
 
         $collection = new Collection(
-            self::$collection->getDatabase(),
+            $this->collection->getDatabase(),
             $mongoCollectionMock
         );
 
