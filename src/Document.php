@@ -1115,7 +1115,9 @@ class Document extends Structure
         } // insert
         else {
 
-            $this->triggerEvent('beforeInsert');
+            if($this->triggerEvent('beforeInsert')->isCancelled()) {
+                return $this;
+            }
 
             $data = $this->toArray();
 
