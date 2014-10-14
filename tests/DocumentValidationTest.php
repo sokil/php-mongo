@@ -22,14 +22,17 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         self::$collection = $database->getCollection('phpmongo_test_collection');
     }
     
-    public function setUp() {
+    public function setUp() 
+    {
+        self::$collection->delete();
     }
     
     public function tearDown() {
 
     }
     
-    public static function tearDownAfterClass() {
+    public static function tearDownAfterClass() 
+    {
         self::$collection->delete();
     }
     
