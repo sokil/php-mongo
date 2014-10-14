@@ -21,9 +21,9 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Collection
      */
-    private static $collection;
+    private $collection;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
@@ -32,20 +32,12 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $database = $client->getDatabase('test');
         
         // select collection
-        self::$collection = $database->getCollection('phpmongo_test_collection');
+        $this->collection = $database->getCollection('phpmongo_test_collection');
     }
     
-    public function setUp() 
+    public function tearDown() 
     {
-        self::$collection->delete();
-    }
-    
-    public function tearDown() {
-
-    }
-    
-    public static function tearDownAfterClass() {
-        self::$collection->delete();
+        $this->collection->delete();
     }
 
     public function testOnAfterConstruct()
@@ -53,7 +45,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $collectionMock = $this->getMock(
             '\Sokil\Mongo\Collection',
             array('getDocumentClassName'),
-            array(self::$collection->getDatabase(), 'phpmongo_test_collection')
+            array($this->collection->getDatabase(), 'phpmongo_test_collection')
         );
 
         $collectionMock
@@ -72,7 +64,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $documentMock = $this->getMock(
             '\Sokil\Mongo\Document',
             array('rules'),
-            array(self::$collection, array(
+            array($this->collection, array(
                 'e' => 'user@gmail.com',
             ))
         );
@@ -105,7 +97,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $documentMock = $this->getMock(
             '\Sokil\Mongo\Document',
             array('rules'),
-            array(self::$collection, array(
+            array($this->collection, array(
                 'e' => 'wrongEmail',
             ))
         );
@@ -136,7 +128,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
         
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'p' => 'v'
         ));
         $document->onBeforeInsert(function() use($status) {
@@ -153,7 +145,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
         
-        $document = self::$collection->createDocument(array(
+        $document = $this->collection->createDocument(array(
             'p' => 'v'
         ));
         $document->onAfterInsert(function() use($status) {
@@ -170,7 +162,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
         
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
@@ -193,7 +185,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
         
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
@@ -216,7 +208,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
         
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
@@ -236,7 +228,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
         
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
@@ -256,7 +248,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
         
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ))
@@ -276,7 +268,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
         
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ))
@@ -294,7 +286,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
 
     public function testAttachEvent()
     {
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
@@ -311,7 +303,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdclass;
         $status->done = false;
 
-        $document = self::$collection
+        $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
@@ -332,7 +324,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $status = new \stdClass;
         $status->done = false;
         
-        self::$collection
+        $this->collection
             ->createDocument()
             ->onBeforeInsert(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) use($status) {
                 $status->done = true;
@@ -348,7 +340,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
     
     public function testCancelOperation_BeforeInsert()
     {
-        self::$collection
+        $this->collection
             ->delete()
             ->createDocument(array('field' => 'value'))
             ->onBeforeInsert(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) {
@@ -356,12 +348,12 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
             })
             ->save();
             
-        $this->assertEquals(0, self::$collection->count());
+        $this->assertEquals(0, $this->collection->count());
     }
     
     public function testCancelOperation_BeforeUpdate()
     {
-        $document = self::$collection
+        $document = $this->collection
             ->delete()
             ->createDocument(array('field' => 'value'))
             ->save()
@@ -373,7 +365,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
             
         $this->assertEquals(
             'value', 
-            self::$collection
+            $this->collection
                 ->getDocumentDirectly($document->getId())
                 ->get('field')
         );
@@ -381,7 +373,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
     
     public function testCancelOperation_BeforeSave()
     {
-        self::$collection
+        $this->collection
             ->delete()
             ->createDocument(array('field' => 'value'))
             ->onBeforeSave(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) {
@@ -389,12 +381,12 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
             })
             ->save();
             
-        $this->assertEquals(0, self::$collection->count());
+        $this->assertEquals(0, $this->collection->count());
     }
     
     public function testCancelOperation_BeforeDelete()
     {
-        $document = self::$collection
+        $document = $this->collection
             ->delete()
             ->createDocument(array('field' => 'value'))
             ->save()
@@ -403,7 +395,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
             })
             ->delete();
             
-        $this->assertEquals(1, self::$collection->count());
+        $this->assertEquals(1, $this->collection->count());
     }
     
     public function testCancelOperation_BeforeValidate()
@@ -411,7 +403,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         $documentMock = $this
             ->getMockBuilder('\Sokil\Mongo\Document')
             ->setMethods(array('isValid'))
-            ->setConstructorArgs(array(self::$collection))
+            ->setConstructorArgs(array($this->collection))
             ->getMock();
         
         $documentMock
