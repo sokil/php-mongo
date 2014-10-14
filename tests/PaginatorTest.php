@@ -8,9 +8,9 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Collection
      */
-    private static $collection;
+    private $collection;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
@@ -19,19 +19,22 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $database = $client->getDatabase('test');
         
         // select collection
-        self::$collection = $database->getCollection('phpmongo_test_collection');
+        $this->collection = $database->getCollection('phpmongo_test_collection');
+    }
+    
+    public function tearDown()
+    {
+        $this->collection->delete();
     }
     
     public function testPaginatorWhenPageExistsAndRowsGreaterThanItemsOnPageRequested()
-    {
-        self::$collection->delete();
+    {        
+        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
         
-        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
-        $pager = self::$collection
+        $pager = $this->collection
             ->find()
             ->paginate(2, 2);
         
@@ -55,14 +58,12 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
 
     public function testSetCursor()
     {
-        self::$collection->delete();
+        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
 
-        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-
-        $cursor = self::$collection->find();
+        $cursor = $this->collection->find();
 
         $pager = new Paginator;
         $pager
@@ -75,14 +76,12 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
 
     public function testSetQueryBuilder()
     {
-        self::$collection->delete();
+        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
 
-        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-
-        $cursor = self::$collection->find();
+        $cursor = $this->collection->find();
 
         $pager = new Paginator;
         $pager
@@ -94,15 +93,13 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testPaginatorWhenPageExistsAndRowsLessThenItemsOnPage()
-    {
-        self::$collection->delete();
+    {        
+        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
         
-        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
-        $pager = self::$collection
+        $pager = $this->collection
             ->find()
             ->paginate(1, 20);
         
@@ -125,15 +122,13 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testPaginatorWhenPageNotExistsRequested()
-    {
-        self::$collection->delete();
+    {        
+        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
         
-        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
-        $pager = self::$collection
+        $pager = $this->collection
             ->find()
             ->paginate(20, 2);
         
@@ -156,10 +151,8 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testPaginatorOverEmptyList()
-    {
-        self::$collection->delete();
-        
-        $pager = self::$collection
+    {        
+        $pager = $this->collection
             ->find()
             ->paginate(10, 20);
         
@@ -168,14 +161,12 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
 
     public function testPaginatorIteratorInterface()
     {
-        self::$collection->delete();
+        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
+        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
+        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
+        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
 
-        $d11 = self::$collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = self::$collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = self::$collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = self::$collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-
-        $pager = self::$collection
+        $pager = $this->collection
             ->find()
             ->paginate(20, 2);
 
