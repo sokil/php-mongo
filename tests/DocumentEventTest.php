@@ -400,20 +400,15 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
     
     public function testCancelOperation_BeforeValidate()
     {
-        $documentMock = $this
-            ->getMockBuilder('\Sokil\Mongo\Document')
-            ->setMethods(array('isValid'))
-            ->setConstructorArgs(array($this->collection))
-            ->getMock();
-        
-        $documentMock
-            ->expects($this->never())
-            ->method('isValid');
-        
-        $documentMock
+        $testCase = $this;
+        $this->collection
+            ->createDocument()
             ->onBeforeValidate(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) {
                 $event->cancel();
             })
-            ->save();
+            ->onAfterValidate(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) use($testCase) {
+                $testCase->fail('Validation must be cancelled');
+            })
+            ->validate();
     }
 }
