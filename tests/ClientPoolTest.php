@@ -86,7 +86,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
             ),
         ));
 
-        var_dump($pool->unexistedConnection);
+        $pool->unexistedConnection;
     }
     
     public function testGetFromDefaultDb()

@@ -471,8 +471,6 @@ abstract class Cursor implements \Iterator, \Countable
             $result = $this->findAll();
         }
         
-        var_dump($result);
-        
         $list = array();
         foreach($result as $key => $document) {
             $list[$key] = $document->get($fieldName);

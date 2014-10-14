@@ -870,7 +870,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testStats()
     {
         $stats = $this->collection->stats();
-        var_dump($stats);
         
         $this->assertEquals((double) 0, $stats['ok']);
         $this->assertEquals('Collection [test.phpmongo_test_collection] not found.', $stats['errmsg']);

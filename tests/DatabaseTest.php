@@ -147,7 +147,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testExecuteInvalidJs()
     {
-        var_dump($this->database->executeJS('gversion()'));
+        $this->database->executeJS('gversion()');
     }
     
     public function testMapCollectionsToClasses()
