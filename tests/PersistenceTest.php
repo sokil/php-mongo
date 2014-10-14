@@ -31,6 +31,11 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
             ->getDatabase('test')
             ->getCollection('phpmongo_test_collection');
     }
+    
+    public function tearDown()
+    {
+        $this->collection->delete();
+    }
 
     public function testPersist()
     {
