@@ -8,30 +8,33 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
      * @var \Sokil\Mongo\Persistence
      */
     private $persistence;
-
+    
     /**
+     *
      * @var \Sokil\Mongo\Client
      */
-    private static $client;
-
-    public static function setUpBeforeClass()
-    {
-        self::$client = new Client('mongodb://127.0.0.1');
-    }
+    private $client;
+    
+    /**
+     *
+     * @var \Sokil\Mongo\Collection
+     */
+    private $collection;
 
     public function setUp()
     {
-        $this->persistence = self::$client->createPersistence();
+        $this->client = new Client('mongodb://127.0.0.1');
+        
+        $this->persistence = $this->client->createPersistence();
+        
+        $this->collection = $this->client
+            ->getDatabase('test')
+            ->getCollection('phpmongo_test_collection');
     }
 
     public function testPersist()
     {
-        $collection = self::$client
-            ->getDatabase('test')
-            ->getCollection('phpmongo_test_collection')
-            ->delete();
-
-        $document = $collection
+        $document = $this->collection
             ->createDocument(array(
                 'param' => 'value',
             ));
@@ -47,12 +50,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
 
     public function testRemove()
     {
-        $collection = self::$client
-            ->getDatabase('test')
-            ->getCollection('phpmongo_test_collection')
-            ->delete();
-
-        $document = $collection
+        $document = $this->collection
             ->createDocument(array(
                 'param' => 'value',
             ))
@@ -71,17 +69,12 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->persistence->contains($document));
 
         // check if document removed
-        $this->assertEmpty($collection->find()->findOne());
+        $this->assertEmpty($this->collection->find()->findOne());
     }
 
     public function testFlush()
     {
-        $collection = self::$client
-            ->getDatabase('test')
-            ->getCollection('phpmongo_test_collection')
-            ->delete();
-
-        $document = $collection
+        $document = $this->collection
             ->createDocument(array(
                 'param' => 'value',
             ));
@@ -91,17 +84,12 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
             ->persist($document)
             ->flush();
 
-        $this->assertEquals('value', $collection->find()->findOne()->param);
+        $this->assertEquals('value', $this->collection->find()->findOne()->param);
     }
 
     public function testClear()
     {
-        $collection = self::$client
-            ->getDatabase('test')
-            ->getCollection('phpmongo_test_collection')
-            ->delete();
-
-        $document = $collection
+        $document = $this->collection
             ->createDocument(array(
                 'param' => 'value',
             ));
@@ -117,12 +105,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
 
     public function testDetach()
     {
-        $collection = self::$client
-            ->getDatabase('test')
-            ->getCollection('phpmongo_test_collection')
-            ->delete();
-
-        $document = $collection
+        $document = $this->collection
             ->createDocument(array(
                 'param' => 'value',
             ));
