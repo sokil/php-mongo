@@ -686,6 +686,17 @@ $document->onBeforeSave(function() {
     $this->set('date' => new \MongoDate);
 });
 ```
+To cancel operation execution on some condition use event handling cancel:
+```php
+$document
+    ->onBeforeSave(function(\Sokil\Mongo\Event $event) {
+        if($this->get('field') === 42) {
+            $event->cancel();
+        }
+    })
+    ->save();
+```
+
 
 Behaviors
 ----------
