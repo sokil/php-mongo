@@ -177,6 +177,8 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $id = $fs->storeBytes('hello');
         $file = $fs->getFileById($id);
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotoGridFSFile', $file);
+        
+        $fs->delete();
     }
 
     public function testMapCollectionToClass()
@@ -198,6 +200,8 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $id = $fs->storeBytes('hello');
         $file = $fs->getFileById($id);
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotoGridFSFile', $file);
+        
+        $fs->delete();
     }
 
     public function testGetMapping()

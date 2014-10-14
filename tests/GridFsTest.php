@@ -8,20 +8,29 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Database
      */
-    private static $database;
+    private $database;
+    
+    /**
+     *
+     * @var \Sokil\Mongo\GridFS
+     */
+    private $gridFs;
         
-    public static function setUpBeforeClass()
+    public function setUp()
     {
-        // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
-        
-        // select database
-        self::$database = $client->getDatabase('test');
+        $this->database = $client->getDatabase('test');
+        $this->gridFs = $this->database->getGridFs('images');
+    }
+    
+    public function tearDown()
+    {
+        $this->gridFs->delete();
     }
     
     public function testGetGridFs()
     {
-        $this->assertInstanceOf('\Sokil\Mongo\GridFs', self::$database->getGridFs('images'));
+        $this->assertInstanceOf('\Sokil\Mongo\GridFs', $this->database->getGridFs('images'));
     }
     
     public function testCreateFromFile()
@@ -30,10 +39,8 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         $filename = tempnam(sys_get_temp_dir(), 'prefix');
         file_put_contents($filename, 'somebinarydata');
         
-        $fs = self::$database->getGridFs('images');
-        
         // store file
-        $id = $fs->storeFile($filename, array(
+        $id = $this->gridFs->storeFile($filename, array(
             'meta1' => 1,
             'meta2' => 2,
         ));
@@ -41,90 +48,76 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\MongoId', $id);
         
         unlink($filename);
-        $fs->delete();
     }
 
     public function testCreateFromBinary()
-    {
-        $fs = self::$database->getGridFs('images');
-        
-        $id = $fs->storeBytes('somebinarydata', array(
+    {        
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
         
         $this->assertInstanceOf('\MongoId', $id);
-        $fs->delete();
     }
 
     public function testGetFileById_MongoIdArgument()
     {
-        $fs = self::$database->getGridFs('images');
-
-        $id = $fs->storeBytes('somebinarydata', array(
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
 
-        $this->assertNotEmpty($fs->getFileById($id));
+        $this->assertNotEmpty($this->gridFs->getFileById($id));
     }
 
     public function testGetFileById_StringArgument()
     {
-        $fs = self::$database->getGridFs('images');
-
-        $id = $fs->storeBytes('somebinarydata', array(
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
 
-        $this->assertNotEmpty($fs->getFileById((string) $id));
+        $this->assertNotEmpty($this->gridFs->getFileById((string) $id));
     }
 
     public function testGetFileById_VarcharArgument()
     {
-        $fs = self::$database->getGridFs('images');
-
-        $id = $fs->storeBytes('somebinarydata', array(
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             '_id'   => 'varchar_id',
             'meta1' => 1,
             'meta2' => 2,
         ));
 
-        $this->assertNotEmpty($fs->getFileById('varchar_id'));
+        $this->assertNotEmpty($this->gridFs->getFileById('varchar_id'));
     }
     
     public function testDelete()
-    {
-        $fs = self::$database->getGridFs('images');
-        
-        $id = $fs->storeBytes('somebinarydata', array(
+    {        
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
         
-        $fs->deleteFileById($id);
+        $this->gridFs->deleteFileById($id);
         
-        $this->assertEquals(null, $fs->getFileById($id));
+        $this->assertEquals(null, $this->gridFs->getFileById($id));
     }
     
     public function testFind()
-    {
-        $fs = self::$database->getGridFs('images');
-        
-        $fs->storeBytes('somebinarydata', array(
+    {        
+        $this->gridFs->storeBytes('somebinarydata', array(
             'meta' => 1,
         ));
         
-        $id = $fs->storeBytes('somebinarydata', array(
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta' => 2,
         ));
         
-        $fs->storeBytes('somebinarydata', array(
+        $this->gridFs->storeBytes('somebinarydata', array(
             'meta' => 3,
         ));
         
-        $file = $fs->find()->where('meta', 2)->current();
+        $file = $this->gridFs->find()->where('meta', 2)->current();
         
         $this->assertNotEmpty($file);
         
@@ -136,25 +129,21 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testGetBytes()
-    {
-        $fs = self::$database->getGridFs('images');
-        
-        $id = $fs->storeBytes('somebinarydata', array(
+    {        
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta' => 1,
         ));
         
-        $this->assertEquals('somebinarydata', $fs->getFileById($id)->getBytes());
+        $this->assertEquals('somebinarydata', $this->gridFs->getFileById($id)->getBytes());
     }
     
     public function testGetResource()
-    {
-        $fs = self::$database->getGridFs('images');
-        
-        $id = $fs->storeBytes('somebinarydata', array(
+    {        
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta' => 1,
         ));
         
-        $this->assertTrue(is_resource($fs->getFileById($id)->getResource()));
+        $this->assertTrue(is_resource($this->gridFs->getFileById($id)->getResource()));
     }
 
     /**
@@ -166,7 +155,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         $mongoGridFsMock = $this->getMock(
             '\MongoGridFS',
             array('delete'),
-            array(self::$database->getMongoDB(), 'images')
+            array($this->database->getMongoDB(), 'images')
         );
 
         $mongoGridFsMock
@@ -178,7 +167,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
                 'errmsg' => 'Some error message',
             )));
 
-        $gridFS = new GridFS(self::$database, $mongoGridFsMock);
+        $gridFS = new GridFS($this->database, $mongoGridFsMock);
 
         $id = $gridFS->storeBytes('data');
 

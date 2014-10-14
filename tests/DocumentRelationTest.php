@@ -4,15 +4,15 @@ namespace Sokil\Mongo;
 
 class DocumentRelationTest extends \PHPUnit_Framework_TestCase
 {
-    private static $database;
+    private $database;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
         
         // select database
-        self::$database = $client
+        $this->database = $client
             ->map(array(
                 'test'  => array(
                     'cars'      => '\Sokil\Mongo\DocumentRelationTest\CarsCollection',
@@ -24,15 +24,12 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
             ->getDatabase('test');
     }
     
-    public function setUp() {
-    }
-    
-    public function tearDown() {
-
-    }
-    
-    public static function tearDownAfterClass() {
-        
+    public function tearDown()
+    {
+        $this->database->getCollection('cars')->delete();
+        $this->database->getCollection('engines')->delete();
+        $this->database->getCollection('drivers')->delete();
+        $this->database->getCollection('wheels')->delete();
     }
     
     /**
@@ -41,8 +38,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testGetRelated_HasOne()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $enginesCollection = self::$database->getCollection('engines');
+        $carsCollection = $this->database->getCollection('cars');
+        $enginesCollection = $this->database->getCollection('engines');
         
         // add documents
         $carDocument = $carsCollection
@@ -72,8 +69,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testGetRelated_Belongs()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $enginesCollection = self::$database->getCollection('engines');
+        $carsCollection = $this->database->getCollection('cars');
+        $enginesCollection = $this->database->getCollection('engines');
         
         // add documents
         $carDocument = $carsCollection
@@ -103,8 +100,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testGetRelated_HasMany()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $wheelsCollection = self::$database->getCollection('wheels');
+        $carsCollection = $this->database->getCollection('cars');
+        $wheelsCollection = $this->database->getCollection('wheels');
         
         // add documents
         $carDocument = $carsCollection
@@ -136,8 +133,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     
     public function testGetRelated_ManyMany_RequestFromCollectionWithLocalyStoredRelationData()
     {
-        $carsCollection = self::$database->getCollection('cars');
-        $driversCollection = self::$database->getCollection('drivers');
+        $carsCollection = $this->database->getCollection('cars');
+        $driversCollection = $this->database->getCollection('drivers');
         
         $driver1 = $driversCollection->createDocument(array('name' => 'Dmytro'))->save();
         $driver2 = $driversCollection->createDocument(array('name' => 'Natalia'))->save();
@@ -172,8 +169,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     
     public function testGetRelated_ManyMany_RequestFromCollectionWithoutLocalyStoredRelationData()
     {
-        $carsCollection = self::$database->getCollection('cars');
-        $driversCollection = self::$database->getCollection('drivers');
+        $carsCollection = $this->database->getCollection('cars');
+        $driversCollection = $this->database->getCollection('drivers');
         
         $driver1 = $driversCollection->createDocument(array('name' => 'Dmytro'))->save();
         $driver2 = $driversCollection->createDocument(array('name' => 'Natalia'))->save();
@@ -208,8 +205,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testGetRelated_Belongs_Cache()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $wheelsCollection = self::$database->getCollection('wheels');
+        $carsCollection = $this->database->getCollection('cars');
+        $wheelsCollection = $this->database->getCollection('wheels');
         
         // add documents
         $carDocument = $carsCollection
@@ -244,8 +241,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testAddRelation_Belongs()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $wheelsCollection = self::$database->getCollection('wheels');
+        $carsCollection = $this->database->getCollection('cars');
+        $wheelsCollection = $this->database->getCollection('wheels');
         
         // add documents
         $carDocument = $carsCollection
@@ -266,8 +263,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testAddRelation_HasOne()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $enginesCollection = self::$database->getCollection('engines');
+        $carsCollection = $this->database->getCollection('cars');
+        $enginesCollection = $this->database->getCollection('engines');
         
         $engineDocument = $enginesCollection
             ->createDocument(array(
@@ -286,8 +283,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testAddRelation_HasMany()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $wheelsCollection = self::$database->getCollection('wheels');
+        $carsCollection = $this->database->getCollection('cars');
+        $wheelsCollection = $this->database->getCollection('wheels');
         
         $wheelDocument = $wheelsCollection
             ->createDocument(array(
@@ -305,8 +302,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     
     public function testAddRelation_ManyMany()
     {
-        $carsCollection = self::$database->getCollection('cars');
-        $driversCollection = self::$database->getCollection('drivers');
+        $carsCollection = $this->database->getCollection('cars');
+        $driversCollection = $this->database->getCollection('drivers');
         
         $driver1 = $driversCollection->createDocument(array('name' => 'Dmytro'))->save();
         $driver2 = $driversCollection->createDocument(array('name' => 'Natalia'))->save();
@@ -344,8 +341,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testRemoveRelation_Belongs()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $wheelsCollection = self::$database->getCollection('wheels');
+        $carsCollection = $this->database->getCollection('cars');
+        $wheelsCollection = $this->database->getCollection('wheels');
         
         // add documents
         $carDocument = $carsCollection
@@ -370,8 +367,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testRemoveRelation_HasOne()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $enginesCollection = self::$database->getCollection('engines');
+        $carsCollection = $this->database->getCollection('cars');
+        $enginesCollection = $this->database->getCollection('engines');
         
         $carDocument = $carsCollection
             ->createDocument(array('brand' => 'Nissan'))
@@ -395,8 +392,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     public function testRemoveRelation_HasMany()
     {
         // collections
-        $carsCollection = self::$database->getCollection('cars');
-        $wheelsCollection = self::$database->getCollection('wheels');
+        $carsCollection = $this->database->getCollection('cars');
+        $wheelsCollection = $this->database->getCollection('wheels');
         
         $carDocument = $carsCollection
             ->createDocument(array('brand' => 'Nissan'))
@@ -415,8 +412,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     
     public function testRemoveRelation_ManyMany()
     {
-        $carsCollection = self::$database->getCollection('cars');
-        $driversCollection = self::$database->getCollection('drivers');
+        $carsCollection = $this->database->getCollection('cars');
+        $driversCollection = $this->database->getCollection('drivers');
         
         $driver1 = $driversCollection->createDocument(array('name' => 'Dmytro'))->save();
         $driver2 = $driversCollection->createDocument(array('name' => 'Natalia'))->save();

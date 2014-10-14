@@ -25,10 +25,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      */
     private $collection;
     
-    public static function setUpBeforeClass()
-    {
-    }
-    
     public function setUp() 
     {
         $client = new Client('mongodb://127.0.0.1');
@@ -36,15 +32,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->collection = $database
             ->getCollection('phpmongo_test_collection')
             ->delete();
-    }
-    
-    public function tearDown()
-    {
-
-    }
-    
-    public static function tearDownAfterClass() {
-        $this->collection->delete();
     }
     
     public function testReset()
@@ -220,7 +207,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testSet_Unsaved()
     {
         $document = $this->collection
-            ->delete()
             ->createDocument(array(
                 'param' => 'value',
             ));
@@ -244,8 +230,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             ))
             ->save();
         
-        $document = $this->collection
-            ->getDocumentDirectly($document->getId());
+        $document = $this->collection->getDocumentDirectly($document->getId());        
         
         $document->set('a.b.c', 'value1');
         $this->assertEquals('value1', $document->get('a.b.c'));

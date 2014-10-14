@@ -8,20 +8,29 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Database
      */
-    private static $database;
+    private $database;
         
-    public static function setUpBeforeClass()
+    /**
+     *
+     * @var \Sokil\Mongo\GridFS
+     */
+    private $gridFs;
+    
+    public function setUp()
     {
-        // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
-        
-        // select database
-        self::$database = $client->getDatabase('test');
+        $this->database = $client->getDatabase('test');
+        $this->gridFs = $this->database->getGridFs('images');
+    }
+    
+    public function tearDown()
+    {
+        $this->gridFs->delete();
     }
 
     public function testInitFileWithArray()
     {
-        $file = new GridFSFile(self::$database->getGridFS('images'), array(
+        $file = new GridFSFile($this->gridFs, array(
             'param' => 'value'
         ));
 
@@ -34,14 +43,14 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
      */
     public function testInitFileWithWrongData()
     {
-        $file = new GridFSFile(self::$database->getGridFS('images'), 'allowed_only_array_or_MongoGridFSFile');
+        $file = new GridFSFile($this->gridFs, 'allowed_only_array_or_MongoGridFSFile');
 
         $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);
     }
 
     public function testInitFileWithEmptyData()
     {
-        $file = new GridFSFile(self::$database->getGridFS('images'));
+        $file = new GridFSFile($this->gridFs);
 
         $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);
     }
@@ -49,14 +58,12 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
 
     public function testGet()
     {
-        $fs = self::$database->getGridFs('images');
-
-        $id = $fs->storeBytes('somebinarydata', array(
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
 
-        $file = $fs->getFileById($id);
+        $file = $this->gridFs->getFileById($id);
 
         $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);
 
@@ -65,54 +72,46 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
 
     public function testGetFilename()
     {
-        $fs = self::$database->getGridFs('images');
-
-        $id = $fs->storeBytes('somebinarydata', array(
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'filename' => '/etc/hosts',
         ));
 
-        $this->assertEquals('/etc/hosts', $fs->getFileById($id)->getFilename());
+        $this->assertEquals('/etc/hosts', $this->gridFs->getFileById($id)->getFilename());
     }
 
     public function testSave()
     {
-        $fs = self::$database->getGridFs('images');
-
-        $id = $fs->storeBytes('somebinarydata', array(
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
 
-        $file = $fs->getFileById($id);
+        $file = $this->gridFs->getFileById($id);
         $file->set('meta1', 777)->save();
 
-        $file = $fs->getFileById($id);
+        $file = $this->gridFs->getFileById($id);
         $this->assertEquals(777, $file->get('meta1'));
     }
 
     public function testGetMongoGridFsFile()
     {
-        $fs = self::$database->getGridFs('images');
-
-        $id = $fs->storeBytes('somebinarydata', array(
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta1' => 1,
             'meta2' => 2,
         ));
 
-        $file = $fs->getFileById($id);
+        $file = $this->gridFs->getFileById($id);
 
         $this->assertInstanceof('\MongoGridFSFile', $file->getMongoGridFsFile());
     }
 
     public function testCount()
     {
-        $fs = self::$database->getGridFs('images');
-
         $data = 'somebinarydata';
 
-        $id = $fs->storeBytes($data);
+        $id = $this->gridFs->storeBytes($data);
 
-        $file = $fs->getFileById($id);
+        $file = $this->gridFs->getFileById($id);
 
         $this->assertEquals(strlen($data), $file->count());
 
@@ -122,11 +121,9 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
 
     public function testDump()
     {
-        $fs = self::$database->getGridFs('images');
-
         $data = 'somebinarydata';
-        $id = $fs->storeBytes($data);
-        $file = $fs->getFileById($id);
+        $id = $this->gridFs->storeBytes($data);
+        $file = $this->gridFs->getFileById($id);
 
         $filename = sys_get_temp_dir() . '/mongoFile.txt';
         $file->dump($filename);
@@ -138,21 +135,18 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $fs = self::$database->getGridFs('images');
-
-        $id = $fs->storeBytes('somebinarydata');
-        $file = $fs->getFileById($id);
+        $id = $this->gridFs->storeBytes('somebinarydata');
+        $file = $this->gridFs->getFileById($id);
 
         $file->delete();
 
-        $this->assertNull($fs->getFileById($id));
+        $this->assertNull($this->gridFs->getFileById($id));
     }
     
     public function testGetMd5Checksum()
     {
-        $fs = self::$database->getGridFs('images');
-        $id = $fs->storeBytes('somebinarydata');
-        $file = $fs->getFileById($id);
+        $id = $this->gridFs->storeBytes('somebinarydata');
+        $file = $this->gridFs->getFileById($id);
         
         $this->assertEquals(md5('somebinarydata'), $file->getMd5Checksum());
     }

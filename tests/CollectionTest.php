@@ -907,6 +907,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         
         $documents->next();
         $this->assertEquals(4, $documents->current()->param);
+        
+        $collection->delete();
     }
     
     public function testStats()
