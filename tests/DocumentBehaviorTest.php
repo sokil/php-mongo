@@ -21,9 +21,9 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
      *
      * @var \Sokil\Mongo\Collection
      */
-    private static $collection;
+    private $collection;
     
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         // connect to mongo
         $client = new Client('mongodb://127.0.0.1');
@@ -32,12 +32,12 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
         $database = $client->getDatabase('test');
         
         // select collection
-        self::$collection = $database->getCollection('phpmongo_test_collection');
+        $this->collection = $database->getCollection('phpmongo_test_collection');
     }
     
     public function testExecuteBehavior()
     {
-        $document = self::$collection->createDocument(array('param' => 0));
+        $document = $this->collection->createDocument(array('param' => 0));
 
         $document->attachBehavior('get42', new SomeBehavior());
         
@@ -50,7 +50,7 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
      */
     public function test__call_MethodNotFound()
     {
-        $document = self::$collection->createDocument(array('param' => 0));
+        $document = $this->collection->createDocument(array('param' => 0));
         $document->attachBehavior('get42', new SomeBehavior());
 
         $document->unexistedMethod();
@@ -58,7 +58,7 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
     
     public function testBehaviorOwner()
     {
-        $document = self::$collection->createDocument(array('param' => 42));
+        $document = $this->collection->createDocument(array('param' => 42));
         
         $document->attachBehavior('someBehavior', new SomeBehavior());
         
@@ -67,7 +67,7 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
 
     public function testAttachBehaviors_AsInstanceOfbehaviorClass()
     {
-        $document = self::$collection->createDocument(array('param' => 0));
+        $document = $this->collection->createDocument(array('param' => 0));
         $document->attachBehaviors(array(
             'get42' => new SomeBehavior(),
         ));
@@ -75,7 +75,7 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
 
     public function testAttachBehaviors_AsArray()
     {
-        $document = self::$collection->createDocument(array('param' => 0));
+        $document = $this->collection->createDocument(array('param' => 0));
         $document->attachBehaviors(array(
             'get42' => array(
                 'class' => '\Sokil\Mongo\SomeBehavior',
@@ -90,7 +90,7 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
      */
     public function testAttachBehaviors_AsArray_ClassNotSpecified()
     {
-        $document = self::$collection->createDocument(array('param' => 0));
+        $document = $this->collection->createDocument(array('param' => 0));
         $document->attachBehaviors(array(
             'get42' => array(
                 'param' => 'value',
