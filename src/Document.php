@@ -361,7 +361,7 @@ class Document extends Structure
             ->getCollection($relatedCollectionName);
 
         if (!$relatedCollection->hasDocument($document)) {
-            throw new Exeption('Document must belongs to related collection');
+            throw new Exception('Document must belongs to related collection');
         }
 
         switch ($relationType) {
@@ -420,7 +420,7 @@ class Document extends Structure
             ->getCollection($relatedCollectionName);
 
         if ($document && !$relatedCollection->hasDocument($document)) {
-            throw new Exeption('Document must belongs to related collection');
+            throw new Exception('Document must belongs to related collection');
         }
 
         switch ($relationType) {
