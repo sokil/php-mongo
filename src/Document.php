@@ -138,7 +138,7 @@ class Document extends Structure
      * @return \Sokil\Mongo\Collection
      */
     public function getCollection()
-    {
+    {        
         return $this->_collection;
     }
 
@@ -218,11 +218,18 @@ class Document extends Structure
 
     public function belongsToCollection(Collection $collection)
     {
-        if ($collection->getDatabase()->getName() !== $this->getCollection()->getDatabase()->getName()) {
+        // check connection
+        if($collection->getDatabase()->getClient()->getDsn() !== $this->_collection->getDatabase()->getClient()->getDsn()) {
+            return false;
+        }
+        
+        // check database
+        if ($collection->getDatabase()->getName() !== $this->_collection->getDatabase()->getName()) {
             return false;
         }
 
-        return $collection->getName() == $this->getCollection()->getName();
+        // check collection
+        return $collection->getName() == $this->_collection->getName();
     }
 
     /**
