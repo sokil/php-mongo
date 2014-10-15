@@ -311,6 +311,11 @@ class Structure
     {
         return $this->_modifiedFields;
     }
+    
+    public function getOriginalData()
+    {
+        return $this->_originalData;
+    }
         
     public function toArray()
     {
