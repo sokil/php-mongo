@@ -74,6 +74,11 @@ class Client
         return $this;
     }
     
+    public function getDsn()
+    {
+        return $this->_dsn;
+    }
+    
     public function setConnectOptions(array $options)
     {
         $this->_connectOptions = $options;
