@@ -341,6 +341,7 @@ class Collection implements \Countable
     /**
      * Save document
      *
+     * @deprecated since v.1.8.0 use Document::save() method
      * @param \Sokil\Mongo\Document $document
      * @param bool $validate validate or not before save
      * @return \Sokil\Mongo\Collection
