@@ -27,7 +27,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     
     public function setUp() 
     {
-        $client = new Client('mongodb://127.0.0.1');
+        $client = new Client(MONGO_DSN);
         $database = $client->getDatabase('test');
         $this->collection = $database
             ->getCollection('phpmongo_test_collection')

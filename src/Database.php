@@ -30,7 +30,7 @@ class Database
         if($database instanceof \MongoDB) {
             $this->_mongoDB = $database;
         } else {
-            $this->_mongoDB = $this->_client->getConnection()->selectDB($database);
+            $this->_mongoDB = $this->_client->getMongoClient()->selectDB($database);
         }
 
     }

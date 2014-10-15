@@ -20,7 +20,7 @@ class Client
      *
      * @var \MongoClient
      */
-    private $_connection;
+    private $_mongoClient;
     
     private $_databasePool = array();
     
@@ -90,30 +90,73 @@ class Client
         return $this->_connectOptions;
     }
     
+    /**
+     * Set mongo's client
+     * 
+     * @deprecated since v.1.8.0 use Client::setMongoClient()
+     * @param \MongoClient $client
+     * @return \Sokil\Mongo\Client
+     */
     public function setConnection(\MongoClient $client)
     {
-        $this->_connection = $client;
+        $this->setMongoClient($client);
+        
+        return $this;
+    }
+    
+    /**
+     * Set mongo's client
+     * 
+     * @param \MongoClient $client
+     * @return \Sokil\Mongo\Client
+     */
+    public function setMongoClient(\MongoClient $client)
+    {
+        $this->_mongoClient = $client;
         return $this;
     }
 
     /**
      * Get mongo connection instance
      *
+     * @deprecated since v.1.8.0 use Client::getMongoClient()
      * @return \MongoClient
      * @throws \Sokil\Mongo\Exception
      */
     public function getConnection()
     {
-        if(!$this->_connection) {
-            
-            if(!$this->_dsn) {
-                throw new Exception('DSN not specified');
-            }
-            
-            $this->_connection = new \MongoClient($this->_dsn, $this->_connectOptions);
+        return $this->getMongoClient();
+    }
+    
+    /**
+     * Get mongo connection instance
+     *
+     * @return \MongoClient
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function getMongoClient()
+    {
+        if($this->_mongoClient) {
+            return $this->_mongoClient;
         }
+            
+        if(!$this->_dsn) {
+            throw new Exception('DSN not specified');
+        }
+
+        $this->_mongoClient = new \MongoClient($this->_dsn, $this->_connectOptions);
         
-        return $this->_connection;
+        return $this->_mongoClient;
+    }
+    
+    /**
+     * Get list of all active connections through this client
+     * 
+     * @return type
+     */
+    public function getConnections()
+    {
+        return $this->_mongoClient->getConnections();
     }
     
     /**
@@ -195,37 +238,37 @@ class Client
     
     public function readPrimaryOnly()
     {
-        $this->getConnection()->setReadPreference(\MongoClient::RP_PRIMARY);
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
     
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->getConnection()->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
     
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->getConnection()->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
     
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->getConnection()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
     
     public function readNearest(array $tags = null)
     {
-        $this->getConnection()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
 
     public function getReadPreference()
     {
-        return $this->getConnection()->getReadPreference();
+        return $this->getMongoClient()->getReadPreference();
     }
     
     public function setLogger(LoggerInterface $logger)
@@ -275,7 +318,7 @@ class Client
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
-        if(!$this->getConnection()->setWriteConcern($w, (int) $timeout)) {
+        if(!$this->getMongoClient()->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
         }
         
@@ -313,7 +356,7 @@ class Client
      */
     public function getWriteConcern()
     {
-        return $this->getConnection()->getWriteConcern();
+        return $this->getMongoClient()->getWriteConcern();
     }
 
     /**

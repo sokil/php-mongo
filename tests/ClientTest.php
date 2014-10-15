@@ -13,12 +13,12 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $this->client = new Client('mongodb://127.0.0.1');
+        $this->client = new Client(MONGO_DSN);
     }
 
     public function testConstructClientWithConnectOptions()
     {
-        $client = new Client('mongodb://127.0.0.1', array(
+        $client = new Client(MONGO_DSN, array(
             'param' => 'value',
         ));
 
@@ -29,12 +29,12 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testSetConnection()
     {
-        $connection = new \MongoClient('mongodb://127.0.0.1');
+        $mongoClient = new \MongoClient(MONGO_DSN);
 
         $client = new Client;
-        $client->setConnection($connection);
+        $client->setMongoClient($mongoClient);
 
-        $this->assertEquals($connection, $client->getConnection());
+        $this->assertEquals($mongoClient, $client->getMongoClient());
     }
 
     /**
@@ -44,7 +44,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function testGetConnectionWhenNoDSNSpecified()
     {
         $client = new Client;
-        $client->getConnection();
+        $client->getMongoClient();
     }
 
     public function testGetDatabase()
@@ -247,18 +247,18 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testErrorOnSetWriteConcern()
     {
-        $connection = $this->getMock(
+        $mongoClientMock = $this->getMock(
             '\MongoClient',
             array('setWriteConcern')
         );
 
-        $connection
+        $mongoClientMock
             ->expects($this->any())
             ->method('setWriteConcern')
             ->will($this->returnValue(false));
 
         $client = new Client();
-        $client->setConnection($connection);
+        $client->setMongoClient($mongoClientMock);
 
         $client->setWriteConcern(1);
     }

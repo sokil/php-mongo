@@ -18,7 +18,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         
     public function setUp()
     {
-        $client = new Client('mongodb://127.0.0.1');
+        $client = new Client(MONGO_DSN);
         $this->database = $client->getDatabase('test');
         $this->gridFs = $this->database->getGridFs('images');
     }

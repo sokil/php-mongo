@@ -23,7 +23,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->client = new Client('mongodb://127.0.0.1');
+        $this->client = new Client(MONGO_DSN);
         
         $this->persistence = $this->client->createPersistence();
         

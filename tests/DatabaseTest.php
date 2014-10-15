@@ -33,7 +33,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $client = new Client('mongodb://127.0.0.1');
+        $client = new Client(MONGO_DSN);
         
         // select database
         $this->database = $client->getDatabase('test');
@@ -365,7 +365,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $mongoDatabaseMock = $this->getMock(
             '\MongoDB',
             array('setWriteConcern'),
-            array($this->database->getClient()->getConnection(), 'test')
+            array($this->database->getClient()->getMongoClient(), 'test')
         );
 
         $mongoDatabaseMock

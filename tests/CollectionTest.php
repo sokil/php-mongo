@@ -19,7 +19,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $client = new Client('mongodb://127.0.0.1');
+        $client = new Client(MONGO_DSN);
         
         // select database
         $this->database = $client->getDatabase('test');
@@ -923,7 +923,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $mongoDatabaseMock = $this->getMock(
             '\MongoDB',
             array('command'),
-            array($this->database->getClient()->getConnection(), 'test')
+            array($this->database->getClient()->getMongoClient(), 'test')
         );
 
         $mongoDatabaseMock
@@ -1006,7 +1006,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->method('getDbVersion')
             ->will($this->returnValue('2.4.0'));
 
-        $clientMock->setConnection($this->database->getClient()->getConnection());
+        $clientMock->setMongoClient($this->database->getClient()->getMongoClient());
 
         $clientMock
             ->getDatabase('test')
@@ -1031,7 +1031,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->method('getDbVersion')
             ->will($this->returnValue('2.6.0'));
 
-        $clientMock->setConnection($this->database->getClient()->getConnection());
+        $clientMock->setMongoClient($this->database->getClient()->getMongoClient());
 
         $this->collection = $clientMock
             ->getDatabase('test')

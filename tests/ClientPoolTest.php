@@ -8,7 +8,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
     {
         $pool = new ClientPool(array(
             'connect1' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => MONGO_DSN,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -22,7 +22,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             'connect2' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => MONGO_DSN,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -57,7 +57,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
     {
         $pool = new ClientPool(array(
             'connect1' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => MONGO_DSN,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -71,7 +71,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             'connect2' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => MONGO_DSN,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -93,7 +93,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
     {
         $pool = new ClientPool(array(
             'connect1' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => MONGO_DSN,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -107,7 +107,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             'connect2' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => MONGO_DSN,
                 'defaultDatabase' => 'db2',
                 'mappign' => array(
                     'db1' => array(
@@ -135,7 +135,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
 
         $pool->addConnection(
             'connect1',
-            'mongodb://127.0.0.1',
+            MONGO_DSN,
             array(
                 'db1' => array(
                     'col1' => '\Collection1',
@@ -151,7 +151,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
 
         $pool->addConnection(
             'connect2',
-            'mongodb://127.0.0.1',
+            MONGO_DSN,
             array(
                 'db1' => array(
                     'col1' => '\Collection5',
