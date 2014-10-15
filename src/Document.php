@@ -143,7 +143,9 @@ class Document extends Structure
     }
 
     /**
-     * Reset all data passed to object in run-tile, like events, behaviors, data modifications, etc.
+     * Reset all data passed to object in run-time, like events, behaviors, 
+     * data modifications, etc. to the state just after open or save document
+     * 
      * @return \Sokil\Mongo\Document
      */
     public function reset()
@@ -161,6 +163,29 @@ class Document extends Structure
         // init delegates
         $this->_init();
 
+        return $this;
+    }
+    
+    /**
+     * Reload data from db and reset all unsaved data
+     */
+    public function refresh()
+    {        
+        $data = $this
+            ->getCollection()
+            ->find()
+            ->asArray()
+            ->byId($this->getId())
+            ->findOne();
+        
+        $this->_data = $data;
+        
+        $this->_originalData = $data;
+        
+        $this->_modifiedFields = array();
+        
+        $this->_operator = new Operator;
+        
         return $this;
     }
 

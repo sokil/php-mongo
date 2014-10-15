@@ -56,6 +56,41 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value1', $document->get('param1'));
     }
     
+    public function testReload()
+    {
+        // Create document
+        $id = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save()
+            ->getId();
+        
+        // Load two unreferenced copies of same document
+        $document1 = $this->collection->getDocumentDirectly($id);
+        $document2 = $this->collection->getDocumentDirectly($id);
+        
+        // store changes on one of them
+        $document1
+            ->set('param', 'updatedValue')
+            ->save();
+        
+        // Changes not exists in seconde document before refresh
+        $this->assertEquals('value', $document2->param);
+        
+        // Document 2 is in not-saved state. 
+        // After refresh all not saved changes reset
+        $document2
+            ->set('param', 'someParalelUpdatedButNotSavedValue')
+            ->increment('newField');
+            
+        // refresh data
+        $document2->refresh();
+        
+        // now data is fresh
+        $this->assertEquals('updatedValue', $document2->param);
+        $this->assertEquals(array(), $document2->getOperator()->getAll());
+        $this->assertNull($document2->newField);
+    }
+    
     public function testToString()
     {
         $document = $this->collection->createDocument(array(
