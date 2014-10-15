@@ -45,7 +45,7 @@ class Database
      */
     public function getName()
     {
-        return (string) $this->_mongoDB;
+        return $this->_mongoDB->__toString();
     }
     
     /**
