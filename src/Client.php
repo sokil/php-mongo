@@ -51,6 +51,20 @@ class Client
         }
     }
     
+    /**
+     * Set credentials to auth on admin db
+     * @param type $username
+     * @param type $password
+     * @return \Sokil\Mongo\Client
+     */
+    public function setCredentials($username, $password)
+    {
+        $this->_connectOptions['username'] = $username;
+        $this->_connectOptions['password'] = $password;
+        
+        return $this;
+    }
+    
     public function __get($name)
     {
         return $this->getDatabase($name);

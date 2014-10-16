@@ -39,6 +39,23 @@ class Database
 
     }
     
+    /**
+     * 
+     * @param string $username
+     * @param string $password
+     */
+    public function authenticate($username, $password)
+    {
+        $result = $this->_mongoDB->authenticate($username, $password);
+    }
+    
+    public function logout()
+    {
+        $result = $this->executeCommand(array(
+            'logout' => 1,
+        ));
+    }
+    
     public function __get($name)
     {
         return $this->getCollection($name);
@@ -413,6 +430,13 @@ class Database
         return $this->_mongoDB->getWriteConcern();
     }
     
+    /**
+     * Execute Mongo command
+     * 
+     * @param array $command
+     * @param array $options
+     * @return array
+     */
     public function executeCommand(array $command, array $options = array())
     {
         return $this->getMongoDB()->command($command, $options);
