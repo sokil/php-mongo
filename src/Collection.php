@@ -31,14 +31,6 @@ class Collection implements \Countable
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
     
     /**
-     *
-     * @var string class name of document class. 
-     * May be override in constructor. 
-     * Used as default value for getting document classname
-     */
-    private $_defaultDocumentClass = '\Sokil\Mongo\Document';
-    
-    /**
      * List of arrays, where each item array is an index definition.
      * Every index definition must contain key 'keys' with list of fields and orders,
      * and optional options from @link http://php.net/manual/en/mongocollection.createindex.php:
@@ -83,7 +75,12 @@ class Collection implements \Countable
      *
      * @var array collection options
      */
-    private $_options = array();
+    private $_options = array(
+        // May be override in constructor. 
+        // Used as default value for getting document classname.
+        // May be fully qualified class name or callable that return fully qualified class name
+        'documentClass' => '\Sokil\Mongo\Document',
+    );
     
     public function __construct(Database $database, $collection, array $options = null)
     {
@@ -116,17 +113,23 @@ class Collection implements \Countable
         $this->_options = $options;
         
         // Default document class.
-        // May be fully qualified class name or 
-        // callable that return fully qualified class name
+        // May be fully qualified class name or callable that return fully qualified class name
         if(isset($options['documentClass'])) {
             if(!is_callable($options['documentClass']) && !class_exists($options['documentClass'])) {
                 throw new Exception('Property "documentClass" must be callable or valid name of class');
             }
-            
-            $this->_defaultDocumentClass = $options['documentClass'];
         }
         
         return $this;
+    }
+    
+    /**
+     * Get fully qualified document class name or callable that return fully qualified class name
+     * @return string
+     */
+    public function getDefaultDocumentClass()
+    {
+        return $this->_options['documentClass'];
     }
     
     /**
@@ -202,10 +205,12 @@ class Collection implements \Countable
      */
     public function getDocumentClassName(array $documentData = null)
     {
-        if(is_callable($this->_defaultDocumentClass)) {
-            $className = call_user_func($this->_defaultDocumentClass, $documentData);
+        $defaultDocumentClass = $this->getDefaultDocumentClass();
+        
+        if(is_callable($defaultDocumentClass)) {
+            $className = call_user_func($defaultDocumentClass, $documentData);
         } else {
-            $className = $this->_defaultDocumentClass;
+            $className = $defaultDocumentClass;
         }
         
         if(!class_exists($className)) {
