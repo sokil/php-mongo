@@ -211,6 +211,48 @@ $collection = $client->getDatabase('databaseName')->getCollection('collectionNam
 $collection = $client->getDatabase('databaseName')->getCollection('collectionName.subName');
 ```
 
+If you want to pass some options to collection's constructor, you also can 
+configure them in mapping definition:
+
+```php
+$client->map([
+    'databaseName'  => [
+        'collectionName' => [
+            'class' => '\Some\Custom\Collection\Classname',
+            'collectionOption1' => 'value1',
+            'collectionOption2' => 'value2',
+        ]
+    ],
+]);
+```
+
+If 'class' omitted, then used standart \Sokil\Mongo\Collection class. 
+All options lated may be accessed:
+
+```php
+// will return 'value1'
+$client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName')
+    ->getOption('collectionOption1');
+
+To override default document class use 'documentClass' option of collection:
+```php
+$client->map([
+    'databaseName'  => [
+        'collectionName' => [
+            'documentClass' => '\Some\Document\Class',
+        ]
+    ],
+]);
+
+// is instance of \Some\Document\Class
+$document = $client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName')
+    ->createDocument();
+```
+
 Document schema
 ------------------------
 

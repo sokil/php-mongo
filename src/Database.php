@@ -24,6 +24,10 @@ class Database
 
     private $_collectionPoolEnabled = true;
     
+    private $_defultCollectionClass = '\Sokil\Mongo\Collection';
+    
+    private $_defultGridFsClass = '\Sokil\Mongo\GridFS';
+    
     public function __construct(Client $client, $database) {
         $this->_client = $client;
 
@@ -145,7 +149,7 @@ class Database
     /**
      * Get class name mapped to collection
      * @param string $name name of collection
-     * @return string name of class
+     * @return string|array name of class or array of class definition
      */
     public function getCollectionClassName($name)
     {        
@@ -154,7 +158,7 @@ class Database
         } elseif($this->_classPrefix) {
             $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
         } else {
-            $className = '\Sokil\Mongo\Collection';
+            $className = $this->_defultCollectionClass;
         }
         
         return $className;
@@ -172,7 +176,7 @@ class Database
         } elseif($this->_classPrefix) {
             $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
         } else {
-            $className = '\Sokil\Mongo\GridFS';
+            $className = $this->_defultGridFsClass;
         }
         
         return $className;
@@ -234,12 +238,36 @@ class Database
         }
 
         // no object in pool - init new
-        $className = $this->getCollectionClassName($name);
-        if(!class_exists($className)) {
-            throw new Exception('Class ' . $className . ' not found while map collection name to class');
+        $classDefinition = $this->getCollectionClassName($name);
+        
+        if(is_string($classDefinition)) {
+            // passed class definition is class name
+            $options = null;
+            
+            $className = $classDefinition;
+            
+            if(!class_exists($className)) {
+                throw new Exception('Class ' . $className . ' not found while map collection name to class');
+            }
+        } elseif(is_array($classDefinition)) {
+            // passed class definition is array of class name and options
+            $options = $classDefinition;
+            
+            if(empty($classDefinition['class'])) {
+                $classDefinition['class'] = $this->_defultCollectionClass;
+            }
+            
+            if(!class_exists($classDefinition['class'])) {
+                throw new Exception('Class ' . $classDefinition['class'] . ' not found while map collection name to class');
+            }
+            
+            $className = $classDefinition['class'];
+        } else {
+            throw new \Exception('Wrong collection class definition for collection "' . $name . '"');
         }
 
-        $collection = new $className($this, $name);
+        // create collection class
+        $collection = new $className($this, $name, $options);
 
         // store to pool
         if($this->_collectionPoolEnabled) {

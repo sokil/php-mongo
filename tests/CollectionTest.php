@@ -1287,4 +1287,94 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('unique', $indexes[1]);
     }
+    
+    public function testOverrideDefaultClassnameByString()
+    {
+        // define array of collections
+        $this->database->map(array(
+            'collection1' => array(
+                'documentClass' => '\Sokil\Mongo\CollectionTestDocumentMock',
+            )
+        ));
+        
+        // define collection
+        $this->database->map('collection2', array(
+            'documentClass' => '\Sokil\Mongo\CollectionTestDocumentMock',
+        ));
+        
+        // check
+        $collection1 = $this->database->getCollection('collection1');
+        $this->assertEquals(
+            '\Sokil\Mongo\CollectionTestDocumentMock', 
+            $collection1->getDocumentClassName()
+        );
+        
+        $collection2 = $this->database->getCollection('collection2');
+        $this->assertEquals(
+            '\Sokil\Mongo\CollectionTestDocumentMock', 
+            $collection2->getDocumentClassName()
+        );
+    }
+    
+    public function testOverrideDefaultClassnameByCallable()
+    {
+        // define array of collections
+        $this->database->map(array(
+            'collection1' => array(
+                'documentClass' => function(array $data) {
+                    return '\Sokil\Mongo\\' . $data['documentClassName'];
+                },
+            )
+        ));
+        
+        // define collection
+        $this->database->map('collection2', array(
+            'documentClass' => function(array $data) {
+                return '\Sokil\Mongo\\' . $data['documentClassName'];
+            },
+        ));
+        
+        // check
+        $collection1 = $this->database->getCollection('collection1');
+        $collection1DocumentClassName = $collection1->getDocumentClassName(array(
+            'documentClassName' => 'CollectionTestDocumentMock',
+        ));
+        $this->assertEquals(
+            '\Sokil\Mongo\CollectionTestDocumentMock', 
+            $collection1DocumentClassName
+        );
+        
+        $collection2 = $this->database->getCollection('collection2');
+        $collection2DocumentClassName = $collection2->getDocumentClassName(array(
+            'documentClassName' => 'CollectionTestDocumentMock',
+        ));
+        $this->assertEquals(
+            '\Sokil\Mongo\CollectionTestDocumentMock',
+            $collection2DocumentClassName
+        );
+    }
+    
+    public function testGetOptionPassedToMapper()
+    {
+        // define array of collections
+        $this->database->map(array(
+            'collection1' => array(
+                'someOption' => 'someValue',
+            )
+        ));
+        
+        $this->assertEquals('someValue', $this
+            ->database
+            ->getCollection('collection1')
+            ->getOption('someOption')
+        );
+    }
+}
+
+/**
+ * Document mock
+ */
+class CollectionTestDocumentMock extends Document
+{
+    
 }

@@ -79,16 +79,74 @@ class Collection implements \Countable
      */
     private $_documentPoolEnabled = true;
     
-    public function __construct(Database $database, $collection)
+    /**
+     *
+     * @var array collection options
+     */
+    private $_options = array();
+    
+    public function __construct(Database $database, $collection, array $options = null)
     {
+        // define db
         $this->_database = $database;
         
+        // init mongo collection
         if($collection instanceof \MongoCollection) {
             $this->_mongoCollection = $collection;
         } else {
             $this->_mongoCollection = $database->getMongoDB()->selectCollection($collection);
         }
         
+        // set options
+        if($options) {
+            $this->setOptions($options);
+        }
+        
+    }
+    
+    /**
+     * Configure object in constructor
+     * 
+     * @param array $options
+     * @return \Sokil\Mongo\Collection
+     * @throws Exception
+     */
+    private function setOptions(array $options)
+    {
+        $this->_options = $options;
+        
+        // Default document class.
+        // May be fully qualified class name or 
+        // callable that return fully qualified class name
+        if(isset($options['documentClass'])) {
+            if(!is_callable($options['documentClass']) && !class_exists($options['documentClass'])) {
+                throw new Exception('Property "documentClass" must be callable or valid name of class');
+            }
+            
+            $this->_defaultDocumentClass = $options['documentClass'];
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Get all options
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->getOptions();
+    }
+    
+    /**
+     * Get option
+     * 
+     * @param string|int $name
+     * @return mixed
+     */
+    public function getOption($name)
+    {
+        return isset($this->_options[$name]) ? $this->_options[$name] : null;
     }
     
     public function __get($name)
@@ -144,7 +202,17 @@ class Collection implements \Countable
      */
     public function getDocumentClassName(array $documentData = null)
     {
-        return $this->_defaultDocumentClass;
+        if(is_callable($this->_defaultDocumentClass)) {
+            $className = call_user_func($this->_defaultDocumentClass, $documentData);
+        } else {
+            $className = $this->_defaultDocumentClass;
+        }
+        
+        if(!class_exists($className)) {
+            throw new Exception('Class ' . $className . ' not found');
+        }
+        
+        return $className;
     }
     
     /**
