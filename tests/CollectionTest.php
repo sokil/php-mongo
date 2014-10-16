@@ -19,7 +19,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $client = new Client(MONGO_DSN);
+        $client = new Client();
         
         // select database
         $this->database = $client->getDatabase('test');

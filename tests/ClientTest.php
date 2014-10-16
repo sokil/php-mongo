@@ -13,12 +13,12 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $this->client = new Client(MONGO_DSN);
+        $this->client = new Client();
     }
 
     public function testConstructClientWithConnectOptions()
     {
-        $client = new Client(MONGO_DSN, array(
+        $client = new Client(null, array(
             'param' => 'value',
         ));
 
@@ -29,7 +29,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testSetConnection()
     {
-        $mongoClient = new \MongoClient(MONGO_DSN);
+        $mongoClient = new \MongoClient();
 
         $client = new Client;
         $client->setMongoClient($mongoClient);

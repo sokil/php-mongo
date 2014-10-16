@@ -18,7 +18,7 @@ class ClientPool
         $this->_configuration = $configuration;
     }
     
-    public function addConnection($name, $dsn, $mapping = null, $defaultDatabase = null, array $options = null)
+    public function addConnection($name, $dsn = null, $mapping = null, $defaultDatabase = null, array $options = null)
     {
         $this->_configuration[$name] = array(
             'dsn'               => $dsn,

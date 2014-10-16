@@ -13,7 +13,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $client = new Client(MONGO_DSN);
+        $client = new Client();
         
         // select database
         $database = $client->getDatabase('test');

@@ -18,7 +18,7 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
     
     public function setUp()
     {
-        $client = new Client(MONGO_DSN);
+        $client = new Client();
         $this->database = $client->getDatabase('test');
         $this->gridFs = $this->database->getGridFs('images');
     }
