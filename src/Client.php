@@ -164,10 +164,6 @@ class Client
         if($this->_mongoClient) {
             return $this->_mongoClient;
         }
-            
-        if(!$this->_dsn) {
-            throw new Exception('DSN not specified');
-        }
 
         $this->_mongoClient = new \MongoClient($this->_dsn, $this->_connectOptions);
         

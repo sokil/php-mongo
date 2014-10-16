@@ -27,7 +27,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         ), $client->getConnectOptions());
     }
 
-    public function testSetConnection()
+    public function testSetMongoClient()
     {
         $mongoClient = new \MongoClient();
 
@@ -35,6 +35,35 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $client->setMongoClient($mongoClient);
 
         $this->assertEquals($mongoClient, $client->getMongoClient());
+    }
+
+    /**
+     * @deprecated
+     */
+    public function testSetConnection()
+    {
+        $mongoClient = new \MongoClient();
+
+        $client = new Client;
+        $client->setConnection($mongoClient);
+
+        $this->assertEquals($mongoClient, $client->getConnection());
+    }
+
+    public function testSetCredentials()
+    {
+        $client = new Client;
+        $client->setCredentials('u', 'p');
+
+        $connectOptions = $client->getConnectOptions();
+
+        $this->assertArrayHasKey('username', $connectOptions);
+        $this->assertEquals('u', $connectOptions['username']);
+
+        $this->assertArrayHasKey('password', $connectOptions);
+        $this->assertEquals('p', $connectOptions['password']);
+
+        return $this;
     }
 
     public function testGetConnectionWhenNoDSNSpecified()
