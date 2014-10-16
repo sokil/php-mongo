@@ -18,10 +18,11 @@ class ClientPool
         $this->_configuration = $configuration;
     }
     
-    public function addConnection($name, $dsn, $mapping = null, $defaultDatabase = null)
+    public function addConnection($name, $dsn, $mapping = null, $defaultDatabase = null, array $options = null)
     {
         $this->_configuration[$name] = array(
             'dsn'               => $dsn,
+            'connectOptions'    => $options,
             'defaultDatabase'   => $defaultDatabase,
             'mapping'           => $mapping,
         );
@@ -48,12 +49,26 @@ class ClientPool
             return $this->_pool[$name];
         }
         
-        // initialise
+        // check if connection exists
         if(!isset($this->_configuration[$name])) {
             throw new Exception('Connection with name ' . $name . ' not found');
         }
         
-        $client = new Client($this->_configuration[$name]['dsn']);
+        // check if dsn exists
+        if(empty($this->_configuration[$name]['dsn'])) {
+            $this->_configuration[$name]['dsn'] = 'mongodb://127.0.0.1';
+        }
+        
+        // check if connect options exists
+        if(empty($this->_configuration[$name]['connectOptions'])) {
+            $this->_configuration[$name]['connectOptions'] = null;
+        }
+        
+        // init client
+        $client = new Client(
+            $this->_configuration[$name]['dsn'],
+            $this->_configuration[$name]['connectOptions']
+        );
         
         if(isset($this->_configuration[$name]['mapping'])) {
             $client->map($this->_configuration[$name]['mapping']);

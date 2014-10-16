@@ -122,6 +122,10 @@ $pool = new ClientPool(array(
     'connect1' => array(
         'dsn' => 'mongodb://127.0.0.1',
         'defaultDatabase' => 'db2',
+        'connectOptions' => array(
+            'connectTimeoutMS' => 1000,
+            'readPreference' => MongoClient::RP_PRIMARY,
+        ),
         'mapping' => array(
             'db1' => array(
                 'col1' => '\Collection1',
