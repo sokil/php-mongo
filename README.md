@@ -235,6 +235,7 @@ $client
     ->getDatabase('databaseName')
     ->getCollection('collectionName')
     ->getOption('collectionOption1');
+```
 
 To override default document class use 'documentClass' option of collection:
 ```php
