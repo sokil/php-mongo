@@ -52,7 +52,9 @@ class Client
     }
     
     /**
-     * Set credentials to auth on admin db
+     * Set credentials to auth on db, specified in connect options or dsn.
+     * If not specified - auth on admin db
+     * 
      * @param type $username
      * @param type $password
      * @return \Sokil\Mongo\Client
