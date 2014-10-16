@@ -294,10 +294,42 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $document->set('some-field-name-mx', 'user@example.com');
         $this->assertFalse($document->isValid());
         
-        // additional MX check on wrong email
+        // additional MX check on valid email
         $document->set('some-field-name-mx', 'user@gmail.com');
         $this->assertTrue($document->isValid());
         
+    }
+    
+    public function testIsValid_FieldU()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('urlField', 'url'),
+                array('urlField-ping', 'url', 'ping' => true)
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // Url invalid
+        $document->set('urlField', '42');
+        $this->assertFalse($document->isValid());
+        
+        // URL valid
+        $document->set('urlField', 'http://example.com');
+        $this->assertTrue($document->isValid());
+
+        // additional ping check on valid but not-existed url
+        $document->set('urlField-ping', 'http://some-unexisted-server424242.com');
+        $this->assertFalse($document->isValid());
+        
+        // additional ping check on valid and accesible url
+        $document->set('urlField-ping', 'http://i.ua/');
+        $this->assertTrue($document->isValid());
     }
     
     public function testIsValid_FieldValidatedByMethod_Passed()
