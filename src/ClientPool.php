@@ -55,8 +55,8 @@ class ClientPool
         }
         
         // check if dsn exists
-        if(empty($this->_configuration[$name]['dsn'])) {
-            $this->_configuration[$name]['dsn'] = 'mongodb://127.0.0.1';
+        if(!isset($this->_configuration[$name]['dsn'])) {
+            $this->_configuration[$name]['dsn'] = null;
         }
         
         // check if connect options exists

@@ -37,14 +37,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($mongoClient, $client->getMongoClient());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage DSN not specified
-     */
     public function testGetConnectionWhenNoDSNSpecified()
     {
         $client = new Client;
-        $client->getMongoClient();
+        $this->assertEquals(Client::DEFAULT_DSN, $client->getDsn());
     }
 
     public function testGetDatabase()

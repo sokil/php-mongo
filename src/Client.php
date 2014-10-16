@@ -12,7 +12,9 @@ use \Psr\Log\LoggerInterface;
  */
 class Client
 {
-    private $_dsn;
+    const DEFAULT_DSN = 'mongodb://127.0.0.1';
+    
+    private $_dsn = self::DEFAULT_DSN;
     
     private $_connectOptions = array();
     
