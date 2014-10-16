@@ -394,6 +394,19 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         }
         
     }
+
+    public function testClearTriggeredErrors()
+    {
+        $document = $this->collection
+            ->createDocument()
+            ->triggerError('someField', 'someRule', 'someMessage');
+
+        $this->assertTrue($document->hasErrors());
+
+        $document->clearTriggeredErrors();
+
+        $this->assertFalse($document->hasErrors());
+    }
     
     public function testTriggerErrors()
     {
@@ -418,6 +431,19 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testAddErrors()
+    {
+        $errors = array(
+            'field1' => array('rule1' => 'message1'),
+            'field2' => array('rule2' => 'message2')
+        );
+
+        $document = new \Sokil\Mongo\Document($this->collection);
+        $document->addErrors($errors);
+
+        $this->assertEquals($errors, $document->getErrors());
+    }
+
     public function testGetInvalidDocumentFromException()
     {
         // mock of document
@@ -437,6 +463,127 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         } catch(\Sokil\Mongo\Document\Exception\Validate $e) {
             $this->assertEquals($document, $e->getDocument());
         }
+    }
+
+    public function testAddValidatorNamespace()
+    {
+        $document = $this->collection
+            ->createDocument()
+            ->addValidatorNamespace('\Vendor\Mongo\Validator\\');
+
+        $reflectionClass = new \ReflectionClass($document);
+        $property = $reflectionClass->getProperty('_validatorNamespaces');
+        $property->setAccessible(true);
+
+        $namespaces = $property->getValue($document);
+
+        $this->assertNotEquals(false, array_search('\Vendor\Mongo\Validator', $namespaces));
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Validator class must implement \Sokil\Mongo\Validator class
+     */
+    public function testIsValid_checkValidatorSuperclass()
+    {
+        // mock of document
+        $document = $this
+            ->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('field', 'wrong_superclass')
+            )));
+
+        $document
+            ->set('field', '42')
+            ->addValidatorNamespace('\Sokil\Mongo');
+
+        $document->isValid();
+    }
+
+    public function testBelongsToCollection()
+    {
+        $clientPool = new ClientPool(array(
+            'server1' => array(
+                'dsn' => 'mongodb://localhost',
+            ),
+            'server2' => array(
+                'dsn' => 'mongodb://127.0.0.1',
+            ),
+        ));
+        $map = array(
+            // same dsn, same database, same collection
+            array(
+                array('server1', 'test1', 'collection1'),
+                array('server1', 'test1', 'collection1'),
+                true,
+            ),
+            // same dsn, same database, diff collection
+            array(
+                array('server1', 'test1', 'collection1'),
+                array('server1', 'test1', 'collection2'),
+                false,
+            ),
+            // same dsn, diff database, same collection
+            array(
+                array('server1', 'test1', 'collection1'),
+                array('server1', 'test2', 'collection1'),
+                false,
+            ),
+            // same dsn, diff database, diff collection
+            array(
+                array('server1', 'test1', 'collection1'),
+                array('server1', 'test2', 'collection2'),
+                false,
+            ),
+            // diff dsn, same database, same collection
+            array(
+                array('server1', 'test1', 'collection1'),
+                array('server2', 'test1', 'collection1'),
+                false,
+            ),
+            // diff dsn, same database, diff collection
+            array(
+                array('server1', 'test1', 'collection1'),
+                array('server2', 'test1', 'collection2'),
+                false,
+            ),
+            // diff dsn, diff database, same collection
+            array(
+                array('server1', 'test1', 'collection1'),
+                array('server2', 'test2', 'collection1'),
+                false,
+            ),
+            // diff dsn, diff database, diff collection
+            array(
+                array('server1', 'test1', 'collection1'),
+                array('server2', 'test2', 'collection2'),
+                false,
+            ),
+        );
+
+        foreach($map as $collection) {
+
+            $this->assertEquals(
+                // marker - is equals or not
+                $collection[2],
+                // check
+                $clientPool
+                    ->get($collection[0][0])
+                    ->getDatabase($collection[0][1])
+                    ->getCollection($collection[0][2])
+                    ->createDocument()
+                    ->belongsToCollection(
+                        $clientPool->get($collection[1][0])
+                            ->getDatabase($collection[1][1])
+                            ->getCollection($collection[1][2])
+                    )
+            );
+        }
+
     }
 }
 
@@ -460,3 +607,5 @@ class DocumentWithMethodValidator extends \Sokil\Mongo\Document
         }
     }
 }
+
+class WrongSuperclassValidator {}

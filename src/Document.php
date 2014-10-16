@@ -118,7 +118,7 @@ class Document extends Structure
      * @param type $namespace
      * @return \Sokil\Mongo\Document
      */
-    public function addValidatornamespace($namespace)
+    public function addValidatorNamespace($namespace)
     {
         $this->_validatorNamespaces[] = rtrim($namespace, '\\');
         return $this;
