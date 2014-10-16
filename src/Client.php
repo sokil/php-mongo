@@ -95,6 +95,13 @@ class Client
         return $this->_dsn;
     }
     
+    /**
+     * Set connect options
+     * 
+     * @link http://php.net/manual/en/mongoclient.construct.php connect options
+     * @param array $options
+     * @return \Sokil\Mongo\Client
+     */
     public function setConnectOptions(array $options)
     {
         $this->_connectOptions = $options;
