@@ -124,7 +124,7 @@ $pool = new ClientPool(array(
         'defaultDatabase' => 'db2',
         'connectOptions' => array(
             'connectTimeoutMS' => 1000,
-            'readPreference' => MongoClient::RP_PRIMARY,
+            'readPreference' => \MongoClient::RP_PRIMARY,
         ),
         'mapping' => array(
             'db1' => array(
