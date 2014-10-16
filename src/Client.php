@@ -14,7 +14,7 @@ class Client
 {
     private $_dsn;
     
-    private $_connectOptions = array('connect' => true);
+    private $_connectOptions = array();
     
     /**
      *
