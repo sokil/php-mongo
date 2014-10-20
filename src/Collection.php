@@ -2,6 +2,7 @@
 
 namespace Sokil\Mongo;
 
+use Guzzle\Service\Description\Operation;
 use \Sokil\Mongo\Document\Exception\Validate as ValidateException;
 /**
  * Instance of this class is a representation of mongo collection.
@@ -534,21 +535,42 @@ class Collection implements \Countable
     
     /**
      * Update multiple documents
-     * @param \Sokil\Mongo\Expression $expression expression to define 
+     * @param \Sokil\Mongo\Expression|array|callable $expression expression to define
      *  which documents will change. 
-     * @param \Sokil\Mongo\Operator|array $updateData new data or commands
+     * @param \Sokil\Mongo\Operator|array|callable $updateData new data or commands
      *  to update
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      */
-    public function updateMultiple(Expression $expression, $updateData)
+    public function updateMultiple($expression, $updateData)
     {
+        // get expression from callable
+        if(is_callable($expression)) {
+            $expression = call_user_func($expression, new Expression);
+        }
+
+        // get expression array
+        if($expression instanceof Expression) {
+            $expression = $expression->toArray();
+        } elseif(!is_array($expression)) {
+            throw new Exception('Expression must be instance of Expression class or callable');
+        }
+
+        // get operator from callable
+        if(is_callable($updateData)) {
+            $updateData = call_user_func($updateData, new Operator);
+        }
+
+        // get operator as array
         if($updateData instanceof Operator) {
             $updateData = $updateData->getAll();
+        } else {
+            throw new Exception('Operator must be instance of Operator or callable');
         }
-        
+
+        // execute update operator
         $result = $this->_mongoCollection->update(
-            $expression->toArray(), 
+            $expression,
             $updateData,
             array(
                 'multiple'  => true,
