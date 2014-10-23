@@ -61,7 +61,8 @@ class Collection implements \Countable
     protected $_mongoCollection;
     
     /**
-     *
+     * Implementation of identity map pattern
+     * 
      * @var array list of cached documents
      */
     private $_documentsPool = array();
