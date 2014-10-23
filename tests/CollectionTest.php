@@ -74,7 +74,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->collection->isDocumentPoolEmpty());
         
         $this->collection
-            ->createDocument(['param' => 'value'])
+            ->createDocument(array('param' => 'value'))
             ->save();
         
         $this->assertFalse($this->collection->isDocumentPoolEmpty());
