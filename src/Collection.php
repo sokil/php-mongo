@@ -2,7 +2,6 @@
 
 namespace Sokil\Mongo;
 
-use Guzzle\Service\Description\Operation;
 use \Sokil\Mongo\Document\Exception\Validate as ValidateException;
 /**
  * Instance of this class is a representation of mongo collection.
