@@ -24,6 +24,18 @@ class GridFS extends Collection
     }
     
     /**
+     * Factory method to get document object from array of stored document 
+     * @param \MongoGridFSFile $data
+     * @return \Sokil\Mongo\GridFsFile
+     */
+    public function getStoredGridFsFileInstanceFromMongoGridFSFile(\MongoGridFSFile $data)
+    {        
+        $className = $this->getFileClassName($data);
+        
+        return new $className($this, $data);
+    }
+    
+    /**
      * Override to define class name of file by file data
      * 
      * @param \MongoGridFSFile $fileData
