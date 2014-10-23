@@ -240,7 +240,7 @@ class Collection implements \Countable
         if($this->isDocumentPoolEnabled()) {
             $collection = $this;
             $document->onAfterInsert(function(\Sokil\Mongo\Event $event) use($collection) {
-                $collection->storeDocumentInPool($event->getTarget());
+                $collection->_storeDocumentInPool($event->getTarget());
             });
         }
         
@@ -267,7 +267,7 @@ class Collection implements \Countable
         
         // store document in cache
         if($this->isDocumentPoolEnabled()) {
-            $this->storeDocumentInPool($document);
+            $this->_storeDocumentInPool($document);
         }
         
         return $document;
@@ -394,7 +394,19 @@ class Collection implements \Countable
         return !$this->_documentsPool;
     }
     
-    private function storeDocumentInPool(Document $document)
+    /**
+     * Store document to pool
+     * 
+     * WARNING!
+     * This method is public only because php 5.3 can't access private methods 
+     * of self in lambdas. So using this method from customer code 
+     * ABSOLUTELY PROHIBITED because there is no checking of document 
+     * belongs to current collection.
+     * 
+     * @param array $document
+     * @return \Sokil\Mongo\Collection
+     */
+    public function _storeDocumentInPool(Document $document)
     {
         $this->_documentsPool[(string) $document->getId()] = $document;
         return $this;
@@ -403,7 +415,7 @@ class Collection implements \Countable
     private function storeDocumentsInPool(array $documents)
     {
         foreach($documents as $document) {
-            $this->storeDocumentInPool($document);
+            $this->_storeDocumentInPool($document);
         }
         
         return $this;
@@ -447,7 +459,7 @@ class Collection implements \Countable
         
         $document = $this->getDocumentDirectly($id);
         
-        $this->storeDocumentInPool($document);
+        $this->_storeDocumentInPool($document);
         
         return $document;
     }
