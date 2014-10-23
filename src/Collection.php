@@ -261,9 +261,16 @@ class Collection implements \Countable
         
         $className = $this->getDocumentClassName($data);
         
-        return new $className($this, $data, array(
+        $document = new $className($this, $data, array(
             'stored' => true,
         ));
+        
+        // store document in cache
+        if($this->isDocumentPoolEnabled()) {
+            $this->storeDocumentInPool($document);
+        }
+        
+        return $document;
     }
     
     public function count()
@@ -393,6 +400,35 @@ class Collection implements \Countable
         return $this;
     }
     
+    private function storeDocumentsInPool(array $documents)
+    {
+        foreach($documents as $document) {
+            $this->storeDocumentInPool($document);
+        }
+        
+        return $this;
+    }
+    
+    private function removeDocumentFromPool(Document $document)
+    {
+        unset($this->_documentsPool[(string) $document]);
+        return $this;
+    }
+    
+    private function getDocumentFromDocumentPool($id)
+    {
+        return $this->_documentsPool[(string) $id];
+    }
+    
+    private function isDocumentPoolHasDocument($document)
+    {
+        if($document instanceof Document) {
+            $document = $document->getId();
+        }
+        
+        return isset($this->_documentsPool[(string) $document]);
+    }
+    
     /**
      * Get document by id
      * 
@@ -405,11 +441,15 @@ class Collection implements \Countable
             return $this->getDocumentDirectly($id);
         }
         
-        if(!isset($this->_documentsPool[(string) $id])) {
-            $this->_documentsPool[(string) $id] = $this->getDocumentDirectly($id);
+        if($this->isDocumentPoolHasDocument($id)) {
+            return $this->getDocumentFromDocumentPool($id);
         }
         
-        return $this->_documentsPool[(string) $id];
+        $document = $this->getDocumentDirectly($id);
+        
+        $this->storeDocumentInPool($document);
+        
+        return $document;
     }
     
     
@@ -448,10 +488,7 @@ class Collection implements \Countable
         }
         
         if($this->_documentPoolEnabled) {
-            $this->_documentsPool = array_merge(
-                $this->_documentsPool,
-                $documents
-            );
+            $this->storeDocumentsInPool($documents);
         }
         
         return $documents;
@@ -490,7 +527,7 @@ class Collection implements \Countable
         }
         
         // drop from document's pool
-        unset($this->_documentsPool[(string) $document->getId()]);
+        $this->removeDocumentFromPool($document);
         
         return $this;
     }
