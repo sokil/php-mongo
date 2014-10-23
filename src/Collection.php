@@ -409,7 +409,7 @@ class Collection implements \Countable
         return $this;
     }
     
-    private function removeDocumentFromPool(Document $document)
+    private function removeDocumentFromDocumentPool(Document $document)
     {
         unset($this->_documentsPool[(string) $document]);
         return $this;
@@ -527,7 +527,7 @@ class Collection implements \Countable
         }
         
         // drop from document's pool
-        $this->removeDocumentFromPool($document);
+        $this->removeDocumentFromDocumentPool($document);
         
         return $this;
     }
