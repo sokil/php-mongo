@@ -411,6 +411,12 @@ class Collection implements \Countable
         return $this;
     }
     
+    /**
+     * Store documents to identity map
+     * 
+     * @param array $documents list of Document instances
+     * @return \Sokil\Mongo\Collection
+     */
     private function storeDocumentsInPool(array $documents)
     {
         foreach($documents as $document) {
@@ -420,17 +426,35 @@ class Collection implements \Countable
         return $this;
     }
     
+    /**
+     * Remove document instance from identity map
+     * 
+     * @param \Sokil\Mongo\Document $document
+     * @return \Sokil\Mongo\Collection
+     */
     private function removeDocumentFromDocumentPool(Document $document)
     {
         unset($this->_documentsPool[(string) $document]);
         return $this;
     }
     
+    /**
+     * Get document from identity map by it's id
+     * 
+     * @param string|int|\MongoId $id
+     * @return \Sokil\Mongo\Document
+     */
     private function getDocumentFromDocumentPool($id)
     {
         return $this->_documentsPool[(string) $id];
     }
     
+    /**
+     * Check if document exists in identity map
+     * 
+     * @param \Sokil\Mongo\Document|\MongoId|int|string $document Document instance or it's id
+     * @return boolean
+     */
     private function isDocumentPoolHasDocument($document)
     {
         if($document instanceof Document) {
