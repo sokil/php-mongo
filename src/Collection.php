@@ -236,6 +236,24 @@ class Collection implements \Countable
         ));
     }
     
+    /**
+     * Factory method to get document object from array of stored document 
+     * @param array $data
+     * @return \Sokil\Mongo\className
+     */
+    public function getStoredDocumentInstanceFromArray(array $data)
+    {
+        if(!isset($data['_id'])) {
+            throw new Exception('Document must be stored and has _id key');
+        }
+        
+        $className = $this->getDocumentClassName($data);
+        
+        return new $className($this, $data, array(
+            'stored' => true,
+        ));
+    }
+    
     public function count()
     {
         return $this->find()->count();

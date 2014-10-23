@@ -47,6 +47,28 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
     
+    public function testGetStoredDocumentInstanceFromArray()
+    {
+        $document = $this->collection->getStoredDocumentInstanceFromArray(array(
+            '_id' => new \MongoId(),
+        ));
+        
+        $this->assertTrue($document->isStored());
+    }
+    
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Document must be stored and has _id key
+     */
+    public function testGetStoredDocumentInstanceFromArray_DocumentNotStored()
+    {
+        $document = $this->collection->getStoredDocumentInstanceFromArray(array(
+            'param' => 'value',
+        ));
+        
+        $this->assertTrue($document->isStored());
+    }
+    
     public function testGetDocumentByStringId()
     {        
         $document = $this->collection
