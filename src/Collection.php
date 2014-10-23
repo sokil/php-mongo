@@ -223,7 +223,7 @@ class Collection implements \Countable
     }
     
     /**
-     * 
+     * Factory method to get not stored Document instance from array
      * @param array $data
      * @return \Sokil\Mongo\Document
      */
@@ -237,7 +237,8 @@ class Collection implements \Countable
     }
     
     /**
-     * Factory method to get document object from array of stored document 
+     * Factory method to get document object from array of stored document
+     * 
      * @param array $data
      * @return \Sokil\Mongo\Document
      */
