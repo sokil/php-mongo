@@ -157,14 +157,14 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         
         // check emdedded relation fields
         $this->assertEquals(array(
-            $driver1,
-            $driver2,
-        ), array_values($car1->getRelated('drivers')));
+            $driver1->getId(),
+            $driver2->getId(),
+        ), array_keys($car1->getRelated('drivers')));
         
         $this->assertEquals(array(
-            $driver1,
-            $driver2,
-        ), array_values($car2->getRelated('drivers')));
+            $driver1->getId(),
+            $driver2->getId(),
+        ), array_keys($car2->getRelated('drivers')));
     }
     
     public function testGetRelated_ManyMany_RequestFromCollectionWithoutLocalyStoredRelationData()
@@ -192,14 +192,14 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         ))->save();
         
         $this->assertEquals(array(
-            $car1,
-            $car2,
-        ), array_values($driver1->getRelated('cars')));
+            $car1->getId(),
+            $car2->getId(),
+        ), array_keys($driver1->getRelated('cars')));
         
         $this->assertEquals(array(
-            $car1,
-            $car2,
-        ), array_values($driver2->getRelated('cars')));
+            $car1->getId(),
+            $car2->getId(),
+        ), array_keys($driver2->getRelated('cars')));
     }
     
     public function testGetRelated_Belongs_Cache()
@@ -328,14 +328,14 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         
         // check emdedded relation fields
         $this->assertEquals(array(
-            $driver1,
-            $driver2,
-        ), array_values($car1->getRelated('drivers')));
+            $driver1->getId(),
+            $driver2->getId(),
+        ), array_keys($car1->getRelated('drivers')));
         
         $this->assertEquals(array(
-            $driver1,
-            $driver2,
-        ), array_values($car2->getRelated('drivers')));
+            $driver1->getId(),
+            $driver2->getId(),
+        ), array_keys($car2->getRelated('drivers')));
     }
     
     public function testRemoveRelation_Belongs()
@@ -443,11 +443,11 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         
         // check emdedded relation fields
         $this->assertEquals(array(
-            $driver2,
-        ), array_values($car1->getRelated('drivers')));
+            $driver2->getId(),
+        ), array_keys($car1->getRelated('drivers')));
         
         $this->assertEquals(array(
-            $driver1,
-        ), array_values($car2->getRelated('drivers')));
+            $driver1->getId(),
+        ), array_keys($car2->getRelated('drivers')));
     }
 }
