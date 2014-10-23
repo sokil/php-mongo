@@ -231,9 +231,20 @@ class Collection implements \Countable
     {
         $className = $this->getDocumentClassName($data);
         
-        return new $className($this, $data, array(
+        /* @var $document \Sokil\Mongo\Document */
+        $document = new $className($this, $data, array(
             'stored' => false,
         ));
+        
+        // store document to identity map
+        if($this->isDocumentPoolEnabled()) {
+            $collection = $this;
+            $document->onAfterInsert(function(\Sokil\Mongo\Event $event) use($collection) {
+                $collection->storeDocumentInPool($event->getTarget());
+            });
+        }
+        
+        return $document;
     }
     
     /**
@@ -374,6 +385,12 @@ class Collection implements \Countable
     public function isDocumentPoolEmpty()
     {
         return !$this->_documentsPool;
+    }
+    
+    private function storeDocumentInPool(Document $document)
+    {
+        $this->_documentsPool[(string) $document->getId()] = $document;
+        return $this;
     }
     
     /**
@@ -655,7 +672,8 @@ class Collection implements \Countable
      * 
      * @return \Sokil\Mongo\AggregatePipelines
      */
-    public function createPipeline() {
+    public function createPipeline() 
+    {
         return new AggregatePipelines($this);
     }
     
@@ -666,7 +684,8 @@ class Collection implements \Countable
      * @return array result of aggregation
      * @throws \Sokil\Mongo\Exception
      */
-    public function aggregate($pipelines) {
+    public function aggregate($pipelines) 
+    {
         
         if($pipelines instanceof AggregatePipelines) {
             $pipelines = $pipelines->toArray();

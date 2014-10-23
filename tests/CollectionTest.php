@@ -69,6 +69,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isStored());
     }
     
+    public function testCreateDocument_IsNewDocumentStoredToPoolAfterSave()
+    {
+        $this->assertTrue($this->collection->isDocumentPoolEmpty());
+        
+        $this->collection
+            ->createDocument(['param' => 'value'])
+            ->save();
+        
+        $this->assertFalse($this->collection->isDocumentPoolEmpty());
+    }
+    
     public function testGetDocumentByStringId()
     {        
         $document = $this->collection
@@ -500,9 +511,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testEnableDocumentPool()
     {
-        
-        $this->collection->clearDocumentPool();
-
         // disable document pool
         $this->collection->disableDocumentPool();
         $this->assertFalse($this->collection->isDocumentPoolEnabled());
@@ -544,8 +552,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDistinct()
     {
-        
-    
         // create documents
         $this->collection
             ->createDocument(array(
@@ -592,8 +598,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDistinctWithoutExpression()
     {
-        
-
         // create documents
         $this->collection
             ->createDocument(array(
