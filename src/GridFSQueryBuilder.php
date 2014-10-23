@@ -18,8 +18,6 @@ class GridFSQueryBuilder extends Cursor
      */
     protected function toObject($file)
     {
-        $fileClassName = $this->_collection->getFileClassName($file);
-        
-        return new $fileClassName($this->_collection, $file);
+        return $this->_collection->getStoredGridFsFileInstanceFromMongoGridFSFile($file);
     }
 }

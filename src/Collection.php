@@ -239,7 +239,7 @@ class Collection implements \Countable
     /**
      * Factory method to get document object from array of stored document 
      * @param array $data
-     * @return \Sokil\Mongo\className
+     * @return \Sokil\Mongo\Document
      */
     public function getStoredDocumentInstanceFromArray(array $data)
     {

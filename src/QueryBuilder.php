@@ -12,9 +12,6 @@ class QueryBuilder extends Cursor
      */
     protected function toObject($mongoDocument)
     {
-        $className = $this->_collection->getDocumentClassName($mongoDocument);
-        return new $className($this->_collection, $mongoDocument, array(
-            'stored' => true
-        ));
+        return $this->_collection->getStoredDocumentInstanceFromArray($mongoDocument);
     }
 }
