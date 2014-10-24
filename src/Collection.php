@@ -446,7 +446,7 @@ class Collection implements \Countable
      * @param \Sokil\Mongo\Document $document
      * @return \Sokil\Mongo\Collection
      */
-    private function removeDocumentFromDocumentPool(Document $document)
+    public function removeDocumentFromDocumentPool(Document $document)
     {
         unset($this->documentPool[(string) $document]);
         return $this;
@@ -458,7 +458,7 @@ class Collection implements \Countable
      * @param string|int|\MongoId $id
      * @return \Sokil\Mongo\Document
      */
-    private function getDocumentFromDocumentPool($id)
+    public function getDocumentFromDocumentPool($id)
     {
         return $this->documentPool[(string) $id];
     }
@@ -482,7 +482,7 @@ class Collection implements \Countable
      * @param \Sokil\Mongo\Document|\MongoId|int|string $document Document instance or it's id
      * @return boolean
      */
-    private function isDocumentInDocumentPool($document)
+    public function isDocumentInDocumentPool($document)
     {
         if($document instanceof Document) {
             $document = $document->getId();
