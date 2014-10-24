@@ -64,13 +64,13 @@ class Collection implements \Countable
      * 
      * @var array list of cached documents
      */
-    private $_documentsPool = array();
+    private $documentsPool = array();
     
     /**
      *
      * @var bool cache or not documents
      */
-    private $_documentPoolEnabled = true;
+    private $isDocumentPoolEnabled = true;
     
     /**
      *
@@ -239,7 +239,7 @@ class Collection implements \Countable
         if($this->isDocumentPoolEnabled()) {
             $collection = $this;
             $document->onAfterInsert(function(\Sokil\Mongo\Event $event) use($collection) {
-                $collection->_storeDocumentInPool($event->getTarget());
+                $collection->addDocumentToDocumentPool($event->getTarget());
             });
         }
         
@@ -266,7 +266,7 @@ class Collection implements \Countable
         
         // store document in cache
         if($this->isDocumentPoolEnabled()) {
-            $this->_storeDocumentInPool($document);
+            $this->addDocumentToDocumentPool($document);
         }
         
         return $document;
@@ -352,7 +352,7 @@ class Collection implements \Countable
      */
     public function disableDocumentPool()
     {
-        $this->_documentPoolEnabled = false;
+        $this->isDocumentPoolEnabled = false;
         return $this;
     }
 
@@ -363,7 +363,7 @@ class Collection implements \Countable
      */
     public function enableDocumentPool()
     {
-        $this->_documentPoolEnabled = true;
+        $this->isDocumentPoolEnabled = true;
         return $this;
     }
 
@@ -374,12 +374,12 @@ class Collection implements \Countable
      */
     public function isDocumentPoolEnabled()
     {
-        return $this->_documentPoolEnabled;
+        return $this->isDocumentPoolEnabled;
     }
     
     public function clearDocumentPool()
     {
-        $this->_documentsPool = array();
+        $this->documentsPool = array();
         return $this;
     }
 
@@ -390,27 +390,21 @@ class Collection implements \Countable
      */
     public function isDocumentPoolEmpty()
     {
-        return !$this->_documentsPool;
+        return !$this->documentsPool;
     }
     
     /**
      * Store document to pool
      * 
-     * WARNING!
-     * This method is public only because php 5.3 can't access private methods 
-     * of self in lambdas. So using this method from customer code 
-     * ABSOLUTELY PROHIBITED because there is no checking of document 
-     * belongs to current collection.
-     * 
      * @param array $document
      * @return \Sokil\Mongo\Collection
      */
-    public function _storeDocumentInPool(Document $document)
+    public function addDocumentToDocumentPool(Document $document)
     {
         $documentId = (string) $document->getId();
         
-        if(!isset($this->_documentsPool[$documentId])) {
-            $this->_documentsPool[$documentId] = $document;
+        if(!isset($this->documentsPool[$documentId])) {
+            $this->documentsPool[$documentId] = $document;
         } else {
             // merging because document after 
             // load and before getting in second place may be changed
@@ -425,7 +419,7 @@ class Collection implements \Countable
             //    Changes from stage 2 merges as unmodified
             // $collection->find();
             
-            $this->_documentsPool[$documentId]->mergeUnmodified($document->toArray());
+            $this->documentsPool[$documentId]->mergeUnmodified($document->toArray());
         }
         
         return $this;
@@ -437,10 +431,10 @@ class Collection implements \Countable
      * @param array $documents list of Document instances
      * @return \Sokil\Mongo\Collection
      */
-    private function storeDocumentsInPool(array $documents)
+    public function addDocumentsToDocumentPool(array $documents)
     {
         foreach($documents as $document) {
-            $this->_storeDocumentInPool($document);
+            $this->addDocumentToDocumentPool($document);
         }
         
         return $this;
@@ -454,7 +448,7 @@ class Collection implements \Countable
      */
     private function removeDocumentFromDocumentPool(Document $document)
     {
-        unset($this->_documentsPool[(string) $document]);
+        unset($this->documentsPool[(string) $document]);
         return $this;
     }
     
@@ -466,7 +460,7 @@ class Collection implements \Countable
      */
     private function getDocumentFromDocumentPool($id)
     {
-        return $this->_documentsPool[(string) $id];
+        return $this->documentsPool[(string) $id];
     }
     
     /**
@@ -475,13 +469,13 @@ class Collection implements \Countable
      * @param \Sokil\Mongo\Document|\MongoId|int|string $document Document instance or it's id
      * @return boolean
      */
-    private function isDocumentPoolHasDocument($document)
+    private function isDocumentInDocumentPool($document)
     {
         if($document instanceof Document) {
             $document = $document->getId();
         }
         
-        return isset($this->_documentsPool[(string) $document]);
+        return isset($this->documentsPool[(string) $document]);
     }
     
     /**
@@ -492,17 +486,17 @@ class Collection implements \Countable
      */
     public function getDocument($id)
     {
-        if(!$this->_documentPoolEnabled) {
+        if(!$this->isDocumentPoolEnabled) {
             return $this->getDocumentDirectly($id);
         }
         
-        if($this->isDocumentPoolHasDocument($id)) {
+        if($this->isDocumentInDocumentPool($id)) {
             return $this->getDocumentFromDocumentPool($id);
         }
         
         $document = $this->getDocumentDirectly($id);
         
-        $this->_storeDocumentInPool($document);
+        $this->addDocumentToDocumentPool($document);
         
         return $document;
     }
@@ -543,8 +537,8 @@ class Collection implements \Countable
             return array();
         }
         
-        if($this->_documentPoolEnabled) {
-            $this->storeDocumentsInPool($documents);
+        if($this->isDocumentPoolEnabled) {
+            $this->addDocumentsToDocumentPool($documents);
         }
         
         return $documents;
