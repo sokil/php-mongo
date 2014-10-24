@@ -41,6 +41,7 @@ class Document extends Structure
     const FIELD_TYPE_INT64 = 18;
     const FIELD_TYPE_MIN_KEY = 255;
     const FIELD_TYPE_MAX_KEY = 127;
+    
     const RELATION_HAS_ONE = 'HAS_ONE';
     const RELATION_BELONGS = 'BELONGS';
     const RELATION_HAS_MANY = 'HAS_MANY';
@@ -974,13 +975,22 @@ class Document extends Structure
         return $this;
     }
 
-    public function append($fieldName, $value)
+    /**
+     * If field not exist - set value.
+     * If field exists and is not array - convert to array and append
+     * If field -s array - append
+     * 
+     * @param type $selector
+     * @param type $value
+     * @return \Sokil\Mongo\Structure
+     */
+    public function append($selector, $value)
     {
-        parent::append($fieldName, $value);
+        parent::append($selector, $value);
 
         // if document saved - save through update
         if ($this->getId()) {
-            $this->_operator->set($fieldName, $this->get($fieldName));
+            $this->_operator->set($selector, $this->get($selector));
         }
 
         return $this;

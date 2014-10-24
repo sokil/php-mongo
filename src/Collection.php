@@ -341,7 +341,7 @@ class Collection implements \Countable
     public function findAsArray($callable = null)
     {
         return $this
-            ->find($callable, true)
+            ->find($callable)
             ->asArray();
     }
 
@@ -407,7 +407,27 @@ class Collection implements \Countable
      */
     public function _storeDocumentInPool(Document $document)
     {
-        $this->_documentsPool[(string) $document->getId()] = $document;
+        $documentId = (string) $document->getId();
+        
+        if(!isset($this->_documentsPool[$documentId])) {
+            $this->_documentsPool[$documentId] = $document;
+        } else {
+            // merging because document after 
+            // load and before getting in second place may be changed
+            // and this changes must be preserved:
+            // 
+            // 1. Here document loads and modifies
+            // $document = $collection->getDocument()->set('field', 'value');
+            // 
+            // 2. Here document modified in another session
+            // 
+            // 3. Here document loads once again. 
+            //    Changes from stage 2 merges as unmodified
+            // $collection->find();
+            
+            $this->_documentsPool[$documentId]->mergeUnmodified($document->toArray());
+        }
+        
         return $this;
     }
     
@@ -505,7 +525,8 @@ class Collection implements \Countable
      * @param \Sokil\Mongo\Document $document
      * @return type
      */
-    public function hasDocument(Document $document) {
+    public function hasDocument(Document $document) 
+    {
         return (bool) $this->getDocument($document->getId());
     }
     

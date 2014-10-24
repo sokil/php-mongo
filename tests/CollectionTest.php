@@ -80,6 +80,40 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->collection->isDocumentPoolEmpty());
     }
     
+    public function testStoreDocumentInPool_DocumentAlreadyStored()
+    {
+        /**
+         * Store document to pool
+         */
+        $this->assertTrue($this->collection->isDocumentPoolEmpty());
+        
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+        
+        $this->assertFalse($this->collection->isDocumentPoolEmpty());
+        
+        /**
+         * Modify document in another thread
+         */
+        $client = new Client();
+        
+        $client
+            ->getDatabase($document->getCollection()->getDatabase()->getName())
+            ->getCollection($document->getCollection()->getName())
+            ->find()
+            ->findOne()
+            ->set('param', 'updatedValue')
+            ->save();
+        
+        // here oroginal document must be in unconsisted state
+        $this->assertEquals('value', $document->get('param'));
+        
+        // overload document in pool with new data
+        $this->collection->find()->findOne();
+        $this->assertEquals('updatedValue', $document->get('param'));
+    }
+    
     public function testGetDocumentByStringId()
     {        
         $document = $this->collection
