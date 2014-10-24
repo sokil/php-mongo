@@ -47,7 +47,7 @@ class Document extends Structure
     const RELATION_HAS_MANY = 'HAS_MANY';
     const RELATION_MANY_MANY = 'MANY_MANY';
 
-    private $_resolvedRelations = array();
+    private $resolvedRelationIds = array();
 
     /**
      *
@@ -286,8 +286,8 @@ class Document extends Structure
     public function getRelated($relationName)
     {
         // check if relation already resolved
-        if (isset($this->_resolvedRelations[$relationName])) {
-            return $this->_resolvedRelations[$relationName];
+        if (isset($this->resolvedRelationIds[$relationName])) {
+            return $this->resolvedRelationIds[$relationName];
         }
 
         $relations = $this->relations();
@@ -305,7 +305,7 @@ class Document extends Structure
                 $internalField = '_id';
                 $externalField = $relation[2];
 
-                $this->_resolvedRelations[$relationName] = $this->_collection
+                $this->resolvedRelationIds[$relationName] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
                     ->find()
@@ -317,7 +317,7 @@ class Document extends Structure
             case self::RELATION_BELONGS:
                 $internalField = $relation[2];
 
-                $this->_resolvedRelations[$relationName] = $this->_collection
+                $this->resolvedRelationIds[$relationName] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
                     ->getDocument($this->get($internalField));
@@ -328,7 +328,7 @@ class Document extends Structure
                 $internalField = '_id';
                 $externalField = $relation[2];
 
-                $this->_resolvedRelations[$relationName] = $this->_collection
+                $this->resolvedRelationIds[$relationName] = $this->_collection
                     ->getDatabase()
                     ->getCollection($targetCollectionName)
                     ->find()
@@ -344,13 +344,13 @@ class Document extends Structure
                     $internalField = $relation[2];
                     $relatedIdList = $this->get($internalField);
                     if (!$relatedIdList) {
-                        $this->_resolvedRelations[$relationName] = array();
+                        $this->resolvedRelationIds[$relationName] = array();
                         break;
                     }
 
                     $externalField = '_id';
 
-                    $this->_resolvedRelations[$relationName] = $this->_collection
+                    $this->resolvedRelationIds[$relationName] = $this->_collection
                         ->getDatabase()
                         ->getCollection($targetCollectionName)
                         ->find()
@@ -362,7 +362,7 @@ class Document extends Structure
                     $internalField = '_id';
                     $externalField = $relation[2];
 
-                    $this->_resolvedRelations[$relationName] = $this->_collection
+                    $this->resolvedRelationIds[$relationName] = $this->_collection
                         ->getDatabase()
                         ->getCollection($targetCollectionName)
                         ->find()
@@ -375,7 +375,7 @@ class Document extends Structure
                 throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
         
-        return $this->_resolvedRelations[$relationName];
+        return $this->resolvedRelationIds[$relationName];
     }
 
     public function addRelation($relationName, Document $document)
