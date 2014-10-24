@@ -64,7 +64,7 @@ class Collection implements \Countable
      * 
      * @var array list of cached documents
      */
-    private $documentsPool = array();
+    private $documentPool = array();
     
     /**
      *
@@ -379,7 +379,7 @@ class Collection implements \Countable
     
     public function clearDocumentPool()
     {
-        $this->documentsPool = array();
+        $this->documentPool = array();
         return $this;
     }
 
@@ -390,7 +390,7 @@ class Collection implements \Countable
      */
     public function isDocumentPoolEmpty()
     {
-        return !$this->documentsPool;
+        return !$this->documentPool;
     }
     
     /**
@@ -403,8 +403,8 @@ class Collection implements \Countable
     {
         $documentId = (string) $document->getId();
         
-        if(!isset($this->documentsPool[$documentId])) {
-            $this->documentsPool[$documentId] = $document;
+        if(!isset($this->documentPool[$documentId])) {
+            $this->documentPool[$documentId] = $document;
         } else {
             // merging because document after 
             // load and before getting in second place may be changed
@@ -419,7 +419,7 @@ class Collection implements \Countable
             //    Changes from stage 2 merges as unmodified
             // $collection->find();
             
-            $this->documentsPool[$documentId]->mergeUnmodified($document->toArray());
+            $this->documentPool[$documentId]->mergeUnmodified($document->toArray());
         }
         
         return $this;
@@ -448,7 +448,7 @@ class Collection implements \Countable
      */
     private function removeDocumentFromDocumentPool(Document $document)
     {
-        unset($this->documentsPool[(string) $document]);
+        unset($this->documentPool[(string) $document]);
         return $this;
     }
     
@@ -460,7 +460,20 @@ class Collection implements \Countable
      */
     private function getDocumentFromDocumentPool($id)
     {
-        return $this->documentsPool[(string) $id];
+        return $this->documentPool[(string) $id];
+    }
+    
+    /**
+     * Get documents from pool if they stored
+     * 
+     * @param array $ids
+     */
+    public function getDocumentsFromDocumentPool(array $ids) 
+    {
+        return array_intersect_key(
+            $this->documentPool, 
+            array_flip(array_map('strval', $ids))
+        );
     }
     
     /**
@@ -475,7 +488,7 @@ class Collection implements \Countable
             $document = $document->getId();
         }
         
-        return isset($this->documentsPool[(string) $document]);
+        return isset($this->documentPool[(string) $document]);
     }
     
     /**
