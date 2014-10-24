@@ -341,7 +341,7 @@ class Collection implements \Countable
     public function findAsArray($callable = null)
     {
         return $this
-            ->find($callable, true)
+            ->find($callable)
             ->asArray();
     }
 
