@@ -468,8 +468,12 @@ class Collection implements \Countable
      * 
      * @param array $ids
      */
-    public function getDocumentsFromDocumentPool(array $ids) 
+    public function getDocumentsFromDocumentPool(array $ids = null) 
     {
+        if(!$ids) {
+            return $this->documentPool;
+        }
+        
         return array_intersect_key(
             $this->documentPool, 
             array_flip(array_map('strval', $ids))
