@@ -41,6 +41,7 @@ class Document extends Structure
     const FIELD_TYPE_INT64 = 18;
     const FIELD_TYPE_MIN_KEY = 255;
     const FIELD_TYPE_MAX_KEY = 127;
+    
     const RELATION_HAS_ONE = 'HAS_ONE';
     const RELATION_BELONGS = 'BELONGS';
     const RELATION_HAS_MANY = 'HAS_MANY';
