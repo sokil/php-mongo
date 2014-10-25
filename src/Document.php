@@ -171,13 +171,14 @@ class Document extends Structure
      * Reload data from db and reset all unsaved data
      */
     public function refresh()
-    {        
+    {
+        // get data omitting cache
         $data = $this
             ->getCollection()
-            ->find()
-            ->asArray()
-            ->byId($this->getId())
-            ->findOne();
+            ->getMongoCollection()
+            ->findOne(array(
+                '_id' => $this->getId(),
+            ));
         
         $this->_data = $data;
         
