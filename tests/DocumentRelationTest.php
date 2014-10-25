@@ -466,6 +466,8 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
             ])
             ->save();
         
+        $this->assertNotEmpty($engineDocument->car_id);
+        
         $carDocument->removeRelation('engine');
         
         $this->assertEmpty($engineDocument->car_id);

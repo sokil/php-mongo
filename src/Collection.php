@@ -258,8 +258,15 @@ class Collection implements \Countable
             throw new Exception('Document must be stored and has _id key');
         }
         
-        $className = $this->getDocumentClassName($data);
+        // if document already in pool - return it
+        if($this->isDocumentPoolEnabled() && $this->isDocumentInDocumentPool($data['_id'])) {
+            return $this
+                ->getDocumentFromDocumentPool($data['_id'])
+                ->mergeUnmodified($data);
+        }
         
+        // init document instance
+        $className = $this->getDocumentClassName($data);
         $document = new $className($this, $data, array(
             'stored' => true,
         ));
