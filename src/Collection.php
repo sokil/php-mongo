@@ -481,6 +481,16 @@ class Collection implements \Countable
     }
     
     /**
+     * Get number of documents in document pool
+     * 
+     * @return int
+     */
+    public function documentPoolCount()
+    {
+        return count($this->documentPool);
+    }
+    
+    /**
      * Check if document exists in identity map
      * 
      * @param \Sokil\Mongo\Document|\MongoId|int|string $document Document instance or it's id
