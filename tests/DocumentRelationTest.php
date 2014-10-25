@@ -450,4 +450,24 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
             $driver1->getId(),
         ), array_keys($car2->getRelated('drivers')));
     }
+    
+    public function testUnconsistedState()
+    {
+        $carsCollection = $this->database->getCollection('cars');
+        $enginesCollection = $this->database->getCollection('engines');
+        
+        $carDocument = $carsCollection
+            ->createDocument(array('brand' => 'Nissan'))
+            ->save();
+        
+        $engineDocument = $enginesCollection
+            ->createDocument([
+                'car_id' => $carDocument->getId(),
+            ])
+            ->save();
+        
+        $carDocument->removeRelation('engine');
+        
+        $this->assertEmpty($engineDocument->car_id);
+    }
 }
