@@ -544,7 +544,11 @@ class Collection implements \Countable
      */
     public function getDocumentDirectly($id)
     {
-        return $this->find()->byId($id)->findOne();
+        return $this
+            ->find()
+            ->byId($id)
+            ->skipDocumentPool()
+            ->findOne();
     }
     
     /**

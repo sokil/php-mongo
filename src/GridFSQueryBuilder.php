@@ -16,13 +16,13 @@ class GridFSQueryBuilder extends Cursor
      * @return \Sokil\Mongo\GridFSFile
      * @throws \Sokil\Mongo\Exception
      */
-    protected function toObject($file, $useDocumentPool = true)
+    protected function toObject($file)
     {
         return $this
             ->_collection
             ->getStoredGridFsFileInstanceFromMongoGridFSFile(
                 $file,
-                $useDocumentPool
+                $this->isDocumentPoolUsed()
             );
     }
 }

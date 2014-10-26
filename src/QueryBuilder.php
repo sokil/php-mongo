@@ -10,11 +10,11 @@ class QueryBuilder extends Cursor
      * @param array $mongoDocument
      * @return \Sokil\Mongo\Document
      */
-    protected function toObject($mongoDocument, $useDocumentPool = true)
+    protected function toObject($mongoDocument)
     {
         return $this->_collection->getStoredDocumentInstanceFromArray(
             $mongoDocument, 
-            $useDocumentPool
+            $this->isDocumentPoolUsed()
         );
     }
 }

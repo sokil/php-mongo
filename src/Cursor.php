@@ -58,6 +58,13 @@ abstract class Cursor implements \Iterator, \Countable
         'expressionClass'   => '\Sokil\Mongo\Expression'
     );
     
+    /**
+     * Use document pool to create Document object from array
+     * 
+     * @var bool 
+     */
+    private $isDocumentPoolUsed = true;
+    
     public function __construct(Collection $collection, array $options = null)
     {
         $this->_collection = $collection;
@@ -620,7 +627,7 @@ abstract class Cursor implements \Iterator, \Countable
      * @param array $mongoFindResult array of key-values, received from mongo driver
      * @return \Sokil\Mongo\Document
      */
-    abstract protected function toObject($mongoFindResult, $useDocumentPool = true);
+    abstract protected function toObject($mongoFindResult);
     
     public function key()
     {
@@ -701,5 +708,22 @@ abstract class Cursor implements \Iterator, \Countable
         }
 
         return $this->_readPreference;
+    }
+    
+    public function isDocumentPoolUsed()
+    {
+        return $this->isDocumentPoolUsed;
+    }
+    
+    public function useDocumentPool()
+    {
+        $this->isDocumentPoolUsed = true;
+        return $this;
+    }
+    
+    public function skipDocumentPool()
+    {
+        $this->isDocumentPoolUsed = false;
+        return $this;
     }
 }
