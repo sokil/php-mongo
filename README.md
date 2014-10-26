@@ -4,6 +4,7 @@ PHPMongo
 [![Latest Stable Version](https://poser.pugx.org/sokil/php-mongo/v/stable.png)](https://packagist.org/packages/sokil/php-mongo)
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Documentation Status](https://readthedocs.org/projects/phpmongo/badge/?version=latest)](https://readthedocs.org/projects/phpmongo/?badge=latest)
 
 #### Object Document Mapper for MongoDB.
 

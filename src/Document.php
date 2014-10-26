@@ -41,12 +41,13 @@ class Document extends Structure
     const FIELD_TYPE_INT64 = 18;
     const FIELD_TYPE_MIN_KEY = 255;
     const FIELD_TYPE_MAX_KEY = 127;
+    
     const RELATION_HAS_ONE = 'HAS_ONE';
     const RELATION_BELONGS = 'BELONGS';
     const RELATION_HAS_MANY = 'HAS_MANY';
     const RELATION_MANY_MANY = 'MANY_MANY';
 
-    private $_resolvedRelations = array();
+    private $resolvedRelationIds = array();
 
     /**
      *
@@ -170,13 +171,14 @@ class Document extends Structure
      * Reload data from db and reset all unsaved data
      */
     public function refresh()
-    {        
+    {
+        // get data omitting cache
         $data = $this
             ->getCollection()
-            ->find()
-            ->asArray()
-            ->byId($this->getId())
-            ->findOne();
+            ->getMongoCollection()
+            ->findOne(array(
+                '_id' => $this->getId(),
+            ));
         
         $this->_data = $data;
         
@@ -284,57 +286,77 @@ class Document extends Structure
      */
     public function getRelated($relationName)
     {
-        // check if relation already resolved
-        if (isset($this->_resolvedRelations[$relationName])) {
-            return $this->_resolvedRelations[$relationName];
-        }
-
+        // get relation config
         $relations = $this->relations();
+        
+        // check if relation exists
         if (!isset($relations[$relationName])) {
             throw new Exception('Relation with name "' . $relationName . '" not found');
         }
-
+        
+        // get relation metadata
         $relation = $relations[$relationName];
 
         $relationType = $relation[0];
         $targetCollectionName = $relation[1];
+        
+        // get target collection
+        $targetCollection = $this->_collection
+            ->getDatabase()
+            ->getCollection($targetCollectionName);
+        
+        // check if relation already resolved
+        if (isset($this->resolvedRelationIds[$relationName])) {
+            if(is_array($this->resolvedRelationIds[$relationName])) {
+                // has_many, many_many
+                return $targetCollection->getDocumentsFromDocumentPool($this->resolvedRelationIds[$relationName]);
+            } else {
+                //has_one, belongs
+                return $targetCollection->getDocumentFromDocumentPool($this->resolvedRelationIds[$relationName]);
+            }
+        }
 
         switch ($relationType) {
+            
+            default:
+                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
+                
             case self::RELATION_HAS_ONE:
                 $internalField = '_id';
                 $externalField = $relation[2];
 
-                $this->_resolvedRelations[$relationName] = $this->_collection
-                    ->getDatabase()
-                    ->getCollection($targetCollectionName)
+                $document = $targetCollection
                     ->find()
                     ->where($externalField, $this->get($internalField))
                     ->findOne();
 
-                break;
+                $this->resolvedRelationIds[$relationName] = (string) $document->getId();
+                
+                return $document;
 
             case self::RELATION_BELONGS:
                 $internalField = $relation[2];
 
-                $this->_resolvedRelations[$relationName] = $this->_collection
-                    ->getDatabase()
-                    ->getCollection($targetCollectionName)
-                    ->getDocument($this->get($internalField));
+                $document = $targetCollection->getDocument($this->get($internalField));
 
-                break;
+                $this->resolvedRelationIds[$relationName] = (string) $document->getId();
+                    
+                return $document;
 
             case self::RELATION_HAS_MANY:
                 $internalField = '_id';
                 $externalField = $relation[2];
 
-                $this->_resolvedRelations[$relationName] = $this->_collection
-                    ->getDatabase()
-                    ->getCollection($targetCollectionName)
+                $documents = $targetCollection
                     ->find()
                     ->where($externalField, $this->get($internalField))
                     ->findAll();
+                
+                foreach($documents as $document) {
+                    $this->resolvedRelationIds[$relationName][] = (string) $document->getId();
+                }
 
-                break;
+                return $documents;
 
             case self::RELATION_MANY_MANY:
                 $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
@@ -343,37 +365,33 @@ class Document extends Structure
                     $internalField = $relation[2];
                     $relatedIdList = $this->get($internalField);
                     if (!$relatedIdList) {
-                        $this->_resolvedRelations[$relationName] = array();
-                        break;
+                        return array();
                     }
 
                     $externalField = '_id';
 
-                    $this->_resolvedRelations[$relationName] = $this->_collection
-                        ->getDatabase()
-                        ->getCollection($targetCollectionName)
+                    $documents = $targetCollection
                         ->find()
                         ->whereIn($externalField, $relatedIdList)
                         ->findAll();
+                    
                 } else {
                     // relation list stored in external document
                     $internalField = '_id';
                     $externalField = $relation[2];
 
-                    $this->_resolvedRelations[$relationName] = $this->_collection
-                        ->getDatabase()
-                        ->getCollection($targetCollectionName)
+                    $documents = $targetCollection
                         ->find()
                         ->where($externalField, $this->get($internalField))
                         ->findAll();
                 }
-                break;
+                
+                foreach($documents as $document) {
+                    $this->resolvedRelationIds[$relationName][] = (string) $document->getId();
+                }
 
-            default:
-                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
+                return $documents;
         }
-
-        return $this->_resolvedRelations[$relationName];
     }
 
     public function addRelation($relationName, Document $document)
@@ -974,13 +992,22 @@ class Document extends Structure
         return $this;
     }
 
-    public function append($fieldName, $value)
+    /**
+     * If field not exist - set value.
+     * If field exists and is not array - convert to array and append
+     * If field -s array - append
+     * 
+     * @param type $selector
+     * @param type $value
+     * @return \Sokil\Mongo\Structure
+     */
+    public function append($selector, $value)
     {
-        parent::append($fieldName, $value);
+        parent::append($selector, $value);
 
         // if document saved - save through update
         if ($this->getId()) {
-            $this->_operator->set($fieldName, $this->get($fieldName));
+            $this->_operator->set($selector, $this->get($selector));
         }
 
         return $this;

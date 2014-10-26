@@ -273,6 +273,15 @@ class Structure
         return $this;
     }
     
+    /**
+     * If field not exist - set value.
+     * If field exists and is not array - convert to array and append
+     * If field -s array - append
+     * 
+     * @param type $selector
+     * @param type $value
+     * @return \Sokil\Mongo\Structure
+     */
     public function append($selector, $value)
     {
         $oldValue = $this->get($selector);
@@ -387,6 +396,14 @@ class Structure
         return $this;
     }
     
+    /**
+     * Merge data to document
+     * 
+     * @deprecated since 1.8.1 and will be removed in next versions. Use concrete merge methods.
+     * @param array $data
+     * @param type $modified
+     * @return \Sokil\Mongo\Structure
+     */
     public function load(array $data, $modified = true)
     {
         if($modified) {
@@ -394,6 +411,21 @@ class Structure
         } else {
             $this->mergeUnmodified($data);
         }
+        
+        return $this;
+    }
+    
+    /**
+     * Replace data of document with passed.
+     * Document became unmodified
+     * 
+     * @param array $data new document data
+     */
+    public function replace(array $data)
+    {
+        $this->_originalData = $this->_data = $data;
+        
+        $this->_modifiedFields = array();
         
         return $this;
     }

@@ -60,16 +60,17 @@ class Collection implements \Countable
     protected $_mongoCollection;
     
     /**
-     *
+     * Implementation of identity map pattern
+     * 
      * @var array list of cached documents
      */
-    private $_documentsPool = array();
+    private $documentPool = array();
     
     /**
      *
      * @var bool cache or not documents
      */
-    private $_documentPoolEnabled = true;
+    private $isDocumentPoolEnabled = true;
     
     /**
      *
@@ -221,7 +222,7 @@ class Collection implements \Countable
     }
     
     /**
-     * 
+     * Factory method to get not stored Document instance from array
      * @param array $data
      * @return \Sokil\Mongo\Document
      */
@@ -229,9 +230,53 @@ class Collection implements \Countable
     {
         $className = $this->getDocumentClassName($data);
         
-        return new $className($this, $data, array(
+        /* @var $document \Sokil\Mongo\Document */
+        $document = new $className($this, $data, array(
             'stored' => false,
         ));
+        
+        // store document to identity map
+        if($this->isDocumentPoolEnabled()) {
+            $collection = $this;
+            $document->onAfterInsert(function(\Sokil\Mongo\Event $event) use($collection) {
+                $collection->addDocumentToDocumentPool($event->getTarget());
+            });
+        }
+        
+        return $document;
+    }
+    
+    /**
+     * Factory method to get document object from array of stored document
+     * 
+     * @param array $data
+     * @return \Sokil\Mongo\Document
+     */
+    public function getStoredDocumentInstanceFromArray(array $data, $useDocumentPool = true)
+    {
+        if(!isset($data['_id'])) {
+            throw new Exception('Document must be stored and has _id key');
+        }
+        
+        // if document already in pool - return it
+        if($useDocumentPool && $this->isDocumentPoolEnabled() && $this->isDocumentInDocumentPool($data['_id'])) {
+            return $this
+                ->getDocumentFromDocumentPool($data['_id'])
+                ->mergeUnmodified($data);
+        }
+        
+        // init document instance
+        $className = $this->getDocumentClassName($data);
+        $document = new $className($this, $data, array(
+            'stored' => true,
+        ));
+        
+        // store document in cache
+        if($useDocumentPool && $this->isDocumentPoolEnabled()) {
+            $this->addDocumentToDocumentPool($document);
+        }
+        
+        return $document;
     }
     
     public function count()
@@ -303,7 +348,7 @@ class Collection implements \Countable
     public function findAsArray($callable = null)
     {
         return $this
-            ->find($callable, true)
+            ->find($callable)
             ->asArray();
     }
 
@@ -314,7 +359,7 @@ class Collection implements \Countable
      */
     public function disableDocumentPool()
     {
-        $this->_documentPoolEnabled = false;
+        $this->isDocumentPoolEnabled = false;
         return $this;
     }
 
@@ -325,7 +370,7 @@ class Collection implements \Countable
      */
     public function enableDocumentPool()
     {
-        $this->_documentPoolEnabled = true;
+        $this->isDocumentPoolEnabled = true;
         return $this;
     }
 
@@ -336,12 +381,12 @@ class Collection implements \Countable
      */
     public function isDocumentPoolEnabled()
     {
-        return $this->_documentPoolEnabled;
+        return $this->isDocumentPoolEnabled;
     }
     
     public function clearDocumentPool()
     {
-        $this->_documentsPool = array();
+        $this->documentPool = array();
         return $this;
     }
 
@@ -352,7 +397,119 @@ class Collection implements \Countable
      */
     public function isDocumentPoolEmpty()
     {
-        return !$this->_documentsPool;
+        return !$this->documentPool;
+    }
+    
+    /**
+     * Store document to pool
+     * 
+     * @param array $document
+     * @return \Sokil\Mongo\Collection
+     */
+    public function addDocumentToDocumentPool(Document $document)
+    {
+        $documentId = (string) $document->getId();
+        
+        if(!isset($this->documentPool[$documentId])) {
+            $this->documentPool[$documentId] = $document;
+        } else {
+            // merging because document after 
+            // load and before getting in second place may be changed
+            // and this changes must be preserved:
+            // 
+            // 1. Here document loads and modifies
+            // $document = $collection->getDocument()->set('field', 'value');
+            // 
+            // 2. Here document modified in another session
+            // 
+            // 3. Here document loads once again. 
+            //    Changes from stage 2 merges as unmodified
+            // $collection->find();
+            
+            $this->documentPool[$documentId]->mergeUnmodified($document->toArray());
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Store documents to identity map
+     * 
+     * @param array $documents list of Document instances
+     * @return \Sokil\Mongo\Collection
+     */
+    public function addDocumentsToDocumentPool(array $documents)
+    {
+        foreach($documents as $document) {
+            $this->addDocumentToDocumentPool($document);
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Remove document instance from identity map
+     * 
+     * @param \Sokil\Mongo\Document $document
+     * @return \Sokil\Mongo\Collection
+     */
+    public function removeDocumentFromDocumentPool(Document $document)
+    {
+        unset($this->documentPool[(string) $document]);
+        return $this;
+    }
+    
+    /**
+     * Get document from identity map by it's id
+     * 
+     * @param string|int|\MongoId $id
+     * @return \Sokil\Mongo\Document
+     */
+    public function getDocumentFromDocumentPool($id)
+    {
+        return $this->documentPool[(string) $id];
+    }
+    
+    /**
+     * Get documents from pool if they stored
+     * 
+     * @param array $ids
+     */
+    public function getDocumentsFromDocumentPool(array $ids = null) 
+    {
+        if(!$ids) {
+            return $this->documentPool;
+        }
+        
+        return array_intersect_key(
+            $this->documentPool, 
+            array_flip(array_map('strval', $ids))
+        );
+    }
+    
+    /**
+     * Get number of documents in document pool
+     * 
+     * @return int
+     */
+    public function documentPoolCount()
+    {
+        return count($this->documentPool);
+    }
+    
+    /**
+     * Check if document exists in identity map
+     * 
+     * @param \Sokil\Mongo\Document|\MongoId|int|string $document Document instance or it's id
+     * @return boolean
+     */
+    public function isDocumentInDocumentPool($document)
+    {
+        if($document instanceof Document) {
+            $document = $document->getId();
+        }
+        
+        return isset($this->documentPool[(string) $document]);
     }
     
     /**
@@ -363,15 +520,19 @@ class Collection implements \Countable
      */
     public function getDocument($id)
     {
-        if(!$this->_documentPoolEnabled) {
+        if(!$this->isDocumentPoolEnabled) {
             return $this->getDocumentDirectly($id);
         }
         
-        if(!isset($this->_documentsPool[(string) $id])) {
-            $this->_documentsPool[(string) $id] = $this->getDocumentDirectly($id);
+        if($this->isDocumentInDocumentPool($id)) {
+            return $this->getDocumentFromDocumentPool($id);
         }
         
-        return $this->_documentsPool[(string) $id];
+        $document = $this->getDocumentDirectly($id);
+        
+        $this->addDocumentToDocumentPool($document);
+        
+        return $document;
     }
     
     
@@ -383,7 +544,11 @@ class Collection implements \Countable
      */
     public function getDocumentDirectly($id)
     {
-        return $this->find()->byId($id)->findOne();
+        return $this
+            ->find()
+            ->byId($id)
+            ->skipDocumentPool()
+            ->findOne();
     }
     
     /**
@@ -392,7 +557,8 @@ class Collection implements \Countable
      * @param \Sokil\Mongo\Document $document
      * @return type
      */
-    public function hasDocument(Document $document) {
+    public function hasDocument(Document $document) 
+    {
         return (bool) $this->getDocument($document->getId());
     }
     
@@ -409,11 +575,8 @@ class Collection implements \Countable
             return array();
         }
         
-        if($this->_documentPoolEnabled) {
-            $this->_documentsPool = array_merge(
-                $this->_documentsPool,
-                $documents
-            );
+        if($this->isDocumentPoolEnabled) {
+            $this->addDocumentsToDocumentPool($documents);
         }
         
         return $documents;
@@ -452,7 +615,7 @@ class Collection implements \Countable
         }
         
         // drop from document's pool
-        unset($this->_documentsPool[(string) $document->getId()]);
+        $this->removeDocumentFromDocumentPool($document);
         
         return $this;
     }
@@ -534,21 +697,42 @@ class Collection implements \Countable
     
     /**
      * Update multiple documents
-     * @param \Sokil\Mongo\Expression $expression expression to define 
+     * @param \Sokil\Mongo\Expression|array|callable $expression expression to define
      *  which documents will change. 
-     * @param \Sokil\Mongo\Operator|array $updateData new data or commands
+     * @param \Sokil\Mongo\Operator|array|callable $updateData new data or commands
      *  to update
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      */
-    public function updateMultiple(Expression $expression, $updateData)
+    public function updateMultiple($expression, $updateData)
     {
+        // get expression from callable
+        if(is_callable($expression)) {
+            $expression = call_user_func($expression, new Expression);
+        }
+
+        // get expression array
+        if($expression instanceof Expression) {
+            $expression = $expression->toArray();
+        } elseif(!is_array($expression)) {
+            throw new Exception('Expression must be instance of Expression class or callable');
+        }
+
+        // get operator from callable
+        if(is_callable($updateData)) {
+            $updateData = call_user_func($updateData, new Operator);
+        }
+
+        // get operator as array
         if($updateData instanceof Operator) {
             $updateData = $updateData->getAll();
+        } else {
+            throw new Exception('Operator must be instance of Operator or callable');
         }
-        
+
+        // execute update operator
         $result = $this->_mongoCollection->update(
-            $expression->toArray(), 
+            $expression,
             $updateData,
             array(
                 'multiple'  => true,
@@ -613,7 +797,8 @@ class Collection implements \Countable
      * 
      * @return \Sokil\Mongo\AggregatePipelines
      */
-    public function createPipeline() {
+    public function createPipeline() 
+    {
         return new AggregatePipelines($this);
     }
     
@@ -624,7 +809,8 @@ class Collection implements \Countable
      * @return array result of aggregation
      * @throws \Sokil\Mongo\Exception
      */
-    public function aggregate($pipelines) {
+    public function aggregate($pipelines) 
+    {
         
         if($pipelines instanceof AggregatePipelines) {
             $pipelines = $pipelines->toArray();

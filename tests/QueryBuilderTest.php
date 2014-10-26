@@ -60,28 +60,35 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSkipSpecifiedFields()
     {        
         // create new document
-        $document = $this->collection->createDocument(array(
-            'a'    => 'a1',
-            'b'    => 'b1',
-            'c'    => 'c1',
-            'd'    => 'd1',
-        ));
-        
-        $this->collection->saveDocument($document);
-        $documentId = $document->getId();
+        $documentId = $this
+            ->collection
+            ->createDocument(array(
+                'a'    => 'a1',
+                'b'    => 'b1',
+                'c'    => 'c1',
+                'd'    => 'd1',
+            ))
+            ->save()
+            ->getId();
         
         // fild some fields of document
-        $document = $this->collection->find()
+        $document = $this
+            ->collection
+            ->find()
             ->skipFields(array(
                 'a', 'c'
             ))
             ->skipField('b')
-            ->findOne();
+            ->findOne()
+            ->toArray();
         
-        $this->assertEquals(array(
-            'd'    => 'd1',
-            '_id'   => $documentId,
-        ), $document->toArray());
+        $this->assertEquals(
+            array(
+                'd'    => 'd1',
+                '_id'   => $documentId,
+            ), 
+            $document
+        );
     }
     
     /**
@@ -112,19 +119,34 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSlice()
     {        
         // create new document
-        $document = $this->collection->createDocument(array(
-            'key'    => array('a', 'b', 'c', 'd', 'e', 'f'),
-        ));
-        
-        $this->collection->saveDocument($document);
+        $document = $this->collection
+            ->createDocument(array(
+                'key'    => array('a', 'b', 'c', 'd', 'e', 'f'),
+            ))
+            ->save();
         
         // only limit defined
-        $this->assertEquals(array('a', 'b'), $this->collection->find()->slice('key', 2)->findOne()->key);
-        $this->assertEquals(array('e', 'f'), $this->collection->find()->slice('key', -2)->findOne()->key);
+        $this
+            ->assertEquals(
+                array('a', 'b'), 
+                $this->collection->find()->slice('key', 2)->findOne()->key
+            );
+        
+        $this->assertEquals(
+            array('e', 'f'), 
+            $this->collection->find()->slice('key', -2)->findOne()->key
+        );
         
         // limit and skip defined
-        $this->assertEquals(array('c'), $this->collection->find()->slice('key', 1, 2)->findOne()->key);
-        $this->assertEquals(array('e'), $this->collection->find()->slice('key', 1, -2)->findOne()->key);
+        $this->assertEquals(
+            array('c'), 
+            $this->collection->find()->slice('key', 1, 2)->findOne()->key
+        );
+        
+        $this->assertEquals(
+            array('e'), 
+            $this->collection->find()->slice('key', 1, -2)->findOne()->key
+        );
     }
     
     public function testFindOne()

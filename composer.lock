@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "830ffefb9e06e20ac34dad731856ae70",
+    "hash": "4051994e986faeee5d91e2cb60c38d12",
     "packages": [
         {
             "name": "psr/log",
@@ -441,16 +441,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "3.7.37",
+            "version": "3.7.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "ae6cefd7cc84586a5ef27e04bae11ee940ec63dc"
+                "reference": "38709dc22d519a3d1be46849868aa2ddf822bcf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ae6cefd7cc84586a5ef27e04bae11ee940ec63dc",
-                "reference": "ae6cefd7cc84586a5ef27e04bae11ee940ec63dc",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/38709dc22d519a3d1be46849868aa2ddf822bcf6",
+                "reference": "38709dc22d519a3d1be46849868aa2ddf822bcf6",
                 "shasum": ""
             },
             "require": {
@@ -510,7 +510,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-04-30 12:24:19"
+            "time": "2014-10-17 09:04:17"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -638,17 +638,17 @@
         },
         {
             "name": "symfony/config",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "target-dir": "Symfony/Component/Config",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Config.git",
-                "reference": "080eabdc256c1d7a3a7cf6296271edb68eb1ab2b"
+                "reference": "0316364bfebc8b080077c731a99f189341476bd7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Config/zipball/080eabdc256c1d7a3a7cf6296271edb68eb1ab2b",
-                "reference": "080eabdc256c1d7a3a7cf6296271edb68eb1ab2b",
+                "url": "https://api.github.com/repos/symfony/Config/zipball/0316364bfebc8b080077c731a99f189341476bd7",
+                "reference": "0316364bfebc8b080077c731a99f189341476bd7",
                 "shasum": ""
             },
             "require": {
@@ -682,21 +682,21 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "http://symfony.com",
-            "time": "2014-08-31 03:22:04"
+            "time": "2014-09-23 05:25:11"
         },
         {
             "name": "symfony/console",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "target-dir": "Symfony/Component/Console",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "748beed2a1e73179c3f5154d33fe6ae100c1aeb1"
+                "reference": "ca053eaa031c93afb68a71e4eb1f4168dfd4a661"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/748beed2a1e73179c3f5154d33fe6ae100c1aeb1",
-                "reference": "748beed2a1e73179c3f5154d33fe6ae100c1aeb1",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/ca053eaa031c93afb68a71e4eb1f4168dfd4a661",
+                "reference": "ca053eaa031c93afb68a71e4eb1f4168dfd4a661",
                 "shasum": ""
             },
             "require": {
@@ -737,21 +737,21 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "http://symfony.com",
-            "time": "2014-08-14 16:10:54"
+            "time": "2014-09-25 09:53:56"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "target-dir": "Symfony/Component/Filesystem",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Filesystem.git",
-                "reference": "a765efd199e02ff4001c115c318e219030be9364"
+                "reference": "4e62fab0060a826561c78b665925b37c870c45f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/a765efd199e02ff4001c115c318e219030be9364",
-                "reference": "a765efd199e02ff4001c115c318e219030be9364",
+                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/4e62fab0060a826561c78b665925b37c870c45f5",
+                "reference": "4e62fab0060a826561c78b665925b37c870c45f5",
                 "shasum": ""
             },
             "require": {
@@ -784,21 +784,21 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-03 09:00:14"
+            "time": "2014-09-22 09:14:18"
         },
         {
             "name": "symfony/stopwatch",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "target-dir": "Symfony/Component/Stopwatch",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Stopwatch.git",
-                "reference": "22ab4f76cdeefd38b00022a6be5709190a2fd046"
+                "reference": "9f8a33a24f2378c0ec5f372a8d50b2d43069c050"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Stopwatch/zipball/22ab4f76cdeefd38b00022a6be5709190a2fd046",
-                "reference": "22ab4f76cdeefd38b00022a6be5709190a2fd046",
+                "url": "https://api.github.com/repos/symfony/Stopwatch/zipball/9f8a33a24f2378c0ec5f372a8d50b2d43069c050",
+                "reference": "9f8a33a24f2378c0ec5f372a8d50b2d43069c050",
                 "shasum": ""
             },
             "require": {
@@ -831,21 +831,21 @@
             ],
             "description": "Symfony Stopwatch Component",
             "homepage": "http://symfony.com",
-            "time": "2014-08-14 16:10:54"
+            "time": "2014-09-22 09:14:18"
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "01a7695bcfb013d0a15c6757e15aae120342986f"
+                "reference": "b1dbc53593b98c2d694ebf383660ac9134d30b96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/01a7695bcfb013d0a15c6757e15aae120342986f",
-                "reference": "01a7695bcfb013d0a15c6757e15aae120342986f",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/b1dbc53593b98c2d694ebf383660ac9134d30b96",
+                "reference": "b1dbc53593b98c2d694ebf383660ac9134d30b96",
                 "shasum": ""
             },
             "require": {
@@ -878,12 +878,10 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2014-08-31 03:22:04"
+            "time": "2014-09-22 09:14:18"
         }
     ],
-    "aliases": [
-
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "satooshi/php-coveralls": 20
@@ -893,7 +891,5 @@
         "php": ">=5.3",
         "ext-mongo": ">=0.9.0"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }

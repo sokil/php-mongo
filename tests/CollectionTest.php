@@ -47,6 +47,73 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
     
+    public function testGetStoredDocumentInstanceFromArray()
+    {
+        $document = $this->collection->getStoredDocumentInstanceFromArray(array(
+            '_id' => new \MongoId(),
+        ));
+        
+        $this->assertTrue($document->isStored());
+    }
+    
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Document must be stored and has _id key
+     */
+    public function testGetStoredDocumentInstanceFromArray_DocumentNotStored()
+    {
+        $document = $this->collection->getStoredDocumentInstanceFromArray(array(
+            'param' => 'value',
+        ));
+        
+        $this->assertTrue($document->isStored());
+    }
+    
+    public function testCreateDocument_IsNewDocumentStoredToPoolAfterSave()
+    {
+        $this->assertTrue($this->collection->isDocumentPoolEmpty());
+        
+        $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+        
+        $this->assertFalse($this->collection->isDocumentPoolEmpty());
+    }
+    
+    public function testStoreDocumentInPool_DocumentAlreadyStored()
+    {
+        /**
+         * Store document to pool
+         */
+        $this->assertTrue($this->collection->isDocumentPoolEmpty());
+        
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+        
+        $this->assertFalse($this->collection->isDocumentPoolEmpty());
+        
+        /**
+         * Modify document in another thread
+         */
+        $client = new Client();
+        
+        $client
+            ->getDatabase($document->getCollection()->getDatabase()->getName())
+            ->getCollection($document->getCollection()->getName())
+            ->find()
+            ->findOne()
+            ->set('param', 'updatedValue')
+            ->save();
+        
+        // here oroginal document must be in unconsisted state
+        $this->assertEquals('value', $document->get('param'));
+        
+        // overload document in pool with new data
+        $this->collection->find()->findOne();
+        $this->assertEquals('updatedValue', $document->get('param'));
+    }
+    
     public function testGetDocumentByStringId()
     {        
         $document = $this->collection
@@ -478,9 +545,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testEnableDocumentPool()
     {
-        
-        $this->collection->clearDocumentPool();
-
         // disable document pool
         $this->collection->disableDocumentPool();
         $this->assertFalse($this->collection->isDocumentPoolEnabled());
@@ -522,8 +586,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDistinct()
     {
-        
-    
         // create documents
         $this->collection
             ->createDocument(array(
@@ -570,8 +632,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDistinctWithoutExpression()
     {
-        
-
         // create documents
         $this->collection
             ->createDocument(array(

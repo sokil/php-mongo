@@ -58,6 +58,13 @@ abstract class Cursor implements \Iterator, \Countable
         'expressionClass'   => '\Sokil\Mongo\Expression'
     );
     
+    /**
+     * Use document pool to create Document object from array
+     * 
+     * @var bool 
+     */
+    private $isDocumentPoolUsed = true;
+    
     public function __construct(Collection $collection, array $options = null)
     {
         $this->_collection = $collection;
@@ -86,6 +93,9 @@ abstract class Cursor implements \Iterator, \Countable
     public function fields(array $fields)
     {
         $this->_fields = array_fill_keys($fields, 1);
+        
+        $this->skipDocumentPool();
+        
         return $this;
     }
     
@@ -98,6 +108,9 @@ abstract class Cursor implements \Iterator, \Countable
     public function skipFields(array $fields)
     {
         $this->_fields = array_fill_keys($fields, 0);
+        
+        $this->skipDocumentPool();
+        
         return $this;
     }
     
@@ -110,6 +123,9 @@ abstract class Cursor implements \Iterator, \Countable
     public function field($field)
     {
         $this->_fields[$field] = 1;
+        
+        $this->skipDocumentPool();
+        
         return $this;
     }
     
@@ -122,6 +138,9 @@ abstract class Cursor implements \Iterator, \Countable
     public function skipField($field)
     {
         $this->_fields[$field] = 0;
+        
+        $this->skipDocumentPool();
+        
         return $this;
     }
     
@@ -145,6 +164,8 @@ abstract class Cursor implements \Iterator, \Countable
         else {
             $this->_fields[$field] = array('$slice' => $limit);
         }
+        
+        $this->skipDocumentPool();
         
         return $this;
     }
@@ -324,7 +345,6 @@ abstract class Cursor implements \Iterator, \Countable
         $this->_cursor = $this->_collection
             ->getMongoCollection()
             ->find($this->_expression->toArray(), $this->_fields);
-        
         
         if($this->_skip) {
             $this->_cursor->skip($this->_skip);
@@ -701,5 +721,22 @@ abstract class Cursor implements \Iterator, \Countable
         }
 
         return $this->_readPreference;
+    }
+    
+    public function isDocumentPoolUsed()
+    {
+        return $this->isDocumentPoolUsed;
+    }
+    
+    public function useDocumentPool()
+    {
+        $this->isDocumentPoolUsed = true;
+        return $this;
+    }
+    
+    public function skipDocumentPool()
+    {
+        $this->isDocumentPoolUsed = false;
+        return $this;
     }
 }
