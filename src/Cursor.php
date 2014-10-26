@@ -93,6 +93,9 @@ abstract class Cursor implements \Iterator, \Countable
     public function fields(array $fields)
     {
         $this->_fields = array_fill_keys($fields, 1);
+        
+        $this->skipDocumentPool();
+        
         return $this;
     }
     
@@ -105,6 +108,9 @@ abstract class Cursor implements \Iterator, \Countable
     public function skipFields(array $fields)
     {
         $this->_fields = array_fill_keys($fields, 0);
+        
+        $this->skipDocumentPool();
+        
         return $this;
     }
     
@@ -117,6 +123,9 @@ abstract class Cursor implements \Iterator, \Countable
     public function field($field)
     {
         $this->_fields[$field] = 1;
+        
+        $this->skipDocumentPool();
+        
         return $this;
     }
     
@@ -129,6 +138,9 @@ abstract class Cursor implements \Iterator, \Countable
     public function skipField($field)
     {
         $this->_fields[$field] = 0;
+        
+        $this->skipDocumentPool();
+        
         return $this;
     }
     
@@ -152,6 +164,8 @@ abstract class Cursor implements \Iterator, \Countable
         else {
             $this->_fields[$field] = array('$slice' => $limit);
         }
+        
+        $this->skipDocumentPool();
         
         return $this;
     }
@@ -331,7 +345,6 @@ abstract class Cursor implements \Iterator, \Countable
         $this->_cursor = $this->_collection
             ->getMongoCollection()
             ->find($this->_expression->toArray(), $this->_fields);
-        
         
         if($this->_skip) {
             $this->_cursor->skip($this->_skip);
