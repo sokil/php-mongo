@@ -252,14 +252,14 @@ class Collection implements \Countable
      * @param array $data
      * @return \Sokil\Mongo\Document
      */
-    public function getStoredDocumentInstanceFromArray(array $data)
+    public function getStoredDocumentInstanceFromArray(array $data, $useDocumentPool = true)
     {
         if(!isset($data['_id'])) {
             throw new Exception('Document must be stored and has _id key');
         }
         
         // if document already in pool - return it
-        if($this->isDocumentPoolEnabled() && $this->isDocumentInDocumentPool($data['_id'])) {
+        if($useDocumentPool && $this->isDocumentPoolEnabled() && $this->isDocumentInDocumentPool($data['_id'])) {
             return $this
                 ->getDocumentFromDocumentPool($data['_id'])
                 ->mergeUnmodified($data);
@@ -272,7 +272,7 @@ class Collection implements \Countable
         ));
         
         // store document in cache
-        if($this->isDocumentPoolEnabled()) {
+        if($useDocumentPool && $this->isDocumentPoolEnabled()) {
             $this->addDocumentToDocumentPool($document);
         }
         
