@@ -461,9 +461,9 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
             ->save();
         
         $engineDocument = $enginesCollection
-            ->createDocument([
+            ->createDocument(array(
                 'car_id' => $carDocument->getId(),
-            ])
+            ))
             ->save();
         
         $this->assertNotEmpty($engineDocument->car_id);
