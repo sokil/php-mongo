@@ -74,6 +74,12 @@ class Collection implements \Countable
     
     /**
      *
+     * @var bool default value of versioning
+     */
+    protected $versioning = false;
+    
+    /**
+     *
      * @var array collection options
      */
     private $_options = array(
@@ -81,6 +87,7 @@ class Collection implements \Countable
         // Used as default value for getting document classname.
         // May be fully qualified class name or callable that return fully qualified class name
         'documentClass' => '\Sokil\Mongo\Document',
+        'versioning' => false,
     );
     
     public function __construct(Database $database, $collection, array $options = null)
@@ -116,12 +123,21 @@ class Collection implements \Countable
         // Default document class.
         // May be fully qualified class name or callable that return fully qualified class name
         if(isset($options['documentClass'])) {
-            if(!is_callable($options['documentClass']) && !class_exists($options['documentClass'])) {
-                throw new Exception('Property "documentClass" must be callable or valid name of class');
-            }
+            
         }
         
         return $this;
+    }
+    
+    public function enableVersioning()
+    {
+        $this->_options['versioning'] = true;
+        return $this;
+    }
+    
+    public function isVersioningEnabled()
+    {
+        return $this->getOption('versioning', $this->versioning);
     }
     
     /**
@@ -130,7 +146,15 @@ class Collection implements \Countable
      */
     public function getDefaultDocumentClass()
     {
-        return $this->_options['documentClass'];
+        $class = $this->_options['documentClass'];
+        
+        if(!is_callable($class) && !class_exists($class)) {
+            throw new Exception('Property "documentClass" must be callable or valid name of class');
+        }
+        
+        return $class;
+            
+            
     }
     
     /**
@@ -139,7 +163,7 @@ class Collection implements \Countable
      */
     public function getOptions()
     {
-        return $this->getOptions();
+        return $this->_options;
     }
     
     /**
@@ -148,9 +172,9 @@ class Collection implements \Countable
      * @param string|int $name
      * @return mixed
      */
-    public function getOption($name)
+    public function getOption($name, $default = null)
     {
-        return isset($this->_options[$name]) ? $this->_options[$name] : null;
+        return isset($this->_options[$name]) ? $this->_options[$name] : $default;
     }
     
     public function __get($name)
@@ -233,6 +257,7 @@ class Collection implements \Countable
         /* @var $document \Sokil\Mongo\Document */
         $document = new $className($this, $data, array(
             'stored' => false,
+            'versioning' => $this->isVersioningEnabled(),
         ));
         
         // store document to identity map
@@ -269,6 +294,7 @@ class Collection implements \Countable
         $className = $this->getDocumentClassName($data);
         $document = new $className($this, $data, array(
             'stored' => true,
+            'versioning' => $this->isVersioningEnabled(),
         ));
         
         // store document in cache

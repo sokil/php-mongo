@@ -27,15 +27,16 @@ class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
     {
         // revision created only after update
         $document = $this->collection
+            ->enableVersioning()
             ->createDocument(array('param' => 'value'))
             ->save();
         
-        $this->assertEquals(0, $document->getRevisions());
+        $this->assertEquals(0, $document->getRevisionsCount());
         
         // revision created
         $document->set('param', 'updatedValue')->save();
         
-        $this->assertEquals(1, $document->getRevisions());
+        $this->assertEquals(1, $document->getRevisionsCount());
         
         $revision = current($document->getRevisions());
         

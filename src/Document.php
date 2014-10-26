@@ -81,8 +81,22 @@ class Document extends Structure
      * @var array list of defined behaviors
      */
     private $_behaviors = array();
+    
+    /**
+     *
+     * @var array list of namespaces
+     */
     private $_validatorNamespaces = array(
         '\Sokil\Mongo\Validator',
+    );
+    
+    /**
+     *
+     * @var array document options
+     */
+    private $options = array(
+        'versioning' => false, // enable or not of document versioning
+        'stored' => false,
     );
 
     /**
@@ -93,12 +107,17 @@ class Document extends Structure
     public function __construct(Collection $collection, array $data = null, array $options = array())
     {
         $this->_collection = $collection;
+        
+        // configure document with options
+        $this->options = $options + $this->options;
 
+        // init document
         $this->_init();
 
+        // execute before construct callable
         $this->beforeConstruct();
 
-        if (isset($options['stored']) && $options['stored'] === true) {
+        if ($this->getOption('stored')) {
             // load stored
             if ($data) {
                 $this->mergeUnmodified($data);
@@ -110,7 +129,34 @@ class Document extends Structure
             }
         }
 
+        // use versioning        
+        if($this->getOption('versioning')) {
+            $this->onAfterUpdate(function() {   
+                // create new revision
+                $this
+                    ->getRevisionsCollection()
+                    ->createDocument()
+                    ->setFromDocument($this)
+                    ->save();
+            }, PHP_INT_MAX);
+        }
+        
         $this->_eventDispatcher->dispatch('afterConstruct');
+    }
+    
+    public function getOptions()
+    {
+        return $this->options;
+    }
+    
+    public function getOption($name, $default = null)
+    {
+        return isset($this->options[$name]) ? $this->options[$name] : $default;
+    }
+    
+    public function hasOption($name)
+    {
+        return isset($this->options[$name]);
     }
     
     /**
@@ -1215,6 +1261,16 @@ class Document extends Structure
     public function delete()
     {
         $this->_collection->deleteDocument($this);
+    }
+    
+    public function getRevisions()
+    {
+        return array();
+    }
+    
+    public function getRevisionsCount()
+    {
+        return 0;
     }
 
 }
