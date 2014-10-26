@@ -620,7 +620,7 @@ abstract class Cursor implements \Iterator, \Countable
      * @param array $mongoFindResult array of key-values, received from mongo driver
      * @return \Sokil\Mongo\Document
      */
-    abstract protected function toObject($mongoFindResult);
+    abstract protected function toObject($mongoFindResult, $useDocumentPool = true);
     
     public function key()
     {
