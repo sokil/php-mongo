@@ -41,6 +41,8 @@ class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
         $revision = current($document->getRevisions());
         
         $this->assertEquals('value', $revision->get('param'));
+        
+        $document->clearRevisions();
     }
     
     public function testGetRevisionKeys()

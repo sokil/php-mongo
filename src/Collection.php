@@ -646,8 +646,16 @@ class Collection implements \Countable
         return $this;
     }
     
-    public function deleteDocuments(Expression $expression)
+    public function deleteDocuments($expression)
     {
+        if(is_callable($expression)) {
+            $expression = call_user_func($expression, $this->expression());    
+        }
+        
+        if(!($expression instanceof Expression)) {
+            throw new Exception('Wrong expression specified');
+        }
+        
         $result = $this->_mongoCollection
             ->remove($expression->toArray());
 

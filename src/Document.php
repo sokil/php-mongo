@@ -53,7 +53,7 @@ class Document extends Structure
      *
      * @var \Sokil\Mongo\Collection
      */
-    private $_collection;
+    private $collection;
     protected $_scenario;
 
     /**
@@ -106,7 +106,7 @@ class Document extends Structure
      */
     public function __construct(Collection $collection, array $data = null, array $options = array())
     {
-        $this->_collection = $collection;
+        $this->collection = $collection;
         
         // configure document with options
         $this->options = $options + $this->options;
@@ -131,12 +131,13 @@ class Document extends Structure
 
         // use versioning        
         if($this->getOption('versioning')) {
-            $this->onAfterUpdate(function() {   
+            $self = $this;
+            $this->onBeforeUpdate(function() use($self) {
                 // create new revision
-                $this
+                $self
                     ->getRevisionsCollection()
                     ->createDocument()
-                    ->setFromDocument($this)
+                    ->setDocumentData($self->getOriginalData())
                     ->save();
             }, PHP_INT_MAX);
         }
@@ -186,7 +187,7 @@ class Document extends Structure
      */
     public function getCollection()
     {        
-        return $this->_collection;
+        return $this->collection;
     }
 
     /**
@@ -292,17 +293,17 @@ class Document extends Structure
     public function belongsToCollection(Collection $collection)
     {
         // check connection
-        if($collection->getDatabase()->getClient()->getDsn() !== $this->_collection->getDatabase()->getClient()->getDsn()) {
+        if($collection->getDatabase()->getClient()->getDsn() !== $this->collection->getDatabase()->getClient()->getDsn()) {
             return false;
         }
         
         // check database
-        if ($collection->getDatabase()->getName() !== $this->_collection->getDatabase()->getName()) {
+        if ($collection->getDatabase()->getName() !== $this->collection->getDatabase()->getName()) {
             return false;
         }
 
         // check collection
-        return $collection->getName() == $this->_collection->getName();
+        return $collection->getName() == $this->collection->getName();
     }
 
     /**
@@ -347,7 +348,7 @@ class Document extends Structure
         $targetCollectionName = $relation[1];
         
         // get target collection
-        $targetCollection = $this->_collection
+        $targetCollection = $this->collection
             ->getDatabase()
             ->getCollection($targetCollectionName);
         
@@ -1260,17 +1261,56 @@ class Document extends Structure
 
     public function delete()
     {
-        $this->_collection->deleteDocument($this);
+        $this->collection->deleteDocument($this);
+    }
+    
+    /**
+     * 
+     * @return \Sokil\Mongo\Collection
+     */
+    private function getRevisionsCollection()
+    {
+        $revisionsCollectionName = $this->collection->getName() . '.revisions';
+        
+        return $this
+            ->collection
+            ->getDatabase()
+            ->map($revisionsCollectionName, array(
+                'documentClass' => '\Sokil\Mongo\Revision',
+            ))
+            ->getCollection($revisionsCollectionName);
     }
     
     public function getRevisions()
     {
-        return array();
+        return $this
+            ->getRevisionsCollection()
+            ->find()
+            ->where('__documentId__', $this->getId())
+            ->findAll();
     }
     
     public function getRevisionsCount()
     {
-        return 0;
+        return $this
+            ->getRevisionsCollection()
+            ->find()
+            ->where('__documentId__', $this->getId())
+            ->count();
+    }
+    
+    public function clearRevisions()
+    {
+        $self = $this;
+        
+        $this
+            ->getRevisionsCollection()
+            ->deleteDocuments(function(Expression $expression) use($self) {
+                /* @var $expression \Sokil\Mongo\Expression */
+                return $expression->where('__documentId__', $self->getId());
+            });
+            
+        return $this;
     }
 
 }
