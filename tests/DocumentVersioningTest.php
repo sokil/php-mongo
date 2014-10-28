@@ -82,5 +82,29 @@ class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
         $revision = current($revisions);
         
         $this->assertEquals('value1', $revision->param);
+        
+        $document->clearRevisions();
+    }
+    
+    public function testCreateRevisionOnDelete()
+    {
+        // revision created only after update
+        $document = $this->collection
+            ->enableVersioning()
+            ->createDocument(array('param' => 'value'))
+            ->save();
+        
+        $this->assertEquals(0, $document->getRevisionsCount());
+        
+        // revision created
+        $document->delete();
+        
+        $this->assertEquals(1, $document->getRevisionsCount());
+        
+        $revision = current($document->getRevisions());
+        
+        $this->assertEquals('value', $revision->get('param'));
+        
+        $document->clearRevisions();
     }
 }
