@@ -132,14 +132,16 @@ class Document extends Structure
         // use versioning        
         if($this->getOption('versioning')) {
             $self = $this;
-            $this->onBeforeUpdate(function() use($self) {
+            $createRevisionCallback = function() use($self) {
                 // create new revision
                 $self
                     ->getRevisionsCollection()
                     ->createDocument()
                     ->setDocumentData($self->getOriginalData())
                     ->save();
-            }, PHP_INT_MAX);
+            };
+            $this->onBeforeUpdate($createRevisionCallback, PHP_INT_MAX);
+            $this->onBeforeDelete($createRevisionCallback, PHP_INT_MAX);
         }
         
         $this->_eventDispatcher->dispatch('afterConstruct');
@@ -1268,7 +1270,7 @@ class Document extends Structure
      * 
      * @return \Sokil\Mongo\Collection
      */
-    private function getRevisionsCollection()
+    public function getRevisionsCollection()
     {
         $revisionsCollectionName = $this->collection->getName() . '.revisions';
         
