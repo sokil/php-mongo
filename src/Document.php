@@ -1281,13 +1281,31 @@ class Document extends Structure
             ->getCollection($revisionsCollectionName);
     }
     
-    public function getRevisions()
+    public function getRevisions($limit = null, $offset = null)
+    {
+        $cursor = $this
+            ->getRevisionsCollection()
+            ->find()
+            ->where('__documentId__', $this->getId());
+        
+        if($limit) {
+            $cursor->limit($limit);
+        }
+        
+        if($offset) {
+            $cursor->skip($offset);
+        }
+            
+        return $cursor->findAll();
+    }
+    
+    public function getRevision($id)
     {
         return $this
             ->getRevisionsCollection()
             ->find()
-            ->where('__documentId__', $this->getId())
-            ->findAll();
+            ->byId($id)
+            ->findOne();
     }
     
     public function getRevisionsCount()
