@@ -107,4 +107,33 @@ class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
         
         $document->clearRevisions();
     }
+    
+    public function testCheckoutRevision()
+    {
+        $document = $this->collection
+            ->enableVersioning()
+            ->createDocument(array('param' => 'value'))
+            ->save()
+            // revision 0
+            ->set('param', 'value1')
+            ->save()
+            // revision 1
+            ->set('param', 'value2')
+            ->save();
+        
+        $revisions = $document->getRevisions();
+        
+        $firstRevisionKey = key($revisions);
+        
+        $document->checkoutRevision($firstRevisionKey);
+        
+        $this->assertEquals('value', $document->param);
+        
+        $document->clearRevisions();
+    }
+    
+    public function testCheckoutHeadRevision()
+    {
+        
+    }
 }
