@@ -120,12 +120,6 @@ class Collection implements \Countable
     {
         $this->_options = $options;
         
-        // Default document class.
-        // May be fully qualified class name or callable that return fully qualified class name
-        if(isset($options['documentClass'])) {
-            
-        }
-        
         return $this;
     }
     
@@ -148,6 +142,7 @@ class Collection implements \Countable
     {
         $class = $this->_options['documentClass'];
         
+        // May be fully qualified class name or callable that return fully qualified class name
         if(!is_callable($class) && !class_exists($class)) {
             throw new Exception('Property "documentClass" must be callable or valid name of class');
         }
