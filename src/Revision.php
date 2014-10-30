@@ -58,8 +58,12 @@ class Revision extends \Sokil\Mongo\Document
      * 
      * @return \MongoDate
      */
-    public function getDate()
+    public function getDate($format = null)
     {
-        return $this->get('__date__');
+        if(!$format) {
+            return $this->get('__date__')->sec;
+        }
+        
+        return date($format, $this->get('__date__')->sec);
     }
 }
