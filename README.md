@@ -467,7 +467,7 @@ $totalDocumentNumber = $paginator->getTotalRowsCount();
 $totalPageNumber = $paginator->getTotalPagesCount();
 
 // iterate through documents
-foreach($paginate as $document) {
+foreach($paginator as $document) {
     echo $document->getId();
 }
 ```
