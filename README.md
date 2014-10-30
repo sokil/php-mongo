@@ -1188,7 +1188,7 @@ Pull requests, bug reports and feature requests is welcome.
 Versioning
 ----------
 
-To enable versioning of documents in collection, you can switch on protected \
+To enable versioning of documents in collection, you can set protected
 property Collection::$versioning to true, or call Collection::enableVersioning()
 method.
 
