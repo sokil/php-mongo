@@ -1273,6 +1273,10 @@ class Document extends Structure
     }
     
     /**
+     * !INTERNAL
+     * 
+     * This method is public only for support of php 5.3, which not supports 
+     * $this in anonymous functions and can't access private methods.
      * 
      * @return \Sokil\Mongo\Collection
      */
