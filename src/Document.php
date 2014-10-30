@@ -54,6 +54,11 @@ class Document extends Structure
      * @var \Sokil\Mongo\Collection
      */
     private $collection;
+    
+    /**
+     * Name of scenario, used for validating fields
+     * @var string
+     */
     protected $_scenario;
 
     /**
