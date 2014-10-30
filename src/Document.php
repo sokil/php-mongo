@@ -149,6 +149,7 @@ class Document extends Structure
             $this->onBeforeDelete($createRevisionCallback, PHP_INT_MAX);
         }
         
+        // execure after construct event handlers
         $this->_eventDispatcher->dispatch('afterConstruct');
     }
     
