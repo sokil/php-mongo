@@ -50,6 +50,7 @@ Why to use this library? You can easily work with document data through comforta
 * [Queue](#queue)
 * [Migrations](#migrations)
 * [GridFS](#gridfs)
+* [Versioning](#versioning)
 
 Installation
 ------------
