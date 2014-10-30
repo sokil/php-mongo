@@ -1183,3 +1183,78 @@ $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 <hr/>
 <br/>
 Pull requests, bug reports and feature requests is welcome.
+
+Versioning
+----------
+
+To enable versioning of documents in collection, you can switch on protected \
+property Collection::$versioning to true, or call Collection::enableVersioning()
+method.
+
+```php
+// througn protected property
+class MyCollection extends \Sokil\Mongo\Collection
+{
+    protected $versioning = true;
+}
+
+// througn method
+$collection = $database->getCollection('my');
+$collection->enableVersioning();
+```
+
+To check if documents in collections is versioned call:
+
+```php
+if($collection->isVersioningEnabled()) {}
+```
+
+Revision is an instance of class \Sokil\Mongo\Revision and inherits \Sokil\Mongo\Document,
+so any methods of document may be applied to revision. Revisions may be accessed:
+```php
+// get all revisions
+$document->getRevisions();
+
+// get slice of revisions
+$limit = 10;
+$offset = 15;
+$document->getRevisions($limit, $offset);
+```
+
+To get one revision by id use:
+```php
+$revision = $document->getRevision($revisionKey);
+```
+
+To get count of revisions:
+```php
+$count = $document->getRevisionsCount();
+```
+
+To clear all revisions:
+```php
+$document->clearRevisions();
+```
+
+Revisions stored in seoarage collection, named "{COLLECTION_NAME}.revisions"
+To obtain original document of collection "{COLLECTION_NAME}" from revision, 
+which is document of collection "{COLLECTION_NAME}.revisions", 
+use Revision::getDocument() method:
+
+```php
+$document->getRevision($revisionKey)->getDocument();
+```
+
+Properties of document from revision may be accessed directly:
+```
+echo $document->property;
+echo $document->getRevision($revisionKey)->property;
+```
+
+Also date of creating revison may be obtained from document:
+```php
+// return timestamp
+echo $document->getRevision($revisionKey)->getDate();
+// return formatted date string
+echo $document->getRevision($revisionKey)->getDate('d.m.Y H:i:s');
+```
