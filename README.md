@@ -51,6 +51,8 @@ Why to use this library? You can easily work with document data through comforta
 * [Migrations](#migrations)
 * [GridFS](#gridfs)
 * [Versioning](#versioning)
+* [Indexes](#indexes)
+* [Caching and documents with TTL](#caching-and-documents-with-ttl)
 
 Installation
 ------------
@@ -1259,3 +1261,77 @@ echo $document->getRevision($revisionKey)->getDate();
 // return formatted date string
 echo $document->getRevision($revisionKey)->getDate('d.m.Y H:i:s');
 ```
+
+Indexes
+-------
+
+Create index with custom options (see options in http://php.net/manual/en/mongocollection.ensureindex.php):
+```php
+$collection->ensureIndex('field', [ 'unique' => true ]);
+```
+
+Create unique index:
+```php
+$collection->ensureUniqueIndex('field');
+```
+
+Create sparse index (see http://docs.mongodb.org/manual/core/index-sparse/ for details about sparse indexes):
+```php
+$collection->ensureSparseIndex('field');
+```
+
+Create TTL index (see http://docs.mongodb.org/manual/tutorial/expire-data/ for details about TTL indexes):
+```php
+$collection->ensureTTLIndex('field');
+```
+
+You may define field as array where key is field name and value is direction:
+```php
+$collection->ensureIndex(['field' => 1]);
+```
+
+You may define all collection indexes as described below:
+
+```php
+class MyCollection extends \Sokil\Mongo\Collection
+{
+    protected $_index = array(
+        array(
+            'keys' => array('field1' => 1, 'field2' => -1),
+            'unique' => true
+        ),
+    );
+}
+```
+
+Property Collection::$_index is a of arrays, where each item array is an index definition.
+Every index definition must contain key 'keys' with list of fields and orders,
+and optional options, as described in http://php.net/manual/en/mongocollection.createindex.php.
+
+Then you must create this indexes by call of Collection::initIndexes():
+
+You may use [Mongo Migrator](https://github.com/sokil/php-mongo-migrator) package 
+to ensure indexes in collections from migration scripts.
+
+```php
+$collection = $database->getCollection('myCollection')->initIndexes();
+```
+
+Also you may define compound indexes:
+```php
+$collection->ensureIndex(['field1' => 1, 'field2' => -1]);
+```
+
+Caching and documents with TTL
+------------------------------
+
+If you want to get collection where documents will expire after some specified time, just add special index to this collection.
+
+```php
+$collection->ensureTTLIndex('createDate', 1000);
+```
+
+You can do this also in migration script, using [Mongo Migrator](https://github.com/sokil/php-mongo-migrator). 
+For details see readme on than pakage's page.
+
+

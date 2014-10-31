@@ -904,7 +904,7 @@ class Collection implements \Countable
      * Create index
      * 
      * @param array $key
-     * @param array $options
+     * @param array $options see @link http://php.net/manual/en/mongocollection.ensureindex.php
      * @return \Sokil\Mongo\Collection
      */
     public function ensureIndex($key, array $options = array())
@@ -933,6 +933,8 @@ class Collection implements \Countable
     /**
      * Create sparse index
      * 
+     * @link http://docs.mongodb.org/manual/core/index-sparse/
+     * 
      * @param string|array $key An array specifying the index's fields as its keys. For each field, the value is
      *  either the index direction or index type. If specifying direction, specify 1 for ascending or -1 for descending.
      * @return \Sokil\Mongo\Collection
@@ -949,7 +951,9 @@ class Collection implements \Countable
     /**
      * Create TTL index
      * 
-     * @param array $key
+     * @link http://docs.mongodb.org/manual/tutorial/expire-data/
+     * 
+     * @param string|array $key key must be date to use TTL
      * @param int $seconds
      * @return \Sokil\Mongo\Collection
      */
