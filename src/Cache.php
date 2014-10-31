@@ -22,7 +22,8 @@ class Cache implements \Countable
                     ),
                 )
             ))
-            ->getCollection($collectionName);
+            ->getCollection($collectionName)
+            ->disableDocumentPool();
     }
     
     public function init()
@@ -46,21 +47,31 @@ class Cache implements \Countable
      */
     public function setDueDate($key, $value, $timestamp, array $tags = null)
     {
-        $document = $this->collection
-            ->createDocument(array(
-                '_id' => $key,
-                self::FIELD_NAME_VALUE => $value,
-            ));
-        
+        $document = array(
+            self::FIELD_NAME_VALUE => $value,
+        );
+
         if($timestamp) {
-            $document->set(self::FIELD_NAME_EXPIRED, new \MongoDate((int) $timestamp));
+            $document[self::FIELD_NAME_EXPIRED] = new \MongoDate((int) $timestamp);
         }
-        
+
         if($tags) {
-            $document->set(self::FIELD_NAME_TAGS, $tags);
+            $document[self::FIELD_NAME_TAGS] = $tags;
         }
-        
-        $document->save();
+
+        $result = $this->collection->getMongoCollection()->update(
+            array(
+                '_id' => $key,
+            ),
+            $document,
+            array(
+                'upsert' => true,
+            )
+        );
+
+        if((double) 1 !== $result['ok']) {
+            throw new Exception('Error setting value');
+        }
         
         return $this;
     }
@@ -92,12 +103,31 @@ class Cache implements \Countable
         
         return $this;
     }
-    
+
+    /**
+     * Get value by key
+     *
+     * @param $key
+     * @return array|null
+     */
     public function get($key)
     {
-        return $this->collection
-            ->getDocument($key)
-            ->get(self::FIELD_NAME_VALUE);
+        // Get document
+        $document = $this->collection->getDocument($key);
+        if(!$document) {
+            return null;
+        }
+
+        // Mongo deletes document not exactly when set in field
+        // Required date checking
+        // Expiration may be empty for keys whicj never expired
+        $expiredAt = $document->get(self::FIELD_NAME_EXPIRED);
+        if($expiredAt && $expiredAt->sec < time()) {
+            return null;
+        }
+
+        // Return value
+        return $document->get(self::FIELD_NAME_VALUE);
     }
     
     public function delete($key)
@@ -135,7 +165,7 @@ class Cache implements \Countable
     
     /**
      * Delete documents by tag
-     * Document deletes if it containds all passed tags
+     * Document deletes if it contains all passed tags
      */
     public function deleteMatchingAllTags(array $tags)
     {
@@ -148,9 +178,9 @@ class Cache implements \Countable
     
     /**
      * Delete documents by tag
-     * Document deletes if it containds all passed tags
+     * Document deletes if it not contains all passed tags
      */
-    public function deleteByTagNotMatchingAllTags(array $tags)
+    public function deleteMatchingNoneOfTags(array $tags)
     {
         $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
             return $e->whereNoneOf(self::FIELD_NAME_TAGS, $tags);
@@ -161,7 +191,7 @@ class Cache implements \Countable
     
     /**
      * Delete documents by tag
-     * Document deletes if it containds any of passed tags
+     * Document deletes if it contains any of passed tags
      */
     public function deleteMatchingAnyTag(array $tags)
     {
@@ -174,7 +204,7 @@ class Cache implements \Countable
     
     /**
      * Delete documents by tag
-     * Document deletes if it containds any of passed tags
+     * Document deletes if it contains any of passed tags
      */
     public function deleteNotMatchingAnyTag(array $tags)
     {

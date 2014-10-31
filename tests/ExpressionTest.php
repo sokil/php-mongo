@@ -695,27 +695,21 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testWhereAll()
+    public function testWhereNoneOf()
     {
         $documentId = $this->collection
-            ->createDocument(array('p' => array(
-                1, 2, 3, 4, 5
-            )))
-            ->save()
-            ->getId();
-
-        $this->collection->createDocument(array('p' => array(
-            3, 4, 5, 6, 7
-        )))->save();
+            ->createDocument(array(
+                'p' => array(
+                    1, 2, 3, 4, 5
+                )
+            ))
+            ->save();
 
         $documents = $this->collection
             ->find()
-            ->whereAll('p', array(1, 4))
+            ->whereNoneOf('p', array(1, 4))
             ->findAll();
 
-        $this->assertEquals(1, count($documents));
-
-        $document = current($documents);
-        $this->assertEquals($documentId, $document->getId());
+        $this->assertEquals(0, count($documents));
     }
 }
