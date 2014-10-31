@@ -2,7 +2,7 @@
 
 namespace Sokil\Mongo;
 
-class Cache
+class Cache implements \Countable
 {
     const FIELD_NAME_VALUE = 'v';
     const FIELD_NAME_EXPIRED = 'e';
@@ -31,7 +31,7 @@ class Cache
         return $this;
     }
     
-    public function deleteAll()
+    public function clear()
     {
         $this->collection->delete();
         return $this;
@@ -107,6 +107,92 @@ class Cache
         ));
         
         return $this;
+    }
+    
+    /**
+     * Delete documents by tag
+     */
+    public function deleteMatchingTag($tag)
+    {
+        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tag) {
+            return $e->where(self::FIELD_NAME_TAGS, $tag);
+        });
+        
+        return $this;
+    }
+    
+    /**
+     * Delete documents by tag
+     */
+    public function deleteNotMatchingTag($tag)
+    {
+        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tag) {
+            return $e->whereNotEqual(self::FIELD_NAME_TAGS, $tag);
+        });
+        
+        return $this;
+    }
+    
+    /**
+     * Delete documents by tag
+     * Document deletes if it containds all passed tags
+     */
+    public function deleteMatchingAllTags(array $tags)
+    {
+        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
+            return $e->whereAll(self::FIELD_NAME_TAGS, $tags);
+        });
+        
+        return $this;
+    }
+    
+    /**
+     * Delete documents by tag
+     * Document deletes if it containds all passed tags
+     */
+    public function deleteByTagNotMatchingAllTags(array $tags)
+    {
+        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
+            return $e->whereNoneOf(self::FIELD_NAME_TAGS, $tags);
+        });
+        
+        return $this;
+    }
+    
+    /**
+     * Delete documents by tag
+     * Document deletes if it containds any of passed tags
+     */
+    public function deleteMatchingAnyTag(array $tags)
+    {
+        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
+            return $e->whereIn(self::FIELD_NAME_TAGS, $tags);
+        });
+        
+        return $this;
+    }
+    
+    /**
+     * Delete documents by tag
+     * Document deletes if it containds any of passed tags
+     */
+    public function deleteNotMatchingAnyTag(array $tags)
+    {
+        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
+            return $e->whereNotIn(self::FIELD_NAME_TAGS, $tags);
+        });
+        
+        return $this;
+    }
+    
+    public function count()
+    {
+        return $this->collection->count();
+    }
+    
+    public function has($key)
+    {
+        return (bool) $this->get($key);
     }
     
 }
