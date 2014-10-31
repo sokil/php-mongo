@@ -47,10 +47,10 @@ class Cache implements \Countable
     public function setDueDate($key, $value, $timestamp, array $tags = null)
     {
         $document = $this->collection
-            ->createDocument([
+            ->createDocument(array(
                 '_id' => $key,
                 self::FIELD_NAME_VALUE => $value,
-            ]);
+            ));
         
         if($timestamp) {
             $document->set(self::FIELD_NAME_EXPIRED, new \MongoDate((int) $timestamp));
