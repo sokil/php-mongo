@@ -953,11 +953,14 @@ class Collection implements \Countable
      * 
      * @link http://docs.mongodb.org/manual/tutorial/expire-data/
      * 
+     * If seconds not specified then document expired at specified time, as
+     * described at @link http://docs.mongodb.org/manual/tutorial/expire-data/#expire-documents-at-a-certain-clock-time
+     * 
      * @param string|array $key key must be date to use TTL
      * @param int $seconds
      * @return \Sokil\Mongo\Collection
      */
-    public function ensureTTLIndex($key, $seconds)
+    public function ensureTTLIndex($key, $seconds = 0)
     {
         $this->_mongoCollection->ensureIndex($key, array(
             'expireAfterSeconds' => $seconds,
@@ -974,7 +977,12 @@ class Collection implements \Countable
      */
     public function initIndexes()
     {
-        foreach($this->_index as $options) {
+        // read index definition from collection options
+        // if not specified - use defined in property
+        $indexDefinition = $this->getOption('index', $this->_index);
+        
+        // ensure indexes
+        foreach($indexDefinition as $options) {
             
             if(empty($options['keys'])) {
                 throw new Exception('Keys not specified');
