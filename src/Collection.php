@@ -643,17 +643,22 @@ class Collection implements \Countable
     
     public function deleteDocuments($expression)
     {
+        // get expression from callable
         if(is_callable($expression)) {
             $expression = call_user_func($expression, $this->expression());    
         }
         
-        if(!($expression instanceof Expression)) {
+        // get array from Expression object
+        if($expression instanceof Expression) {
+            $expression = $expression->toArray();
+        } elseif(!is_array($expression)) {
             throw new Exception('Wrong expression specified');
         }
         
-        $result = $this->_mongoCollection
-            ->remove($expression->toArray());
+        // remove
+        $result = $this->_mongoCollection->remove($expression);
 
+        // check result
         if(true !== $result && $result['ok'] != 1) {
             throw new Exception('Error removing documents from collection: ' . $result['err']);
         }
