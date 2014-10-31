@@ -1295,8 +1295,8 @@ Also you may define compound indexes:
 $collection->ensureIndex(['field1' => 1, 'field2' => -1]);
 ```
 
-You may define all collection indexes in prproperty Collection::$_index 
-as arrays, where each item is an index definition.
+You may define all collection indexes in property Collection::$_index 
+as array, where each item is an index definition.
 Every index definition must contain key 'keys' with list of fields and orders,
 and optional options, as described in http://php.net/manual/en/mongocollection.createindex.php.
 
