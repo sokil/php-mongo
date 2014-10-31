@@ -208,7 +208,7 @@ class Expression
      */
     public function whereAny($field, array $values)
     {
-        return $this->where($field, $values);
+        return $this->whereIn($field, $values);
     }
 
     /**
