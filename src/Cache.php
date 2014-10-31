@@ -6,6 +6,7 @@ class Cache
 {
     const FIELD_NAME_VALUE = 'v';
     const FIELD_NAME_EXPIRED = 'e';
+    const FIELD_NAME_TAGS = 't';
     
     private $collection;
     
@@ -43,15 +44,23 @@ class Cache
      * @param mixed $value
      * @param int $timestamp
      */
-    public function setDueDate($key, $value, $timestamp)
+    public function setDueDate($key, $value, $timestamp, array $tags = null)
     {
-        $this->collection
+        $document = $this->collection
             ->createDocument([
                 '_id' => $key,
                 self::FIELD_NAME_VALUE => $value,
-                self::FIELD_NAME_EXPIRED => new \MongoDate((int) $timestamp),
-            ])
-            ->save();
+            ]);
+        
+        if($timestamp) {
+            $document->set(self::FIELD_NAME_EXPIRED, new \MongoDate((int) $timestamp));
+        }
+        
+        if($tags) {
+            $document->set(self::FIELD_NAME_TAGS, $tags);
+        }
+        
+        $document->save();
         
         return $this;
     }
@@ -63,14 +72,9 @@ class Cache
      * @param mixed $value 
      * @return \Sokil\Mongo\Cache
      */
-    public function setNeverExpired($key, $value)
+    public function setNeverExpired($key, $value, array $tags = null)
     {
-        $this->collection
-            ->createDocument([
-                '_id' => $key,
-                self::FIELD_NAME_VALUE => $value,
-            ])
-            ->save();
+        $this->setDueDate($key, $value, null, $tags);
         
         return $this;
     }
@@ -82,9 +86,9 @@ class Cache
      * @param mixed $value
      * @param int $ttl
      */
-    public function set($key, $value, $ttl)
+    public function set($key, $value, $ttl, array $tags = null)
     {
-        $this->setDueDate($key, $value, time() + $ttl);
+        $this->setDueDate($key, $value, time() + $ttl, $tags);
         
         return $this;
     }
