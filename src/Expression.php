@@ -216,12 +216,22 @@ class Expression
      * least one element that matches all the specified query criteria.
      * 
      * @param string $field point-delimited field name
-     * @param \Sokil\Mongo\Expression $expression
+     * @param \Sokil\Mongo\Expression|callable|array $expression
      * @return \Sokil\Mongo\Expression
      */
-    public function whereElemMatch($field, Expression $expression)
+    public function whereElemMatch($field, $expression)
     {
-        return $this->where($field, array('$elemMatch' => $expression->toArray()));
+        if(is_callable($expression)) {
+            $expression = call_user_func($expression, $this->expression());
+        }
+        
+        if($expression instanceof Expression) {
+            $expression = $expression->toArray();
+        } elseif(!is_array($expression)) {
+            throw new Exception('Wrong expression passed');
+        }
+        
+        return $this->where($field, array('$elemMatch' => $expression));
     }
     
     /**
@@ -229,10 +239,10 @@ class Expression
      * that do not matches all the specified query criteria.
      * 
      * @param type $field
-     * @param \Sokil\Mongo\Expression $expression
+     * @param \Sokil\Mongo\Expression|callable|array $expression
      * @return type
      */
-    public function whereElemNotMatch($field, Expression $expression)
+    public function whereElemNotMatch($field, $expression)
     {
         return $this->whereNot($this->expression()->whereElemMatch($field, $expression));
     }
