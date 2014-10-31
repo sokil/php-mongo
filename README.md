@@ -1290,7 +1290,15 @@ You may define field as array where key is field name and value is direction:
 $collection->ensureIndex(['field' => 1]);
 ```
 
-You may define all collection indexes as described below:
+Also you may define compound indexes:
+```php
+$collection->ensureIndex(['field1' => 1, 'field2' => -1]);
+```
+
+You may define all collection indexes in prproperty Collection::$_index 
+as arrays, where each item is an index definition.
+Every index definition must contain key 'keys' with list of fields and orders,
+and optional options, as described in http://php.net/manual/en/mongocollection.createindex.php.
 
 ```php
 class MyCollection extends \Sokil\Mongo\Collection
@@ -1304,23 +1312,14 @@ class MyCollection extends \Sokil\Mongo\Collection
 }
 ```
 
-Property Collection::$_index is a of arrays, where each item array is an index definition.
-Every index definition must contain key 'keys' with list of fields and orders,
-and optional options, as described in http://php.net/manual/en/mongocollection.createindex.php.
-
 Then you must create this indexes by call of Collection::initIndexes():
-
-You may use [Mongo Migrator](https://github.com/sokil/php-mongo-migrator) package 
-to ensure indexes in collections from migration scripts.
 
 ```php
 $collection = $database->getCollection('myCollection')->initIndexes();
 ```
 
-Also you may define compound indexes:
-```php
-$collection->ensureIndex(['field1' => 1, 'field2' => -1]);
-```
+You may use [Mongo Migrator](https://github.com/sokil/php-mongo-migrator) package 
+to ensure indexes in collections from migration scripts.
 
 Caching and documents with TTL
 ------------------------------
