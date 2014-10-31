@@ -199,6 +199,26 @@ class Expression
     
     /**
      * Find documents where the value of a field is an array 
+     * that contains none of the specified elements.
+     * This is equivalent of logical AND.
+     * 
+     * @link http://docs.mongodb.org/manual/reference/operator/query/all/
+     * 
+     * @param string $field point-delimited field name
+     * @param array $values
+     * @return \Sokil\Mongo\Expression
+     */
+    public function whereNoneOf($field, array $values)
+    {
+        return $this->where($field, array(
+            '$not' => array(
+                '$all' => $values
+            ),
+        ));
+    }
+    
+    /**
+     * Find documents where the value of a field is an array 
      * that contains any of the specified elements.
      * This is equivalent of logical AND.
      * 
