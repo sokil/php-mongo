@@ -145,7 +145,7 @@ class Cache implements \Countable
     public function deleteMatchingTag($tag)
     {
         $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tag) {
-            return $e->where(self::FIELD_NAME_TAGS, $tag);
+            return $e->where(Cache::FIELD_NAME_TAGS, $tag);
         });
         
         return $this;
@@ -157,7 +157,7 @@ class Cache implements \Countable
     public function deleteNotMatchingTag($tag)
     {
         $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tag) {
-            return $e->whereNotEqual(self::FIELD_NAME_TAGS, $tag);
+            return $e->whereNotEqual(Cache::FIELD_NAME_TAGS, $tag);
         });
         
         return $this;
@@ -170,7 +170,7 @@ class Cache implements \Countable
     public function deleteMatchingAllTags(array $tags)
     {
         $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
-            return $e->whereAll(self::FIELD_NAME_TAGS, $tags);
+            return $e->whereAll(Cache::FIELD_NAME_TAGS, $tags);
         });
         
         return $this;
@@ -183,7 +183,7 @@ class Cache implements \Countable
     public function deleteMatchingNoneOfTags(array $tags)
     {
         $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
-            return $e->whereNoneOf(self::FIELD_NAME_TAGS, $tags);
+            return $e->whereNoneOf(Cache::FIELD_NAME_TAGS, $tags);
         });
         
         return $this;
@@ -196,7 +196,7 @@ class Cache implements \Countable
     public function deleteMatchingAnyTag(array $tags)
     {
         $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
-            return $e->whereIn(self::FIELD_NAME_TAGS, $tags);
+            return $e->whereIn(Cache::FIELD_NAME_TAGS, $tags);
         });
         
         return $this;
@@ -209,7 +209,7 @@ class Cache implements \Countable
     public function deleteNotMatchingAnyTag(array $tags)
     {
         $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
-            return $e->whereNotIn(self::FIELD_NAME_TAGS, $tags);
+            return $e->whereNotIn(Cache::FIELD_NAME_TAGS, $tags);
         });
         
         return $this;
