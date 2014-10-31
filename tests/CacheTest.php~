@@ -27,12 +27,12 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     public function testDeleteMatchingAnyTag()
     {
         $this->cache
-            ->setNeverExpired('php', 'PHP: Hypertext Procesor', array('language', 'interpretable'))
-            ->setNeverExpired('c', 'C', array('language', 'compileable'));
+            ->setNeverExpired('php', 'PHP: Hypertext Procesor', ['language', 'interpretable'])
+            ->setNeverExpired('c', 'C', ['language', 'compileable']);
         
         $this->assertEquals(2, count($this->cache));
         
-        $this->cache->deleteMatchingAnyTag(array('compileable', 'elephant'));
+        $this->cache->deleteMatchingAnyTag(['compileable', 'elephant']);
         
         $this->assertEquals(1, count($this->cache));
         
