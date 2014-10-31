@@ -340,6 +340,17 @@ class Database
         return new Queue($this, $channel);
     }
     
+    /**
+     * Get cache
+     * 
+     * @param string $namespace
+     * @return \Sokil\Mongo\Cache
+     */
+    public function getCache($namespace)
+    {
+        return new Cache($this, $namespace);
+    }
+    
     public function readPrimaryOnly()
     {
         $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);
