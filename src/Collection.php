@@ -87,7 +87,8 @@ class Collection implements \Countable
         // Used as default value for getting document classname.
         // May be fully qualified class name or callable that return fully qualified class name
         'documentClass' => '\Sokil\Mongo\Document',
-        'versioning' => false,
+        'versioning'    => false,
+        'index'         => null,
     );
     
     public function __construct(Database $database, $collection, array $options = null)
@@ -118,7 +119,7 @@ class Collection implements \Countable
      */
     private function setOptions(array $options)
     {
-        $this->_options = $options;
+        $this->_options = $options + $this->_options;
         
         return $this;
     }
