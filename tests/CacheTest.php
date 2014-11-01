@@ -32,6 +32,9 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     public function testGet_ExistedKey()
     {
         $this->cache->setNeverExpired('php', 'Some value');
+        
+        $this->assertEquals('Some value', $this->cache->get('php'));
+        
         $this->cache->setNeverExpired('php', 'PHP: Hypertext Processor');
 
         $this->assertEquals('PHP: Hypertext Processor', $this->cache->get('php'));
