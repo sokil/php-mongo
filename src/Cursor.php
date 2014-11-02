@@ -22,7 +22,7 @@ abstract class Cursor implements \Iterator, \Countable
      *
      * @var \MongoCursor
      */
-    private $_cursor;
+    private $cursor;
     
     private $_skip = 0;
     
@@ -64,6 +64,13 @@ abstract class Cursor implements \Iterator, \Countable
      * @var bool 
      */
     private $isDocumentPoolUsed = true;
+    
+    /**
+     * Index hinting
+     * @param \Sokil\Mongo\Collection $collection
+     * @param array $options
+     */
+    private $hint;
     
     public function __construct(Collection $collection, array $options = null)
     {
@@ -338,24 +345,28 @@ abstract class Cursor implements \Iterator, \Countable
      */
     private function getCursor()
     {
-        if($this->_cursor) {
-            return $this->_cursor;
+        if($this->cursor) {
+            return $this->cursor;
         }
         
-        $this->_cursor = $this->_collection
+        $this->cursor = $this->_collection
             ->getMongoCollection()
             ->find($this->_expression->toArray(), $this->_fields);
         
         if($this->_skip) {
-            $this->_cursor->skip($this->_skip);
+            $this->cursor->skip($this->_skip);
         }
         
         if($this->_limit) {
-            $this->_cursor->limit($this->_limit);
+            $this->cursor->limit($this->_limit);
         }
         
         if($this->_sort) {
-            $this->_cursor->sort($this->_sort);
+            $this->cursor->sort($this->_sort);
+        }
+        
+        if($this->hint) {
+            $this->cursor->hint($this->hint);
         }
         
         // log request
@@ -368,17 +379,17 @@ abstract class Cursor implements \Iterator, \Countable
             )));
         }
         
-        $this->_cursor->rewind();
+        $this->cursor->rewind();
         
         // define read preferences
         if($this->_readPreference) {
-            $this->_cursor->setReadPreference(
+            $this->cursor->setReadPreference(
                 $this->_readPreference['type'],
                 $this->_readPreference['tagsets']
             );
         }
         
-        return $this->_cursor;
+        return $this->cursor;
     }
     
     /**
@@ -716,8 +727,8 @@ abstract class Cursor implements \Iterator, \Countable
 
     public function getReadPreference()
     {
-        if($this->_cursor) {
-            return $this->_cursor->getReadPreference();
+        if($this->cursor) {
+            return $this->cursor->getReadPreference();
         }
 
         return $this->_readPreference;
@@ -737,6 +748,19 @@ abstract class Cursor implements \Iterator, \Countable
     public function skipDocumentPool()
     {
         $this->isDocumentPoolUsed = false;
+        return $this;
+    }
+    
+    /**
+     * Specify index to use
+     * 
+     * @link http://docs.mongodb.org/manual/reference/operator/meta/hint/
+     * @param array|string $specification Specify the index either by the index name or by document
+     * @return \Sokil\Mongo\Cursor
+     */
+    public function hint($specification)
+    {
+        $this->hint = $specification;
         return $this;
     }
 }

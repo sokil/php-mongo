@@ -727,4 +727,39 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ),
         ), $qb->getReadPreference());
     }
+    
+    public function testHint()
+    {
+        // create index
+        $this->collection->ensureIndex(array('a' => 1));
+        $this->collection->ensureIndex(array('a' => 1, 'b' => 1));
+        
+        // add documents
+        $this->collection
+            ->insert(array(
+                'a' => 1
+            ))
+            ->insert(array(
+                'a' => 1, 'b' => 1
+            ));
+        
+        // without hint
+        $explain = $this
+            ->collection
+            ->find()
+            ->where('a', 1)
+            ->explain();
+        
+        $this->assertEquals('BtreeCursor a_1', $explain['cursor']);
+        
+        // with hint
+        $explain = $this
+            ->collection
+            ->find()
+            ->hint(array('a' => 1, 'b' => 1))
+            ->where('a', 1)
+            ->explain();
+        
+        $this->assertEquals('BtreeCursor a_1_b_1', $explain['cursor']);
+    }
 }
