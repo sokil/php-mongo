@@ -1321,6 +1321,13 @@ $collection = $database->getCollection('myCollection')->initIndexes();
 You may use [Mongo Migrator](https://github.com/sokil/php-mongo-migrator) package 
 to ensure indexes in collections from migration scripts.
 
+[Query optimiser](http://docs.mongodb.org/manual/core/query-plans/#read-operations-query-optimization)
+ automatically choose which index to use, but you can manuallty define it:
+
+```php
+$collection->find()->where('field', 1)->hind(array('field' => 1));
+```
+
 Caching and documents with TTL
 ------------------------------
 
