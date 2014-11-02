@@ -1333,4 +1333,74 @@ $collection->ensureTTLIndex('createDate', 1000);
 You can do this also in migration script, using [Mongo Migrator](https://github.com/sokil/php-mongo-migrator). 
 For details see readme on than pakage's page.
 
+Or you can use \Sokil\Mongo\Cache class, which already implement this functionality.
+
+```php
+// Get cache instance
+$cache = $document->getCache('some_namespace');
+```
+Before using cache must be inititalised by calling method Cache:init():
+```php
+$cahce->init();
+```
+
+This operation creates index with 'expireAfterSecond' key in collection 'some_namespace'.
+
+This operation may be done in some console command or migration script, or 
+you can create manually in mongo console:
+
+```javascript
+db.some_namespace.ensureIndex('e', {expireAfterSeconds: 0});
+```
+
+Now you can store new value with:
+```php
+// this store value for 10 seconds by defininc concrete timestamp when cached value expired
+$cache->setByDate('key', 'value', time() + 10);
+// same but expiration defined relatively to current time
+$cache->set('key', 'value', 10);
+```
+
+You can devine value which never expired and must be deleted manually:
+```php
+$cache->setNeverExpired('key', 'value');
+```
+
+You can define some tags defined with key:
+```php
+$cache->set('key', 'value', 10, ['php', 'c', 'java']);
+$cache->setNeverExpired('key', 'value', ['php', 'c', 'java']);
+$cache->setDueDate('key', 'value', time() + 10, ['php', 'c', 'java']);
+```
+
+To det value
+```php
+$value = $cache->get('key');
+```
+
+To delete cached value by key:
+```php
+$cache->delete('key');
+```
+
+Delete few values by tags:
+```php
+// delete all values with tag 'php'
+$cache->deleteMatchingTag('php');
+// delete all values without tag 'php'
+$cache->deleteNotMatchingTag('php');
+// delete all values with tags 'php' and 'java'
+$cache->deleteMatchingAllTags(['php', 'java']);
+// delete all values which don't have tags 'php' and 'java'
+$cache->deleteMatchingNoneOfTags(['php', 'java']);
+// Document deletes if it contains any of passed tags
+$cache->deleteMatchingAnyTag(['php', 'elephant']);
+// Document deletes if it contains any of passed tags
+$cache->deleteNotMatchingAnyTag(['php', 'elephant']);
+```
+
+
+
+
+
 
