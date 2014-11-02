@@ -355,7 +355,7 @@ class Collection implements \Countable
             'expressionClass'   => $this->_queryExpressionClass,
         ));
 
-        if($callable) {
+        if(is_callable($callable)) {
             $callable($queryBuilder->getExpression());
         }
 
