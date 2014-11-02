@@ -695,6 +695,19 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testWhereMod()
+    {
+        for($i = 0; $i < 10; $i++) {
+            $this->collection->createDocument(array(
+                'i' => $i,
+            ));
+        }
+        
+        foreach($this->collection->find()->whereMod('i', 3, 0) as $document) {
+            $this->assertEquals(0, $document->i % 3);
+        }
+    }
+    
     public function testWhereNoneOf()
     {
         $documentId = $this->collection

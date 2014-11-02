@@ -346,6 +346,22 @@ class Expression
         return $this;
     }
     
+    /**
+     * Select documents where the value of a field divided by a divisor has the specified remainder (i.e. perform a modulo operation to select documents)
+     * 
+     * @param string $field
+     * @param int $divisor
+     * @param int $remainder
+     */
+    public function whereMod($field, $divisor, $remainder)
+    {
+        $this->where($field, array(
+            '$mod' => array((int) $divisor, (int) $remainder),
+        ));
+        
+        return $this;
+    }
+    
     public function toArray()
     {
         return $this->_expression;
