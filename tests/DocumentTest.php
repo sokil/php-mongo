@@ -1181,6 +1181,63 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ), $this->collection->getDocument($doc->getId())->some);
     }
     
+    public function testBitwiceAnd()
+    {
+        $document = $this
+            ->collection
+            ->createDocument(array('value' => 5))
+            ->save();
+        
+        $document
+            ->bitwiceAnd('value', 4)
+            ->save();
+        
+        $id = $document->getId();
+        
+        $this->assertEquals(
+            4, 
+            $this->collection->getDocumentDirectly($id)->value
+        );
+    }
+    
+    public function testBitwiceOr()
+    {
+        $document = $this
+            ->collection
+            ->createDocument(array('value' => 5))
+            ->save();
+        
+        $document
+            ->bitwiceOr('value', 3)
+            ->save();
+        
+        $id = $document->getId();
+        
+        $this->assertEquals(
+            7, 
+            $this->collection->getDocumentDirectly($id)->value
+        );
+    }
+    
+    public function testBitwiceXor()
+    {
+        $document = $this
+            ->collection
+            ->createDocument(array('value' => 5))
+            ->save();
+        
+        $document
+            ->bitwiceXor('value', 3)
+            ->save();
+        
+        $id = $document->getId();
+        
+        $this->assertEquals(
+            6, 
+            $this->collection->getDocumentDirectly($id)->value
+        );
+    }
+    
     public function testMergeOnUpdate()
     {
         // save document

@@ -171,6 +171,24 @@ class Operator
         return $this;
     }
     
+    public function bitwiceAnd($field, $value)
+    {
+        $this->_operators['$bit'][$field]['and'] = (int) $value;
+        return $this;
+    }
+    
+    public function bitwiceOr($field, $value)
+    {
+        $this->_operators['$bit'][$field]['or'] = (int) $value;
+        return $this;
+    }
+    
+    public function bitwiceXor($field, $value)
+    {
+        $this->_operators['$bit'][$field]['xor'] = (int) $value;
+        
+        return $this;
+    }
     
     public function isDefined()
     {

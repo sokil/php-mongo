@@ -339,7 +339,7 @@ class Collection implements \Countable
      */
     public function operator()
     {
-        return new Operator;
+        return new Operator();
     }
     
     /**

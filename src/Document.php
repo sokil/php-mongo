@@ -241,7 +241,7 @@ class Document extends Structure
         
         $this->_modifiedFields = array();
         
-        $this->_operator = new Operator;
+        $this->_operator = $this->getCollection()->operator();
         
         return $this;
     }
@@ -252,7 +252,7 @@ class Document extends Structure
     private function _init()
     {
         $this->_eventDispatcher = new EventDispatcher;
-        $this->_operator = new Operator;
+        $this->_operator = $this->getCollection()->operator();
 
         $this->attachBehaviors($this->behaviors());
     }
@@ -1187,6 +1187,46 @@ class Document extends Structure
     public function decrement($fieldName, $value = 1)
     {
         return $this->increment($fieldName, -1 * $value);
+    }
+    
+    public function bitwiceAnd($field, $value)
+    {
+        parent::set($field, (int) $this->get($field) & $value);
+        
+        if ($this->getId()) {
+            $this->_operator->bitwiceAnd($field, $value);
+        }
+        
+        return $this;
+    }
+    
+    public function bitwiceOr($field, $value)
+    {
+        parent::set($field, (int) $this->get($field) | $value);
+        
+        if ($this->getId()) {
+            $this->_operator->bitwiceOr($field, $value);
+        }
+        
+        return $this;
+    }
+    
+    public function bitwiceXor($field, $value)
+    {
+        $oldFieldValue = (int) $this->get($field);
+        $newValue = $oldFieldValue ^ $value;
+        
+        parent::set($field, $newValue);
+        
+        if ($this->getId()) {
+            if(version_compare($this->getCollection()->getDatabase()->getClient()->getDbVersion(), '2.6', '>=')) {
+                $this->_operator->bitwiceXor($field, $value);
+            } else {
+                $this->_operator->set($field, $newValue);
+            }
+        }
+        
+        return $this;
     }
 
     public function save($validate = true)
