@@ -1373,7 +1373,7 @@ $cache->setNeverExpired('key', 'value', ['php', 'c', 'java']);
 $cache->setDueDate('key', 'value', time() + 10, ['php', 'c', 'java']);
 ```
 
-To det value
+To get value
 ```php
 $value = $cache->get('key');
 ```
