@@ -48,6 +48,7 @@ class Cache implements \Countable
     public function setDueDate($key, $value, $timestamp, array $tags = null)
     {
         $document = array(
+            '_id' => $key,
             self::FIELD_NAME_VALUE => $value,
         );
 
