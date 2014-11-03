@@ -233,23 +233,26 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->database->map('\Sokil\Mongo');
 
         $reflectionClass = new \ReflectionClass($this->database);
-        $method = $reflectionClass->getMethod('getGridFSClassName');
+        $method = $reflectionClass->getMethod('getGridFSClassDefinition');
         $method->setAccessible(true);
+        
+        $classDefinition1 = $method->invoke($this->database, 'carPhotosGridFS');
+        $classDefinition2 = $method->invoke($this->database, 'CarPhotosGridFS');
         
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
-            $method->invoke($this->database, 'carPhotosGridFS')
+            $classDefinition1['class']
         );
 
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
-            $method->invoke($this->database, 'CarPhotosGridFS')
+            $classDefinition2['class']
         );
     }
 
     /**
      * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Class \BlahBlahBlah not found while map GridSF name to class
+     * @expectedExceptionMessage Class \BlahBlahBlah not found while map collection name to class
      */
     public function testGetGridFs_WrongGridFSClassSpecifiedInMapping()
     {

@@ -101,8 +101,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $this->client->map(array(
             'db1'   => array(
-                'db1Collection1'  => '\Db1Collection1Class',
-                'db1Collection2'  => '\Db1Collection2Class',
+                'db1Collection1'  => '\Sokil\Mongo\Db1Collection1Class',
+                'db1Collection2'  => '\Sokil\Mongo\Db1Collection2Class',
             ),
             'db2'   => '\Some\Class\Prefix\\',
         ));
@@ -110,13 +110,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $database = $this->client->getDatabase('db1');
         
         $reflactionClass = new \ReflectionClass($database);
-        $method = $reflactionClass->getMethod('getCollectionClassName');
+        $method = $reflactionClass->getMethod('getCollectionClassDefinition');
         $method->setAccessible(true);
         $collectionClassName = $method->invoke($database, 'db1Collection2');
         
         $this->assertEquals(
-            '\Db1Collection2Class',
-            $collectionClassName
+            '\Sokil\Mongo\Db1Collection2Class',
+            $collectionClassName['class']
         );
     }
     
@@ -124,8 +124,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $this->client->map(array(
             'db1'   => array(
-                'db1Collection1'  => '\Db1Collection1Class',
-                'db1Collection2'  => '\Db1Collection2Class',
+                'db1Collection1'  => '\Sokil\Mongo\Db1Collection1Class',
+                'db1Collection2'  => '\Sokil\Mongo\Db1Collection2Class',
             ),
             'db2'   => '\Some\Class\Prefix\\',
         ));
@@ -133,12 +133,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $database = $this->client->getDatabase('db1');
         
         $reflectionClass = new \ReflectionClass($database);
-        $method = $reflectionClass->getMethod('getCollectionClassName');
+        $method = $reflectionClass->getMethod('getCollectionClassDefinition');
         $method->setAccessible(true); 
+        
+        $classDefinition = $method->invoke($database, 'undeclaredCollection');
         
         $this->assertEquals(
             '\Sokil\Mongo\Collection',
-            $method->invoke($database, 'undeclaredCollection')
+            $classDefinition['class']
         );
     }
     
@@ -146,21 +148,23 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $this->client->map(array(
             'db1'   => array(
-                'db1Collection1'  => '\Db1Collection1Class',
-                'db1Collection2'  => '\Db1Collection2Class',
+                'db1Collection1'  => '\Sokil\Mongo\Db1Collection1Class',
+                'db1Collection2'  => '\Sokil\Mongo\Db1Collection2Class',
             ),
-            'db2'   => '\Some\Class\Prefix\\',
+            'db2'   => '\Sokil\Mongo\\',
         ));
         
         $database = $this->client->getDatabase('db2');
         
         $reflectionClas = new \ReflectionClass($database);
-        $method = $reflectionClas->getMethod('getCollectionClassName');
+        $method = $reflectionClas->getMethod('getCollectionClassDefinition');
         $method->setAccessible(true);
         
+        $classDefinition = $method->invoke($database, 'db1Collection2Class');
+        
         $this->assertEquals(
-            '\Some\Class\Prefix\Some\Collection\Name',
-            $method->invoke($database, 'some.collection.name')
+            '\Sokil\Mongo\Db1Collection2Class',
+            $classDefinition['class']
         );
     }
     
@@ -332,3 +336,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         ), $this->client->getWriteConcern());
     }
 }
+
+class Db1Collection1Class extends \Sokil\Mongo\Collection {}
+class Db1Collection2Class extends \Sokil\Mongo\Collection {}

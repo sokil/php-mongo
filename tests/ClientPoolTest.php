@@ -26,12 +26,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
-                        'col1' => '\Collection5',
-                        'col2' => '\Collection6',
+                        'col1' => '\Sokil\Mongo\Collection5',
+                        'col2' => '\Sokil\Mongo\Collection6',
                     ),
                     'db2' => array(
-                        'col1' => '\Collection7',
-                        'col2' => '\Collection8',
+                        'col1' => '\Sokil\Mongo\Collection7',
+                        'col2' => '\Sokil\Mongo\Collection8',
                     )
                 ),
             ),  
@@ -46,11 +46,11 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
             ->getDatabase('db2');
         
         $reflectionClass = new \ReflectionClass($database);
-        $method = $reflectionClass->getMethod('getCollectionClassName');
+        $method = $reflectionClass->getMethod('getCollectionClassDefinition');
         $method->setAccessible(true);
         $collectionClassName = $method->invoke($database, 'col2');
         
-        $this->assertEquals('\Collection8', $collectionClassName);
+        $this->assertEquals('\Sokil\Mongo\Collection8', $collectionClassName['class']);
     }
 
     /**
@@ -65,12 +65,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
-                        'col1' => '\Collection1',
-                        'col2' => '\Collection2',
+                        'col1' => '\Sokil\Mongo\Collection1',
+                        'col2' => '\Sokil\Mongo\Collection2',
                     ),
                     'db2' => array(
-                        'col1' => '\Collection3',
-                        'col2' => '\Collection4',
+                        'col1' => '\Sokil\Mongo\Collection3',
+                        'col2' => '\Sokil\Mongo\Collection4',
                     )
                 ),
             ),
@@ -79,12 +79,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
-                        'col1' => '\Collection5',
-                        'col2' => '\Collection6',
+                        'col1' => '\Sokil\Mongo\Collection5',
+                        'col2' => '\Sokil\Mongo\Collection6',
                     ),
                     'db2' => array(
-                        'col1' => '\Collection7',
-                        'col2' => '\Collection8',
+                        'col1' => '\Sokil\Mongo\Collection7',
+                        'col2' => '\Sokil\Mongo\Collection8',
                     )
                 ),
             ),
@@ -101,12 +101,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
-                        'col1' => '\Collection1',
-                        'col2' => '\Collection2',
+                        'col1' => '\Sokil\Mongo\Collection1',
+                        'col2' => '\Sokil\Mongo\Collection2',
                     ),
                     'db2' => array(
-                        'col1' => '\Collection3',
-                        'col2' => '\Collection4',
+                        'col1' => '\Sokil\Mongo\Collection3',
+                        'col2' => '\Sokil\Mongo\Collection4',
                     )
                 ),
             ),
@@ -115,12 +115,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 'defaultDatabase' => 'db2',
                 'mappign' => array(
                     'db1' => array(
-                        'col1' => '\Collection5',
-                        'col2' => '\Collection6',
+                        'col1' => '\Sokil\Mongo\Collection5',
+                        'col2' => '\Sokil\Mongo\Collection6',
                     ),
                     'db2' => array(
-                        'col1' => '\Collection7',
-                        'col2' => '\Collection8',
+                        'col1' => '\Sokil\Mongo\Collection7',
+                        'col2' => '\Sokil\Mongo\Collection8',
                     )
                 ),
             ),  
@@ -142,12 +142,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
             null,
             array(
                 'db1' => array(
-                    'col1' => '\Collection1',
-                    'col2' => '\Collection2',
+                    'col1' => '\Sokil\Mongo\Collection1',
+                    'col2' => '\Sokil\Mongo\Collection2',
                 ),
                 'db2' => array(
-                    'col1' => '\Collection3',
-                    'col2' => '\Collection4',
+                    'col1' => '\Sokil\Mongo\Collection3',
+                    'col2' => '\Sokil\Mongo\Collection4',
                 )
             ),
             'db2'
@@ -158,12 +158,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
             null,
             array(
                 'db1' => array(
-                    'col1' => '\Collection5',
-                    'col2' => '\Collection6',
+                    'col1' => '\Sokil\Mongo\Collection5',
+                    'col2' => '\Sokil\Mongo\Collection6',
                 ),
                 'db2' => array(
-                    'col1' => '\Collection7',
-                    'col2' => '\Collection8',
+                    'col1' => '\Sokil\Mongo\Collection7',
+                    'col2' => '\Sokil\Mongo\Collection8',
                 )
             ),
             'db2'
@@ -174,11 +174,11 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
             ->getDatabase('db2');
         
         $reflectionClass = new \ReflectionClass($database);
-        $method = $reflectionClass->getMethod('getCollectionClassName');
+        $method = $reflectionClass->getMethod('getCollectionClassDefinition');
         $method->setAccessible(true);
         $collectionClassName = $method->invoke($database, 'col2');
 
-        $this->assertEquals('\Collection8', $collectionClassName);
+        $this->assertEquals('\Sokil\Mongo\Collection8', $collectionClassName['class']);
     }
 
     public function testGet_DsnNotSpecified()
@@ -188,12 +188,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
-                        'col1' => '\Collection1',
-                        'col2' => '\Collection2',
+                        'col1' => '\Sokil\Mongo\Collection1',
+                        'col2' => '\Sokil\Mongo\Collection2',
                     ),
                     'db2' => array(
-                        'col1' => '\Collection3',
-                        'col2' => '\Collection4',
+                        'col1' => '\Sokil\Mongo\Collection3',
+                        'col2' => '\Sokil\Mongo\Collection4',
                     )
                 ),
             )
@@ -202,3 +202,12 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(Client::DEFAULT_DSN, $pool->get('connect1')->getDsn());
     }
 }
+
+class Collection1 extends \Sokil\Mongo\Collection {}
+class Collection2 extends \Sokil\Mongo\Collection {}
+class Collection3 extends \Sokil\Mongo\Collection {}
+class Collection4 extends \Sokil\Mongo\Collection {}
+class Collection5 extends \Sokil\Mongo\Collection {}
+class Collection6 extends \Sokil\Mongo\Collection {}
+class Collection7 extends \Sokil\Mongo\Collection {}
+class Collection8 extends \Sokil\Mongo\Collection {}

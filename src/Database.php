@@ -168,17 +168,39 @@ class Database
      * @param string $name name of collection
      * @return string|array name of class or array of class definition
      */
-    protected function getCollectionClassName($name)
-    {        
-        if(isset($this->_mapping[$name])) {
-            $className = $this->_mapping[$name];
-        } elseif($this->_classPrefix) {
-            $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
-        } else {
-            $className = $this->_defultCollectionClass;
+    protected function getCollectionClassDefinition($name, $defaultClass = null)
+    {
+        if(!$defaultClass) {
+            $defaultClass = $this->_defultCollectionClass;
         }
         
-        return $className;
+        if(isset($this->_mapping[$name])) {
+            if(is_array($this->_mapping[$name])) {
+                $classDefinition = $this->_mapping[$name];
+                if(empty($classDefinition['class'])) {
+                    $classDefinition['class'] = $defaultClass;
+                }
+        
+            } else {
+                $classDefinition = array(
+                    'class' => $this->_mapping[$name],
+                );
+            }
+        } elseif($this->_classPrefix) {
+            $classDefinition = array(
+                'class' => $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)))
+            );
+        } else {
+            $classDefinition = array(
+                'class' => $defaultClass,
+            );
+        }
+        
+        if(!class_exists($classDefinition['class'])) {
+            throw new Exception('Class ' . $classDefinition['class'] . ' not found while map collection name to class');
+        }
+        
+        return $classDefinition;
     }
     
     /**
@@ -186,17 +208,9 @@ class Database
      * @param string $name name of collection
      * @return string name of class
      */
-    protected function getGridFSClassName($name)
+    protected function getGridFSClassDefinition($name)
     {        
-        if(isset($this->_mapping[$name])) {
-            $className = $this->_mapping[$name];
-        } elseif($this->_classPrefix) {
-            $className = $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
-        } else {
-            $className = $this->_defultGridFsClass;
-        }
-        
-        return $className;
+        return $this->getCollectionClassDefinition($name, $this->_defultGridFsClass);
     }
     
     /**
@@ -209,13 +223,18 @@ class Database
      */
     public function createCollection($name, array $options = null)
     {
-        $className = $this->getCollectionClassName($name);
-        if(!class_exists($className)) {
-            throw new Exception('Class ' . $className . ' not found while map collection name to class');
-        }
-            
+        $classDefinition = $this->getCollectionClassDefinition($name);
+        $className = $classDefinition['class'];
+        
+        $options = $options + $classDefinition;
+        
         $mongoCollection = $this->getMongoDB()->createCollection($name, $options);
-        return new $className($this, $mongoCollection);
+        
+        return new $className(
+            $this, 
+            $mongoCollection, 
+            $options
+        );
     }
     
     /**
@@ -255,36 +274,14 @@ class Database
         }
 
         // no object in pool - init new
-        $classDefinition = $this->getCollectionClassName($name);
-        
-        if(is_string($classDefinition)) {
-            // passed class definition is class name
-            $options = null;
-            
-            $className = $classDefinition;
-            
-            if(!class_exists($className)) {
-                throw new Exception('Class ' . $className . ' not found while map collection name to class');
-            }
-        } elseif(is_array($classDefinition)) {
-            // passed class definition is array of class name and options
-            $options = $classDefinition;
-            
-            if(empty($classDefinition['class'])) {
-                $classDefinition['class'] = $this->_defultCollectionClass;
-            }
-            
-            if(!class_exists($classDefinition['class'])) {
-                throw new Exception('Class ' . $classDefinition['class'] . ' not found while map collection name to class');
-            }
-            
-            $className = $classDefinition['class'];
-        } else {
-            throw new \Exception('Wrong collection class definition for collection "' . $name . '"');
-        }
+        $classDefinition = $this->getCollectionClassDefinition($name);
+        $className = $classDefinition['class'];
 
         // create collection class
-        $collection = new $className($this, $name, $options);
+        $collection = new $className($this, $name, $classDefinition);
+        if(!$collection instanceof \Sokil\Mongo\Collection) {
+            throw new Exception('Must be Collection');
+        }
 
         // store to pool
         if($this->_collectionPoolEnabled) {
@@ -310,12 +307,10 @@ class Database
         }
 
         // no object in cache - init new
-        $className = $this->getGridFSClassName($prefix);
-        if(!class_exists($className)) {
-            throw new Exception('Class ' . $className . ' not found while map GridSF name to class');
-        }
+        $classDefinition = $this->getGridFSClassDefinition($prefix);
+        $className = $classDefinition['class'];
 
-        $gridFS = new $className($this, $prefix);
+        $gridFS = new $className($this, $prefix, $classDefinition);
         if(!$gridFS instanceof GridFS) {
             throw new Exception('Must be GridFS');
         }
