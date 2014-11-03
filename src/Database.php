@@ -168,7 +168,7 @@ class Database
      * @param string $name name of collection
      * @return string|array name of class or array of class definition
      */
-    public function getCollectionClassName($name)
+    protected function getCollectionClassName($name)
     {        
         if(isset($this->_mapping[$name])) {
             $className = $this->_mapping[$name];
@@ -186,7 +186,7 @@ class Database
      * @param string $name name of collection
      * @return string name of class
      */
-    public function getGridFSClassName($name)
+    protected function getGridFSClassName($name)
     {        
         if(isset($this->_mapping[$name])) {
             $className = $this->_mapping[$name];

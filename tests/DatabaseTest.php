@@ -232,14 +232,18 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->database->resetMapping();
         $this->database->map('\Sokil\Mongo');
 
+        $reflectionClass = new \ReflectionClass($this->database);
+        $method = $reflectionClass->getMethod('getGridFSClassName');
+        $method->setAccessible(true);
+        
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
-            $this->database->getGridFSClassName('carPhotosGridFS')
+            $method->invoke($this->database, 'carPhotosGridFS')
         );
 
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
-            $this->database->getGridFSClassName('CarPhotosGridFS')
+            $method->invoke($this->database, 'CarPhotosGridFS')
         );
     }
 

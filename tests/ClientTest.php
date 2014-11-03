@@ -107,9 +107,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             'db2'   => '\Some\Class\Prefix\\',
         ));
         
+        $database = $this->client->getDatabase('db1');
+        
+        $reflactionClass = new \ReflectionClass($database);
+        $method = $reflactionClass->getMethod('getCollectionClassName');
+        $method->setAccessible(true);
+        $collectionClassName = $method->invoke($database, 'db1Collection2');
+        
         $this->assertEquals(
             '\Db1Collection2Class',
-            $this->client->getDatabase('db1')->getCollectionClassName('db1Collection2')
+            $collectionClassName
         );
     }
     
@@ -123,14 +130,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             'db2'   => '\Some\Class\Prefix\\',
         ));
         
-        $this->assertEquals(
-            '\Sokil\Mongo\Collection',
-            $this->client->getDatabase('db1')->getCollectionClassName('undeclaredCollection')
-        );
+        $database = $this->client->getDatabase('db1');
+        
+        $reflectionClass = new \ReflectionClass($database);
+        $method = $reflectionClass->getMethod('getCollectionClassName');
+        $method->setAccessible(true); 
         
         $this->assertEquals(
             '\Sokil\Mongo\Collection',
-            $this->client->getDatabase('undeclaredDatabase')->getCollectionClassName('undeclaredCollection')
+            $method->invoke($database, 'undeclaredCollection')
         );
     }
     
@@ -144,9 +152,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             'db2'   => '\Some\Class\Prefix\\',
         ));
         
+        $database = $this->client->getDatabase('db2');
+        
+        $reflectionClas = new \ReflectionClass($database);
+        $method = $reflectionClas->getMethod('getCollectionClassName');
+        $method->setAccessible(true);
+        
         $this->assertEquals(
             '\Some\Class\Prefix\Some\Collection\Name',
-            $this->client->getDatabase('db2')->getCollectionClassName('some.collection.name')
+            $method->invoke($database, 'some.collection.name')
         );
     }
     

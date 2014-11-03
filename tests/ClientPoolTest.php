@@ -41,10 +41,14 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Sokil\Mongo\Client', $pool->connect2);
 
-        $collectionClassName = $pool
+        $database = $pool
             ->get('connect2')
-            ->getDatabase('db2')
-            ->getCollectionClassName('col2');
+            ->getDatabase('db2');
+        
+        $reflectionClass = new \ReflectionClass($database);
+        $method = $reflectionClass->getMethod('getCollectionClassName');
+        $method->setAccessible(true);
+        $collectionClassName = $method->invoke($database, 'col2');
         
         $this->assertEquals('\Collection8', $collectionClassName);
     }
@@ -165,10 +169,14 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
             'db2'
         );
 
-        $collectionClassName = $pool
+        $database = $pool
             ->get('connect2')
-            ->getDatabase('db2')
-            ->getCollectionClassName('col2');
+            ->getDatabase('db2');
+        
+        $reflectionClass = new \ReflectionClass($database);
+        $method = $reflectionClass->getMethod('getCollectionClassName');
+        $method->setAccessible(true);
+        $collectionClassName = $method->invoke($database, 'col2');
 
         $this->assertEquals('\Collection8', $collectionClassName);
     }
