@@ -29,7 +29,10 @@ Why to use this library? You can easily work with document data through comforta
 * [Storing document](#storing-document)
 * [Querying documents](#querying-documents)
 * [Pagination](#pagination)
-* [Update few documents](#update-few-documents)
+* [Batch operations](#batch-operations)
+  * [Batch insert](#batch-insert)
+  * [Batch update](#batch-update)
+  * [Moving data between collections](#moving-data-between-collections)
 * [Persistence (Unit of Work)](#persistence-unit-of-work)
 * [Document validation](#document-validation)
 * [Deleting collections and documents](#deleting-collections-and-documents)
@@ -475,18 +478,55 @@ foreach($paginator as $document) {
 ```
 
 
-Update few documents
---------------------
+Batch operations
+----------------
+
+### Batch insert
+
+To insert many documents at onve with validation of inserted document:
+```php
+$collection->insertMultiple(array(
+    array('i' => 1),
+    array('i' => 2),
+));
+
+### Batch update
 
 Making changes in few documents:
+
 ```php
 $expression = $collection
     ->expression()
     ->where('field', 'value');
     
-$collection
-    ->multiUpdate($expression, array('field' => 'new value'));
+$collection->updateMultiple($expression, array('field' => 'new value'));
 ```
+
+To update all documents:
+```php
+$collection->updateAll(array('field' => 'new value'));
+```
+
+### Moving data between collections
+
+To copy documents from one collection to another according to expression:
+
+```php
+// to new collection of same database
+$collection->find()->where('condition', 1)->copyToCollection('newCollection');
+// to new collection in new database
+$collection->find()->where('condition', 1)->copyToCollection('newCollection', 'newDatabase');
+
+To move documents from one collection to another according to expression:
+
+```php
+// to new collection of same database
+$collection->find()->where('condition', 1)->moveToCollection('newCollection');
+// to new collection in new database
+$collection->find()->where('condition', 1)->moveToCollection('newCollection', 'newDatabase');
+
+Important to note that there is no transactions so if error will occur 
+during process, no changes will rollback.
 
 Persistence (Unit of Work)
 --------------------------
