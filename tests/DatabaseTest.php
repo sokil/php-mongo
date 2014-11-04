@@ -2,26 +2,6 @@
 
 namespace Sokil\Mongo;
 
-class CarsCollection extends Collection 
-{
-    public function getDocumentClassName(array $documentData = null)
-    {
-        return '\Sokil\Mongo\CarDocument';
-    }
-}
-
-class CarDocument extends Document {}
-
-class CarPhotosGridFS extends GridFS 
-{    
-    public function getFileClassName(\MongoGridFSFile $fileData = null)
-    {
-        return '\Sokil\Mongo\CarPhotoGridFSFile';
-    }
-}
-
-class CarPhotoGridFSFile extends GridFSFile {}
-
 class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -405,3 +385,23 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         ), $this->database->getWriteConcern());
     }
 }
+
+class CarsCollection extends Collection 
+{
+    public function getDocumentClassName(array $documentData = null)
+    {
+        return '\Sokil\Mongo\CarDocument';
+    }
+}
+
+class CarDocument extends Document {}
+
+class CarPhotosGridFS extends GridFS 
+{    
+    public function getFileClassName(\MongoGridFSFile $fileData = null)
+    {
+        return '\Sokil\Mongo\CarPhotoGridFSFile';
+    }
+}
+
+class CarPhotoGridFSFile extends GridFSFile {}
