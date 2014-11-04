@@ -514,9 +514,16 @@ To copy documents from one collection to another according to expression:
 
 ```php
 // to new collection of same database
-$collection->find()->where('condition', 1)->copyToCollection('newCollection');
+$collection
+    ->find()
+    ->where('condition', 1)
+    ->copyToCollection('newCollection');
+
 // to new collection in new database
-$collection->find()->where('condition', 1)->copyToCollection('newCollection', 'newDatabase');
+$collection
+    ->find()
+    ->where('condition', 1)
+    ->copyToCollection('newCollection', 'newDatabase');
 ```
 
 To move documents from one collection to another according to expression:
