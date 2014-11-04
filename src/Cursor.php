@@ -763,4 +763,84 @@ abstract class Cursor implements \Iterator, \Countable
         $this->hint = $specification;
         return $this;
     }
+    
+    /**
+     * Copy selected documents to another collection
+     * 
+     * @param type $targetCollectionName
+     * @param type $targetDatabaseName Target database name. If not specified - use current
+     */
+    public function copyToCollection($targetCollectionName, $targetDatabaseName = null)
+    {
+        // target database
+        if(!$targetDatabaseName) {
+            $database = $this->_collection->getDatabase();
+        } else {
+            $database = $this->_client->getDatabase($targetDatabaseName);
+        }
+        
+        // target collection
+        $targetMongoCollection = $database
+            ->getCollection($targetCollectionName)
+            ->getMongoCollection();
+        
+        // cursor 
+        $cursor = $this->getCursor();
+        
+        $batchLimit = 100;
+        $inProgress = true;
+        
+        // copy data
+        while($inProgress) {
+            // get next pack of documents
+            $documentList = array();
+            for($i = 0; $i < $batchLimit; $i++) {
+                if(!$cursor->valid()) {
+                    $inProgress = false;
+                    
+                    if($documentList) {
+                        // still need batch insert
+                        break;
+                    } else {
+                        // no documents to insert - just exit
+                        break(2);
+                    }
+                }
+                
+                $documentList[] = $cursor->current();
+                $cursor->next();
+            }
+            
+            // insert
+            $result = $targetMongoCollection->batchInsert($documentList);
+            
+            // check result
+            if(is_array($result)) {
+                if($result['ok'] != 1) {
+                    throw new Exception('Batch insert error: ' . $result['err']);
+                }
+            } elseif(!$result) {
+                throw new Exception('Batch insert error');
+            }
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Move selected documents to another collection.
+     * Dociuments will be removed from source collection only after 
+     * copying them to target collection.
+     * 
+     * @param type $targetCollectionName
+     * @param type $targetDatabaseName Target database name. If not specified - use current
+     */
+    public function moveToCollection($targetCollectionName, $targetDatabaseName = null)
+    {
+        // copy to target
+        $this->copyToCollection($targetCollectionName, $targetDatabaseName);
+        
+        // remove from source
+        $this->_collection->deleteDocuments($this->_expression);
+    }
 }

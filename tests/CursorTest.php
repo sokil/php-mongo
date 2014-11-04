@@ -762,4 +762,43 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals('BtreeCursor a_1_b_1', $explain['cursor']);
     }
+    
+    public function testMoveToCollection()
+    {
+        $targetCollectionName = 'targetMoveCollection';
+        
+        $targetCollection = $this
+            ->collection
+            ->getDatabase()
+            ->getCollection($targetCollectionName)
+            ->delete();
+        
+        // fill collection with documents
+        for($i = 0; $i < 200; $i++) {
+            $this->collection->createDocument(array('i' => $i))->save();
+        }
+        
+        $this->collection
+            ->find()
+            ->whereMod('i', 2, 0)
+            ->moveToCollection($targetCollectionName);
+        
+        // check source collection
+        $this->assertEquals(100, $this->collection->count());
+        
+        foreach($this->collection->find() as $document) {
+            $this->assertEquals(1, $document->i % 2);
+        }
+        
+        // check target collection
+        
+        $this->assertEquals(100, $targetCollection->count());
+        
+        foreach($targetCollection->find() as $document) {
+            $this->assertEquals(0, $document->i % 2);
+        }
+        
+        // clear
+        $targetCollection->delete();
+    }
 }
