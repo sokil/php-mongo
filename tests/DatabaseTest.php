@@ -185,12 +185,16 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             'collection'    => '\Sokil\Mongo\CarsCollection',
             'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
         ));
+        
+        $reflectionClass = new \ReflectionClass($this->database);
+        $property = $reflectionClass->getProperty('mapping');
+        $property->setAccessible(true);
 
         // test if mapping exists
         $this->assertEquals(array(
             'collection'    => '\Sokil\Mongo\CarsCollection',
             'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
-        ), $this->database->getMapping());
+        ), $property->getValue($this->database));
     }
 
     /**

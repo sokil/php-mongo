@@ -11,22 +11,43 @@ class Database
     private $_client;
     
     /**
-     *
      * @var \MongoDB
      */
     private $_mongoDB;
     
-    private $_mapping = array();
+    /**
+     *
+     * @var array map collection name to class
+     */
+    private $mapping = array();
     
-    private $_classPrefix;
+    /**
+     * @var string if mapping not specified, use class prefix to create class path from collection name
+     */
+    private $classPrefix;
     
-    private $_collectionPool = array();
+    /**
+     * @var array pool of initialised collections
+     */
+    private $collectionPool = array();
 
-    private $_collectionPoolEnabled = true;
+    /**
+     *
+     * @var bool is collection pool enabled
+     */
+    private $collectionPoolEnabled = true;
     
-    private $_defultCollectionClass = '\Sokil\Mongo\Collection';
+    /**
+     *
+     * @var string default collection class
+     */
+    private $defultCollectionClass = '\Sokil\Mongo\Collection';
     
-    private $_defultGridFsClass = '\Sokil\Mongo\GridFS';
+    /**
+     *
+     * @var string default gridFs class
+     */
+    private $defultGridFsClass = '\Sokil\Mongo\GridFS';
     
     public function __construct(Client $client, $database) {
         $this->_client = $client;
@@ -89,30 +110,30 @@ class Database
 
     public function disableCollectionPool()
     {
-        $this->_collectionPoolEnabled = false;
+        $this->collectionPoolEnabled = false;
         return $this;
     }
 
     public function enableCollectionPool()
     {
-        $this->_collectionPoolEnabled = true;
+        $this->collectionPoolEnabled = true;
         return $this;
     }
 
     public function isCollectionPoolEnabled()
     {
-        return $this->_collectionPoolEnabled;
+        return $this->collectionPoolEnabled;
     }
 
     public function clearCollectionPool()
     {
-        $this->_collectionPool = array();
+        $this->collectionPool = array();
         return $this;
     }
 
     public function isCollectionPoolEmpty()
     {
-        return !$this->_collectionPool;
+        return !$this->collectionPool;
     }
 
     /**
@@ -122,20 +143,10 @@ class Database
      */
     public function resetMapping()
     {
-        $this->_mapping = array();
-        $this->_classPrefix = null;
+        $this->mapping = array();
+        $this->classPrefix = null;
 
         return $this;
-    }
-
-    /**
-     * Get currently configured mapping
-     *
-     * @return array mapping config
-     */
-    public function getMapping()
-    {
-        return $this->_mapping;
     }
 
     /**
@@ -149,18 +160,18 @@ class Database
     {
         // map collection to class
         if($class) {
-            $this->_mapping[$name] = $class;
+            $this->mapping[$name] = $class;
             return $this;
         }
         
         // map collections to classes
         if(is_array($name)) {
-            $this->_mapping = array_merge($this->_mapping, $name);
+            $this->mapping = array_merge($this->mapping, $name);
             return $this;
         }
         
         // define class prefix
-        $this->_classPrefix = rtrim($name, '\\');
+        $this->classPrefix = rtrim($name, '\\');
         
         return $this;
     }
@@ -173,24 +184,24 @@ class Database
     protected function getCollectionClassDefinition($name, $defaultClass = null)
     {
         if(!$defaultClass) {
-            $defaultClass = $this->_defultCollectionClass;
+            $defaultClass = $this->defultCollectionClass;
         }
         
-        if(isset($this->_mapping[$name])) {
-            if(is_array($this->_mapping[$name])) {
-                $classDefinition = $this->_mapping[$name];
+        if(isset($this->mapping[$name])) {
+            if(is_array($this->mapping[$name])) {
+                $classDefinition = $this->mapping[$name];
                 if(empty($classDefinition['class'])) {
                     $classDefinition['class'] = $defaultClass;
                 }
         
             } else {
                 $classDefinition = array(
-                    'class' => $this->_mapping[$name],
+                    'class' => $this->mapping[$name],
                 );
             }
-        } elseif($this->_classPrefix) {
+        } elseif($this->classPrefix) {
             $classDefinition = array(
-                'class' => $this->_classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)))
+                'class' => $this->classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)))
             );
         } else {
             $classDefinition = array(
@@ -212,7 +223,7 @@ class Database
      */
     protected function getGridFSClassDefinition($name)
     {        
-        return $this->getCollectionClassDefinition($name, $this->_defultGridFsClass);
+        return $this->getCollectionClassDefinition($name, $this->defultGridFsClass);
     }
     
     /**
@@ -271,8 +282,8 @@ class Database
     public function getCollection($name) {
 
         // return from pool
-        if($this->_collectionPoolEnabled && isset($this->_collectionPool[$name])) {
-            return $this->_collectionPool[$name];
+        if($this->collectionPoolEnabled && isset($this->collectionPool[$name])) {
+            return $this->collectionPool[$name];
         }
 
         // no object in pool - init new
@@ -286,8 +297,8 @@ class Database
         }
 
         // store to pool
-        if($this->_collectionPoolEnabled) {
-            $this->_collectionPool[$name] = $collection;
+        if($this->collectionPoolEnabled) {
+            $this->collectionPool[$name] = $collection;
         }
 
         // return
@@ -304,8 +315,8 @@ class Database
     public function getGridFS($prefix = 'fs')
     {
         // get from cache if enabled
-        if($this->_collectionPoolEnabled && isset($this->_collectionPool[$prefix])) {
-            return $this->_collectionPool[$prefix];
+        if($this->collectionPoolEnabled && isset($this->collectionPool[$prefix])) {
+            return $this->collectionPool[$prefix];
         }
 
         // no object in cache - init new
@@ -318,8 +329,8 @@ class Database
         }
 
         // store to cache
-        if($this->_collectionPoolEnabled) {
-            $this->_collectionPool[$prefix] = $gridFS;
+        if($this->collectionPoolEnabled) {
+            $this->collectionPool[$prefix] = $gridFS;
         }
 
         // return
