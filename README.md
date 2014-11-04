@@ -286,6 +286,14 @@ $database->map(array(
 ));
 ```
 
+Any collection with name matched to pattern will be instance of \Some\Collection\Class:
+```php
+<?php
+$col1 = $database->getCollection('someCollection1');
+$col2 = $database->getCollection('someCollection2');
+$col4 = $database->getCollection('someCollection4');
+```
+
 Document schema
 ------------------------
 
