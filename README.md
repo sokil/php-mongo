@@ -525,12 +525,11 @@ $collection->insertMultiple(array(
 Making changes in few documents:
 
 ```php
-<?php
-$expression = $collection
-    ->expression()
-    ->where('field', 'value');
+<?php  
     
-$collection->updateMultiple($expression, array('field' => 'new value'));
+$collection->updateMultiple(function(\Sokil\Mongo\Expression $expression) {
+    return $expression->where('field', 'value');
+}, array('field' => 'new value'));
 ```
 
 To update all documents:
