@@ -16,10 +16,14 @@ class Database
     private $_mongoDB;
     
     /**
-     *
      * @var array map collection name to class
      */
     private $mapping = array();
+    
+    /**
+     * @var array map regexp pattern of collection name to class
+     */
+    private $regexpMapping = array();
     
     /**
      * @var string if mapping not specified, use class prefix to create class path from collection name
@@ -153,14 +157,24 @@ class Database
      * Map collection name to class
      * 
      * @param string|array $name collection name or array like [collectionName => collectionClass, ...]
-     * @param string|null $class if $name is string, then full class name, else omitted
+     * @param string|null $classDefinition if $name is string, then full class name, else omitted
      * @return \Sokil\Mongo\Client
      */
-    public function map($name, $class = null)
+    public function map($name, $classDefinition = null)
     {
         // map collection to class
-        if($class) {
-            $this->mapping[$name] = $class;
+        if($classDefinition) {
+            
+            if(!is_array($classDefinition)) {
+                $classDefinition = array('class' => $classDefinition);
+            }
+            
+            if('/' !== substr($name, 0, 1)) {
+                $this->mapping[$name] = $classDefinition;
+            } else {
+                $this->regexpMapping[$name] = $classDefinition;
+            }
+            
             return $this;
         }
         
@@ -190,16 +204,9 @@ class Database
         }
         
         if(isset($this->mapping[$name])) {
-            if(is_array($this->mapping[$name])) {
-                $classDefinition = $this->mapping[$name];
-                if(empty($classDefinition['class'])) {
-                    $classDefinition['class'] = $defaultClass;
-                }
-        
-            } else {
-                $classDefinition = array(
-                    'class' => $this->mapping[$name],
-                );
+            $classDefinition = $this->mapping[$name];
+            if(empty($classDefinition['class'])) {
+                $classDefinition['class'] = $defaultClass;
             }
         } elseif($this->classPrefix) {
             $classDefinition = array(
