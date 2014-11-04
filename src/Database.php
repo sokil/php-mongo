@@ -166,7 +166,9 @@ class Database
         
         // map collections to classes
         if(is_array($name)) {
-            $this->mapping = array_merge($this->mapping, $name);
+            foreach($name as $collectionName => $classDefinition) {
+                $this->map($collectionName, $classDefinition);
+            }
             return $this;
         }
         
