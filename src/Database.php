@@ -145,20 +145,22 @@ class Database
      * @param string|null $class if $name is string, then full class name, else omitted
      * @return \Sokil\Mongo\Client
      */
-    public function map($name, $class = null) {
+    public function map($name, $class = null)
+    {
+        // map collection to class
+        if($class) {
+            $this->_mapping[$name] = $class;
+            return $this;
+        }
         
         // map collections to classes
         if(is_array($name)) {
             $this->_mapping = array_merge($this->_mapping, $name);
+            return $this;
         }
-        // map collection to class
-        elseif($class) {
-            $this->_mapping[$name] = $class;
-        }
+        
         // define class prefix
-        else {
-            $this->_classPrefix = rtrim($name, '\\');
-        }
+        $this->_classPrefix = rtrim($name, '\\');
         
         return $this;
     }
