@@ -489,6 +489,7 @@ $collection->insertMultiple(array(
     array('i' => 1),
     array('i' => 2),
 ));
+```
 
 ### Batch update
 
