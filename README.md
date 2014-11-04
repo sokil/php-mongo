@@ -1342,10 +1342,6 @@ class GridFSFileClass extends \Sokil\Mongo\GridFSFile
 $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 ```
 
-<hr/>
-<br/>
-Pull requests, bug reports and feature requests is welcome.
-
 Versioning
 ----------
 
@@ -1591,8 +1587,6 @@ $cache->deleteMatchingAnyTag(['php', 'elephant']);
 $cache->deleteNotMatchingAnyTag(['php', 'elephant']);
 ```
 
-
-
-
-
-
+<hr/>
+<br/>
+Pull requests, bug reports and feature requests is welcome.
