@@ -511,7 +511,7 @@ Batch operations
 
 ### Batch insert
 
-To insert many documents at onve with validation of inserted document:
+To insert many documents at once with validation of inserted document:
 ```php
 <?php
 $collection->insertMultiple(array(
