@@ -208,14 +208,29 @@ class Database
             if(empty($classDefinition['class'])) {
                 $classDefinition['class'] = $defaultClass;
             }
-        } elseif($this->classPrefix) {
-            $classDefinition = array(
-                'class' => $this->classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)))
-            );
-        } else {
-            $classDefinition = array(
-                'class' => $defaultClass,
-            );
+        } elseif($this->regexpMapping) {
+            foreach($this->regexpMapping as $collectionNamePattern => $regexpMappingClassDefinition) {
+                if(empty($regexpMappingClassDefinition['class'])) {
+                    $regexpMappingClassDefinition['class'] = $defaultClass;
+                }
+                
+                if(preg_match($collectionNamePattern, $name)) {
+                    $classDefinition = $regexpMappingClassDefinition;
+                    break;
+                }
+            }
+        }
+        
+        if(!isset($classDefinition)) {
+            if($this->classPrefix) {
+                $classDefinition = array(
+                    'class' => $this->classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)))
+                );
+            } else {
+                $classDefinition = array(
+                    'class' => $defaultClass,
+                );
+            }
         }
         
         if(!class_exists($classDefinition['class'])) {

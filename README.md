@@ -276,6 +276,16 @@ $document = $client
     ->createDocument();
 ```
 
+Collection name in mapping may be defined as RegExp pattern.Pattern musr start 
+from symbol '/':
+
+```php
+<?php
+$database->map(array(
+    '/someCollection\d/' => '\Some\Collection\Class',
+));
+```
+
 Document schema
 ------------------------
 
