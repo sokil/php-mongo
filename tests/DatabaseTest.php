@@ -178,23 +178,22 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $fs->delete();
     }
 
-    public function testGetMapping()
+    public function testMapRegexpCollectionNameToClass()
     {
-        $this->database->resetMapping();
+        $this->database->map('/littleCar\d/', '\Sokil\Mongo\CarsCollection');
         $this->database->map(array(
-            'collection'    => '\Sokil\Mongo\CarsCollection',
-            'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
+            '/bigCar\d/' => '\Sokil\Mongo\CarsCollection',
         ));
         
-        $reflectionClass = new \ReflectionClass($this->database);
-        $property = $reflectionClass->getProperty('mapping');
-        $property->setAccessible(true);
-
-        // test if mapping exists
-        $this->assertEquals(array(
-            'collection'    => '\Sokil\Mongo\CarsCollection',
-            'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
-        ), $property->getValue($this->database));
+        $this->assertInstanceOf(
+            '\Sokil\Mongo\CarsCollection',
+            $this->database->getCollection('littleCar5')
+        );
+        
+        $this->assertInstanceOf(
+            '\Sokil\Mongo\CarsCollection',
+            $this->database->getCollection('bigCar5')
+        );
     }
 
     /**
