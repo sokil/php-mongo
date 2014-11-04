@@ -523,9 +523,16 @@ To move documents from one collection to another according to expression:
 
 ```php
 // to new collection of same database
-$collection->find()->where('condition', 1)->moveToCollection('newCollection');
+$collection
+    ->find()
+    ->where('condition', 1)
+    ->moveToCollection('newCollection');
+
 // to new collection in new database
-$collection->find()->where('condition', 1)->moveToCollection('newCollection', 'newDatabase');
+$collection
+    ->find()
+    ->where('condition', 1)
+    ->moveToCollection('newCollection', 'newDatabase');
 ```
 
 Important to note that there is no transactions so if error will occur 
