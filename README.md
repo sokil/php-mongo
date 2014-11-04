@@ -107,6 +107,7 @@ Connecting
 Connecting to MongoDB server made through \Sokil\Mongo\Client class:
 
 ```php
+<?php
 $client = new Client($dsn);
 ```
 
@@ -170,6 +171,7 @@ Selecting database and collection
 -----------------------
 To get instance of database class \Sokil\Mongo\Database:
 ```php
+<?php
 $database = $client->getDatabase('databaseName');
 // or simply
 $database = $client->databaseName;
@@ -177,6 +179,7 @@ $database = $client->databaseName;
 
 To get instance of collection class \Sokil\Mongo\Collection:
 ```php
+<?php
 $collection = $database->getCollection('collectionName');
 // or simply
 $collection = $database->collectionName;
@@ -184,12 +187,14 @@ $collection = $database->collectionName;
 
 Default database may be specified to get collection directly from $client object:
 ```php
+<?php
 $client->useDatabase('databaseName');
 $collection = $client->getCollection('collectionName');
 ```
 
 If you need to use your own collection classes, you must create class extended from \Sokil\Mongo\Collection and map it to collection class:
 ```php
+<?php
 class CustomCollection extends \Sokil\Mongo\Collection
 {
 
@@ -209,6 +214,7 @@ $collection = $client->getDatabase('databaseName')->getCollection('collectionNam
 
 Mapping may be specified through class prefix. 
 ```php
+<?php
 $client->map([
     'databaseName'  => '\Class\Prefix',
 ]);
@@ -228,6 +234,7 @@ If you want to pass some options to collection's constructor, you also can
 configure them in mapping definition:
 
 ```php
+<?php
 $client->map([
     'databaseName'  => [
         'collectionName' => [
@@ -243,6 +250,7 @@ If 'class' omitted, then used standart \Sokil\Mongo\Collection class.
 All options lated may be accessed:
 
 ```php
+<?php
 // will return 'value1'
 $client
     ->getDatabase('databaseName')
@@ -252,6 +260,7 @@ $client
 
 To override default document class use 'documentClass' option of collection:
 ```php
+<?php
 $client->map([
     'databaseName'  => [
         'collectionName' => [
@@ -273,6 +282,7 @@ Document schema
 Document object is instance of class \Sokil\Mongo\Document. If you want to use your own class, you must configure its name in collection's class:
 
 ```php
+<?php
 class CustomCollection extends \Sokil\Mongo\Collection
 {
     public function getDocumentClassName(array $documentData = null) {
@@ -288,6 +298,7 @@ class CustomDocument extends \Sokil\Mongo\Document
 
 You may flexibly configure document's class in \Sokil\Mongo\Collection::getDocumentClassName() relatively to concrete document's data:
 ```php
+<?php
 class CustomCollection extends \Sokil\Mongo\Collection
 {
     public function getDocumentClassName(array $documentData = null) {
@@ -300,6 +311,7 @@ In example above class \CustomVideoDocument related to {"_id": "45..", "type": "
 
 Document's scheme is completely not required. If field is required and has default value, it can be defined in special property of document class:
 ```php
+<?php
 class CustomDocument extends \Sokil\Mongo\Document
 {
     protected $_data = [
@@ -316,6 +328,7 @@ Getting documents by id
 
 To get document from collection by its id:
 ```php
+<?php
 $document = $collection->getDocument('5332d21b253fe54adf8a9327');
 ```
 
@@ -325,12 +338,14 @@ Create new document
 Create new empty document object:
 
 ```php
+<?php
 $document = $collection->createDocument();
 ```
 
 Or with pre-defined values:
 
 ```php
+<?php
 $document = $collection->createDocument([
     'param1' => 'value1',
     'param2' => 'value2'
@@ -342,6 +357,7 @@ Get and set data in document
 
 To get value of document's field you may use one of following ways:
 ```php
+<?php
 $document->requiredField; // defaultValue
 $document->get('requiredField'); // defaultValue
 $document->getRequiredField(); // defaultValue
@@ -357,6 +373,7 @@ If field not exists, null value returned.
 
 To set value you may use following ways:
 ```php
+<?php
 $document->someField = 'someValue'; // {someField: 'someValue'}
 $document->set('someField', 'someValue'); // {someField: 'someValue'}
 $document->set('someField.sub.document.field', 'someValue'); // {someField: {sub: {document: {field: {'someValue'}}}}}
@@ -368,6 +385,7 @@ Storing document
 
 To store document in database just save it.
 ```php
+<?php
 $document = $collection->createDocument(['param' => 'value'])->save();
 
 $document = $collection->getDocument('23a4...')->set('param', 'value')->save();
@@ -378,6 +396,7 @@ Querying documents
 
 To query documents, which satisfy some conditions you need to use query builder:
 ```php
+<?php
 $cursor = $collection
     ->find()
     ->fields(['name', 'age'])
@@ -404,6 +423,7 @@ $cursor = $collection
 
 Result of the query is iterator \Sokil\Mongo\QueryBuilder, which you can then iterate:
 ```php
+<?php
 foreach($cursor as $documentId => $document) {
     echo $document->get('name');
 }
@@ -411,27 +431,32 @@ foreach($cursor as $documentId => $document) {
 
 Or you can get result array:
 ```php
+<?php
 $result = $cursor->findAll();
 ```
 
 To get only one result:
 ```php
+<?php
 $document = $cursor->findOne();
 ```
 
 To get only one random result:
 ```php
+<?php
 $document = $cursor->findRandom();
 ```
 
 To get values from a single field in the result set of documents:
 ```php
+<?php
 $columnValues = $cursor->pluck('some.field.name');
 ```
 
 For extending standart query builder class with custom condition methods you need to override property Collection::$_queryExpressionClass with class, which extends \Sokil\Mongo\Expression:
 
 ```php
+<?php
 
 // define expression in collection
 class UserCollection extends \Sokil\Mongo\Collection
@@ -469,6 +494,7 @@ Pagination
 
 Query builder allows you to create pagination.
 ```php
+<?php
 $paginator = $collection->find()->where('field', 'value')->paginate(3, 20);
 $totalDocumentNumber = $paginator->getTotalRowsCount();
 $totalPageNumber = $paginator->getTotalPagesCount();
@@ -487,6 +513,7 @@ Batch operations
 
 To insert many documents at onve with validation of inserted document:
 ```php
+<?php
 $collection->insertMultiple(array(
     array('i' => 1),
     array('i' => 2),
@@ -498,6 +525,7 @@ $collection->insertMultiple(array(
 Making changes in few documents:
 
 ```php
+<?php
 $expression = $collection
     ->expression()
     ->where('field', 'value');
@@ -507,6 +535,7 @@ $collection->updateMultiple($expression, array('field' => 'new value'));
 
 To update all documents:
 ```php
+<?php
 $collection->updateAll(array('field' => 'new value'));
 ```
 
@@ -515,6 +544,7 @@ $collection->updateAll(array('field' => 'new value'));
 To copy documents from one collection to another according to expression:
 
 ```php
+<?php
 // to new collection of same database
 $collection
     ->find()
@@ -531,6 +561,7 @@ $collection
 To move documents from one collection to another according to expression:
 
 ```php
+<?php
 // to new collection of same database
 $collection
     ->find()
@@ -554,11 +585,13 @@ Instead of saving and removing objects right now, we can queue this job and exec
 
 Lets create persistance manager
 ```php
+<?php
 $persistence = $client->createPersistence();
 ```
 
 Now we can add some documents to be saved or removed later
 ```php
+<?php
 $persistence->persist($document1);
 $persistence->persist($document2);
 
@@ -568,12 +601,14 @@ $persistence->remove($document4);
 
 If later we decice do not save or remove document, we may detach it from persistence manager
 ```php
+<?php
 $persistence->detach($document1);
 $persistence->detach($document3);
 ```
 
 Or we even may remove them all:
 ```php
+<?php
 $persistence->clear();
 ```
 
@@ -581,6 +616,7 @@ Note that after detaching document from persistence manager, it's changes do not
 
 If we decide to store changes to databasae we may flush this changes:
 ```php
+<?php
 $persistence->flush();
 ```
 
@@ -591,6 +627,7 @@ Document validation
 
 Document can be validated before save. To set validation rules method \Sokil\Mongo\Document::roles() must be override with validation rules. Supported rules are:
 ```php
+<?php
 class CustomDocument except \Sokil\Mongo\Document
 {
     public function rules()
@@ -610,11 +647,13 @@ class CustomDocument except \Sokil\Mongo\Document
 
 Document can have validation state, based on scenario. Scenarion can be specified by method Document::setScenario($scenario).
 ```php
+<?php
 $document->setScenario('register');
 ```
 
 If some validation rule applied only for some scenarios, this scenarios must be passed on 'on' key, separated by comma.
 ```php
+<?php
 public function rules()
     {
         return array(
@@ -626,6 +665,7 @@ public function rules()
 If some validation rule applied to all except some scenarios, this scenarios must be passed on 'except' key, separated by comma.
 
 ```php
+<?php
 public function rules()
     {
         return array(
@@ -636,6 +676,7 @@ public function rules()
 
 If document invalid, \Sokil\Mongo\Document\Exception\Validate will trigger and errors may be accessed through Document::getErrors() method of document object. This document may be get from exception method:
 ```php
+<?php
 try {
 
 } catch(\Sokil\Mongo\Document\Exception\Validate $e) {
@@ -645,11 +686,13 @@ try {
 
 Error may be triggered manually by calling method triggerError($fieldName, $rule, $message)
 ```php
+<?php
 $document->triggerError('someField', 'email', 'E-mail must be at domain example.com');
 ```
 
 You may add you custom validation rule just adding method to document class and defining method name as rule:
 ```php
+<?php
 class CustomDocument extends \Sokil\Mongo\Document
 {
     punlic function rules() 
@@ -683,6 +726,7 @@ You may create your own validator class, if you want to use validator in few cla
 Just extend your class from abstract validator class \Sokil\Mongo\Validator and register your own validator namespace:
 
 ```php
+<?php
 namespace Vendor\Mongo\Validator;
 
 /**
@@ -733,11 +777,13 @@ Deleting collections and documents
 
 Deleting of collection:
 ```php
+<?php
 $collection->delete();
 ```
 
 Deleting of document:
 ```php
+<?php
 $document = $collection->getDocument($documentId);
 $collection->deleteDocument($document);
 // or simply
@@ -746,6 +792,7 @@ $document->delete();
 
 Deleting of few documents:
 ```php
+<?php
 $collection->deleteDocuments($collection->expression()->where('param', 'value'));
 ```
 
@@ -754,11 +801,13 @@ Aggregation framework
 
 To do aggregation you need first to create pipelines object:
 ```php
+<?php
 $pipeline = $collection->createPipeline();
 ````
 
 To get results of aggregation after configuring pipelines:
 ```php
+<?php
 /**
  * @var array list of aggregation results
  */
@@ -767,6 +816,7 @@ $result = $pipeline->aggregate();
 
 Match pipeline:
 ```php
+<?php
 $pipeline-> match([
     'date' => [
         '$lt' => new \MongoDate,
@@ -779,6 +829,7 @@ Events
 -------
 Event support based on Symfony's Event Dispatcher component. Events can be attached in class while initialusing object or any time to the object. To attach events in Document class you need to override Document::beforeConstruct() method:
 ```php
+<?php
 class CustomDocument extends \Sokil\Mongo\Document
 {
     public function beforeConstruct()
@@ -792,12 +843,14 @@ class CustomDocument extends \Sokil\Mongo\Document
 
 Or you can attach event handler to document object:
 ```php
+<?php
 $document->onBeforeSave(function() {
     $this->set('date' => new \MongoDate);
 });
 ```
 To cancel operation execution on some condition use event handling cancel:
 ```php
+<?php
 $document
     ->onBeforeSave(function(\Sokil\Mongo\Event $event) {
         if($this->get('field') === 42) {
@@ -814,6 +867,7 @@ Behaviors
 Behavior is a posibility to extend functionality of document object and reuse code among documents of different class. 
 Behavior is a class extended from \Sokil\Mongo\Behavior:
 ```php
+<?php
 class SomeBehavior extends \Sokil\Mongo\Behavior
 {
     public function return42()
@@ -825,6 +879,7 @@ class SomeBehavior extends \Sokil\Mongo\Behavior
 
 To get instance of object, to which behavior is attached, call Behavior::getOwner() method:
 ```php
+<?php
 class SomeBehavior extends \Sokil\Mongo\Behavior
 {
     public function getOwnerParam($selector)
@@ -836,6 +891,7 @@ class SomeBehavior extends \Sokil\Mongo\Behavior
 
 You can add behavior in document class:
 ```php
+<?php
 class CustomDocument extends \Sokil\Mongo\Document
 {
     public function behaviors()
@@ -849,11 +905,13 @@ class CustomDocument extends \Sokil\Mongo\Document
 
 You can attach behavior in runtime too:
 ```php
+<?php
 $document->attachBehavior(new \SomeBehavior);
 ```
 
 Then you can call any methods of behaviors. This methods searches in order of atraching behaviors:
 ```php
+<?php
 echo $document->return42();
 ```
 
@@ -869,6 +927,7 @@ To define relation to other document you need to override Document::relations() 
 We have to classes User and Profile. User has one profile, and profile belongs to User.
 
 ```php
+<?php
 class User extends \Sokil\Mongo\Document
 {
     protected $_data = [
@@ -905,6 +964,7 @@ class Profile extends \Sokil\Mongo\Document
 
 Now we can lazy load related documnts just calling relation name:
 ```php
+<?php
 $user = $userColletion->getDocument('234...');
 echo $user->profileRelation->get('age');
 
@@ -917,6 +977,7 @@ echo $pfofile->userRelation->get('email');
 One-to-many relation helps you to load all related documents. Class User has few posts of class Post:
 
 ```php
+<?php
 class User extends \Sokil\Mongo\Document
 {
     protected $_data = [
@@ -955,6 +1016,7 @@ class Posts extends \Sokil\Mongo\Document
 
 Now you can load related posts of document:
 ```php
+<?php
 foreach($user->postsRelation as $post) {
     echo $post->getMessage();
 }
@@ -966,6 +1028,7 @@ Many-to-many relation in relational databases uses intermediate table with store
 
 
 ```php
+<?php
 
 // this document contains field 'driver_id' where array of ids stored
 class CarDocument extends \Sokil\Mongo\Document
@@ -999,6 +1062,7 @@ class DriverDocument extends \Sokil\Mongo\Document
 
 Now you can load related documents:
 ```php
+<?php
 foreach($car->drivers as $driver) {
     echo $driver->name;
 }
@@ -1010,6 +1074,7 @@ There is helper to add related document, if you don't
 want modify relation field directly:
 
 ```php
+<?php
 $car->addRelation('drivers', $driver);
 ```
 
@@ -1022,6 +1087,7 @@ There is helper to remove related document, if you don't
 want modify relation field directly:
 
 ```php
+<?php
 $car->removeRelation('drivers', $driver);
 ```
 
@@ -1035,6 +1101,7 @@ Read preferences
 [Read preference](http://docs.mongodb.org/manual/core/read-preference/) describes how MongoDB clients route read operations to members of a replica set. You can configure read preferences at any level:
 
 ```php
+<?php
 // in constructor
 $client = new Client($dsn, array(
     'readPreference' => 'nearest',
@@ -1055,6 +1122,7 @@ Write concern
 [Write concern](http://docs.mongodb.org/manual/core/write-concern/) describes the guarantee that MongoDB provides when reporting on the success of a write operation. You can configure write concern at any level:
 
 ```php
+<?php
 
 // by passing to \Sokil\Mongo\Client instance
 $client->setMajorityWriteConcern(10000);
@@ -1072,6 +1140,7 @@ Debugging
 Library suports logging of queries. To configure logging, you need to pass logger object to instance of \Sokil\Mongo\Client. Logger must implement \Psr\Log\LoggerInterface due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
 
 ```php
+<?php
 $client = new Client($dsn);
 $client->setLogger($logger);
 ```
@@ -1081,6 +1150,7 @@ Capped collections
 
 To use capped collection you need previously to create it:
 ```php
+<?php
 $numOfElements = 10;
 $sizeOfCollection = 10*1024;
 $collection = $database->createCappedCollection('capped_col_name', $numOfElements, $sizeOfCollection);
@@ -1093,6 +1163,7 @@ Executing commands
 
 Command is universal way to do anything with mongo. Let's get stats of collection:
 ```php
+<?php
 $collection = $database->createCappedCollection('capped_col_name', $numOfElements, $sizeOfCollection);
 $stats = $database->executeCommand(['collstat' => 'capped_col_name']);
 ```
@@ -1125,6 +1196,7 @@ Queue gives functionality to send messages from one process and get them in anot
 
 Sending message to queue with default priority:
 ```php
+<?php
 $queue = $database->getQueue('channel_name');
 $queue->enqueue('world');
 $queue->enqueue(['param' => 'value']);
@@ -1132,11 +1204,13 @@ $queue->enqueue(['param' => 'value']);
 
 Send message with priority
 ```php
+<?php
 $queue->enqueue('hello', 10);
 ```
 
 Reading messages from channel:
 ```php
+<?php
 $queue = $database->getQueue('channel_name');
 echo $queue->dequeue(); // hello
 echo $queue->dequeue(); // world
@@ -1145,6 +1219,7 @@ echo $queue->dequeue()->get('param'); // value
 
 Number of messages in queue
 ```php
+<?php
 $queue = $database->getQueue('channel_name');
 echo count($queue);
 ```
@@ -1169,23 +1244,27 @@ GridFS allows you to store binary data in mongo database. Details at http://docs
 First get instance of GridFS. You can specify prefix for partitioning filesystem:
 
 ```php
+<?php
 $imagesFS = $database->getGridFS('image');
 $cssFS = $database->getGridFS('css');
 ```
 
 Now you can store file, located on disk:
 ```php
+<?php
 $id = $imagesFS->storeFile('/home/sokil/images/flower.jpg');
 ```
 
 You can store file from binary data:
 ```php
+<?php
 $id1 = $imagesFS->storeBytes('some text content');
 $id2 = $imagesFS->storeBytes(file_get_contents('/home/sokil/images/flower.jpg'));
 ```
 
 You are able to store some metadata with every file:
 ```php
+<?php
 $id1 = $imagesFS->storeFile('/home/sokil/images/flower.jpg', [
     'category'  => 'flower',
     'tags'      => ['flower', 'static', 'page'],
@@ -1198,11 +1277,13 @@ $id2 = $imagesFS->storeBytes('some text content', [
 
 Get file by id:
 ```php
+<?php
 $imagesFS->getFileById('6b5a4f53...42ha54e');
 ```
 
 Find file by metadata:
 ```php
+<?php
 foreach($imagesFS->find()->where('category', 'books') as $file) {
     echo $file->getFilename();
 }
@@ -1210,11 +1291,13 @@ foreach($imagesFS->find()->where('category', 'books') as $file) {
 
 Deleting files by id:
 ```php
+<?php
 $imagesFS->deleteFileById('6b5a4f53...42ha54e');
 ```
 
 If you want to use your own GridFSFile classes, you need to define mapping, as it does with collections:
 ```php
+<?php
 // define mapping of prefix to GridFS class
 $database->map([
     'GridFSPrefix' => '\GridFSClass',
@@ -1254,6 +1337,7 @@ property Collection::$versioning to true, or call Collection::enableVersioning()
 method.
 
 ```php
+<?php
 // througn protected property
 class MyCollection extends \Sokil\Mongo\Collection
 {
@@ -1268,12 +1352,14 @@ $collection->enableVersioning();
 To check if documents in collections is versioned call:
 
 ```php
+<?php
 if($collection->isVersioningEnabled()) {}
 ```
 
 Revision is an instance of class \Sokil\Mongo\Revision and inherits \Sokil\Mongo\Document,
 so any methods of document may be applied to revision. Revisions may be accessed:
 ```php
+<?php
 // get all revisions
 $document->getRevisions();
 
@@ -1285,16 +1371,19 @@ $document->getRevisions($limit, $offset);
 
 To get one revision by id use:
 ```php
+<?php
 $revision = $document->getRevision($revisionKey);
 ```
 
 To get count of revisions:
 ```php
+<?php
 $count = $document->getRevisionsCount();
 ```
 
 To clear all revisions:
 ```php
+<?php
 $document->clearRevisions();
 ```
 
@@ -1304,6 +1393,7 @@ which is document of collection "{COLLECTION_NAME}.revisions",
 use Revision::getDocument() method:
 
 ```php
+<?php
 $document->getRevision($revisionKey)->getDocument();
 ```
 
@@ -1315,6 +1405,7 @@ echo $document->getRevision($revisionKey)->property;
 
 Also date of creating revison may be obtained from document:
 ```php
+<?php
 // return timestamp
 echo $document->getRevision($revisionKey)->getDate();
 // return formatted date string
@@ -1326,31 +1417,37 @@ Indexes
 
 Create index with custom options (see options in http://php.net/manual/en/mongocollection.ensureindex.php):
 ```php
+<?php
 $collection->ensureIndex('field', [ 'unique' => true ]);
 ```
 
 Create unique index:
 ```php
+<?php
 $collection->ensureUniqueIndex('field');
 ```
 
 Create sparse index (see http://docs.mongodb.org/manual/core/index-sparse/ for details about sparse indexes):
 ```php
+<?php
 $collection->ensureSparseIndex('field');
 ```
 
 Create TTL index (see http://docs.mongodb.org/manual/tutorial/expire-data/ for details about TTL indexes):
 ```php
+<?php
 $collection->ensureTTLIndex('field');
 ```
 
 You may define field as array where key is field name and value is direction:
 ```php
+<?php
 $collection->ensureIndex(['field' => 1]);
 ```
 
 Also you may define compound indexes:
 ```php
+<?php
 $collection->ensureIndex(['field1' => 1, 'field2' => -1]);
 ```
 
@@ -1360,6 +1457,7 @@ Every index definition must contain key 'keys' with list of fields and orders,
 and optional options, as described in http://php.net/manual/en/mongocollection.createindex.php.
 
 ```php
+<?php
 class MyCollection extends \Sokil\Mongo\Collection
 {
     protected $_index = array(
@@ -1374,6 +1472,7 @@ class MyCollection extends \Sokil\Mongo\Collection
 Then you must create this indexes by call of Collection::initIndexes():
 
 ```php
+<?php
 $collection = $database->getCollection('myCollection')->initIndexes();
 ```
 
@@ -1384,6 +1483,7 @@ to ensure indexes in collections from migration scripts.
  automatically choose which index to use, but you can manuallty define it:
 
 ```php
+<?php
 $collection->find()->where('field', 1)->hind(array('field' => 1));
 ```
 
@@ -1393,6 +1493,7 @@ Caching and documents with TTL
 If you want to get collection where documents will expire after some specified time, just add special index to this collection.
 
 ```php
+<?php
 $collection->ensureTTLIndex('createDate', 1000);
 ```
 
@@ -1402,11 +1503,13 @@ For details see readme on than pakage's page.
 Or you can use \Sokil\Mongo\Cache class, which already implement this functionality.
 
 ```php
+<?php
 // Get cache instance
 $cache = $document->getCache('some_namespace');
 ```
 Before using cache must be inititalised by calling method Cache:init():
 ```php
+<?php
 $cahce->init();
 ```
 
@@ -1421,6 +1524,7 @@ db.some_namespace.ensureIndex('e', {expireAfterSeconds: 0});
 
 Now you can store new value with:
 ```php
+<?php
 // this store value for 10 seconds by defininc concrete timestamp when cached value expired
 $cache->setByDate('key', 'value', time() + 10);
 // same but expiration defined relatively to current time
@@ -1429,11 +1533,13 @@ $cache->set('key', 'value', 10);
 
 You can devine value which never expired and must be deleted manually:
 ```php
+<?php
 $cache->setNeverExpired('key', 'value');
 ```
 
 You can define some tags defined with key:
 ```php
+<?php
 $cache->set('key', 'value', 10, ['php', 'c', 'java']);
 $cache->setNeverExpired('key', 'value', ['php', 'c', 'java']);
 $cache->setDueDate('key', 'value', time() + 10, ['php', 'c', 'java']);
@@ -1441,16 +1547,19 @@ $cache->setDueDate('key', 'value', time() + 10, ['php', 'c', 'java']);
 
 To get value
 ```php
+<?php
 $value = $cache->get('key');
 ```
 
 To delete cached value by key:
 ```php
+<?php
 $cache->delete('key');
 ```
 
 Delete few values by tags:
 ```php
+<?php
 // delete all values with tag 'php'
 $cache->deleteMatchingTag('php');
 // delete all values without tag 'php'
