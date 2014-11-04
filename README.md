@@ -125,6 +125,8 @@ mongodb://server1.com,server2.com/?replicaSet=replicaSetName
 If you have few connections you may prefer connection pool instead of managing different connections. Use \Sokil\Mongo\ClientPool instance to initialize pool object:
 
 ```php
+<?php
+
 $pool = new ClientPool(array(
     'connect1' => array(
         'dsn' => 'mongodb://127.0.0.1',
