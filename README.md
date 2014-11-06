@@ -1401,7 +1401,7 @@ To clear all revisions:
 $document->clearRevisions();
 ```
 
-Revisions stored in seoarage collection, named "{COLLECTION_NAME}.revisions"
+Revisions stored in separate collection, named "{COLLECTION_NAME}.revisions"
 To obtain original document of collection "{COLLECTION_NAME}" from revision, 
 which is document of collection "{COLLECTION_NAME}.revisions", 
 use Revision::getDocument() method:
