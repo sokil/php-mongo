@@ -280,16 +280,20 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('rules')
             ->will($this->returnValue(array(
-                array('some-field-name', 'cardNumber')
+                array('some-field-name', 'card_number')
             )));
 
         // required field empty
         $this->assertTrue($document->isValid());
 
-        // required field set to wrong value
+        // required field set to non numeric value
         $document->set('some-field-name', 'wrongValue');
         $this->assertFalse($document->isValid());
 
+        // required field set to numeric value with wring control digit
+        $document->set('some-field-name', '4024007149737767');
+        $this->assertFalse($document->isValid());
+        
         // required field set to valid value
         $document->set('some-field-name', '4024007149737768');
         $this->assertTrue($document->isValid());

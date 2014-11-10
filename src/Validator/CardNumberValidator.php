@@ -5,7 +5,7 @@ namespace Sokil\Mongo\Validator;
 class CardNumberValidator extends \Sokil\Mongo\Validator
 {
     private function getMod($cardNumber)
-    {
+    {        
         $digitList = str_split($cardNumber);
         
         for($i = 0; $i < count($digitList); $i = $i + 2) {
@@ -25,7 +25,9 @@ class CardNumberValidator extends \Sokil\Mongo\Validator
             return;
         }
         
-        if(0 === $this->getMod($document->get($fieldName))) {
+        $carsNumber = $document->get($fieldName);
+        
+        if(is_numeric($carsNumber) && 0 === $this->getMod($carsNumber)) {
             return;
         }
         
