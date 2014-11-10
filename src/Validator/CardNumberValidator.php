@@ -2,6 +2,9 @@
 
 namespace Sokil\Mongo\Validator;
 
+/**
+ * Credit card number validator based on Luhn algorithm
+ */
 class CardNumberValidator extends \Sokil\Mongo\Validator
 {
     private function getMod($cardNumber)
