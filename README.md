@@ -789,6 +789,7 @@ class SomeDocument extends \Sokil\Mongo\Document
         );
     }
 }
+```
 
 Deleting collections and documents
 -----------------------------------
