@@ -267,6 +267,34 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
     }
     
+    public function testIsValid_FieldCardNumber()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document',
+            array('rules'),
+            array($this->collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'cardNumber')
+            )));
+
+        // required field empty
+        $this->assertTrue($document->isValid());
+
+        // required field set to wrong value
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+
+        // required field set to valid value
+        $document->set('some-field-name', '4024007149737768');
+        $this->assertTrue($document->isValid());
+    }
+    
     public function testIsValid_FieldEmail()
     {
         // mock of document
@@ -300,7 +328,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         
     }
     
-    public function testIsValid_FieldU()
+    public function testIsValid_FieldUrl()
     {
         // mock of document
         $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
