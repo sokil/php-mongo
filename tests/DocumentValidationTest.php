@@ -115,6 +115,67 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
     }
     
+    /**
+     * @expectedException \Sokil\Mongo\Validator\Exception
+     * @expectedExceptionMessage Minimum value of range not specified
+     */
+    public function testIsValid_FieldBetween_minNotSpecified()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'between', 'max' => 6)
+            )));
+        
+        // required field empty
+        $document->set('some-field-name', '45');
+        $document->isValid();
+    }
+    
+    /**
+     * @expectedException \Sokil\Mongo\Validator\Exception
+     * @expectedExceptionMessage Maximum value of range not specified
+     */
+    public function testIsValid_FieldBetween_maxNotSpecified()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'between', 'min' => 6)
+            )));
+        
+        // required field empty
+        $document->set('some-field-name', '45');
+        $document->isValid();
+    }
+    
+    public function testIsValid_FieldBetween()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'between', 'min' => 6, 'max' => 14)
+            )));
+        
+        $document->set('some-field-name', 1);
+        $this->assertFalse($document->isValid());
+        
+        $document->set('some-field-name', 8);
+        $this->assertTrue($document->isValid());
+        
+        $document->set('some-field-name', 19);
+        $this->assertFalse($document->isValid());
+    }
+    
     public function testIsValid_NumericField()
     {
         // mock of document
