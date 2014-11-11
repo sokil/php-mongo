@@ -138,6 +138,29 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
     }
     
+    public function testIsValid_AlphaNumericField()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'alpha_numeric')
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->set('some-field-name', '###');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 'alnum34');
+        $this->assertTrue($document->isValid());
+    }
+    
     public function testIsValid_NullField()
     {
         // mock of document
