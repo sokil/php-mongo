@@ -351,6 +351,35 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
     }
     
+    public function testIsValid_TypeValidator()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document',
+            array('rules'),
+            array($this->collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'type', array('string', 'int'))
+            )));
+
+        // required field empty
+        $this->assertTrue($document->isValid());
+
+        $document->set('some-field-name', 4.65);
+        $this->assertFalse($document->isValid());
+
+        $document->set('some-field-name', 'hello');
+        $this->assertTrue($document->isValid());
+        
+        $document->set('some-field-name', 42);
+        $this->assertTrue($document->isValid());
+    }
+    
     public function testIsValid_FieldCardNumber()
     {
         // mock of document
