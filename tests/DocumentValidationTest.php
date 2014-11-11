@@ -364,6 +364,32 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
     }
     
+    public function testIsValid_FieldIp()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('ipField', 'ip'),
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // ip invalid
+        $document->set('ipField', '42');
+        $this->assertFalse($document->isValid());
+        
+        $document->set('ipField', '777.777.777.777');
+        $this->assertFalse($document->isValid());
+        
+        // ip valid
+        $document->set('ipField', '93.16.56.123');
+        $this->assertTrue($document->isValid());
+    }
+    
     public function testIsValid_FieldValidatedByMethod_Passed()
     {
         $document = new DocumentWithMethodValidator($this->collection);
