@@ -91,7 +91,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($this->gridFs->getFileById('varchar_id'));
     }
     
-    public function testDelete()
+    public function testDeleteById_MongoId()
     {        
         $id = $this->gridFs->storeBytes('somebinarydata', array(
             'meta1' => 1,
@@ -99,6 +99,18 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         ));
         
         $this->gridFs->deleteFileById($id);
+        
+        $this->assertEquals(null, $this->gridFs->getFileById($id));
+    }
+    
+    public function testDeleteById_MongoIdString()
+    {        
+        $id = $this->gridFs->storeBytes('somebinarydata', array(
+            'meta1' => 1,
+            'meta2' => 2,
+        ));
+        
+        $this->gridFs->deleteFileById((string) $id);
         
         $this->assertEquals(null, $this->gridFs->getFileById($id));
     }

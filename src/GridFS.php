@@ -106,7 +106,15 @@ class GridFS extends Collection
      */
     public function deleteFileById($id)
     {
-        $result = $this->_mongoCollection->delete($id);
+        if($id instanceof \MongoId) {
+            $result = $this->_mongoCollection->delete($id);
+        } else {
+            try {
+                $result = $this->_mongoCollection->delete(new \MongoId($id));
+            } catch (\MongoException $e) {
+                $result = $this->_mongoCollection->delete($id);
+            }
+        }
         if($result['ok'] !== (double) 1) {
             throw new Exception('Error deleting file: ' . $result['err'] . ': ' . $result['errmsg']);
         }
