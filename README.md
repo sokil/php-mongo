@@ -5,6 +5,7 @@ PHPMongo
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Documentation Status](https://readthedocs.org/projects/phpmongo/badge/?version=latest)](https://readthedocs.org/projects/phpmongo/?badge=latest)
+[![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
 
 #### Object Document Mapper for MongoDB.
 
@@ -788,6 +789,7 @@ class SomeDocument extends \Sokil\Mongo\Document
         );
     }
 }
+```
 
 Deleting collections and documents
 -----------------------------------
@@ -1400,7 +1402,7 @@ To clear all revisions:
 $document->clearRevisions();
 ```
 
-Revisions stored in seoarage collection, named "{COLLECTION_NAME}.revisions"
+Revisions stored in separate collection, named "{COLLECTION_NAME}.revisions"
 To obtain original document of collection "{COLLECTION_NAME}" from revision, 
 which is document of collection "{COLLECTION_NAME}.revisions", 
 use Revision::getDocument() method:

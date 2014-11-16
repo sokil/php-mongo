@@ -115,6 +115,67 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
     }
     
+    /**
+     * @expectedException \Sokil\Mongo\Validator\Exception
+     * @expectedExceptionMessage Minimum value of range not specified
+     */
+    public function testIsValid_FieldBetween_minNotSpecified()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'between', 'max' => 6)
+            )));
+        
+        // required field empty
+        $document->set('some-field-name', '45');
+        $document->isValid();
+    }
+    
+    /**
+     * @expectedException \Sokil\Mongo\Validator\Exception
+     * @expectedExceptionMessage Maximum value of range not specified
+     */
+    public function testIsValid_FieldBetween_maxNotSpecified()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'between', 'min' => 6)
+            )));
+        
+        // required field empty
+        $document->set('some-field-name', '45');
+        $document->isValid();
+    }
+    
+    public function testIsValid_FieldBetween()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'between', 'min' => 6, 'max' => 14)
+            )));
+        
+        $document->set('some-field-name', 1);
+        $this->assertFalse($document->isValid());
+        
+        $document->set('some-field-name', 8);
+        $this->assertTrue($document->isValid());
+        
+        $document->set('some-field-name', 19);
+        $this->assertFalse($document->isValid());
+    }
+    
     public function testIsValid_NumericField()
     {
         // mock of document
@@ -135,6 +196,29 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         
         // required field set to valid value
         $document->set('some-field-name', 23);
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_AlphaNumericField()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'alpha_numeric')
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // required field set to wrong value
+        $document->set('some-field-name', '###');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', 'alnum34');
         $this->assertTrue($document->isValid());
     }
     
@@ -267,6 +351,67 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isValid());
     }
     
+    public function testIsValid_TypeValidator()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document',
+            array('rules'),
+            array($this->collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'type', array('string', 'int'))
+            )));
+
+        // required field empty
+        $this->assertTrue($document->isValid());
+
+        $document->set('some-field-name', 4.65);
+        $this->assertFalse($document->isValid());
+
+        $document->set('some-field-name', 'hello');
+        $this->assertTrue($document->isValid());
+        
+        $document->set('some-field-name', 42);
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_FieldCardNumber()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document',
+            array('rules'),
+            array($this->collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'card_number')
+            )));
+
+        // required field empty
+        $this->assertTrue($document->isValid());
+
+        // required field set to non numeric value
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+
+        // required field set to numeric value with wring control digit
+        $document->set('some-field-name', '4024007149737767');
+        $this->assertFalse($document->isValid());
+        
+        // required field set to valid value
+        $document->set('some-field-name', '4024007149737768');
+        $this->assertTrue($document->isValid());
+    }
+    
     public function testIsValid_FieldEmail()
     {
         // mock of document
@@ -300,7 +445,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         
     }
     
-    public function testIsValid_FieldU()
+    public function testIsValid_FieldUrl()
     {
         // mock of document
         $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
@@ -329,6 +474,32 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         
         // additional ping check on valid and accesible url
         $document->set('urlField-ping', 'http://i.ua/');
+        $this->assertTrue($document->isValid());
+    }
+    
+    public function testIsValid_FieldIp()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('ipField', 'ip'),
+            )));
+        
+        // required field empty
+        $this->assertTrue($document->isValid());
+        
+        // ip invalid
+        $document->set('ipField', '42');
+        $this->assertFalse($document->isValid());
+        
+        $document->set('ipField', '777.777.777.777');
+        $this->assertFalse($document->isValid());
+        
+        // ip valid
+        $document->set('ipField', '93.16.56.123');
         $this->assertTrue($document->isValid());
     }
     
