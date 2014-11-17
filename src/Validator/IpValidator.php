@@ -14,7 +14,6 @@ class IpValidator extends \Sokil\Mongo\Validator
         }
 
         // check if url valid
-        var_dump($value, filter_var($value, FILTER_VALIDATE_IP));
         if(false !== filter_var($value, FILTER_VALIDATE_IP)) {
             return;
         }
