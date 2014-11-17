@@ -122,14 +122,13 @@ class Document extends Structure
         // execute before construct callable
         $this->beforeConstruct();
 
-        if ($this->getOption('stored')) {
-            // load stored
-            if ($data) {
+        // set data
+        if ($data) {
+            if ($this->getOption('stored')) {
+                // load stored
                 $this->mergeUnmodified($data);
-            }
-        } else {
-            // create unstored
-            if ($data) {
+            } else {
+                // create unstored
                 $this->merge($data);
             }
         }
