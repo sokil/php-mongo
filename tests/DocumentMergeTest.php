@@ -2,20 +2,30 @@
 
 namespace Sokil\Mongo;
 
-class DocumentMock extends \Sokil\Mongo\Document
+class UserDocumentMock extends \Sokil\Mongo\Document
 {
     protected $_data = array(
+        // simple value
         'status' => 'ACTIVE',
+        // list value, default value id simple
+        'comments' => 'none',
+        // list value, default value id list
+        'languages' => ['php', 'js', 'css', 'html', 'sql'],
+        // embedded document
         'profile' => array(
+            // simple value of embedded document
             'name' => 'USER_NAME',
+            // embedded document of embedded document
             'birth' => array(
                 'year' => 1984,
                 'month' => 8,
                 'day' => 10,
-            )
+            ),
+            // list of embedded document, default value is simple
+            'interests' => 'none',
+            // list of embedded document, default value is list
+            'roles' => array('writer', 'reader', 'watcher'),
         ),
-        'interests' => 'none',
-        'languages' => ['php'],
     );
 }
 
@@ -41,51 +51,109 @@ class DocumentMergeTest extends \PHPUnit_Framework_TestCase
         $this->collection->delete();
     }
     
-    public function testSetUnmodifiedData()
+    public function testSetUnmodifiedData_mergeListToSimple()
     {
-        $document = new DocumentMock(
+        $mongoId = new \MongoId;
+        
+        $user = new UserDocumentMock(
             $this->collection, 
             array(
-                '_id' => new \MongoId,
-                'profile' => array(
-                    'name' => 'dsokil'
+                '_id' => $mongoId,
+                'comments' => array(
+                    'good luck!',
+                    'wish you luck!'
                 ),
-                'interests' => array('snowboarding', 'programming', 'traveling')
             ),
             array(
                 'stored' => true
             )
         );
+        
+        $this->assertEquals(array(
+            '_id' => $mongoId,
+            'comments' => array(
+                'good luck!',
+                'wish you luck!'
+            )
+        ), $user->toArray());
     }
     
-    public function testSetModifiedData()
+    public function testSetUnmodifiedData_embeddedDocument_mergeListToSimple()
     {
-        $document = new DocumentMock(
+        $mongoId = new \MongoId;
+        
+        $user = new UserDocumentMock(
+            $this->collection, 
+            array(
+                '_id' => $mongoId,
+                'profile' => array(
+                    'interests' => array('snowboarding', 'programming', 'traveling')
+                ),
+            ),
+            array(
+                'stored' => true
+            )
+        );
+        
+        $this->assertEquals(array(
+            '_id' => $mongoId,
+            'profile' => array(
+                'interests' => array('snowboarding', 'programming', 'traveling')
+            ),
+        ), $user->toArray());
+    }
+    
+    public function testSetModifiedData_mergeListToSimple()
+    {
+        $user = new UserDocumentMock(
             $this->collection, 
             array(
                 'profile' => array(
-                    'name' => 'dsokil',
-                    'birth' => array(
-                        'month' => 9
-                    ),
+                    'interests' => array('snowboarding', 'programming', 'traveling')
                 ),
-                'interests' => array('snowboarding', 'programming', 'traveling'),
-                'languages' => array('python', 'java'),
             )
         );
         
         $this->assertEquals(array(
             'status' => 'ACTIVE',
+            'comments' => 'none',
+            'languages' => ['php', 'js', 'css', 'html', 'sql'],
             'profile' => array(
-                'name' => 'dsokil',
+                'name' => 'USER_NAME',
                 'birth' => array(
                     'year' => 1984,
-                    'month' => 9,
+                    'month' => 8,
                     'day' => 10,
-                )
+                ),
+                'interests' => array('snowboarding', 'programming', 'traveling'),
+                'roles' => array('writer', 'reader', 'watcher'),
             ),
-            'interests' => array('snowboarding', 'programming', 'traveling'),
-            'languages' => array('python', 'java'),
-        ), $document->toArray());
+        ), $user->toArray());
+    }
+    
+    public function testSetModifiedData_mergeListToList()
+    {
+        $user = new UserDocumentMock(
+            $this->collection, 
+            array(
+                'languages' => ['python', 'java'],
+            )
+        );
+        
+        $this->assertEquals(array(
+            'status' => 'ACTIVE',
+            'comments' => 'none',
+            'languages' => ['python', 'java'],
+            'profile' => array(
+                'name' => 'USER_NAME',
+                'birth' => array(
+                    'year' => 1984,
+                    'month' => 8,
+                    'day' => 10,
+                ),
+                'interests' => 'none',
+                'roles' => array('writer', 'reader', 'watcher'),
+            ),
+        ), $user->toArray());
     }
 }
