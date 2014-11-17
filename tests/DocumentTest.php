@@ -1429,4 +1429,18 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             )
         );
     }
+    
+    public function testSetModifiedData()
+    {
+        $document = new DocumentMock(
+            $this->collection, 
+            array(
+                '_id' => new \MongoId,
+                'profile' => array(
+                    'name' => 'dsokil'
+                ),
+                'interests' => array('snowboarding', 'programming', 'traveling')
+            )
+        );
+    }
 }
