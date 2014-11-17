@@ -126,7 +126,7 @@ class Document extends Structure
         if ($data) {
             if ($this->getOption('stored')) {
                 // load stored
-                $this->mergeUnmodified($data);
+                $this->_data = $this->_originalData = $data;
             } else {
                 // create unstored
                 $this->merge($data);
