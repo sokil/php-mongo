@@ -370,8 +370,7 @@ class Structure
      */
     private function isEmbeddedDocument($array)
     {
-        var_dump(array_values($array), $array);
-        return array_values($array) !== $array;
+        return is_array($array) && (array_values($array) !== $array);
     }
     
     /**
@@ -384,9 +383,11 @@ class Structure
     private function _merge(array &$document, array $updatedDocument, $prefix = null)
     {
         foreach($updatedDocument as $key => $newValue) {
+            // if original data is embedded document and value also - then merge
             if(is_array($newValue) && isset($document[$key]) && $this->isEmbeddedDocument($document[$key])) {
                 $this->_merge($document[$key], $newValue, $prefix . $key . '.');
             }
+            // in other cases just set new value
             else {
                 $document[$key] = $newValue;
                 $this->_modifiedFields[] = $prefix . $key;

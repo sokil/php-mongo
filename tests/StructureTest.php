@@ -574,6 +574,9 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $method = $ref->getMethod('isEmbeddedDocument');
         $method->setAccessible(true);
         
+        // not array
+        $this->assertFalse($method->invoke($structure, '42'));
+        
         // ebbedded document
         $this->assertTrue($method->invoke($structure, array(
             'first_name' => 'Taras',
