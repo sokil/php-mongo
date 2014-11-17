@@ -14,6 +14,7 @@ class DocumentMock extends \Sokil\Mongo\Document
                 'day' => 10,
             )
         ),
+        'interests' => 'none',
     );
 }
 
@@ -1410,5 +1411,22 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         // update document with error
         $document->set('p', 'v1')->save();
+    }
+    
+    public function testSetUnmodifiedData()
+    {
+        $document = new DocumentMock(
+            $this->collection, 
+            array(
+                '_id' => new \MongoId,
+                'profile' => array(
+                    'name' => 'dsokil'
+                ),
+                'interests' => array('snowboarding', 'programming', 'traveling')
+            ),
+            array(
+                'stored' => true
+            )
+        );
     }
 }
