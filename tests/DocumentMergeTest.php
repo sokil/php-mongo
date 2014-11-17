@@ -10,7 +10,7 @@ class UserDocumentMock extends \Sokil\Mongo\Document
         // list value, default value id simple
         'comments' => 'none',
         // list value, default value id list
-        'languages' => ['php', 'js', 'css', 'html', 'sql'],
+        'languages' => array('php', 'js', 'css', 'html', 'sql'),
         // embedded document
         'profile' => array(
             // simple value of embedded document
