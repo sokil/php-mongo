@@ -15,7 +15,7 @@ class DocumentMock extends \Sokil\Mongo\Document
             )
         ),
         'interests' => 'none',
-        'languages' => ['php'],
+        'languages' => array('php'),
     );
 }
 
