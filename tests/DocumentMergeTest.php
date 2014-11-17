@@ -117,7 +117,7 @@ class DocumentMergeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'status' => 'ACTIVE',
             'comments' => 'none',
-            'languages' => ['php', 'js', 'css', 'html', 'sql'],
+            'languages' => array('php', 'js', 'css', 'html', 'sql'),
             'profile' => array(
                 'name' => 'USER_NAME',
                 'birth' => array(
@@ -143,7 +143,7 @@ class DocumentMergeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'status' => 'ACTIVE',
             'comments' => 'none',
-            'languages' => ['python', 'java'],
+            'languages' => array('python', 'java'),
             'profile' => array(
                 'name' => 'USER_NAME',
                 'birth' => array(
