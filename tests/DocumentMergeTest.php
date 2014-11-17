@@ -136,7 +136,7 @@ class DocumentMergeTest extends \PHPUnit_Framework_TestCase
         $user = new UserDocumentMock(
             $this->collection, 
             array(
-                'languages' => ['python', 'java'],
+                'languages' => array('python', 'java'),
             )
         );
         
