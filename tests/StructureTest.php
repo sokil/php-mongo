@@ -565,4 +565,28 @@ class StructureTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($structure->isModified('param.subparam'));
     }
+    
+    public function testIsEmbeddedDocument()
+    {
+        $structure = new Structure;
+        
+        $ref = new \ReflectionClass($structure);
+        $method = $ref->getMethod('isEmbeddedDocument');
+        $method->setAccessible(true);
+        
+        // ebbedded document
+        $this->assertTrue($method->invoke($structure, array(
+            'first_name' => 'Taras',
+            'last_name' => 'Shevchenko',
+        )));
+        
+        // sequential list
+        $this->assertFalse($method->invoke($structure, array('hello', 2, 'five')));
+        
+        // unsequential list
+        $list = array();
+        $list[5] = 'hello';
+        $list[7] = 42;
+        $this->assertTrue($method->invoke($structure, $list));
+    }
 }
