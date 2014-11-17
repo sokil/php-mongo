@@ -10,11 +10,12 @@ class DocumentMock extends \Sokil\Mongo\Document
             'name' => 'USER_NAME',
             'birth' => array(
                 'year' => 1984,
-                'month' => 08,
+                'month' => 8,
                 'day' => 10,
             )
         ),
         'interests' => 'none',
+        'languages' => ['php'],
     );
 }
 
@@ -1435,12 +1436,29 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $document = new DocumentMock(
             $this->collection, 
             array(
-                '_id' => new \MongoId,
                 'profile' => array(
-                    'name' => 'dsokil'
+                    'name' => 'dsokil',
+                    'birth' => array(
+                        'month' => 9
+                    ),
                 ),
-                'interests' => array('snowboarding', 'programming', 'traveling')
+                'interests' => array('snowboarding', 'programming', 'traveling'),
+                'languages' => array('python', 'java'),
             )
         );
+        
+        $this->assertEquals(array(
+            'status' => 'ACTIVE',
+            'profile' => array(
+                'name' => 'dsokil',
+                'birth' => array(
+                    'year' => 1984,
+                    'month' => 9,
+                    'day' => 10,
+                )
+            ),
+            'interests' => array('snowboarding', 'programming', 'traveling'),
+            'languages' => array('python', 'java'),
+        ), $document->toArray());
     }
 }

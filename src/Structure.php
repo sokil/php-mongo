@@ -367,18 +367,18 @@ class Structure
     /**
      * Recursive function to merge data with setting modification mark
      * 
-     * @param array $target
-     * @param array $source
+     * @param array $document
+     * @param array $updatedDocument
      * @param string $prefix
      */
-    private function _merge(array &$target, array $source, $prefix = null)
+    private function _merge(array &$document, array $updatedDocument, $prefix = null)
     {
-        foreach($source as $key => $value) {
-            if(is_array($value) && isset($target[$key])) {
-                $this->_merge($target[$key], $value, $prefix . $key . '.');
+        foreach($updatedDocument as $key => $newValue) {
+            if(is_array($newValue) && isset($document[$key]) && is_array($document[$key])) {
+                $this->_merge($document[$key], $newValue, $prefix . $key . '.');
             }
             else {
-                $target[$key] = $value;
+                $document[$key] = $newValue;
                 $this->_modifiedFields[] = $prefix . $key;
             }
         }
