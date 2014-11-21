@@ -1,6 +1,6 @@
 {
     "name": "sokil/php-mongo",
-    "description": "Active Record for PHP Mongo",
+    "description": "PHP Object Document Mapper for MongoDB",
     "license": "MIT",
     "authors": [
         {
