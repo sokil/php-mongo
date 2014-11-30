@@ -177,6 +177,48 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($document->isValid());
     }
 
+    public function testIsValid_FieldLess()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                    array('some-field-name', 'less', 'than' => 6)
+        )));
+
+        $document->set('some-field-name', 1);
+        $this->assertTrue($document->isValid());
+
+        $document->set('some-field-name', 6);
+        $this->assertFalse($document->isValid());
+
+        $document->set('some-field-name', 9);
+        $this->assertFalse($document->isValid());
+    }
+
+    public function testIsValid_FieldGreater()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                    array('some-field-name', 'greater', 'than' => 6)
+        )));
+
+        $document->set('some-field-name', 1);
+        $this->assertFalse($document->isValid());
+
+        $document->set('some-field-name', 6);
+        $this->assertFalse($document->isValid());
+
+        $document->set('some-field-name', 9);
+        $this->assertTrue($document->isValid());
+    }
+
     public function testIsValid_NumericField()
     {
         // mock of document
