@@ -143,6 +143,17 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('slowms', $result);
     }
 
+    public function testFindProfilerRows()
+    {
+        $this->database->profileAllQueries();
+
+        $row = $this->database->findProfilerRows()
+            ->findOne();
+
+        $this->assertArrayHasKey('op', $row);
+        $this->assertArrayHasKey('ns', $row);
+    }
+
     public function testExecuteJs()
     {
         $result = $this->database->executeJS('return 42;');

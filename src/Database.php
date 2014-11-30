@@ -551,10 +551,13 @@ class Database
 
     /**
      *
-     * @return \Sokil\Mongo\Collection
+     * @return \Sokil\Mongo\QueryBuilder
      */
-    public function getProfilerCollection()
+    public function findProfilerRows()
     {
-        return $this->getCollection('system.profile');
+        return $this
+            ->getCollection('system.profile')
+            ->find()
+            ->asArray();
     }
 }
