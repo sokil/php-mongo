@@ -9,12 +9,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      * @var \Sokil\Mongo\Database
      */
     private $database;
-    
+
     public function setUp()
     {
         // connect to mongo
         $client = new Client();
-        
+
         // select database
         $this->database = $client->getDatabase('test');
     }
@@ -93,34 +93,62 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $stats = $this->database->stats();
         $this->assertEquals(1.0, $stats['ok']);
     }
-    
+
+    public function testGetProfilerParams()
+    {
+        $this->database->profileAllQueries(420);
+        $result = $this->database->getProfilerParams();
+
+        $this->assertArrayHasKey('was', $result);
+        $this->assertEquals(2, $result['was']);
+
+        $this->assertArrayHasKey('slowms', $result);
+        $this->assertEquals(420, $result['slowms']);
+    }
+
+    public function testGetProfilerLevel()
+    {
+        $this->database->profileAllQueries(420);
+        $level = $this->database->getProfilerLevel();
+
+        $this->assertEquals(2, $level);
+    }
+
+    public function testGetProfilerSlowMs()
+    {
+        $this->database->profileAllQueries(420);
+        $slowms = $this->database->getProfilerSlowMs();
+
+        $this->assertEquals(420, $slowms);
+    }
+
     public function testDisableProfiler()
     {
         $result = $this->database->disableProfiler();
         $this->assertArrayHasKey('was', $result);
         $this->assertArrayHasKey('slowms', $result);
     }
-    
+
     public function testProfileSlowQueries()
     {
-        $result = $this->database->profileSlowQueries();
+        $result = $this->database->profileSlowQueries(200);
         $this->assertArrayHasKey('was', $result);
         $this->assertArrayHasKey('slowms', $result);
     }
-    
+
     public function testProfileAllQueries()
     {
         $result = $this->database->profileAllQueries();
         $this->assertArrayHasKey('was', $result);
         $this->assertArrayHasKey('slowms', $result);
     }
-    
+
     public function testExecuteJs()
     {
         $result = $this->database->executeJS('return 42;');
         $this->assertEquals(42, $result);
     }
-    
+
     /**
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Error #16722: exception: ReferenceError: gversion is not defined
@@ -129,29 +157,29 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     {
         $this->database->executeJS('gversion()');
     }
-    
+
     public function testMapCollectionsToClasses()
     {
         $this->database->map(array(
             'collection'    => '\Sokil\Mongo\CarsCollection',
             'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
         ));
-        
+
         // create collection
         $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', $this->database->getCollection('collection'));
-        
+
         // create document
         $this->assertInstanceOf('\Sokil\Mongo\CarDocument', $this->database->getCollection('collection')->createDocument());
-        
+
         // create grid fs
         $fs = $this->database->getGridFS('gridfs');
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotosGridFS', $fs);
-        
+
         // create file
         $id = $fs->storeBytes('hello');
         $file = $fs->getFileById($id);
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotoGridFSFile', $file);
-        
+
         $fs->delete();
     }
 
@@ -174,7 +202,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $id = $fs->storeBytes('hello');
         $file = $fs->getFileById($id);
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotoGridFSFile', $file);
-        
+
         $fs->delete();
     }
 
@@ -184,12 +212,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->database->map(array(
             '/bigCar\d/' => '\Sokil\Mongo\CarsCollection',
         ));
-        
+
         $this->assertInstanceOf(
             '\Sokil\Mongo\CarsCollection',
             $this->database->getCollection('littleCar5')
         );
-        
+
         $this->assertInstanceOf(
             '\Sokil\Mongo\CarsCollection',
             $this->database->getCollection('bigCar5')
@@ -218,10 +246,10 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $reflectionClass = new \ReflectionClass($this->database);
         $method = $reflectionClass->getMethod('getGridFSClassDefinition');
         $method->setAccessible(true);
-        
+
         $classDefinition1 = $method->invoke($this->database, 'carPhotosGridFS');
         $classDefinition2 = $method->invoke($this->database, 'CarPhotosGridFS');
-        
+
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
             $classDefinition1['class']
@@ -335,7 +363,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ),
         ), $this->database->getReadPreference());
     }
-    
+
     public function testSetWriteConcern()
     {
         $this->database->setWriteConcern('majority', 12000);
@@ -389,7 +417,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     }
 }
 
-class CarsCollection extends Collection 
+class CarsCollection extends Collection
 {
     public function getDocumentClassName(array $documentData = null)
     {
@@ -399,8 +427,8 @@ class CarsCollection extends Collection
 
 class CarDocument extends Document {}
 
-class CarPhotosGridFS extends GridFS 
-{    
+class CarPhotosGridFS extends GridFS
+{
     public function getFileClassName(\MongoGridFSFile $fileData = null)
     {
         return '\Sokil\Mongo\CarPhotoGridFSFile';

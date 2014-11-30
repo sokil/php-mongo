@@ -48,7 +48,6 @@ Why to use this library? You can easily work with document data through comforta
   * [Remove relation](#remove-relation)
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
-* [Debugging](#debugging)
 * [Capped collections](#capped-collections)
 * [Executing commands](#executing-commands)
 * [Queue](#queue)
@@ -57,6 +56,9 @@ Why to use this library? You can easily work with document data through comforta
 * [Versioning](#versioning)
 * [Indexes](#indexes)
 * [Caching and documents with TTL](#caching-and-documents-with-ttl)
+* [Debugging](#debugging)
+  * [Logging](#logging)
+  * [Profiling](#profiling)
 
 Installation
 ------------
@@ -1153,17 +1155,6 @@ $database = $client->getDatabase('databaseName')->setMajorityWriteConcern(10000)
 $collection = $database->getCollection('collectionName')->setWriteConcern(4, 1000);
 ```
 
-Debugging
----------------
-
-Library suports logging of queries. To configure logging, you need to pass logger object to instance of \Sokil\Mongo\Client. Logger must implement \Psr\Log\LoggerInterface due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
-
-```php
-<?php
-$client = new Client($dsn);
-$client->setLogger($logger);
-```
-
 Capped collections
 ------------------
 
@@ -1592,3 +1583,58 @@ $cache->deleteNotMatchingAnyTag(['php', 'elephant']);
 <hr/>
 <br/>
 Pull requests, bug reports and feature requests is welcome.
+
+Debugging
+---------
+
+### Logging
+
+Library suports logging of queries. To configure logging, you need to pass logger object to instance of \Sokil\Mongo\Client. Logger must implement \Psr\Log\LoggerInterface due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
+
+```php
+<?php
+$client = new Client($dsn);
+$client->setLogger($logger);
+```
+
+### Profiling
+
+Mode details about profiling at [Analyze Performance of Database Operations](http://docs.mongodb.org/manual/tutorial/manage-the-database-profiler/)
+profiler data stores to "system.profile" collection, instance of which you can get by calling method:
+
+```php
+<?php
+
+$database->getProfilerCollection();
+```
+
+Structure of document described in article [Database Profiler Output](http://docs.mongodb.org/manual/reference/database-profiler/)
+
+There is three levels of profiling, described in article [Profile command](http://docs.mongodb.org/manual/reference/command/profile/).
+Switching between then may be done by calling methods:
+
+```php
+<?php
+
+// disable profiles
+$database->disableProfiler();
+
+// profile slow queries slower than 100 milliseconds
+$database->profileSlowQueries(100);
+
+// profile all queries
+$database->profileAllQueries();
+```
+
+To get current level of profiling, call:
+```php
+<?php
+$params = $database->getProfilerParams();
+echo $params['was'];
+echo $params['slowms'];
+
+// or directly
+$level = $database->getProfilerLevel();
+$slowms = $database->getProfilerSlowMs();
+```
+

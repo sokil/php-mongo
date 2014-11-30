@@ -9,27 +9,27 @@ class Database
      * @var \Sokil\Mongo\Client
      */
     private $_client;
-    
+
     /**
      * @var \MongoDB
      */
     private $_mongoDB;
-    
+
     /**
      * @var array map collection name to class
      */
     private $mapping = array();
-    
+
     /**
      * @var array map regexp pattern of collection name to class
      */
     private $regexpMapping = array();
-    
+
     /**
      * @var string if mapping not specified, use class prefix to create class path from collection name
      */
     private $classPrefix;
-    
+
     /**
      * @var array pool of initialised collections
      */
@@ -40,19 +40,19 @@ class Database
      * @var bool is collection pool enabled
      */
     private $collectionPoolEnabled = true;
-    
+
     /**
      *
      * @var string default collection class
      */
     private $defultCollectionClass = '\Sokil\Mongo\Collection';
-    
+
     /**
      *
      * @var string default gridFs class
      */
     private $defultGridFsClass = '\Sokil\Mongo\GridFS';
-    
+
     public function __construct(Client $client, $database) {
         $this->_client = $client;
 
@@ -63,9 +63,9 @@ class Database
         }
 
     }
-    
+
     /**
-     * 
+     *
      * @param string $username
      * @param string $password
      */
@@ -73,14 +73,14 @@ class Database
     {
         $result = $this->_mongoDB->authenticate($username, $password);
     }
-    
+
     public function logout()
     {
         $result = $this->executeCommand(array(
             'logout' => 1,
         ));
     }
-    
+
     public function __get($name)
     {
         return $this->getCollection($name);
@@ -93,18 +93,18 @@ class Database
     {
         return $this->_mongoDB->__toString();
     }
-    
+
     /**
-     * 
+     *
      * @return \MongoDB
      */
     public function getMongoDB()
     {
         return $this->_mongoDB;
     }
-    
+
     /**
-     * 
+     *
      * @return \Sokil\Mongo\Client
      */
     public function getClient()
@@ -155,7 +155,7 @@ class Database
 
     /**
      * Map collection name to class
-     * 
+     *
      * @param string|array $name collection name or array like [collectionName => collectionClass, ...]
      * @param string|null $classDefinition if $name is string, then full class name, else omitted
      * @return \Sokil\Mongo\Client
@@ -164,20 +164,20 @@ class Database
     {
         // map collection to class
         if($classDefinition) {
-            
+
             if(!is_array($classDefinition)) {
                 $classDefinition = array('class' => $classDefinition);
             }
-            
+
             if('/' !== substr($name, 0, 1)) {
                 $this->mapping[$name] = $classDefinition;
             } else {
                 $this->regexpMapping[$name] = $classDefinition;
             }
-            
+
             return $this;
         }
-        
+
         // map collections to classes
         if(is_array($name)) {
             foreach($name as $collectionName => $classDefinition) {
@@ -185,13 +185,13 @@ class Database
             }
             return $this;
         }
-        
+
         // define class prefix
         $this->classPrefix = rtrim($name, '\\');
-        
+
         return $this;
     }
-    
+
     /**
      * Get class name mapped to collection
      * @param string $name name of collection
@@ -202,7 +202,7 @@ class Database
         if(!$defaultClass) {
             $defaultClass = $this->defultCollectionClass;
         }
-        
+
         if(isset($this->mapping[$name])) {
             $classDefinition = $this->mapping[$name];
             if(empty($classDefinition['class'])) {
@@ -213,14 +213,14 @@ class Database
                 if(empty($regexpMappingClassDefinition['class'])) {
                     $regexpMappingClassDefinition['class'] = $defaultClass;
                 }
-                
+
                 if(preg_match($collectionNamePattern, $name)) {
                     $classDefinition = $regexpMappingClassDefinition;
                     break;
                 }
             }
         }
-        
+
         if(!isset($classDefinition)) {
             if($this->classPrefix) {
                 $classDefinition = array(
@@ -232,24 +232,24 @@ class Database
                 );
             }
         }
-        
+
         if(!class_exists($classDefinition['class'])) {
             throw new Exception('Class ' . $classDefinition['class'] . ' not found while map collection name to class');
         }
-        
+
         return $classDefinition;
     }
-    
+
     /**
      * Get class name mapped to collection
      * @param string $name name of collection
      * @return string name of class
      */
     protected function getGridFSClassDefinition($name)
-    {        
+    {
         return $this->getCollectionClassDefinition($name, $this->defultGridFsClass);
     }
-    
+
     /**
      * Create collection
      *
@@ -262,20 +262,20 @@ class Database
     {
         $classDefinition = $this->getCollectionClassDefinition($name);
         $className = $classDefinition['class'];
-        
+
         $options = $options + $classDefinition;
-        
+
         $mongoCollection = $this->getMongoDB()->createCollection($name, $options);
-        
+
         return new $className(
-            $this, 
-            $mongoCollection, 
+            $this,
+            $mongoCollection,
             $options
         );
     }
-    
+
     /**
-     * 
+     *
      * @param string $name name of collection
      * @param int $maxElements The maximum number of elements to store in the collection.
      * @param int $size Size in bytes.
@@ -289,16 +289,16 @@ class Database
             'size'      => (int) $size,
             'max'       => (int) $maxElements,
         );
-        
+
         if(!$options['size'] && !$options['max']) {
             throw new Exception('Size or number of elements must be defined');
         }
-        
+
         return $this->createCollection($name, $options);
     }
-    
+
     /**
-     * 
+     *
      * @param string $name name of collection
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
@@ -328,10 +328,10 @@ class Database
         // return
         return $collection;
     }
-    
+
     /**
      * Get instance of GridFS
-     * 
+     *
      * @param string $prefix prefix of files and chunks collection
      * @return \Sokil\Mongo\GridFS
      * @throws \Sokil\Mongo\Exception
@@ -361,9 +361,9 @@ class Database
         return $gridFS;
 
     }
-    
+
     /**
-     * 
+     *
      * @param string $channel name of channel
      * @return \Sokil\Mongo\Queue
      */
@@ -371,10 +371,10 @@ class Database
     {
         return new Queue($this, $channel);
     }
-    
+
     /**
      * Get cache
-     * 
+     *
      * @param string $namespace
      * @return \Sokil\Mongo\Cache
      */
@@ -382,31 +382,31 @@ class Database
     {
         return new Cache($this, $namespace);
     }
-    
+
     public function readPrimaryOnly()
     {
         $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
-    
+
     public function readPrimaryPreferred(array $tags = null)
     {
         $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
-    
+
     public function readSecondaryOnly(array $tags = null)
     {
         $this->_mongoDB->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
-    
+
     public function readSecondaryPreferred(array $tags = null)
     {
         $this->_mongoDB->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
-    
+
     public function readNearest(array $tags = null)
     {
         $this->_mongoDB->setReadPreference(\MongoClient::RP_NEAREST, $tags);
@@ -417,7 +417,7 @@ class Database
     {
         return $this->_mongoDB->getReadPreference();
     }
-    
+
     /**
      * Define write concern.
      * May be used only if mongo extension version >=1.5
@@ -432,10 +432,10 @@ class Database
         if(!$this->_mongoDB->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Define unacknowledged write concern.
      * May be used only if mongo extension version >=1.5
@@ -448,7 +448,7 @@ class Database
         $this->setWriteConcern(0, (int) $timeout);
         return $this;
     }
-    
+
     /**
      * Define majority write concern.
      * May be used only if mongo extension version >=1.5
@@ -472,10 +472,10 @@ class Database
     {
         return $this->_mongoDB->getWriteConcern();
     }
-    
+
     /**
      * Execute Mongo command
-     * 
+     *
      * @param array $command
      * @param array $options
      * @return array
@@ -484,7 +484,7 @@ class Database
     {
         return $this->getMongoDB()->command($command, $options);
     }
-    
+
     public function executeJS($code, array $args = array())
     {
         $response = $this->getMongoDB()->execute($code, $args);
@@ -494,21 +494,40 @@ class Database
             throw new Exception('Error #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
         }
     }
-    
+
     public function stats()
     {
         return $this->executeCommand(array(
             'dbstats' => 1,
         ));
     }
-    
+
+    public function getProfilerParams()
+    {
+        return $this->executeCommand(array(
+            'profile'   => -1,
+        ));
+    }
+
+    public function getProfilerLevel()
+    {
+        $params = $this->getProfilerParams();
+        return $params['was'];
+    }
+
+    public function getProfilerSlowMs()
+    {
+        $params = $this->getProfilerParams();
+        return $params['slowms'];
+    }
+
     public function disableProfiler()
     {
         return $this->executeCommand(array(
             'profile'   => 0,
         ));
     }
-    
+
     public function profileSlowQueries($slowms = 100)
     {
         return $this->executeCommand(array(
@@ -516,12 +535,26 @@ class Database
             'slowms'    => (int) $slowms
         ));
     }
-    
-    public function profileAllQueries($slowms = 100)
+
+    public function profileAllQueries($slowms = null)
     {
-        return $this->executeCommand(array(
+        $command = array(
             'profile'   => 2,
-            'slowms'    => (int) $slowms
-        ));
+        );
+
+        if($slowms) {
+            $command['slowms'] = (int) $slowms;
+        }
+
+        return $this->executeCommand($command);
+    }
+
+    /**
+     *
+     * @return \Sokil\Mongo\Collection
+     */
+    public function getProfilerCollection()
+    {
+        return $this->getCollection('system.profile');
     }
 }
