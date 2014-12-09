@@ -1580,10 +1580,6 @@ $cache->deleteMatchingAnyTag(['php', 'elephant']);
 $cache->deleteNotMatchingAnyTag(['php', 'elephant']);
 ```
 
-<hr/>
-<br/>
-Pull requests, bug reports and feature requests is welcome.
-
 Debugging
 ---------
 
@@ -1638,3 +1634,8 @@ $level = $database->getProfilerLevel();
 $slowms = $database->getProfilerSlowMs();
 ```
 
+
+
+<hr/>
+<br/>
+Pull requests, bug reports and feature requests is welcome. Add new to [issues](https://github.com/sokil/php-mongo/issues)
