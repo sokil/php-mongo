@@ -107,7 +107,7 @@ Connecting
 
 #### Single connection
 
-Connecting to MongoDB server made through \Sokil\Mongo\Client class:
+Connecting to MongoDB server made through `\Sokil\Mongo\Client` class:
 
 ```php
 <?php
@@ -126,7 +126,7 @@ mongodb://server1.com,server2.com/?replicaSet=replicaSetName
 
 #### Pool of connections
 
-If you have few connections you may prefer connection pool instead of managing different connections. Use \Sokil\Mongo\ClientPool instance to initialize pool object:
+If you have few connections you may prefer connection pool instead of managing different connections. Use `\Sokil\Mongo\ClientPool` instance to initialize pool object:
 
 ```php
 <?php
@@ -153,7 +153,7 @@ $pool = new ClientPool(array(
     'connect2' => array(
         'dsn' => 'mongodb://127.0.0.1',
         'defaultDatabase' => 'db2',
-        'mappign' => array(
+        'mapping' => array(
             'db1' => array(
                 'col1' => '\Collection5',
                 'col2' => '\Collection6',
@@ -172,7 +172,7 @@ $connect2Client = $pool->get('connect2');
 
 Selecting database and collection
 -----------------------
-To get instance of database class \Sokil\Mongo\Database:
+To get instance of database class `\Sokil\Mongo\Database`:
 ```php
 <?php
 $database = $client->getDatabase('databaseName');
@@ -180,7 +180,7 @@ $database = $client->getDatabase('databaseName');
 $database = $client->databaseName;
 ```
 
-To get instance of collection class \Sokil\Mongo\Collection:
+To get instance of collection class `\Sokil\Mongo\Collection`:
 ```php
 <?php
 $collection = $database->getCollection('collectionName');
@@ -188,14 +188,14 @@ $collection = $database->getCollection('collectionName');
 $collection = $database->collectionName;
 ```
 
-Default database may be specified to get collection directly from $client object:
+Default database may be specified to get collection directly from `$client` object:
 ```php
 <?php
 $client->useDatabase('databaseName');
 $collection = $client->getCollection('collectionName');
 ```
 
-If you need to use your own collection classes, you must create class extended from \Sokil\Mongo\Collection and map it to collection class:
+If you need to use your own collection classes, you must create class extended from `\Sokil\Mongo\Collection` and map it to collection class:
 ```php
 <?php
 class CustomCollection extends \Sokil\Mongo\Collection
@@ -249,7 +249,7 @@ $client->map([
 ]);
 ```
 
-If 'class' omitted, then used standart \Sokil\Mongo\Collection class. 
+If 'class' omitted, then used standart `\Sokil\Mongo\Collection class`. 
 All options lated may be accessed:
 
 ```php
@@ -261,7 +261,7 @@ $client
     ->getOption('collectionOption1');
 ```
 
-To override default document class use 'documentClass' option of collection:
+To override default document class use `documentClass` option of collection:
 ```php
 <?php
 $client->map([
@@ -280,7 +280,7 @@ $document = $client
 ```
 
 Collection name in mapping may be defined as RegExp pattern. Pattern must start 
-from symbol '/':
+from symbol `/`:
 
 ```php
 <?php
@@ -289,7 +289,7 @@ $database->map(array(
 ));
 ```
 
-Any collection with name matched to pattern will be instance of \Some\Collection\Class:
+Any collection with name matched to pattern will be instance of `\Some\Collection\Class`:
 ```php
 <?php
 $col1 = $database->getCollection('someCollection1');
@@ -300,7 +300,7 @@ $col4 = $database->getCollection('someCollection4');
 Document schema
 ------------------------
 
-Document object is instance of class \Sokil\Mongo\Document. If you want to use your own class, you must configure its name in collection's class:
+Document object is instance of class `\Sokil\Mongo\Document`. If you want to use your own class, you must configure its name in collection's class:
 
 ```php
 <?php
@@ -317,7 +317,7 @@ class CustomDocument extends \Sokil\Mongo\Document
 }
 ```
 
-You may flexibly configure document's class in \Sokil\Mongo\Collection::getDocumentClassName() relatively to concrete document's data:
+You may flexibly configure document's class in `\Sokil\Mongo\Collection::getDocumentClassName()` relatively to concrete document's data:
 ```php
 <?php
 class CustomCollection extends \Sokil\Mongo\Collection
@@ -328,7 +328,7 @@ class CustomCollection extends \Sokil\Mongo\Collection
 }
 ```
 
-In example above class \CustomVideoDocument related to {"_id": "45..", "type": "video"}, and \CustomAudioDocument to {"_id": "45..", type: "audio"}
+In example above class `\CustomVideoDocument` related to `{"_id": "45..", "type": "video"}`, and `\CustomAudioDocument` to `{"_id": "45..", type: "audio"}`
 
 Document's scheme is completely not required. If field is required and has default value, it can be defined in special property of document class:
 ```php
@@ -442,7 +442,7 @@ $cursor = $collection
     );
 ```
 
-Result of the query is iterator \Sokil\Mongo\QueryBuilder, which you can then iterate:
+Result of the query is iterator `\Sokil\Mongo\QueryBuilder`, which you can then iterate:
 ```php
 <?php
 foreach($cursor as $documentId => $document) {
@@ -474,7 +474,7 @@ To get values from a single field in the result set of documents:
 $columnValues = $cursor->pluck('some.field.name');
 ```
 
-For extending standart query builder class with custom condition methods you need to override property Collection::$_queryExpressionClass with class, which extends \Sokil\Mongo\Expression:
+For extending standart query builder class with custom condition methods you need to override property `Collection::$_queryExpressionClass` with class, which extends `\Sokil\Mongo\Expression`:
 
 ```php
 <?php
@@ -645,7 +645,7 @@ Note that persisted documents do not deleted from persistence manager after flus
 Document validation
 -------------------
 
-Document can be validated before save. To set validation rules method \Sokil\Mongo\Document::roles() must be override with validation rules. Supported rules are:
+Document can be validated before save. To set validation rules method `\Sokil\Mongo\Document::roles()` must be override with validation rules. Supported rules are:
 ```php
 <?php
 class CustomDocument except \Sokil\Mongo\Document
@@ -665,13 +665,13 @@ class CustomDocument except \Sokil\Mongo\Document
 }
 ```
 
-Document can have validation state, based on scenario. Scenarion can be specified by method Document::setScenario($scenario).
+Document can have validation state, based on scenario. Scenarion can be specified by method `Document::setScenario($scenario)`.
 ```php
 <?php
 $document->setScenario('register');
 ```
 
-If some validation rule applied only for some scenarios, this scenarios must be passed on 'on' key, separated by comma.
+If some validation rule applied only for some scenarios, this scenarios must be passed on `on` key, separated by comma.
 ```php
 <?php
 public function rules()
@@ -682,7 +682,7 @@ public function rules()
     }
 ```
 
-If some validation rule applied to all except some scenarios, this scenarios must be passed on 'except' key, separated by comma.
+If some validation rule applied to all except some scenarios, this scenarios must be passed on `except` key, separated by comma.
 
 ```php
 <?php
@@ -694,7 +694,7 @@ public function rules()
     }
 ```
 
-If document invalid, \Sokil\Mongo\Document\Exception\Validate will trigger and errors may be accessed through Document::getErrors() method of document object. This document may be get from exception method:
+If document invalid, `\Sokil\Mongo\Document\Exception\Validate` will trigger and errors may be accessed through `Document::getErrors()` method of document object. This document may be get from exception method:
 ```php
 <?php
 try {
@@ -704,7 +704,7 @@ try {
 }
 ```
 
-Error may be triggered manually by calling method triggerError($fieldName, $rule, $message)
+Error may be triggered manually by calling method `triggerError($fieldName, $rule, $message)`
 ```php
 <?php
 $document->triggerError('someField', 'email', 'E-mail must be at domain example.com');
@@ -743,7 +743,7 @@ class CustomDocument extends \Sokil\Mongo\Document
 ```
 
 You may create your own validator class, if you want to use validator in few classes.
-Just extend your class from abstract validator class \Sokil\Mongo\Validator and register your own validator namespace:
+Just extend your class from abstract validator class `\Sokil\Mongo\Validator` and register your own validator namespace:
 
 ```php
 <?php
@@ -848,7 +848,7 @@ $pipeline-> match([
 
 Events
 -------
-Event support based on Symfony's Event Dispatcher component. Events can be attached in class while initialusing object or any time to the object. To attach events in Document class you need to override Document::beforeConstruct() method:
+Event support based on Symfony's Event Dispatcher component. Events can be attached in class while initialusing object or any time to the object. To attach events in Document class you need to override `Document::beforeConstruct()` method:
 ```php
 <?php
 class CustomDocument extends \Sokil\Mongo\Document
@@ -886,7 +886,7 @@ Behaviors
 ----------
 
 Behavior is a posibility to extend functionality of document object and reuse code among documents of different class. 
-Behavior is a class extended from \Sokil\Mongo\Behavior:
+Behavior is a class extended from `\Sokil\Mongo\Behavior`:
 ```php
 <?php
 class SomeBehavior extends \Sokil\Mongo\Behavior
@@ -898,7 +898,7 @@ class SomeBehavior extends \Sokil\Mongo\Behavior
 }
 ```
 
-To get instance of object, to which behavior is attached, call Behavior::getOwner() method:
+To get instance of object, to which behavior is attached, call `Behavior::getOwner()` method:
 ```php
 <?php
 class SomeBehavior extends \Sokil\Mongo\Behavior
@@ -941,7 +941,7 @@ Relations
 
 You can define relations between different documents, which helps you to load related doluments. Library supports relations one-to-one and one-to-many 
 
-To define relation to other document you need to override Document::relations() method and returl array of relations in format [relationName => [relationType, targetCollection, reference], ...]
+To define relation to other document you need to override `Document::relations()` method and returl array of relations in format `[relationName => [relationType, targetCollection, reference], ...]`
 
 ### One-to-one relation
 
@@ -1113,7 +1113,7 @@ $car->removeRelation('drivers', $driver);
 ```
 
 This helper automatically resolves collection and field
-where to remove relation data. If relation type is HAS_MANY or BELONS_TO, 
+where to remove relation data. If relation type is `HAS_MANY` or `BELONS_TO`, 
 second parameter wich defined related object may be omitted.
 
 
@@ -1305,7 +1305,7 @@ Deleting files by id:
 $imagesFS->deleteFileById('6b5a4f53...42ha54e');
 ```
 
-If you want to use your own GridFSFile classes, you need to define mapping, as it does with collections:
+If you want to use your own `GridFSFile` classes, you need to define mapping, as it does with collections:
 ```php
 <?php
 // define mapping of prefix to GridFS class
@@ -1339,7 +1339,7 @@ Versioning
 ----------
 
 To enable versioning of documents in collection, you can set protected
-property Collection::$versioning to true, or call Collection::enableVersioning()
+property `Collection::$versioning` to `true`, or call `Collection::enableVersioning()`
 method.
 
 ```php
@@ -1362,7 +1362,7 @@ To check if documents in collections is versioned call:
 if($collection->isVersioningEnabled()) {}
 ```
 
-Revision is an instance of class \Sokil\Mongo\Revision and inherits \Sokil\Mongo\Document,
+Revision is an instance of class `\Sokil\Mongo\Revision` and inherits `\Sokil\Mongo\Document`,
 so any methods of document may be applied to revision. Revisions may be accessed:
 ```php
 <?php
@@ -1393,10 +1393,10 @@ To clear all revisions:
 $document->clearRevisions();
 ```
 
-Revisions stored in separate collection, named "{COLLECTION_NAME}.revisions"
-To obtain original document of collection "{COLLECTION_NAME}" from revision, 
-which is document of collection "{COLLECTION_NAME}.revisions", 
-use Revision::getDocument() method:
+Revisions stored in separate collection, named `{COLLECTION_NAME}.revisions`
+To obtain original document of collection `{COLLECTION_NAME}` from revision, 
+which is document of collection `{COLLECTION_NAME}.revisions`, 
+use `Revision::getDocument()` method:
 
 ```php
 <?php
@@ -1457,9 +1457,9 @@ Also you may define compound indexes:
 $collection->ensureIndex(['field1' => 1, 'field2' => -1]);
 ```
 
-You may define all collection indexes in property Collection::$_index 
+You may define all collection indexes in property `Collection::$_index`
 as array, where each item is an index definition.
-Every index definition must contain key 'keys' with list of fields and orders,
+Every index definition must contain key `keys` with list of fields and orders,
 and optional options, as described in http://php.net/manual/en/mongocollection.createindex.php.
 
 ```php
@@ -1475,7 +1475,7 @@ class MyCollection extends \Sokil\Mongo\Collection
 }
 ```
 
-Then you must create this indexes by call of Collection::initIndexes():
+Then you must create this indexes by call of `Collection::initIndexes()`:
 
 ```php
 <?php
@@ -1506,20 +1506,20 @@ $collection->ensureTTLIndex('createDate', 1000);
 You can do this also in migration script, using [Mongo Migrator](https://github.com/sokil/php-mongo-migrator). 
 For details see readme on than pakage's page.
 
-Or you can use \Sokil\Mongo\Cache class, which already implement this functionality.
+Or you can use `\Sokil\Mongo\Cache` class, which already implement this functionality.
 
 ```php
 <?php
 // Get cache instance
 $cache = $document->getCache('some_namespace');
 ```
-Before using cache must be inititalised by calling method Cache:init():
+Before using cache must be inititalised by calling method `Cache:init()`:
 ```php
 <?php
 $cahce->init();
 ```
 
-This operation creates index with 'expireAfterSecond' key in collection 'some_namespace'.
+This operation creates index with `expireAfterSecond` key in collection `some_namespace`.
 
 This operation may be done in some console command or migration script, or 
 you can create manually in mongo console:
@@ -1585,7 +1585,7 @@ Debugging
 
 ### Logging
 
-Library suports logging of queries. To configure logging, you need to pass logger object to instance of \Sokil\Mongo\Client. Logger must implement \Psr\Log\LoggerInterface due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
+Library suports logging of queries. To configure logging, you need to pass logger object to instance of `\Sokil\Mongo\Client`. Logger must implement `\Psr\Log\LoggerInterface` due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
 
 ```php
 <?php
@@ -1596,7 +1596,7 @@ $client->setLogger($logger);
 ### Profiling
 
 Mode details about profiling at [Analyze Performance of Database Operations](http://docs.mongodb.org/manual/tutorial/manage-the-database-profiler/)
-profiler data stores to "system.profile" collection, wchich you can query through query builder:
+profiler data stores to `system.profile` collection, wchich you can query through query builder:
 
 ```php
 <?php
