@@ -1596,12 +1596,15 @@ $client->setLogger($logger);
 ### Profiling
 
 Mode details about profiling at [Analyze Performance of Database Operations](http://docs.mongodb.org/manual/tutorial/manage-the-database-profiler/)
-profiler data stores to `system.profile` collection, wchich you can query through query builder:
+profiler data stores to `system.profile` collection, which you can query through query builder:
 
 ```php
 <?php
 
-$qb = $database->findProfilerRows();
+$qb = $database
+    ->findProfilerRows()
+    ->where('ns', 'social.users')
+    ->where('op', 'update');
 ```
 
 Structure of document described in article [Database Profiler Output](http://docs.mongodb.org/manual/reference/database-profiler/)
