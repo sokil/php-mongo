@@ -9,47 +9,47 @@ abstract class Cursor implements \Iterator, \Countable
      * @var \Sokil\Mongo\Client
      */
     private $_client;
-    
+
     /**
      *
      * @var \Sokil\Mongo\Collection
      */
     protected $_collection;
-    
+
     private $_fields = array();
-    
+
     /**
      *
      * @var \MongoCursor
      */
     private $cursor;
-    
+
     private $_skip = 0;
-    
+
     /**
      *
      * @var \Sokil\Mongo\Expression
      */
     private $_expression;
-    
+
     private $_limit = 0;
-    
+
     private $_sort = array();
-    
+
     private $_readPreference = array();
-    
+
     /**
      *
      * @var string If specified in child class - overload config from collection class
      */
     protected $_queryExpressionClass;
-    
+
     /**
      *
      * @var type Return result as array or as Document instance
      */
     protected $_resultAsArray = false;
-    
+
     /**
      *
      * @var boolean results are arrays instead of objects
@@ -57,103 +57,103 @@ abstract class Cursor implements \Iterator, \Countable
     private $_options = array(
         'expressionClass'   => '\Sokil\Mongo\Expression'
     );
-    
+
     /**
      * Use document pool to create Document object from array
-     * 
-     * @var bool 
+     *
+     * @var bool
      */
     private $isDocumentPoolUsed = true;
-    
+
     /**
      * Index hinting
      * @param \Sokil\Mongo\Collection $collection
      * @param array $options
      */
     private $hint;
-    
+
     public function __construct(Collection $collection, array $options = null)
     {
         $this->_collection = $collection;
-        
+
         $this->_client = $this->_collection->getDatabase()->getClient();
-        
+
         if($options) {
             $this->_options = array_merge($this->_options, $options);
         }
-        
+
         // expression
         $this->_expression = $this->expression();
     }
-    
+
     public function __call($name, $arguments) {
         call_user_func_array(array($this->_expression, $name), $arguments);
         return $this;
     }
-    
+
     /**
      * Return only specified fields
-     * 
+     *
      * @param array $fields
      * @return \Sokil\Mongo\QueryBuilder
      */
     public function fields(array $fields)
     {
         $this->_fields = array_fill_keys($fields, 1);
-        
+
         $this->skipDocumentPool();
-        
+
         return $this;
     }
-    
+
     /**
      * Return all fields except specified
-     * 
+     *
      * @param array $fields
      * @return \Sokil\Mongo\QueryBuilder
      */
     public function skipFields(array $fields)
     {
         $this->_fields = array_fill_keys($fields, 0);
-        
+
         $this->skipDocumentPool();
-        
+
         return $this;
     }
-    
+
     /**
      * Append field to accept list
-     * 
+     *
      * @param string $field field name
      * @return \Sokil\Mongo\QueryBuilder
      */
     public function field($field)
     {
         $this->_fields[$field] = 1;
-        
+
         $this->skipDocumentPool();
-        
+
         return $this;
     }
-    
+
     /**
      * Append field to skip list
-     * 
+     *
      * @param string $field field name
      * @return \Sokil\Mongo\QueryBuilder
      */
     public function skipField($field)
     {
         $this->_fields[$field] = 0;
-        
+
         $this->skipDocumentPool();
-        
+
         return $this;
     }
-    
+
     /**
      * Paginate list of sub-documents
-     *  
+     *
      * @param string $field
      * @param integer $limit
      * @param integer $skip
@@ -164,25 +164,25 @@ abstract class Cursor implements \Iterator, \Countable
     {
         $limit  = (int) $limit;
         $skip   = (int) $skip;
-        
+
         if($skip) {
             $this->_fields[$field] = array('$slice' => array($skip, $limit));
         }
         else {
             $this->_fields[$field] = array('$slice' => $limit);
         }
-        
+
         $this->skipDocumentPool();
-        
+
         return $this;
     }
-    
+
     public function query(Expression $expression)
     {
         $this->_expression->merge($expression);
         return $this;
     }
-    
+
     /**
      * Helper to create new expression
      *
@@ -190,10 +190,10 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function expression()
     {
-        $expressionClass = $this->_queryExpressionClass 
-            ? $this->_queryExpressionClass 
+        $expressionClass = $this->_queryExpressionClass
+            ? $this->_queryExpressionClass
             : $this->_options['expressionClass'];
-        
+
         return new $expressionClass;
     }
 
@@ -304,7 +304,7 @@ abstract class Cursor implements \Iterator, \Countable
     public function skip($skip)
     {
         $this->_skip = (int) $skip;
-        
+
         return $this;
     }
 
@@ -318,11 +318,11 @@ abstract class Cursor implements \Iterator, \Countable
     public function limit($limit, $offset = null)
     {
         $this->_limit = (int) $limit;
-        
+
         if(null !== $offset) {
             $this->skip($offset);
         }
-        
+
         return $this;
     }
 
@@ -335,12 +335,12 @@ abstract class Cursor implements \Iterator, \Countable
     public function sort(array $sort)
     {
         $this->_sort = $sort;
-        
+
         return $this;
     }
-    
+
     /**
-     * 
+     *
      * @return \MongoCursor
      */
     private function getCursor()
@@ -348,27 +348,27 @@ abstract class Cursor implements \Iterator, \Countable
         if($this->cursor) {
             return $this->cursor;
         }
-        
+
         $this->cursor = $this->_collection
             ->getMongoCollection()
             ->find($this->_expression->toArray(), $this->_fields);
-        
+
         if($this->_skip) {
             $this->cursor->skip($this->_skip);
         }
-        
+
         if($this->_limit) {
             $this->cursor->limit($this->_limit);
         }
-        
+
         if($this->_sort) {
             $this->cursor->sort($this->_sort);
         }
-        
+
         if($this->hint) {
             $this->cursor->hint($this->hint);
         }
-        
+
         // log request
         if($this->_client->hasLogger()) {
             $this->_client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
@@ -378,9 +378,9 @@ abstract class Cursor implements \Iterator, \Countable
                 'sort'          => $this->_sort,
             )));
         }
-        
+
         $this->cursor->rewind();
-        
+
         // define read preferences
         if($this->_readPreference) {
             $this->cursor->setReadPreference(
@@ -388,10 +388,10 @@ abstract class Cursor implements \Iterator, \Countable
                 $this->_readPreference['tagsets']
             );
         }
-        
+
         return $this->cursor;
     }
-    
+
     /**
      * Count documents in result without applying limit and offset
      * @return int count
@@ -402,12 +402,12 @@ abstract class Cursor implements \Iterator, \Countable
             ->getMongoCollection()
             ->count($this->_expression->toArray());
     }
-    
+
     public function explain()
     {
         return $this->getCursor()->explain();
     }
-    
+
     /**
      * Count documents in result with applying limit and offset
      * @return int count
@@ -418,58 +418,58 @@ abstract class Cursor implements \Iterator, \Countable
             ->getMongoCollection()
             ->count($this->_expression->toArray(), $this->_limit, $this->_skip);
     }
-    
+
     public function findOne()
     {
         $mongoDocument = $this->_collection
             ->getMongoCollection()
             ->findOne($this->_expression->toArray(), $this->_fields);
-        
+
         if(!$mongoDocument) {
             return null;
         }
-        
+
         if($this->_resultAsArray) {
             return $mongoDocument;
         }
-        
+
         return $this->toObject($mongoDocument);
     }
-    
+
     public function asArray()
     {
         $this->_resultAsArray = true;
         return $this;
     }
-    
+
     public function asObject()
     {
         $this->_resultAsArray = false;
         return $this;
     }
-    
+
     /**
      * Check if result returned as array
-     * 
+     *
      * @return bool
      */
     public function isResultAsArray()
     {
         return $this->_resultAsArray;
     }
-    
+
     /**
-     * 
+     *
      * @return array result of searching
      */
     public function findAll()
     {
         return iterator_to_array($this);
     }
-    
+
     /**
      * Return the values from a single field in the result set of documents
-     * 
+     *
      * @param type $fieldName
      * @return type
      */
@@ -484,14 +484,14 @@ abstract class Cursor implements \Iterator, \Countable
                 $result = $queryBuilder->asArray()->findAll();
                 unset($queryBuilder);
             }
-            
+
             return array_column($result, $fieldName, '_id');
         }
-        
+
         // if field with subdocument or native php function not exists
         return $this->_pluck($fieldName);
     }
-    
+
     private function _pluck($fieldName)
     {
         if($this->isResultAsArray()) {
@@ -501,12 +501,12 @@ abstract class Cursor implements \Iterator, \Countable
         } else {
             $result = $this->findAll();
         }
-        
+
         $list = array();
         foreach($result as $key => $document) {
             $list[$key] = $document->get($fieldName);
         }
-        
+
         return $list;
     }
 
@@ -523,14 +523,14 @@ abstract class Cursor implements \Iterator, \Countable
             $this->_fields,
             array(
                 'remove'    => true,
-                'sort'      => $this->_sort, 
+                'sort'      => $this->_sort,
             )
         );
-        
+
         if(!$mongoDocument) {
             return null;
         }
-        
+
         return $this->toObject($mongoDocument);
     }
 
@@ -557,58 +557,58 @@ abstract class Cursor implements \Iterator, \Countable
                     'upsert'    => $upsert,
                 )
             );
-        
+
         if(!$mongoDocument) {
             return null;
         }
-        
+
         return $this->toObject($mongoDocument);
     }
-    
+
     public function map($handler)
     {
         $result = array();
-        
+
         foreach($this as $id => $document) {
             $result[$id] = $handler($document);
         }
-        
+
         return $result;
     }
-    
+
     public function filter($handler)
     {
         $result = array();
-        
+
         foreach($this as $id => $document) {
             if(!$handler($document)) {
                 continue;
             }
-            
+
             $result[$id] = $document;
         }
-        
+
         return $result;
     }
-    
+
     public function findRandom()
     {
         $count = $this->count();
-        
+
         if(!$count) {
             return null;
         }
-        
+
         if(1 === $count) {
             return $this->findOne();
         }
-        
+
         return $this
             ->skip(mt_rand(0, $count - 1))
             ->limit(1)
             ->current();
     }
-    
+
     /**
      * Get paginator
      *
@@ -619,32 +619,32 @@ abstract class Cursor implements \Iterator, \Countable
     public function paginate($page, $itemsOnPage = 30)
     {
         $paginator = new Paginator($this);
-        
+
         return $paginator
             ->setCurrentPage($page)
             ->setItemsOnPage($itemsOnPage);
-            
+
     }
-    
+
     public function toArray()
     {
         return $this->_expression->toArray();
     }
-    
+
     public function current()
     {
         $mongoDocument = $this->getCursor()->current();
         if(!$mongoDocument) {
             return null;
         }
-        
+
         if($this->_resultAsArray) {
             return $mongoDocument;
         }
-        
+
         return $this->toObject($mongoDocument);
     }
-    
+
     /**
      * Convert find result to object
      *
@@ -652,29 +652,29 @@ abstract class Cursor implements \Iterator, \Countable
      * @return \Sokil\Mongo\Document
      */
     abstract protected function toObject($mongoFindResult);
-    
+
     public function key()
     {
         return $this->getCursor()->key();
     }
-    
+
     public function next()
     {
         $this->getCursor()->next();
         return $this;
     }
-    
+
     public function rewind()
     {
         $this->getCursor()->rewind();
         return $this;
     }
-    
+
     public function valid()
     {
         return $this->getCursor()->valid();
     }
-    
+
     public function readPrimaryOnly()
     {
         $this->_readPreference = array(
@@ -684,7 +684,7 @@ abstract class Cursor implements \Iterator, \Countable
 
         return $this;
     }
-    
+
     public function readPrimaryPreferred(array $tags = null)
     {
         $this->_readPreference = array(
@@ -694,7 +694,7 @@ abstract class Cursor implements \Iterator, \Countable
 
         return $this;
     }
-    
+
     public function readSecondaryOnly(array $tags = null)
     {
         $this->_readPreference = array(
@@ -704,7 +704,7 @@ abstract class Cursor implements \Iterator, \Countable
 
         return $this;
     }
-    
+
     public function readSecondaryPreferred(array $tags = null)
     {
         $this->_readPreference = array(
@@ -714,7 +714,7 @@ abstract class Cursor implements \Iterator, \Countable
 
         return $this;
     }
-    
+
     public function readNearest(array $tags = null)
     {
         $this->_readPreference = array(
@@ -733,27 +733,27 @@ abstract class Cursor implements \Iterator, \Countable
 
         return $this->_readPreference;
     }
-    
+
     public function isDocumentPoolUsed()
     {
         return $this->isDocumentPoolUsed;
     }
-    
+
     public function useDocumentPool()
     {
         $this->isDocumentPoolUsed = true;
         return $this;
     }
-    
+
     public function skipDocumentPool()
     {
         $this->isDocumentPoolUsed = false;
         return $this;
     }
-    
+
     /**
      * Specify index to use
-     * 
+     *
      * @link http://docs.mongodb.org/manual/reference/operator/meta/hint/
      * @param array|string $specification Specify the index either by the index name or by document
      * @return \Sokil\Mongo\Cursor
@@ -763,10 +763,10 @@ abstract class Cursor implements \Iterator, \Countable
         $this->hint = $specification;
         return $this;
     }
-    
+
     /**
      * Copy selected documents to another collection
-     * 
+     *
      * @param type $targetCollectionName
      * @param type $targetDatabaseName Target database name. If not specified - use current
      */
@@ -778,18 +778,18 @@ abstract class Cursor implements \Iterator, \Countable
         } else {
             $database = $this->_client->getDatabase($targetDatabaseName);
         }
-        
+
         // target collection
         $targetMongoCollection = $database
             ->getCollection($targetCollectionName)
             ->getMongoCollection();
-        
-        // cursor 
+
+        // cursor
         $cursor = $this->getCursor();
-        
+
         $batchLimit = 100;
         $inProgress = true;
-        
+
         // copy data
         while($inProgress) {
             // get next pack of documents
@@ -797,7 +797,7 @@ abstract class Cursor implements \Iterator, \Countable
             for($i = 0; $i < $batchLimit; $i++) {
                 if(!$cursor->valid()) {
                     $inProgress = false;
-                    
+
                     if($documentList) {
                         // still need batch insert
                         break;
@@ -806,14 +806,14 @@ abstract class Cursor implements \Iterator, \Countable
                         break(2);
                     }
                 }
-                
+
                 $documentList[] = $cursor->current();
                 $cursor->next();
             }
-            
+
             // insert
             $result = $targetMongoCollection->batchInsert($documentList);
-            
+
             // check result
             if(is_array($result)) {
                 if($result['ok'] != 1) {
@@ -823,15 +823,15 @@ abstract class Cursor implements \Iterator, \Countable
                 throw new Exception('Batch insert error');
             }
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Move selected documents to another collection.
-     * Dociuments will be removed from source collection only after 
+     * Dociuments will be removed from source collection only after
      * copying them to target collection.
-     * 
+     *
      * @param type $targetCollectionName
      * @param type $targetDatabaseName Target database name. If not specified - use current
      */
@@ -839,8 +839,29 @@ abstract class Cursor implements \Iterator, \Countable
     {
         // copy to target
         $this->copyToCollection($targetCollectionName, $targetDatabaseName);
-        
+
         // remove from source
         $this->_collection->deleteDocuments($this->_expression);
+    }
+
+    /**
+     * Used to get hash that uniquely identifies current query
+     */
+    public function getHash()
+    {
+        $hash = [];
+
+        // fields
+        $fields = $this->_fields;
+        ksort($fields);
+
+        // filters
+
+        // sorts
+
+        // orders
+
+        // get hash
+        return implode('', $hash);
     }
 }

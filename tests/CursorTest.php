@@ -9,26 +9,26 @@ class CursorTest extends \PHPUnit_Framework_TestCase
      * @var \Sokil\Mongo\Collection
      */
     private $collection;
-    
+
     public function setUp()
     {
         // connect to mongo
         $client = new Client();
-        
+
         // select database
         $database = $client->getDatabase('test');
-        
+
         // select collection
         $this->collection = $database->getCollection('phpmongo_test_collection');
     }
-    
+
     public function tearDown()
     {
         $this->collection->delete();
     }
-    
+
     public function testReturnSpecifiedFields()
-    {        
+    {
         // create new document
         $document = $this->collection
             ->createDocument(array(
@@ -37,10 +37,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 'c'    => 'c1',
                 'd'    => 'd1',
             ));
-        
+
         $this->collection->saveDocument($document);
         $documentId = $document->getId();
-        
+
         // fild some fields of document
         $document = $this->collection->find()
             ->fields(array(
@@ -48,7 +48,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ))
             ->field('b')
             ->findOne();
-        
+
         $this->assertEquals(array(
             'a'    => 'a1',
             'b'    => 'b1',
@@ -56,9 +56,9 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             '_id'   => $documentId,
         ), $document->toArray());
     }
-    
+
     public function testSkipSpecifiedFields()
-    {        
+    {
         // create new document
         $documentId = $this
             ->collection
@@ -70,7 +70,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ))
             ->save()
             ->getId();
-        
+
         // fild some fields of document
         $document = $this
             ->collection
@@ -81,21 +81,21 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ->skipField('b')
             ->findOne()
             ->toArray();
-        
+
         $this->assertEquals(
             array(
                 'd'    => 'd1',
                 '_id'   => $documentId,
-            ), 
+            ),
             $document
         );
     }
-    
+
     /**
      * @expectedException \MongoCursorException
      */
     public function testErrorOnAcceptedAndSkippedFieldsPassed()
-    {        
+    {
         // create new document
         $document = $this->collection->createDocument(array(
             'a'    => 'a1',
@@ -103,10 +103,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             'c'    => 'c1',
             'd'    => 'd1',
         ));
-        
+
         $this->collection->saveDocument($document);
         $documentId = $document->getId();
-        
+
         // fild some fields of document
         $document = $this->collection->find()
             ->fields(array(
@@ -115,42 +115,42 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ->skipField('b')
             ->findOne();
     }
-    
+
     public function testSlice()
-    {        
+    {
         // create new document
         $document = $this->collection
             ->createDocument(array(
                 'key'    => array('a', 'b', 'c', 'd', 'e', 'f'),
             ))
             ->save();
-        
+
         // only limit defined
         $this
             ->assertEquals(
-                array('a', 'b'), 
+                array('a', 'b'),
                 $this->collection->find()->slice('key', 2)->findOne()->key
             );
-        
+
         $this->assertEquals(
-            array('e', 'f'), 
+            array('e', 'f'),
             $this->collection->find()->slice('key', -2)->findOne()->key
         );
-        
+
         // limit and skip defined
         $this->assertEquals(
-            array('c'), 
+            array('c'),
             $this->collection->find()->slice('key', 1, 2)->findOne()->key
         );
-        
+
         $this->assertEquals(
-            array('e'), 
+            array('e'),
             $this->collection->find()->slice('key', 1, -2)->findOne()->key
         );
     }
-    
+
     public function testFindOne()
-    {        
+    {
         $this->collection
             ->createDocument(array(
                 'someField'    => 'A',
@@ -169,7 +169,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ))
             ->save()
             ->getId();
-        
+
         // find existed row
         $document = $this->collection
             ->find()
@@ -177,7 +177,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ->findOne();
 
         $this->assertEquals($documentId, $document->getId());
-        
+
         // find unexisted row
         $document = $this->collection
             ->find()
@@ -285,54 +285,54 @@ class CursorTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testFindRandom()
-    {        
+    {
         // create new document
         $document1 = $this->collection->createDocument(array(
             'p1'    => 'v',
             'p2'    => 'doc1',
         ));
         $this->collection->saveDocument($document1);
-        
+
         $document2 = $this->collection->createDocument(array(
             'p1'    => 'v',
             'p2'    => 'doc2',
         ));
         $this->collection->saveDocument($document2);
-        
+
         $document3 = $this->collection->createDocument(array(
             'p1'    => 'other_v',
             'p2'    => 'doc3',
         ));
         $this->collection->saveDocument($document3);
-        
+
         // find unexisted random document
         $document = $this->collection->find()->where('pZZZ', 'v')->findRandom();
         $this->assertEmpty($document);
-        
+
         // find random documents if only one document match query
         $document = $this->collection->find()->where('p1', 'other_v')->findRandom();
         $this->assertEquals($document->getId(), $document3->getId());
-        
+
         // find random document among two existed documents
         $document = $this->collection->find()->where('p1', 'v')->findRandom();
         $this->assertTrue(in_array($document->getId(), array($document1->getId(), $document2->getId())));
     }
-    
+
     public function testFindAll()
-    {        
+    {
         // add doc
         $document = $this->collection->createDocument(array(
             'some-field'    => 'some-value',
         ));
         $this->collection->saveDocument($document);
-        
+
         // find
         $documents = $this->collection->find()->where('some-field', 'some-value');
-        
+
         $firstDocument = current($documents->findAll());
         $this->assertEquals($firstDocument->getId(), $document->getId());
     }
-    
+
     public function testPluck_findAsObject_SimpleField()
     {
         $this->collection
@@ -342,13 +342,13 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 array('field' => 3),
                 array('field' => 4),
             ));
-        
+
         $this->assertEquals(
             array(1, 2, 3, 4),
             array_values($this->collection->find()->pluck('field'))
         );
     }
-    
+
     public function testPluck_findAsObject_CompoundField()
     {
         $this->collection
@@ -358,13 +358,13 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 array('field' => array('f1' => 'a3', 'f2' => 'b3')),
                 array('field' => array('f1' => 'a4', 'f2' => 'b4')),
             ));
-        
+
         $this->assertEquals(
             array('b1', 'b2', 'b3', 'b4'),
             array_values($this->collection->find()->pluck('field.f2'))
         );
     }
-    
+
     public function testPluck_findAsArray_SimpleField()
     {
         $this->collection
@@ -374,13 +374,13 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 array('field' => 3),
                 array('field' => 4),
             ));
-        
+
         $this->assertEquals(
             array(1, 2, 3 ,4),
             array_values($this->collection->findAsArray()->pluck('field'))
         );
     }
-    
+
     public function testPluck_findAsArray_CompoundField()
     {
         $this->collection
@@ -390,29 +390,29 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             array('field' => array('f1' => 'a3', 'f2' => 'b3')),
             array('field' => array('f1' => 'a4', 'f2' => 'b4')),
         ));
-        
+
         $this->assertEquals(
             array('b1', 'b2', 'b3', 'b4'),
             array_values($this->collection->findAsArray()->pluck('field.f2'))
         );
     }
-    
+
     public function testReturnAsArray()
-    {        
+    {
         $document = $this->collection->createDocument(array(
             'some-field'    => 'some-value',
         ));
-        
+
         $this->collection->saveDocument($document);
-        
+
         // find all rows
         $document = $this->collection->findAsArray()->where('some-field', 'some-value')->rewind()->current();
         $this->assertEquals('array', gettype($document));
-        
+
         // find one row
         $document = $this->collection->findAsArray()->where('some-field', 'some-value')->findOne();
         $this->assertEquals('array', gettype($document));
-        
+
     }
 
     public function testSort()
@@ -457,7 +457,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         // aggregate
         $this->collection->find()->where('param', 2)->findAll();
     }
-    
+
     /**
      * @covers \Sokil\Mongo\QueryBuilder::map
      */
@@ -466,19 +466,19 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array(
             'param'    => 'value1',
         ))->save();
-        
+
         $this->collection->createDocument(array(
             'param'    => 'value2',
         ))->save();
-        
+
         // test
         $result = $this->collection->find()->map(function(Document $document) {
             return $document->param;
         });
-        
+
         $this->assertEquals(array('value1', 'value2'), array_values($result));
     }
-    
+
     /**
      * @covers \Sokil\Mongo\QueryBuilder::filter
      */
@@ -487,37 +487,37 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array(
             'param'    => 'value1',
         ))->save();
-        
+
         $this->collection->createDocument(array(
             'param'    => 'value2',
         ))->save();
-        
+
         // test
         $result = $this->collection->find()->filter(function(Document $document) {
             return $document->param == 'value1';
         });
-        
+
         $this->assertEquals('value1', current($result)->param);
     }
-    
+
     public function testFindAndUpdate()
     {
         $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
         $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
         $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
         $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
+
         $document = $this->collection->find()
             ->where('param1', 1)
             ->sort(array(
                 'param2' => 1,
             ))
             ->findAndUpdate($this->collection->operator()->set('newParam', '777'));
-        
+
         $this->assertNotEmpty($document);
-        
+
         $this->assertEquals(array(
-            'param1'    => 1, 
+            'param1'    => 1,
             'param2'    => 1,
             'newParam'  => '777',
             '_id'       => $d11->getId()
@@ -535,29 +535,29 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($document);
     }
-    
+
     public function testFindAndRemove()
     {
         $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
         $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
         $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
         $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
+
         $document = $this->collection->find()
             ->where('param1', 1)
             ->sort(array(
                 'param2' => 1,
             ))
             ->findAndRemove();
-        
+
         $this->assertNotEmpty($document);
-        
+
         $this->assertEquals(array(
-            'param1'    => 1, 
+            'param1'    => 1,
             'param2'    => 1,
             '_id'       => $d11->getId()
         ), $document->toArray());
-        
+
         $this->assertEquals(3, count($this->collection));
     }
 
@@ -590,16 +590,16 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
         $this->collection->createDocument(array('param1' => 1, 'param2' => 3))->save();
         $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
+
         $queryBuilder = $this->collection
             ->find()
             ->where('param1', 1)
             ->limit(1)
             ->skip(1);
-        
+
         $this->assertEquals(3, count($queryBuilder));
     }
-    
+
     public function testLimitedCount()
     {
         $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
@@ -607,26 +607,26 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param1' => 1, 'param2' => 3))->save();
         $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
         $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-        
+
         $queryBuilder = $this->collection
             ->find()
             ->where('param1', 2)
             ->limit(10)
             ->skip(1);
-        
+
         $this->assertEquals(1, $queryBuilder->limitedCount());
     }
-    
+
     public function testExplain()
     {
         $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
         $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        
+
         $explain = $this->collection
             ->find()
             ->where('param1', 2)
             ->explain();
-        
+
         $this->assertArrayHasKey('cursor', $explain);
     }
 
@@ -727,13 +727,13 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ),
         ), $qb->getReadPreference());
     }
-    
+
     public function testHint()
     {
         // create index
         $this->collection->ensureIndex(array('a' => 1));
         $this->collection->ensureIndex(array('a' => 1, 'b' => 1));
-        
+
         // add documents
         $this->collection
             ->insert(array(
@@ -742,16 +742,16 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ->insert(array(
                 'a' => 1, 'b' => 1
             ));
-        
+
         // without hint
         $explain = $this
             ->collection
             ->find()
             ->where('a', 1)
             ->explain();
-        
+
         $this->assertEquals('BtreeCursor a_1', $explain['cursor']);
-        
+
         // with hint
         $explain = $this
             ->collection
@@ -759,46 +759,62 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ->hint(array('a' => 1, 'b' => 1))
             ->where('a', 1)
             ->explain();
-        
+
         $this->assertEquals('BtreeCursor a_1_b_1', $explain['cursor']);
     }
-    
+
     public function testMoveToCollection()
     {
         $targetCollectionName = 'targetMoveCollection';
-        
+
         $targetCollection = $this
             ->collection
             ->getDatabase()
             ->getCollection($targetCollectionName)
             ->delete();
-        
+
         // fill collection with documents
         for($i = 0; $i < 200; $i++) {
             $this->collection->createDocument(array('i' => $i))->save();
         }
-        
+
         $this->collection
             ->find()
             ->whereMod('i', 2, 0)
             ->moveToCollection($targetCollectionName);
-        
+
         // check source collection
         $this->assertEquals(100, $this->collection->count());
-        
+
         foreach($this->collection->find() as $document) {
             $this->assertEquals(1, $document->i % 2);
         }
-        
+
         // check target collection
-        
+
         $this->assertEquals(100, $targetCollection->count());
-        
+
         foreach($targetCollection->find() as $document) {
             $this->assertEquals(0, $document->i % 2);
         }
-        
+
         // clear
         $targetCollection->delete();
+    }
+
+    public function testGetHash()
+    {
+        $queryBuilder = $this->collection
+            ->find()
+            ->field('_id')
+            ->field('ineterests')
+            ->sort(array(
+                'age' => 1,
+                'gender' => -1,
+            ))
+            ->limit(10, 20)
+            ->where('interests', ['php', 'snowboard']);
+
+        $this->assertEquals('', $queryBuilder->getHash());
     }
 }
