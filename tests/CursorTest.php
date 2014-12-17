@@ -813,8 +813,11 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 'gender' => -1,
             ))
             ->limit(10, 20)
-            ->where('interests', ['php', 'snowboard']);
+            ->whereAll('interests', ['php', 'snowboard']);
 
-        $this->assertEquals('', $queryBuilder->getHash());
+        $this->assertEquals(
+            '508cc93b371c222c53ae90989d95caae',
+            $queryBuilder->getHash()
+        );
     }
 }

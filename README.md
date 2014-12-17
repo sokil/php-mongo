@@ -163,7 +163,7 @@ $pool = new ClientPool(array(
                 'col2' => '\Collection8',
             )
         ),
-    ),  
+    ),
 ));
 
 $connect1Client = $pool->get('connect1');
@@ -215,7 +215,7 @@ $client->map([
 $collection = $client->getDatabase('databaseName')->getCollection('collectionName');
 ```
 
-Mapping may be specified through class prefix. 
+Mapping may be specified through class prefix.
 ```php
 <?php
 $client->map([
@@ -233,7 +233,7 @@ $collection = $client->getDatabase('databaseName')->getCollection('collectionNam
 $collection = $client->getDatabase('databaseName')->getCollection('collectionName.subName');
 ```
 
-If you want to pass some options to collection's constructor, you also can 
+If you want to pass some options to collection's constructor, you also can
 configure them in mapping definition:
 
 ```php
@@ -249,7 +249,7 @@ $client->map([
 ]);
 ```
 
-If 'class' omitted, then used standart `\Sokil\Mongo\Collection class`. 
+If 'class' omitted, then used standart `\Sokil\Mongo\Collection class`.
 All options lated may be accessed:
 
 ```php
@@ -279,7 +279,7 @@ $document = $client
     ->createDocument();
 ```
 
-Collection name in mapping may be defined as RegExp pattern. Pattern must start 
+Collection name in mapping may be defined as RegExp pattern. Pattern must start
 from symbol `/`:
 
 ```php
@@ -509,6 +509,33 @@ $collection
 
 ```
 
+If you want to cache your results or want to compare to queries, you need some
+identifier which unambiguously identify query. You can use `Cursor::getHash()` for
+that reason:
+
+```
+$queryBuilder = $this->collection
+    ->find()
+    ->field('_id')
+    ->field('ineterests')
+    ->sort(array(
+        'age' => 1,
+        'gender' => -1,
+    ))
+    ->limit(10, 20)
+    ->whereAll('interests', ['php', 'snowboard']);
+
+    $hash = $queryBuilder->getHash(); // will return 508cc93b371c222c53ae90989d95caae
+
+    if($cache->has($hash)) {
+        return $cache->get($hash);
+    }
+
+    $result = $queryBuilder->findAll();
+
+    $cache->set($hash, $result);
+    return $result;
+```
 
 Pagination
 ----------
@@ -546,8 +573,8 @@ $collection->insertMultiple(array(
 Making changes in few documents:
 
 ```php
-<?php  
-    
+<?php
+
 $collection->updateMultiple(function(\Sokil\Mongo\Expression $expression) {
     return $expression->where('field', 'value');
 }, array('field' => 'new value'));
@@ -595,7 +622,7 @@ $collection
     ->moveToCollection('newCollection', 'newDatabase');
 ```
 
-Important to note that there is no transactions so if error will occur 
+Important to note that there is no transactions so if error will occur
 during process, no changes will rollback.
 
 Persistence (Unit of Work)
@@ -715,28 +742,28 @@ You may add you custom validation rule just adding method to document class and 
 <?php
 class CustomDocument extends \Sokil\Mongo\Document
 {
-    punlic function rules() 
+    punlic function rules()
     {
         return array(
             array(
-                'email', 
-                'uniqueFieldValidator', 
+                'email',
+                'uniqueFieldValidator',
                 'message' => 'E-mail must be unique in collection'
             ),
         );
     }
-    
+
     /**
      * Validator
      */
     public function uniqueFieldValidator($fieldName, $params)
     {
         // Some logic of checking unique mail.
-        // 
-        // Before version 1.7 this method must return true if validator passes, 
+        //
+        // Before version 1.7 this method must return true if validator passes,
         // and false otherwise.
-        // 
-        // Since version 1.7 this method return no values and must call 
+        //
+        // Since version 1.7 this method return no values and must call
         // Document::addError() method to add error into stack.
     }
 }
@@ -763,7 +790,7 @@ class MyOwnEqualsValidator extends \Sokil\Mongo\Validator
         if ($document->get($fieldName) === $params['to']) {
             return;
         }
-        
+
         if (!isset($params['message'])) {
             $params['message'] = 'Field "' . $fieldName . '" must be equals to "' . $params['to'] . '" in model ' . get_called_class();
         }
@@ -885,7 +912,7 @@ $document
 Behaviors
 ----------
 
-Behavior is a posibility to extend functionality of document object and reuse code among documents of different class. 
+Behavior is a posibility to extend functionality of document object and reuse code among documents of different class.
 Behavior is a class extended from `\Sokil\Mongo\Behavior`:
 ```php
 <?php
@@ -939,7 +966,7 @@ echo $document->return42();
 Relations
 -------------
 
-You can define relations between different documents, which helps you to load related doluments. Library supports relations one-to-one and one-to-many 
+You can define relations between different documents, which helps you to load related doluments. Library supports relations one-to-one and one-to-many
 
 To define relation to other document you need to override `Document::relations()` method and returl array of relations in format `[relationName => [relationType, targetCollection, reference], ...]`
 
@@ -955,7 +982,7 @@ class User extends \Sokil\Mongo\Document
         'email'     => null,
         'password'  => null,
     ];
-    
+
     public function relations()
     {
         return [
@@ -973,7 +1000,7 @@ class Profile extends \Sokil\Mongo\Document
         ],
         'age'   => null,
     ];
-    
+
     public function relations()
     {
         return [
@@ -1005,7 +1032,7 @@ class User extends \Sokil\Mongo\Document
         'email'     => null,
         'password'  => null,
     ];
-    
+
     public function relations()
     {
         return [
@@ -1020,14 +1047,14 @@ class Posts extends \Sokil\Mongo\Document
         'user_id' => null,
         'message'   => null,
     ];
-    
+
     public function relations()
     {
         return [
             'userRelation' => [self::RELATION_BELONGS, 'user', 'user_id'],
         ];
     }
-    
+
     public function getMessage()
     {
         return $this->get('message');
@@ -1057,7 +1084,7 @@ class CarDocument extends \Sokil\Mongo\Document
     protected $_data = [
         'brand' => null,
     ];
-    
+
     public function relations()
     {
         return array(
@@ -1071,7 +1098,7 @@ class DriverDocument extends \Sokil\Mongo\Document
     protected $_data = [
         'name' => null,
     ];
-    
+
     public function relations()
     {
         return array(
@@ -1091,7 +1118,7 @@ foreach($car->drivers as $driver) {
 
 ### Add relation
 
-There is helper to add related document, if you don't 
+There is helper to add related document, if you don't
 want modify relation field directly:
 
 ```php
@@ -1104,7 +1131,7 @@ where to store relation data.
 
 ### Remove relation
 
-There is helper to remove related document, if you don't 
+There is helper to remove related document, if you don't
 want modify relation field directly:
 
 ```php
@@ -1113,7 +1140,7 @@ $car->removeRelation('drivers', $driver);
 ```
 
 This helper automatically resolves collection and field
-where to remove relation data. If relation type is `HAS_MANY` or `BELONS_TO`, 
+where to remove relation data. If relation type is `HAS_MANY` or `BELONS_TO`,
 second parameter wich defined related object may be omitted.
 
 
@@ -1202,7 +1229,7 @@ array(13) {
 Queue
 -----
 
-Queue gives functionality to send messages from one process and get them in another process. Messages can be send to different channels. 
+Queue gives functionality to send messages from one process and get them in another process. Messages can be send to different channels.
 
 Sending message to queue with default priority:
 ```php
@@ -1394,8 +1421,8 @@ $document->clearRevisions();
 ```
 
 Revisions stored in separate collection, named `{COLLECTION_NAME}.revisions`
-To obtain original document of collection `{COLLECTION_NAME}` from revision, 
-which is document of collection `{COLLECTION_NAME}.revisions`, 
+To obtain original document of collection `{COLLECTION_NAME}` from revision,
+which is document of collection `{COLLECTION_NAME}.revisions`,
 use `Revision::getDocument()` method:
 
 ```php
@@ -1482,7 +1509,7 @@ Then you must create this indexes by call of `Collection::initIndexes()`:
 $collection = $database->getCollection('myCollection')->initIndexes();
 ```
 
-You may use [Mongo Migrator](https://github.com/sokil/php-mongo-migrator) package 
+You may use [Mongo Migrator](https://github.com/sokil/php-mongo-migrator) package
 to ensure indexes in collections from migration scripts.
 
 [Query optimiser](http://docs.mongodb.org/manual/core/query-plans/#read-operations-query-optimization)
@@ -1503,7 +1530,7 @@ If you want to get collection where documents will expire after some specified t
 $collection->ensureTTLIndex('createDate', 1000);
 ```
 
-You can do this also in migration script, using [Mongo Migrator](https://github.com/sokil/php-mongo-migrator). 
+You can do this also in migration script, using [Mongo Migrator](https://github.com/sokil/php-mongo-migrator).
 For details see readme on than pakage's page.
 
 Or you can use `\Sokil\Mongo\Cache` class, which already implement this functionality.
@@ -1521,7 +1548,7 @@ $cahce->init();
 
 This operation creates index with `expireAfterSecond` key in collection `some_namespace`.
 
-This operation may be done in some console command or migration script, or 
+This operation may be done in some console command or migration script, or
 you can create manually in mongo console:
 
 ```javascript

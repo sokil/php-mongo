@@ -8,7 +8,7 @@ abstract class Cursor implements \Iterator, \Countable
      *
      * @var \Sokil\Mongo\Client
      */
-    private $_client;
+    private $client;
 
     /**
      *
@@ -16,27 +16,26 @@ abstract class Cursor implements \Iterator, \Countable
      */
     protected $_collection;
 
-    private $_fields = array();
+    private $fields = array();
 
     /**
      *
      * @var \MongoCursor
      */
     private $cursor;
-
-    private $_skip = 0;
-
     /**
      *
      * @var \Sokil\Mongo\Expression
      */
-    private $_expression;
+    private $expression;
 
-    private $_limit = 0;
+    private $skip = 0;
 
-    private $_sort = array();
+    private $limit = 0;
 
-    private $_readPreference = array();
+    private $sort = array();
+
+    private $readPreference = array();
 
     /**
      *
@@ -54,7 +53,7 @@ abstract class Cursor implements \Iterator, \Countable
      *
      * @var boolean results are arrays instead of objects
      */
-    private $_options = array(
+    private $options = array(
         'expressionClass'   => '\Sokil\Mongo\Expression'
     );
 
@@ -76,18 +75,18 @@ abstract class Cursor implements \Iterator, \Countable
     {
         $this->_collection = $collection;
 
-        $this->_client = $this->_collection->getDatabase()->getClient();
+        $this->client = $this->_collection->getDatabase()->getClient();
 
         if($options) {
-            $this->_options = array_merge($this->_options, $options);
+            $this->options = array_merge($this->options, $options);
         }
 
         // expression
-        $this->_expression = $this->expression();
+        $this->expression = $this->expression();
     }
 
     public function __call($name, $arguments) {
-        call_user_func_array(array($this->_expression, $name), $arguments);
+        call_user_func_array(array($this->expression, $name), $arguments);
         return $this;
     }
 
@@ -99,7 +98,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function fields(array $fields)
     {
-        $this->_fields = array_fill_keys($fields, 1);
+        $this->fields = array_fill_keys($fields, 1);
 
         $this->skipDocumentPool();
 
@@ -114,7 +113,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function skipFields(array $fields)
     {
-        $this->_fields = array_fill_keys($fields, 0);
+        $this->fields = array_fill_keys($fields, 0);
 
         $this->skipDocumentPool();
 
@@ -129,7 +128,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function field($field)
     {
-        $this->_fields[$field] = 1;
+        $this->fields[$field] = 1;
 
         $this->skipDocumentPool();
 
@@ -144,7 +143,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function skipField($field)
     {
-        $this->_fields[$field] = 0;
+        $this->fields[$field] = 0;
 
         $this->skipDocumentPool();
 
@@ -166,10 +165,10 @@ abstract class Cursor implements \Iterator, \Countable
         $skip   = (int) $skip;
 
         if($skip) {
-            $this->_fields[$field] = array('$slice' => array($skip, $limit));
+            $this->fields[$field] = array('$slice' => array($skip, $limit));
         }
         else {
-            $this->_fields[$field] = array('$slice' => $limit);
+            $this->fields[$field] = array('$slice' => $limit);
         }
 
         $this->skipDocumentPool();
@@ -179,7 +178,7 @@ abstract class Cursor implements \Iterator, \Countable
 
     public function query(Expression $expression)
     {
-        $this->_expression->merge($expression);
+        $this->expression->merge($expression);
         return $this;
     }
 
@@ -192,7 +191,7 @@ abstract class Cursor implements \Iterator, \Countable
     {
         $expressionClass = $this->_queryExpressionClass
             ? $this->_queryExpressionClass
-            : $this->_options['expressionClass'];
+            : $this->options['expressionClass'];
 
         return new $expressionClass;
     }
@@ -204,7 +203,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function getExpression()
     {
-        return $this->_expression;
+        return $this->expression;
     }
 
     /**
@@ -270,7 +269,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function byIdList(array $idList)
     {
-        $this->_expression->whereIn('_id', self::mixedToMongoIdList($idList));
+        $this->expression->whereIn('_id', self::mixedToMongoIdList($idList));
         return $this;
     }
 
@@ -283,12 +282,12 @@ abstract class Cursor implements \Iterator, \Countable
     public function byId($id)
     {
         if($id instanceof \MongoId) {
-            $this->_expression->where('_id', $id);
+            $this->expression->where('_id', $id);
         } else {
             try {
-                $this->_expression->where('_id', new \MongoId($id));
+                $this->expression->where('_id', new \MongoId($id));
             } catch (\MongoException $e) {
-                $this->_expression->where('_id', $id);
+                $this->expression->where('_id', $id);
             }
         }
 
@@ -303,7 +302,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function skip($skip)
     {
-        $this->_skip = (int) $skip;
+        $this->skip = (int) $skip;
 
         return $this;
     }
@@ -317,7 +316,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function limit($limit, $offset = null)
     {
-        $this->_limit = (int) $limit;
+        $this->limit = (int) $limit;
 
         if(null !== $offset) {
             $this->skip($offset);
@@ -334,7 +333,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function sort(array $sort)
     {
-        $this->_sort = $sort;
+        $this->sort = $sort;
 
         return $this;
     }
@@ -351,18 +350,18 @@ abstract class Cursor implements \Iterator, \Countable
 
         $this->cursor = $this->_collection
             ->getMongoCollection()
-            ->find($this->_expression->toArray(), $this->_fields);
+            ->find($this->expression->toArray(), $this->fields);
 
-        if($this->_skip) {
-            $this->cursor->skip($this->_skip);
+        if($this->skip) {
+            $this->cursor->skip($this->skip);
         }
 
-        if($this->_limit) {
-            $this->cursor->limit($this->_limit);
+        if($this->limit) {
+            $this->cursor->limit($this->limit);
         }
 
-        if($this->_sort) {
-            $this->cursor->sort($this->_sort);
+        if($this->sort) {
+            $this->cursor->sort($this->sort);
         }
 
         if($this->hint) {
@@ -370,22 +369,22 @@ abstract class Cursor implements \Iterator, \Countable
         }
 
         // log request
-        if($this->_client->hasLogger()) {
-            $this->_client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
+        if($this->client->hasLogger()) {
+            $this->client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
                 'collection'    => $this->_collection->getName(),
-                'query'         => $this->_expression->toArray(),
-                'project'       => $this->_fields,
-                'sort'          => $this->_sort,
+                'query'         => $this->expression->toArray(),
+                'project'       => $this->fields,
+                'sort'          => $this->sort,
             )));
         }
 
         $this->cursor->rewind();
 
         // define read preferences
-        if($this->_readPreference) {
+        if($this->readPreference) {
             $this->cursor->setReadPreference(
-                $this->_readPreference['type'],
-                $this->_readPreference['tagsets']
+                $this->readPreference['type'],
+                $this->readPreference['tagsets']
             );
         }
 
@@ -400,7 +399,7 @@ abstract class Cursor implements \Iterator, \Countable
     {
         return (int) $this->_collection
             ->getMongoCollection()
-            ->count($this->_expression->toArray());
+            ->count($this->expression->toArray());
     }
 
     public function explain()
@@ -416,14 +415,14 @@ abstract class Cursor implements \Iterator, \Countable
     {
         return (int) $this->_collection
             ->getMongoCollection()
-            ->count($this->_expression->toArray(), $this->_limit, $this->_skip);
+            ->count($this->expression->toArray(), $this->limit, $this->skip);
     }
 
     public function findOne()
     {
         $mongoDocument = $this->_collection
             ->getMongoCollection()
-            ->findOne($this->_expression->toArray(), $this->_fields);
+            ->findOne($this->expression->toArray(), $this->fields);
 
         if(!$mongoDocument) {
             return null;
@@ -518,12 +517,12 @@ abstract class Cursor implements \Iterator, \Countable
     public function findAndRemove()
     {
         $mongoDocument = $this->_collection->getMongoCollection()->findAndModify(
-            $this->_expression->toArray(),
+            $this->expression->toArray(),
             null,
-            $this->_fields,
+            $this->fields,
             array(
                 'remove'    => true,
-                'sort'      => $this->_sort,
+                'sort'      => $this->sort,
             )
         );
 
@@ -548,12 +547,12 @@ abstract class Cursor implements \Iterator, \Countable
         $mongoDocument = $this->_collection
             ->getMongoCollection()
             ->findAndModify(
-                $this->_expression->toArray(),
+                $this->expression->toArray(),
                 $operator ? $operator->getAll() : null,
-                $this->_fields,
+                $this->fields,
                 array(
                     'new'       => $returnUpdated,
-                    'sort'      => $this->_sort,
+                    'sort'      => $this->sort,
                     'upsert'    => $upsert,
                 )
             );
@@ -628,7 +627,7 @@ abstract class Cursor implements \Iterator, \Countable
 
     public function toArray()
     {
-        return $this->_expression->toArray();
+        return $this->expression->toArray();
     }
 
     public function current()
@@ -677,7 +676,7 @@ abstract class Cursor implements \Iterator, \Countable
 
     public function readPrimaryOnly()
     {
-        $this->_readPreference = array(
+        $this->readPreference = array(
             'type'      => \MongoClient::RP_PRIMARY,
             'tagsets'   => array(),
         );
@@ -687,7 +686,7 @@ abstract class Cursor implements \Iterator, \Countable
 
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->_readPreference = array(
+        $this->readPreference = array(
             'type'      => \MongoClient::RP_PRIMARY_PREFERRED,
             'tagsets'   => $tags,
         );
@@ -697,7 +696,7 @@ abstract class Cursor implements \Iterator, \Countable
 
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->_readPreference = array(
+        $this->readPreference = array(
             'type'      => \MongoClient::RP_SECONDARY,
             'tagsets'   => $tags,
         );
@@ -707,7 +706,7 @@ abstract class Cursor implements \Iterator, \Countable
 
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->_readPreference = array(
+        $this->readPreference = array(
             'type'      => \MongoClient::RP_SECONDARY_PREFERRED,
             'tagsets'   => $tags,
         );
@@ -717,7 +716,7 @@ abstract class Cursor implements \Iterator, \Countable
 
     public function readNearest(array $tags = null)
     {
-        $this->_readPreference = array(
+        $this->readPreference = array(
             'type'      => \MongoClient::RP_NEAREST,
             'tagsets'   => $tags,
         );
@@ -731,7 +730,7 @@ abstract class Cursor implements \Iterator, \Countable
             return $this->cursor->getReadPreference();
         }
 
-        return $this->_readPreference;
+        return $this->readPreference;
     }
 
     public function isDocumentPoolUsed()
@@ -776,7 +775,7 @@ abstract class Cursor implements \Iterator, \Countable
         if(!$targetDatabaseName) {
             $database = $this->_collection->getDatabase();
         } else {
-            $database = $this->_client->getDatabase($targetDatabaseName);
+            $database = $this->client->getDatabase($targetDatabaseName);
         }
 
         // target collection
@@ -841,7 +840,7 @@ abstract class Cursor implements \Iterator, \Countable
         $this->copyToCollection($targetCollectionName, $targetDatabaseName);
 
         // remove from source
-        $this->_collection->deleteDocuments($this->_expression);
+        $this->_collection->deleteDocuments($this->expression);
     }
 
     /**
@@ -851,17 +850,28 @@ abstract class Cursor implements \Iterator, \Countable
     {
         $hash = [];
 
-        // fields
-        $fields = $this->_fields;
-        ksort($fields);
-
-        // filters
+        // expression
+        $hash[] = json_encode($this->expression->toArray());
 
         // sorts
+        if($this->sort) {
+            $sort = $this->sort;
+            ksort($sort);
+            $hash[] = implode('', array_merge(array_keys($sort), array_values($sort)));
+        }
 
-        // orders
+        // fields
+        if($this->fields) {
+            $fields = $this->fields;
+            ksort($fields);
+            $hash[] = implode('', array_merge(array_keys($fields), array_values($fields)));
+        }
+
+        // skip and limit
+        $hash[] = $this->skip;
+        $hash[] = $this->limit;
 
         // get hash
-        return implode('', $hash);
+        return md5(implode(':', $hash));
     }
 }
