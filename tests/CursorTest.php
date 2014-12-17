@@ -820,4 +820,48 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             $queryBuilder->getHash()
         );
     }
+
+    public function testHashEquals()
+    {
+        $queryBuilder1 = $this->collection
+            ->find()
+            ->field('_id')
+            ->field('ineterests')
+            ->sort(array(
+                'age' => 1,
+                'gender' => -1,
+            ))
+            ->limit(10, 20)
+            ->whereAll('interests', ['php', 'snowboard']);
+
+        $queryBuilder2 = $this->collection
+            ->find()
+            ->sort(array(
+                'gender' => -1,
+                'age' => 1,
+            ))
+            ->field('ineterests')
+            ->whereAll('interests', ['php', 'snowboard'])
+            ->field('_id')
+            ->limit(10, 20);
+
+        $queryBuilder3 = $this->collection
+            ->find()
+            ->sort(array(
+                'age' => 1,
+            ))
+            ->whereAll('interests', ['php', 'snowboard'])
+            ->field('_id')
+            ->limit(10, 20);
+
+        $this->assertEquals(
+            $queryBuilder1->getHash(),
+            $queryBuilder2->getHash()
+        );
+
+        $this->assertNotEquals(
+            $queryBuilder1->getHash(),
+            $queryBuilder3->getHash()
+        );
+    }
 }
