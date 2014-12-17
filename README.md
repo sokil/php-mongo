@@ -433,7 +433,8 @@ $cursor = $collection
 ```
 
 All "where" conditions added with logical AND. To add condition with logical OR:
-```
+```php
+<?php
 $cursor = $collection
     ->find()
     ->whereOr(
