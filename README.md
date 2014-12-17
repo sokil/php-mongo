@@ -433,7 +433,8 @@ $cursor = $collection
 ```
 
 All "where" conditions added with logical AND. To add condition with logical OR:
-```
+```php
+<?php
 $cursor = $collection
     ->find()
     ->whereOr(
@@ -513,7 +514,8 @@ If you want to cache your results or want to compare to queries, you need some
 identifier which unambiguously identify query. You can use `Cursor::getHash()` for
 that reason:
 
-```
+```php
+<?php
 $queryBuilder = $this->collection
     ->find()
     ->field('_id')
