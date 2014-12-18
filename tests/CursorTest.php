@@ -813,7 +813,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 'gender' => -1,
             ))
             ->limit(10, 20)
-            ->whereAll('interests', ['php', 'snowboard']);
+            ->whereAll('interests', array('php', 'snowboard'));
 
         $this->assertEquals(
             '508cc93b371c222c53ae90989d95caae',
@@ -832,7 +832,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 'gender' => -1,
             ))
             ->limit(10, 20)
-            ->whereAll('interests', ['php', 'snowboard']);
+            ->whereAll('interests', array('php', 'snowboard'));
 
         $queryBuilder2 = $this->collection
             ->find()
@@ -841,7 +841,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 'age' => 1,
             ))
             ->field('ineterests')
-            ->whereAll('interests', ['php', 'snowboard'])
+            ->whereAll('interests', array('php', 'snowboard'))
             ->field('_id')
             ->limit(10, 20);
 
@@ -850,7 +850,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ->sort(array(
                 'age' => 1,
             ))
-            ->whereAll('interests', ['php', 'snowboard'])
+            ->whereAll('interests', array('php', 'snowboard'))
             ->field('_id')
             ->limit(10, 20);
 
