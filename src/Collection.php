@@ -6,12 +6,12 @@ use \Sokil\Mongo\Document\Exception\Validate as ValidateException;
 /**
  * Instance of this class is a representation of mongo collection.
  * It aggregates \MongoCollection instance.
- * 
+ *
  * @link https://github.com/sokil/php-mongo#selecting-database-and-collection Selecting collection
  * @link https://github.com/sokil/php-mongo#querying-documents Querying documents
  * @link https://github.com/sokil/php-mongo#update-few-documents Update few documents
  * @link https://github.com/sokil/php-mongo#deleting-collections-and-documents Deleting collection
- * 
+ *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
 class Collection implements \Countable
@@ -29,7 +29,7 @@ class Collection implements \Countable
      * @var string expression class. This class may be overloaded to define own query methods (whereUserAgeGreatedThan(), etc.)
      */
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
-    
+
     /**
      * List of arrays, where each item array is an index definition.
      * Every index definition must contain key 'keys' with list of fields and orders,
@@ -46,73 +46,73 @@ class Collection implements \Countable
      * @var array list of indexes
      */
     protected $_index;
-    
+
     /**
      *
      * @var \Sokil\Mongo\Database
      */
     protected $_database;
-    
+
     /**
      *
      * @var \MongoCollection
      */
     protected $_mongoCollection;
-    
+
     /**
      * Implementation of identity map pattern
-     * 
+     *
      * @var array list of cached documents
      */
     private $documentPool = array();
-    
+
     /**
      *
      * @var bool cache or not documents
      */
     private $isDocumentPoolEnabled = true;
-    
+
     /**
      *
      * @var bool default value of versioning
      */
     protected $versioning = false;
-    
+
     /**
      *
      * @var array collection options
      */
     private $_options = array(
-        // May be override in constructor. 
+        // May be override in constructor.
         // Used as default value for getting document classname.
         // May be fully qualified class name or callable that return fully qualified class name
         'documentClass' => '\Sokil\Mongo\Document',
         'versioning'    => false,
         'index'         => null,
     );
-    
+
     public function __construct(Database $database, $collection, array $options = null)
     {
         // define db
         $this->_database = $database;
-        
+
         // init mongo collection
         if($collection instanceof \MongoCollection) {
             $this->_mongoCollection = $collection;
         } else {
             $this->_mongoCollection = $database->getMongoDB()->selectCollection($collection);
         }
-        
+
         // set options
         if($options) {
             $this->setOptions($options);
         }
-        
+
     }
-    
+
     /**
      * Configure object in constructor
-     * 
+     *
      * @param array $options
      * @return \Sokil\Mongo\Collection
      * @throws Exception
@@ -120,21 +120,21 @@ class Collection implements \Countable
     private function setOptions(array $options)
     {
         $this->_options = $options + $this->_options;
-        
+
         return $this;
     }
-    
+
     public function enableVersioning()
     {
         $this->_options['versioning'] = true;
         return $this;
     }
-    
+
     public function isVersioningEnabled()
     {
         return $this->getOption('versioning', $this->versioning);
     }
-    
+
     /**
      * Get fully qualified document class name or callable that return fully qualified class name
      * @return string
@@ -142,17 +142,17 @@ class Collection implements \Countable
     public function getDefaultDocumentClass()
     {
         $class = $this->_options['documentClass'];
-        
+
         // May be fully qualified class name or callable that return fully qualified class name
         if(!is_callable($class) && !class_exists($class)) {
             throw new Exception('Property "documentClass" must be callable or valid name of class');
         }
-        
+
         return $class;
-            
-            
+
+
     }
-    
+
     /**
      * Get all options
      * @return array
@@ -161,10 +161,10 @@ class Collection implements \Countable
     {
         return $this->_options;
     }
-    
+
     /**
      * Get option
-     * 
+     *
      * @param string|int $name
      * @return mixed
      */
@@ -172,12 +172,12 @@ class Collection implements \Countable
     {
         return isset($this->_options[$name]) ? $this->_options[$name] : $default;
     }
-    
+
     public function __get($name)
     {
         return $this->getDocument($name);
     }
-    
+
     /**
      * Get name of collection
      * @return string name of collection
@@ -186,25 +186,25 @@ class Collection implements \Countable
     {
         return $this->_mongoCollection->getName();
     }
-    
+
     /**
-     * 
+     *
      * @return \MongoCollection
      */
     public function getMongoCollection()
     {
         return $this->_mongoCollection;
     }
-    
+
     /**
-     * 
+     *
      * @return \Sokil\Mongo\Database
      */
     public function getDatabase()
     {
         return $this->_database;
     }
-    
+
     public function delete() {
         $status = $this->_mongoCollection->drop();
         if($status['ok'] != 1) {
@@ -214,33 +214,33 @@ class Collection implements \Countable
                 throw new Exception('Error deleting collection ' . $this->getName() . ': ' . $status['errmsg']);
             }
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Override to define class name of document by document data
-     * 
+     *
      * @param array $documentData
      * @return string Document class data
      */
     public function getDocumentClassName(array $documentData = null)
     {
         $defaultDocumentClass = $this->getDefaultDocumentClass();
-        
+
         if(is_callable($defaultDocumentClass)) {
             $className = call_user_func($defaultDocumentClass, $documentData);
         } else {
             $className = $defaultDocumentClass;
         }
-        
+
         if(!class_exists($className)) {
             throw new Exception('Class ' . $className . ' not found');
         }
-        
+
         return $className;
     }
-    
+
     /**
      * Factory method to get not stored Document instance from array
      * @param array $data
@@ -249,13 +249,13 @@ class Collection implements \Countable
     public function createDocument(array $data = null)
     {
         $className = $this->getDocumentClassName($data);
-        
+
         /* @var $document \Sokil\Mongo\Document */
         $document = new $className($this, $data, array(
             'stored' => false,
             'versioning' => $this->isVersioningEnabled(),
         ));
-        
+
         // store document to identity map
         if($this->isDocumentPoolEnabled()) {
             $collection = $this;
@@ -263,13 +263,13 @@ class Collection implements \Countable
                 $collection->addDocumentToDocumentPool($event->getTarget());
             });
         }
-        
+
         return $document;
     }
-    
+
     /**
      * Factory method to get document object from array of stored document
-     * 
+     *
      * @param array $data
      * @return \Sokil\Mongo\Document
      */
@@ -278,37 +278,37 @@ class Collection implements \Countable
         if(!isset($data['_id'])) {
             throw new Exception('Document must be stored and has _id key');
         }
-        
+
         // if document already in pool - return it
         if($useDocumentPool && $this->isDocumentPoolEnabled() && $this->isDocumentInDocumentPool($data['_id'])) {
             return $this
                 ->getDocumentFromDocumentPool($data['_id'])
                 ->mergeUnmodified($data);
         }
-        
+
         // init document instance
         $className = $this->getDocumentClassName($data);
         $document = new $className($this, $data, array(
             'stored' => true,
             'versioning' => $this->isVersioningEnabled(),
         ));
-        
+
         // store document in cache
         if($useDocumentPool && $this->isDocumentPoolEnabled()) {
             $this->addDocumentToDocumentPool($document);
         }
-        
+
         return $document;
     }
-    
+
     public function count()
     {
         return $this->find()->count();
     }
-    
+
     /**
      * Retrieve a list of distinct values for the given key across a collection.
-     * 
+     *
      * @param string $selector field selector
      * @param \Sokil\Mongo\Expression $expression expression to search documents
      * @return array distinct values
@@ -320,28 +320,28 @@ class Collection implements \Countable
         } else {
             return $this->_mongoCollection->distinct($selector);
         }
-        
+
 
     }
-    
+
     /**
-     * 
+     *
      * @return \Sokil\Mongo\Expression
      */
     public function expression()
-    {        
+    {
         return new $this->_queryExpressionClass;
     }
-    
+
     /**
-     * 
+     *
      * @return \Sokil\Mongo\Operator
      */
     public function operator()
     {
         return new Operator();
     }
-    
+
     /**
      * Create document query builder
      *
@@ -361,10 +361,10 @@ class Collection implements \Countable
 
         return $queryBuilder;
     }
-    
+
     /**
      * Create document query builder
-     * 
+     *
      * @return \Sokil\Mongo\QueryBuilder
      */
     public function findAsArray($callable = null)
@@ -405,7 +405,7 @@ class Collection implements \Countable
     {
         return $this->isDocumentPoolEnabled;
     }
-    
+
     public function clearDocumentPool()
     {
         $this->documentPool = array();
@@ -421,42 +421,42 @@ class Collection implements \Countable
     {
         return !$this->documentPool;
     }
-    
+
     /**
      * Store document to pool
-     * 
+     *
      * @param array $document
      * @return \Sokil\Mongo\Collection
      */
     public function addDocumentToDocumentPool(Document $document)
     {
         $documentId = (string) $document->getId();
-        
+
         if(!isset($this->documentPool[$documentId])) {
             $this->documentPool[$documentId] = $document;
         } else {
-            // merging because document after 
+            // merging because document after
             // load and before getting in second place may be changed
             // and this changes must be preserved:
-            // 
+            //
             // 1. Here document loads and modifies
             // $document = $collection->getDocument()->set('field', 'value');
-            // 
+            //
             // 2. Here document modified in another session
-            // 
-            // 3. Here document loads once again. 
+            //
+            // 3. Here document loads once again.
             //    Changes from stage 2 merges as unmodified
             // $collection->find();
-            
+
             $this->documentPool[$documentId]->mergeUnmodified($document->toArray());
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Store documents to identity map
-     * 
+     *
      * @param array $documents list of Document instances
      * @return \Sokil\Mongo\Collection
      */
@@ -465,13 +465,13 @@ class Collection implements \Countable
         foreach($documents as $document) {
             $this->addDocumentToDocumentPool($document);
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Remove document instance from identity map
-     * 
+     *
      * @param \Sokil\Mongo\Document $document
      * @return \Sokil\Mongo\Collection
      */
@@ -480,10 +480,10 @@ class Collection implements \Countable
         unset($this->documentPool[(string) $document]);
         return $this;
     }
-    
+
     /**
      * Get document from identity map by it's id
-     * 
+     *
      * @param string|int|\MongoId $id
      * @return \Sokil\Mongo\Document
      */
@@ -491,37 +491,37 @@ class Collection implements \Countable
     {
         return $this->documentPool[(string) $id];
     }
-    
+
     /**
      * Get documents from pool if they stored
-     * 
+     *
      * @param array $ids
      */
-    public function getDocumentsFromDocumentPool(array $ids = null) 
+    public function getDocumentsFromDocumentPool(array $ids = null)
     {
         if(!$ids) {
             return $this->documentPool;
         }
-        
+
         return array_intersect_key(
-            $this->documentPool, 
+            $this->documentPool,
             array_flip(array_map('strval', $ids))
         );
     }
-    
+
     /**
      * Get number of documents in document pool
-     * 
+     *
      * @return int
      */
     public function documentPoolCount()
     {
         return count($this->documentPool);
     }
-    
+
     /**
      * Check if document exists in identity map
-     * 
+     *
      * @param \Sokil\Mongo\Document|\MongoId|int|string $document Document instance or it's id
      * @return boolean
      */
@@ -530,13 +530,13 @@ class Collection implements \Countable
         if($document instanceof Document) {
             $document = $document->getId();
         }
-        
+
         return isset($this->documentPool[(string) $document]);
     }
-    
+
     /**
      * Get document by id
-     * 
+     *
      * @param string|\MongoId $id
      * @return \Sokil\Mongo\Document|null
      */
@@ -545,22 +545,22 @@ class Collection implements \Countable
         if(!$this->isDocumentPoolEnabled) {
             return $this->getDocumentDirectly($id);
         }
-        
+
         if($this->isDocumentInDocumentPool($id)) {
             return $this->getDocumentFromDocumentPool($id);
         }
-        
+
         $document = $this->getDocumentDirectly($id);
-        
+
         $this->addDocumentToDocumentPool($document);
-        
+
         return $document;
     }
-    
-    
+
+
     /**
      * Get document by id directly omitting cache
-     * 
+     *
      * @param string|\MongoId $id
      * @return \Sokil\Mongo\Document|null
      */
@@ -572,21 +572,21 @@ class Collection implements \Countable
             ->skipDocumentPool()
             ->findOne();
     }
-    
+
     /**
      * Check if document belongs to collection
-     * 
+     *
      * @param \Sokil\Mongo\Document $document
      * @return type
      */
-    public function hasDocument(Document $document) 
+    public function hasDocument(Document $document)
     {
         return (bool) $this->getDocument($document->getId());
     }
-    
+
     /**
      * Get documents by list of id
-     * 
+     *
      * @param array $idList list of ids
      * @return array|null
      */
@@ -596,14 +596,14 @@ class Collection implements \Countable
         if(!$documents) {
             return array();
         }
-        
+
         if($this->isDocumentPoolEnabled) {
             $this->addDocumentsToDocumentPool($documents);
         }
-        
+
         return $documents;
     }
-    
+
     /**
      * Save document
      *
@@ -619,43 +619,43 @@ class Collection implements \Countable
         $document->save($validate);
         return $this;
     }
-    
+
     public function deleteDocument(Document $document)
-    {        
+    {
         if($document->triggerEvent('beforeDelete')->isCancelled()) {
             return $this;
         }
-        
+
         $status = $this->_mongoCollection->remove(array(
             '_id'   => $document->getId()
         ));
-        
+
         $document->triggerEvent('afterDelete');
-        
+
         if(true !== $status && $status['ok'] != 1) {
             throw new Exception('Delete document error: ' . $status['err']);
         }
-        
+
         // drop from document's pool
         $this->removeDocumentFromDocumentPool($document);
-        
+
         return $this;
     }
-    
+
     public function deleteDocuments($expression)
     {
         // get expression from callable
         if(is_callable($expression)) {
-            $expression = call_user_func($expression, $this->expression());    
+            $expression = call_user_func($expression, $this->expression());
         }
-        
+
         // get array from Expression object
         if($expression instanceof Expression) {
             $expression = $expression->toArray();
         } elseif(!is_array($expression)) {
             throw new Exception('Wrong expression specified');
         }
-        
+
         // remove
         $result = $this->_mongoCollection->remove($expression);
 
@@ -663,23 +663,23 @@ class Collection implements \Countable
         if(true !== $result && $result['ok'] != 1) {
             throw new Exception('Error removing documents from collection: ' . $result['err']);
         }
-        
+
         return $this;
     }
-    
+
     public function insertMultiple($rows)
     {
         $document = $this->createDocument();
         foreach($rows as $row) {
             $document->merge($row);
-            
+
             if(!$document->isValid()) {
                 throw new ValidateException('Document invalid');
             }
-            
+
             $document->reset();
         }
-        
+
         $result = $this->_mongoCollection->batchInsert($rows);
 
         // If the w parameter is set to acknowledge the write,
@@ -701,10 +701,10 @@ class Collection implements \Countable
 
         return $this;
     }
-    
+
     /**
      * Direct insert of array to MongoDB without creating document object and validation
-     * 
+     *
      * @param array $document
      * @return \Sokil\Mongo\Collection
      * @throws Exception
@@ -729,11 +729,11 @@ class Collection implements \Countable
 
         return $this;
     }
-    
+
     /**
      * Update multiple documents
      * @param \Sokil\Mongo\Expression|array|callable $expression expression to define
-     *  which documents will change. 
+     *  which documents will change.
      * @param \Sokil\Mongo\Operator|array|callable $updateData new data or commands
      *  to update
      * @return \Sokil\Mongo\Collection
@@ -787,7 +787,7 @@ class Collection implements \Countable
         if(!$result) {
             throw new Exception('Multiple update error');
         }
-        
+
         return $this;
     }
 
@@ -801,9 +801,9 @@ class Collection implements \Countable
         if($updateData instanceof Operator) {
             $updateData = $updateData->getAll();
         }
-        
+
         $result = $this->_mongoCollection->update(
-            array(), 
+            array(),
             $updateData,
             array(
                 'multiple'  => true,
@@ -823,37 +823,44 @@ class Collection implements \Countable
         if(!$result) {
             throw new Exception('Update error');
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Create Aggregator pipelines instance
-     * 
+     *
      * @return \Sokil\Mongo\AggregatePipelines
+     * @deprecated since 1.10.10, use callable in Collection::aggregate()
      */
-    public function createPipeline() 
+    public function createPipeline()
     {
         return new AggregatePipelines($this);
     }
-    
+
     /**
      * Aggregate using pipelines
-     * 
-     * @param \Sokil\Mongo\AggregatePipelines|array $pipelines list of pipelines
+     *
+     * @param callable|array|\Sokil\Mongo\AggregatePipelines $pipelines list of pipelines
      * @return array result of aggregation
      * @throws \Sokil\Mongo\Exception
      */
-    public function aggregate($pipelines) 
+    public function aggregate($pipelines)
     {
-        
-        if($pipelines instanceof AggregatePipelines) {
-            $pipelines = $pipelines->toArray();
+        // configure through callable
+        if (is_callable($pipelines)) {
+            $pipelinesConfiguratorCallable = $pipelines;
+            $pipelines = new AggregatePipelines($this);
+            call_user_func($pipelinesConfiguratorCallable, $pipelines);
         }
-        elseif(!is_array($pipelines)) {
+
+        // get aggregation array
+        if ($pipelines instanceof AggregatePipelines) {
+            $pipelines = $pipelines->toArray();
+        } elseif (!is_array($pipelines)) {
             throw new Exception('Wrong pipelines specified');
         }
-        
+
         // log
         $client = $this->_database->getClient();
         if($client->hasLogger()) {
@@ -861,33 +868,33 @@ class Collection implements \Countable
                 get_called_class() . ':<br><b>Pipelines</b>:<br>' .
                 json_encode($pipelines));
         }
-        
+
         // aggregate
         $status = $this->_database->executeCommand(array(
             'aggregate' => $this->getName(),
             'pipeline'  => $pipelines
         ));
-        
+
         if($status['ok'] != 1) {
             throw new Exception('Aggregate error: ' . $status['errmsg']);
         }
-        
+
         return $status['result'];
     }
-    
+
     public function explainAggregate($pipelines)
     {
         if(version_compare($this->getDatabase()->getClient()->getDbVersion(), '2.6.0', '<')) {
             throw new Exception('Explain of aggregation implemented only from 2.6.0');
         }
-        
+
         if($pipelines instanceof AggregatePipelines) {
             $pipelines = $pipelines->toArray();
         }
         elseif(!is_array($pipelines)) {
             throw new Exception('Wrong pipelines specified');
         }
-        
+
         // aggregate
         return $this->_database->executeCommand(array(
             'aggregate' => $this->getName(),
@@ -895,20 +902,20 @@ class Collection implements \Countable
             'explain'   => true
         ));
     }
-    
+
     public function validate($full = false)
     {
         $response = $this->_mongoCollection->validate($full);
         if(!$response || $response['ok'] != 1) {
             throw new Exception($response['errmsg']);
         }
-        
+
         return $response;
     }
-    
+
     /**
      * Create index
-     * 
+     *
      * @param array $key
      * @param array $options see @link http://php.net/manual/en/mongocollection.ensureindex.php
      * @return \Sokil\Mongo\Collection
@@ -918,10 +925,10 @@ class Collection implements \Countable
         $this->_mongoCollection->ensureIndex($key, $options);
         return $this;
     }
-    
+
     /**
      * Create unique index
-     * 
+     *
      * @param array $key
      * @param boolean $dropDups
      * @return \Sokil\Mongo\Collection
@@ -932,15 +939,15 @@ class Collection implements \Countable
             'unique'    => true,
             'dropDups'  => (bool) $dropDups,
         ));
-        
+
         return $this;
     }
-    
+
     /**
      * Create sparse index
-     * 
+     *
      * @link http://docs.mongodb.org/manual/core/index-sparse/
-     * 
+     *
      * @param string|array $key An array specifying the index's fields as its keys. For each field, the value is
      *  either the index direction or index type. If specifying direction, specify 1 for ascending or -1 for descending.
      * @return \Sokil\Mongo\Collection
@@ -950,18 +957,18 @@ class Collection implements \Countable
         $this->_mongoCollection->ensureIndex($key, array(
             'sparse'    => true,
         ));
-        
+
         return $this;
     }
-    
+
     /**
      * Create TTL index
-     * 
+     *
      * @link http://docs.mongodb.org/manual/tutorial/expire-data/
-     * 
+     *
      * If seconds not specified then document expired at specified time, as
      * described at @link http://docs.mongodb.org/manual/tutorial/expire-data/#expire-documents-at-a-certain-clock-time
-     * 
+     *
      * @param string|array $key key must be date to use TTL
      * @param int $seconds
      * @return \Sokil\Mongo\Collection
@@ -971,13 +978,13 @@ class Collection implements \Countable
         $this->_mongoCollection->ensureIndex($key, array(
             'expireAfterSeconds' => $seconds,
         ));
-        
+
         return $this;
     }
-    
+
     /**
      * Create indexes based on self::$_index metadata
-     * 
+     *
      * @return \Sokil\Mongo\Collection
      * @throws \Exception
      */
@@ -986,20 +993,20 @@ class Collection implements \Countable
         // read index definition from collection options
         // if not specified - use defined in property
         $indexDefinition = $this->getOption('index', $this->_index);
-        
+
         // ensure indexes
         foreach($indexDefinition as $options) {
-            
+
             if(empty($options['keys'])) {
                 throw new Exception('Keys not specified');
             }
-            
+
             $keys = $options['keys'];
             unset($options['keys']);
-            
+
             $this->_mongoCollection->ensureIndex($keys, $options);
         }
-        
+
         return $this;
     }
 
@@ -1011,31 +1018,31 @@ class Collection implements \Countable
     {
         return $this->_mongoCollection->getIndexInfo();
     }
-    
+
     public function readPrimaryOnly()
     {
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
-    
+
     public function readPrimaryPreferred(array $tags = null)
     {
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
-    
+
     public function readSecondaryOnly(array $tags = null)
     {
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
-    
+
     public function readSecondaryPreferred(array $tags = null)
     {
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
-    
+
     public function readNearest(array $tags = null)
     {
         $this->_mongoCollection->setReadPreference(\MongoClient::RP_NEAREST, $tags);
@@ -1046,7 +1053,7 @@ class Collection implements \Countable
     {
         return $this->_mongoCollection->getReadPreference();
     }
-    
+
     /**
      * Define write concern for all requests to current collection
      *
@@ -1060,10 +1067,10 @@ class Collection implements \Countable
         if(!$this->_mongoCollection->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Define unacknowledged write concern for all requests to current collection
      *
@@ -1076,7 +1083,7 @@ class Collection implements \Countable
         $this->setWriteConcern(0, (int) $timeout);
         return $this;
     }
-    
+
     /**
      * Define majority write concern for all requests to current collection
      *
