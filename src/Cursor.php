@@ -848,7 +848,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function getHash()
     {
-        $hash = [];
+        $hash = array();
 
         // expression
         $hash[] = json_encode($this->expression->toArray());
