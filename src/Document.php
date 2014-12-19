@@ -3,6 +3,7 @@
 namespace Sokil\Mongo;
 
 use \Symfony\Component\EventDispatcher\EventDispatcher;
+use GeoJson\Geometry\Geometry;
 
 /**
  * Instance of this class is a representation of one document from collection.
@@ -16,7 +17,7 @@ use \Symfony\Component\EventDispatcher\EventDispatcher;
  * @link https://github.com/sokil/php-mongo#events Event handlers
  * @link https://github.com/sokil/php-mongo#behaviors Behaviors
  * @link https://github.com/sokil/php-mongo#relations Relations
- * 
+ *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
 class Document extends Structure
@@ -41,19 +42,11 @@ class Document extends Structure
     const FIELD_TYPE_INT64 = 18;
     const FIELD_TYPE_MIN_KEY = 255;
     const FIELD_TYPE_MAX_KEY = 127;
-    
+
     const RELATION_HAS_ONE = 'HAS_ONE';
     const RELATION_BELONGS = 'BELONGS';
     const RELATION_HAS_MANY = 'HAS_MANY';
     const RELATION_MANY_MANY = 'MANY_MANY';
-
-    const GEO_POINT = 'Point';
-    const GEO_LINESTRING = 'LineString';
-    const GEO_POLYGON = 'Polygon';
-    const GEO_MULTIPOINT = 'MultiPoint';
-    const GEO_MULTILINESTRING = 'MultiLineString';
-    const GEO_MULTIPOLYGON = 'MultiPolygon';
-    const GEO_GEOMETRYCOLLECTION = 'GeometryCollection';
 
     private $resolvedRelationIds = array();
 
@@ -62,7 +55,7 @@ class Document extends Structure
      * @var \Sokil\Mongo\Collection
      */
     private $collection;
-    
+
     /**
      * Name of scenario, used for validating fields
      * @var string
@@ -94,7 +87,7 @@ class Document extends Structure
      * @var array list of defined behaviors
      */
     private $_behaviors = array();
-    
+
     /**
      *
      * @var array list of namespaces
@@ -102,7 +95,7 @@ class Document extends Structure
     private $_validatorNamespaces = array(
         '\Sokil\Mongo\Validator',
     );
-    
+
     /**
      *
      * @var array document options
@@ -120,7 +113,7 @@ class Document extends Structure
     public function __construct(Collection $collection, array $data = null, array $options = array())
     {
         $this->collection = $collection;
-        
+
         // configure document with options
         $this->options = $options + $this->options;
 
@@ -141,7 +134,7 @@ class Document extends Structure
             }
         }
 
-        // use versioning        
+        // use versioning
         if($this->getOption('versioning')) {
             $self = $this;
             $createRevisionCallback = function() use($self) {
@@ -155,29 +148,29 @@ class Document extends Structure
             $this->onBeforeUpdate($createRevisionCallback, PHP_INT_MAX);
             $this->onBeforeDelete($createRevisionCallback, PHP_INT_MAX);
         }
-        
+
         // execure after construct event handlers
         $this->_eventDispatcher->dispatch('afterConstruct');
     }
-    
+
     public function getOptions()
     {
         return $this->options;
     }
-    
+
     public function getOption($name, $default = null)
     {
         return isset($this->options[$name]) ? $this->options[$name] : $default;
     }
-    
+
     public function hasOption($name)
     {
         return isset($this->options[$name]);
     }
-    
+
     /**
      * Add own namespace of validators
-     * 
+     *
      * @param type $namespace
      * @return \Sokil\Mongo\Document
      */
@@ -193,7 +186,7 @@ class Document extends Structure
      */
     public function beforeConstruct()
     {
-        
+
     }
 
     /**
@@ -201,14 +194,14 @@ class Document extends Structure
      * @return \Sokil\Mongo\Collection
      */
     public function getCollection()
-    {        
+    {
         return $this->collection;
     }
 
     /**
-     * Reset all data passed to object in run-time, like events, behaviors, 
+     * Reset all data passed to object in run-time, like events, behaviors,
      * data modifications, etc. to the state just after open or save document
-     * 
+     *
      * @return \Sokil\Mongo\Document
      */
     public function reset()
@@ -228,7 +221,7 @@ class Document extends Structure
 
         return $this;
     }
-    
+
     /**
      * Reload data from db and reset all unsaved data
      */
@@ -241,15 +234,15 @@ class Document extends Structure
             ->findOne(array(
                 '_id' => $this->getId(),
             ));
-        
+
         $this->_data = $data;
-        
+
         $this->_originalData = $data;
-        
+
         $this->_modifiedFields = array();
-        
+
         $this->_operator = $this->getCollection()->operator();
-        
+
         return $this;
     }
 
@@ -305,17 +298,14 @@ class Document extends Structure
         }
     }
 
-    public function setGeoJSON($field, $type, array $coordinates)
+    public function setGeometry($field, Geometry $geometry)
     {
-        return $this->set($field, array(
-            'type' => $type,
-            'coordinates' => $coordinates,
-        ));
+        return $this->set($field, $geometry);
     }
 
     /**
      * Set point as longitude and latitude
-     * 
+     *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#point
      * @param string $field
      * @param float $longitude
@@ -324,10 +314,13 @@ class Document extends Structure
      */
     public function setPoint($field, $longitude, $latitude)
     {
-        return $this->setGeoJSON($field, self::GEO_POINT, array(
-            $longitude,
-            $latitude
-        ));
+        return $this->setGeometry(
+            $field,
+            new \GeoJson\Geometry\Point(array(
+                $longitude,
+                $latitude
+            ))
+        );
     }
 
     /**
@@ -340,7 +333,10 @@ class Document extends Structure
      */
     public function setLineString($field, array $pointArray)
     {
-        return $this->setGeoJSON($field, self::GEO_LINESTRING, $pointArray);
+        return $this->setGeometry(
+            $field,
+            new \GeoJson\Geometry\LineString($pointArray)
+        );
     }
 
     /**
@@ -355,18 +351,11 @@ class Document extends Structure
      */
     public function setPolygon($field, array $lineRingsArray)
     {
-        // check if line righs closed
-        foreach($lineRingsArray as $i => $lineRing) {
-            $firstPoint = $lineRing[0];
-            $lastPoint = $lineRing[count($lineRing) - 1];
-
-            if($firstPoint[0] !== $lastPoint[0] || $firstPoint[1] !== $lastPoint[1]) {
-                throw new Exception('LineRing #' . $i . ' is not closed');
-            }
-        }
-        
         // set polygon
-        return $this->setGeoJSON($field, self::GEO_POLYGON, $lineRingsArray);
+        return $this->setGeometry(
+            $field,
+            new \GeoJson\Geometry\Polygon($lineRingsArray)
+        );
     }
 
     /**
@@ -379,7 +368,10 @@ class Document extends Structure
      */
     public function setMultiPoint($field, $pointArray)
     {
-        return $this->setGeoJSON($field, self::GEO_MULTIPOINT, $pointArray);
+        return $this->setGeometry(
+            $field,
+            new \GeoJson\Geometry\MultiPoint($pointArray)
+        );
     }
 
     /**
@@ -392,7 +384,10 @@ class Document extends Structure
      */
     public function setMultiLineString($field, $lineStringArray)
     {
-        return $this->setGeoJSON($field, self::GEO_MULTILINESTRING, $lineStringArray);
+        return $this->setGeometry(
+            $field,
+            new \GeoJson\Geometry\MultiLineString($lineStringArray)
+        );
     }
 
     /**
@@ -408,20 +403,11 @@ class Document extends Structure
      */
     public function setMultyPolygon($field, array $polygonsArray)
     {
-        foreach($polygonsArray as $polygonId => $lineRingsArray) {
-            // check if line righs closed
-            foreach($lineRingsArray as $lineRingId => $lineRing) {
-                $firstPoint = $lineRing[0];
-                $lastPoint = $lineRing[count($lineRing) - 1];
-
-                if($firstPoint[0] !== $lastPoint[0] || $firstPoint[1] !== $lastPoint[1]) {
-                    throw new Exception('LineRing #' . $lineRingId . ' of polygon #' . $polygonId . ' is not closed');
-                }
-            }
-        }
-
         // set polygon
-        return $this->setGeoJSON($field, self::GEO_MULTIPOLYGON, $polygonsArray);
+        return $this->setGeometry(
+            $field,
+            new \GeoJson\Geometry\MultiPolygon($polygonsArray)
+        );
     }
 
     /**
@@ -436,7 +422,7 @@ class Document extends Structure
         if($collection->getDatabase()->getClient()->getDsn() !== $this->collection->getDatabase()->getClient()->getDsn()) {
             return false;
         }
-        
+
         // check database
         if ($collection->getDatabase()->getName() !== $this->collection->getDatabase()->getName()) {
             return false;
@@ -475,23 +461,23 @@ class Document extends Structure
     {
         // get relation config
         $relations = $this->relations();
-        
+
         // check if relation exists
         if (!isset($relations[$relationName])) {
             throw new Exception('Relation with name "' . $relationName . '" not found');
         }
-        
+
         // get relation metadata
         $relation = $relations[$relationName];
 
         $relationType = $relation[0];
         $targetCollectionName = $relation[1];
-        
+
         // get target collection
         $targetCollection = $this->collection
             ->getDatabase()
             ->getCollection($targetCollectionName);
-        
+
         // check if relation already resolved
         if (isset($this->resolvedRelationIds[$relationName])) {
             if(is_array($this->resolvedRelationIds[$relationName])) {
@@ -504,10 +490,10 @@ class Document extends Structure
         }
 
         switch ($relationType) {
-            
+
             default:
                 throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
-                
+
             case self::RELATION_HAS_ONE:
                 $internalField = '_id';
                 $externalField = $relation[2];
@@ -518,7 +504,7 @@ class Document extends Structure
                     ->findOne();
 
                 $this->resolvedRelationIds[$relationName] = (string) $document->getId();
-                
+
                 return $document;
 
             case self::RELATION_BELONGS:
@@ -527,7 +513,7 @@ class Document extends Structure
                 $document = $targetCollection->getDocument($this->get($internalField));
 
                 $this->resolvedRelationIds[$relationName] = (string) $document->getId();
-                    
+
                 return $document;
 
             case self::RELATION_HAS_MANY:
@@ -538,7 +524,7 @@ class Document extends Structure
                     ->find()
                     ->where($externalField, $this->get($internalField))
                     ->findAll();
-                
+
                 foreach($documents as $document) {
                     $this->resolvedRelationIds[$relationName][] = (string) $document->getId();
                 }
@@ -561,7 +547,7 @@ class Document extends Structure
                         ->find()
                         ->whereIn($externalField, $relatedIdList)
                         ->findAll();
-                    
+
                 } else {
                     // relation list stored in external document
                     $internalField = '_id';
@@ -572,7 +558,7 @@ class Document extends Structure
                         ->where($externalField, $this->get($internalField))
                         ->findAll();
                 }
-                
+
                 foreach($documents as $document) {
                     $this->resolvedRelationIds[$relationName][] = (string) $document->getId();
                 }
@@ -712,7 +698,7 @@ class Document extends Structure
         if(!$event) {
             $event = new Event;
         }
-        
+
         $event->setTarget($this);
 
         return $this->_eventDispatcher->dispatch($eventName, $event);
@@ -903,7 +889,7 @@ class Document extends Structure
         } else {
             $className = ucfirst(strtolower($ruleName));
         }
-        
+
         foreach ($this->_validatorNamespaces as $namespace) {
             $fullyQualifiedClassName = $namespace . '\\' . $className . 'Validator';
             if (class_exists($fullyQualifiedClassName)) {
@@ -985,7 +971,7 @@ class Document extends Structure
         }
 
         $this->triggerEvent('afterValidate');
-        
+
         return $this;
     }
 
@@ -1007,9 +993,9 @@ class Document extends Structure
     }
 
     /**
-     * Add validator error from validator classes and methods. This error 
+     * Add validator error from validator classes and methods. This error
      * reset on every revalidation
-     * 
+     *
      * @param type $fieldName
      * @param type $ruleName
      * @param type $message
@@ -1023,7 +1009,7 @@ class Document extends Structure
 
     /**
      * Add errors
-     * 
+     *
      * @param array $errors
      * @return \Sokil\Mongo\Document
      */
@@ -1035,7 +1021,7 @@ class Document extends Structure
 
     /**
      * Add custom error which not reset after validation
-     * 
+     *
      * @param type $fieldName
      * @param type $ruleName
      * @param type $message
@@ -1049,7 +1035,7 @@ class Document extends Structure
 
     /**
      * Add custom errors
-     * 
+     *
      * @param array $errors
      * @return \Sokil\Mongo\Document
      */
@@ -1061,7 +1047,7 @@ class Document extends Structure
 
     /**
      * Remove custom errors
-     * 
+     *
      * @return \Sokil\Mongo\Document
      */
     public function clearTriggeredErrors()
@@ -1183,7 +1169,7 @@ class Document extends Structure
      * If field not exist - set value.
      * If field exists and is not array - convert to array and append
      * If field -s array - append
-     * 
+     *
      * @param type $selector
      * @param type $value
      * @return \Sokil\Mongo\Structure
@@ -1250,7 +1236,7 @@ class Document extends Structure
 
     /**
      * Push each element of argument's array as single element to field value
-     * 
+     *
      * @param string $fieldName
      * @param array $values
      * @return \Sokil\Mongo\Document
@@ -1293,7 +1279,7 @@ class Document extends Structure
 
     /**
      * Removes from an existing array all instances of a value or values that match a specified query
-     * 
+     *
      * @param string $fieldName
      * @param integer|string|array|\Sokil\Mongo\Expression $expression
      * @return \Sokil\Mongo\Document
@@ -1320,36 +1306,36 @@ class Document extends Structure
     {
         return $this->increment($fieldName, -1 * $value);
     }
-    
+
     public function bitwiceAnd($field, $value)
     {
         parent::set($field, (int) $this->get($field) & $value);
-        
+
         if ($this->getId()) {
             $this->_operator->bitwiceAnd($field, $value);
         }
-        
+
         return $this;
     }
-    
+
     public function bitwiceOr($field, $value)
     {
         parent::set($field, (int) $this->get($field) | $value);
-        
+
         if ($this->getId()) {
             $this->_operator->bitwiceOr($field, $value);
         }
-        
+
         return $this;
     }
-    
+
     public function bitwiceXor($field, $value)
     {
         $oldFieldValue = (int) $this->get($field);
         $newValue = $oldFieldValue ^ $value;
-        
+
         parent::set($field, $newValue);
-        
+
         if ($this->getId()) {
             if(version_compare($this->getCollection()->getDatabase()->getClient()->getDbVersion(), '2.6', '>=')) {
                 $this->_operator->bitwiceXor($field, $value);
@@ -1357,7 +1343,7 @@ class Document extends Structure
                 $this->_operator->set($field, $newValue);
             }
         }
-        
+
         return $this;
     }
 
@@ -1443,19 +1429,19 @@ class Document extends Structure
     {
         $this->collection->deleteDocument($this);
     }
-    
+
     /**
      * !INTERNAL
-     * 
-     * This method is public only for support of php 5.3, which not supports 
+     *
+     * This method is public only for support of php 5.3, which not supports
      * $this in anonymous functions and can't access private methods.
-     * 
+     *
      * @return \Sokil\Mongo\Collection
      */
     public function getRevisionsCollection()
     {
         $revisionsCollectionName = $this->collection->getName() . '.revisions';
-        
+
         return $this
             ->collection
             ->getDatabase()
@@ -1464,25 +1450,25 @@ class Document extends Structure
             ))
             ->getCollection($revisionsCollectionName);
     }
-    
+
     public function getRevisions($limit = null, $offset = null)
     {
         $cursor = $this
             ->getRevisionsCollection()
             ->find()
             ->where('__documentId__', $this->getId());
-        
+
         if($limit) {
             $cursor->limit($limit);
         }
-        
+
         if($offset) {
             $cursor->skip($offset);
         }
-            
+
         return $cursor->findAll();
     }
-    
+
     public function getRevision($id)
     {
         return $this
@@ -1491,7 +1477,7 @@ class Document extends Structure
             ->byId($id)
             ->findOne();
     }
-    
+
     public function getRevisionsCount()
     {
         return $this
@@ -1500,18 +1486,18 @@ class Document extends Structure
             ->where('__documentId__', $this->getId())
             ->count();
     }
-    
+
     public function clearRevisions()
     {
         $self = $this;
-        
+
         $this
             ->getRevisionsCollection()
             ->deleteDocuments(function(Expression $expression) use($self) {
                 /* @var $expression \Sokil\Mongo\Expression */
                 return $expression->where('__documentId__', $self->getId());
             });
-            
+
         return $this;
     }
 

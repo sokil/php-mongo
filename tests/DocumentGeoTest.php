@@ -27,6 +27,28 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
         $this->collection->delete();
     }
 
+    public function testSetGeometry()
+    {
+        $documentId = $this->collection
+            ->createDocument()
+            ->setGeometry(
+                'location',
+                new \GeoJson\Geometry\Point(
+                    array(30.523400000000038, 50.4501)
+                )
+            )
+            ->save()
+            ->getId();
+
+        $this->assertEquals(
+            array(
+                'type' => 'Point',
+                'coordinates' => array(30.523400000000038, 50.4501)
+            ),
+            $this->collection->getDocument($documentId)->get('location')
+        );
+    }
+
     public function testSetPoint()
     {
         $documentId = $this->collection
@@ -117,8 +139,8 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage LineRing #1 is not closed
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage LinearRing requires the first and last positions to be equivalent
      */
     public function testSetPolygon_LineRingNotClosed()
     {
@@ -137,6 +159,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
                     array(34.551416, 49.588264), // Poltava
                     array(32.049226, 49.431181), // Cherkasy
                     array(35.139561, 47.838796), // Zaporizhia
+                    array(24.012228, 49.831485), // Lviv <---- ERROR
                 ),
             ))
             ->save()
@@ -301,8 +324,8 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage LineRing #1 of polygon #1 is not closed
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage LinearRing requires the first and last positions to be equivalent
      */
     public function testSetMultiPolygon_LineRingNotClosed()
     {
@@ -340,6 +363,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
                         array(34.551416, 49.588264), // Poltava
                         array(32.049226, 49.431181), // Cherkasy
                         array(35.139561, 47.838796), // Zaporizhia
+                        array(24.012228, 49.831485), // Lviv <---- ERROR
                     ),
                 ),
             ))
