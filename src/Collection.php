@@ -26,7 +26,8 @@ class Collection implements \Countable
     protected $_queryBuilderClass = '\Sokil\Mongo\QueryBuilder';
 
     /**
-     * @var string expression class. This class may be overloaded to define own query methods (whereUserAgeGreatedThan(), etc.)
+     * @var string expression class. This class may be overloaded to define
+     *  own query methods (whereUserAgeGreatedThan(), etc.)
      */
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
 
@@ -944,12 +945,19 @@ class Collection implements \Countable
     }
 
     /**
-     * Create sparse index
+     * Create sparse index.
+     *
+     * Sparse indexes only contain entries for documents that have the indexed
+     * field, even if the index field contains a null value. The index skips
+     * over any document that is missing the indexed field.
      *
      * @link http://docs.mongodb.org/manual/core/index-sparse/
      *
-     * @param string|array $key An array specifying the index's fields as its keys. For each field, the value is
-     *  either the index direction or index type. If specifying direction, specify 1 for ascending or -1 for descending.
+     * @param string|array $key An array specifying the index's fields as its
+     *  keys. For each field, the value is either the index direction or index
+     *  type. If specifying direction, specify 1 for ascending or -1
+     *  for descending.
+     *
      * @return \Sokil\Mongo\Collection
      */
     public function ensureSparseIndex($key)
@@ -977,6 +985,23 @@ class Collection implements \Countable
     {
         $this->_mongoCollection->ensureIndex($key, array(
             'expireAfterSeconds' => $seconds,
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Create geo index 2dsphere
+     *
+     * @link http://docs.mongodb.org/manual/tutorial/build-a-2dsphere-index/
+     *
+     * @param string $field
+     * @return \Sokil\Mongo\Collection
+     */
+    public function ensure2dSphereIndex($field)
+    {
+        $this->_mongoCollection->ensureIndex(array(
+            $field => '2dsphere',
         ));
 
         return $this;

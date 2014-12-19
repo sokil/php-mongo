@@ -445,4 +445,36 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
             $this->collection->getDocument($documentId)->get('location')
         );
     }
+
+    public function testEnsure2dSphereIndex()
+    {
+        $this->collection->ensure2dSphereIndex('location');
+
+        $document1Id = $this->collection
+            ->createDocument()
+            ->setPoint('location', 24.012228, 49.831485)
+            ->save()
+            ->getId();
+
+        $document2Id = $this->collection
+            ->createDocument()
+            ->setPoint('location', 34.551416, 49.588264)
+            ->save()
+            ->getId();
+
+        $point = new \GeoJson\Geometry\Point(array(34.551, 49.588));
+
+        $document = $this->collection
+            ->find()
+            ->where('location', array(
+                '$near' => array(
+                    '$geometry' => $point->jsonSerialize(),
+                    '$maxDistance' => 200,
+                ),
+            ))
+            ->findOne();
+
+        $this->assertNotEmpty($document);
+        $this->assertEquals($document2Id, $document->getId());
+    }
 }
