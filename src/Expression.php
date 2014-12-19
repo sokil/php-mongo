@@ -362,6 +362,15 @@ class Expression
         return $this;
     }
 
+    /**
+     * Find document near points
+     *
+     * @param string $field
+     * @param float $longitude
+     * @param float $latitude
+     * @param int $distance distance from point in meters
+     * @return \Sokil\Mongo\Expression
+     */
     public function nearPoint($field, $longitude, $latitude, $distance)
     {
         $point = new \GeoJson\Geometry\Point(array(

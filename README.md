@@ -675,6 +675,14 @@ $document->setGeometryCollection('location', array(
 
 ```
 
+Query documents near point, defined by latitude 49.588264 and 
+longitude 34.551416 and distance 1000 meters from this point:
+
+```php
+<?php
+$collection->find()->nearPoint('location', 34.551416, 49.588264, 1000);
+```
+
 Pagination
 ----------
 

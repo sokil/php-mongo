@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fa4420114f548742a8e2bfbf0502fd70",
+    "hash": "65916fa1c38211476a2b12848084d41b",
     "packages": [
         {
             "name": "jmikola/geojson",
