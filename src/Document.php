@@ -313,6 +313,15 @@ class Document extends Structure
         ));
     }
 
+    /**
+     * Set point as longitude and latitude
+     * 
+     * @link http://docs.mongodb.org/manual/core/2dsphere/#geojson-point
+     * @param string $field
+     * @param float $longitude
+     * @param float $latitude
+     * @return \Sokil\Mongo\Document
+     */
     public function setPoint($field, $longitude, $latitude)
     {
         return $this->setGeoJSON($field, self::GEO_POINT, array(
@@ -321,9 +330,41 @@ class Document extends Structure
         ));
     }
 
+    /**
+     * Set line string as array of points
+     *
+     * @link http://docs.mongodb.org/manual/core/2dsphere/#linestring
+     * @param string $field
+     * @param array $pointArray array of points
+     * @return \Sokil\Mongo\Document
+     */
     public function setLineString($field, array $pointArray)
     {
         return $this->setGeoJSON($field, self::GEO_LINESTRING, $pointArray);
+    }
+
+    /**
+     * Set line string as array of points
+     *
+     * @link http://docs.mongodb.org/manual/core/2dsphere/#linestring
+     * @param string $field
+     * @param array $pointArray array of points
+     * @return \Sokil\Mongo\Document
+     */
+    public function setPolygon($field, array $lineRingsArray)
+    {
+        // check if line righs closed
+        foreach($lineRingsArray as $i => $lineRing) {
+            $firstPoint = $lineRing[0];
+            $lastPoint = $lineRing[count($lineRing) - 1];
+
+            if($firstPoint[0] !== $lastPoint[0] || $firstPoint[1] !== $lastPoint[1]) {
+                throw new Exception('LineRing #' . $i . ' is not closed');
+            }
+        }
+        
+        // set polygon
+        return $this->setGeoJSON($field, self::GEO_POLYGON, $lineRingsArray);
     }
 
     public function belongsToCollection(Collection $collection)
