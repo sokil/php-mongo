@@ -395,6 +395,41 @@ class Document extends Structure
         return $this->setGeoJSON($field, self::GEO_MULTILINESTRING, $lineStringArray);
     }
 
+    /**
+     * Set multy polygon as array of polygons.
+     * Polygon is array of line rings.
+     * Line ring is closed line string (first and last point same).
+     * Line string is array of points.
+     *
+     * @link http://docs.mongodb.org/manual/core/2dsphere/#multipolygon
+     * @param string $field
+     * @param array $polygonsArray array of polygons
+     * @return \Sokil\Mongo\Document
+     */
+    public function setMultyPolygon($field, array $polygonsArray)
+    {
+        foreach($polygonsArray as $polygonId => $lineRingsArray) {
+            // check if line righs closed
+            foreach($lineRingsArray as $lineRingId => $lineRing) {
+                $firstPoint = $lineRing[0];
+                $lastPoint = $lineRing[count($lineRing) - 1];
+
+                if($firstPoint[0] !== $lastPoint[0] || $firstPoint[1] !== $lastPoint[1]) {
+                    throw new Exception('LineRing #' . $lineRingId . ' of polygon #' . $polygonId . ' is not closed');
+                }
+            }
+        }
+
+        // set polygon
+        return $this->setGeoJSON($field, self::GEO_MULTIPOLYGON, $polygonsArray);
+    }
+
+    /**
+     * Check if document belongs to specified collection
+     *
+     * @param \Sokil\Mongo\Collection $collection collection instance
+     * @return boolean
+     */
     public function belongsToCollection(Collection $collection)
     {
         // check connection

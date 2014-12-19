@@ -213,9 +213,138 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testSetMultiPolygon()
+    public function testSetMultiPolygon_ValidLineRing()
     {
+        $documentId = $this->collection
+            ->createDocument()
+            ->setMultyPolygon('location', array(
+                // polygon 1
+                array(
+                    // line ring 1
+                    array(
+                        array(24.012228, 49.831485), // Lviv
+                        array(36.230376, 49.993499), // Harkiv
+                        array(34.174927, 45.035993), // Simferopol
+                        array(24.012228, 49.831485), // Lviv
+                    ),
+                    // line ring 2
+                    array(
+                        array(34.551416, 49.588264), // Poltava
+                        array(32.049226, 49.431181), // Cherkasy
+                        array(35.139561, 47.838796), // Zaporizhia
+                        array(34.551416, 49.588264), // Poltava
+                    ),
+                ),
+                // polygon 2
+                array(
+                    // line ring 1
+                    array(
+                        array(24.012228, 49.831485), // Lviv
+                        array(36.230376, 49.993499), // Harkiv
+                        array(34.174927, 45.035993), // Simferopol
+                        array(24.012228, 49.831485), // Lviv
+                    ),
+                    // line ring 2
+                    array(
+                        array(34.551416, 49.588264), // Poltava
+                        array(32.049226, 49.431181), // Cherkasy
+                        array(35.139561, 47.838796), // Zaporizhia
+                        array(34.551416, 49.588264), // Poltava
+                    ),
+                ),
+            ))
+            ->save()
+            ->getId();
 
+        $this->assertEquals(
+            array(
+                'type' => 'MultiPolygon',
+                'coordinates' => array(
+                    // polygon 1
+                    array(
+                        // line ring 1
+                        array(
+                            array(24.012228, 49.831485), // Lviv
+                            array(36.230376, 49.993499), // Harkiv
+                            array(34.174927, 45.035993), // Simferopol
+                            array(24.012228, 49.831485), // Lviv
+                        ),
+                        // line ring 2
+                        array(
+                            array(34.551416, 49.588264), // Poltava
+                            array(32.049226, 49.431181), // Cherkasy
+                            array(35.139561, 47.838796), // Zaporizhia
+                            array(34.551416, 49.588264), // Poltava
+                        ),
+                    ),
+                    // polygon 2
+                    array(
+                        // line ring 1
+                        array(
+                            array(24.012228, 49.831485), // Lviv
+                            array(36.230376, 49.993499), // Harkiv
+                            array(34.174927, 45.035993), // Simferopol
+                            array(24.012228, 49.831485), // Lviv
+                        ),
+                        // line ring 2
+                        array(
+                            array(34.551416, 49.588264), // Poltava
+                            array(32.049226, 49.431181), // Cherkasy
+                            array(35.139561, 47.838796), // Zaporizhia
+                            array(34.551416, 49.588264), // Poltava
+                        ),
+                    ),
+                )
+            ),
+            $this->collection->getDocument($documentId)->get('location')
+        );
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage LineRing #1 of polygon #1 is not closed
+     */
+    public function testSetMultiPolygon_LineRingNotClosed()
+    {
+        $documentId = $this->collection
+            ->createDocument()
+            ->setMultyPolygon('location', array(
+                // polygon 1
+                array(
+                    // line ring 1
+                    array(
+                        array(24.012228, 49.831485), // Lviv
+                        array(36.230376, 49.993499), // Harkiv
+                        array(34.174927, 45.035993), // Simferopol
+                        array(24.012228, 49.831485), // Lviv
+                    ),
+                    // line ring 2
+                    array(
+                        array(34.551416, 49.588264), // Poltava
+                        array(32.049226, 49.431181), // Cherkasy
+                        array(35.139561, 47.838796), // Zaporizhia
+                        array(34.551416, 49.588264), // Poltava
+                    ),
+                ),
+                // polygon 2
+                array(
+                    // line ring 1
+                    array(
+                        array(24.012228, 49.831485), // Lviv
+                        array(36.230376, 49.993499), // Harkiv
+                        array(34.174927, 45.035993), // Simferopol
+                        array(24.012228, 49.831485), // Lviv
+                    ),
+                    // line ring 2
+                    array(
+                        array(34.551416, 49.588264), // Poltava
+                        array(32.049226, 49.431181), // Cherkasy
+                        array(35.139561, 47.838796), // Zaporizhia
+                    ),
+                ),
+            ))
+            ->save()
+            ->getId();
     }
 
     public function testSetGeometryCollection()
