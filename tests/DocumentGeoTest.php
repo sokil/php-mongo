@@ -44,7 +44,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testLineString()
+    public function testSetLineString()
     {
         $documentId = $this->collection
             ->createDocument()
@@ -69,7 +69,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testPolygon_ValidLineRing()
+    public function testSetPolygon_ValidLineRing()
     {
         $documentId = $this->collection
             ->createDocument()
@@ -120,7 +120,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage LineRing #1 is not closed
      */
-    public function testPolygon_LineRingNotClosed()
+    public function testSetPolygon_LineRingNotClosed()
     {
         $documentId = $this->collection
             ->createDocument()
@@ -143,22 +143,44 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
             ->getId();
     }
 
-    public function testMultiPoint()
+    public function testSetMultiPoint()
+    {
+        $documentId = $this->collection
+            ->createDocument()
+            ->setMultiPoint('location', array(
+                array(24.012228, 49.831485), // Lviv
+                array(36.230376, 49.993499), // Harkiv
+                array(34.174927, 45.035993), // Simferopol
+                array(24.012228, 49.831485), // Lviv
+            ))
+            ->save()
+            ->getId();
+
+        $this->assertEquals(
+            array(
+                'type' => 'MultiPoint',
+                'coordinates' => array(
+                    array(24.012228, 49.831485), // Lviv
+                    array(36.230376, 49.993499), // Harkiv
+                    array(34.174927, 45.035993), // Simferopol
+                    array(24.012228, 49.831485), // Lviv
+                )
+            ),
+            $this->collection->getDocument($documentId)->get('location')
+        );
+    }
+
+    public function testSetMultiLineString()
     {
 
     }
 
-    public function testMultiLineString()
+    public function testSetMultiPolygon()
     {
 
     }
 
-    public function testMultiPolygon()
-    {
-
-    }
-
-    public function testGeometryCollection()
+    public function testSetGeometryCollection()
     {
 
     }

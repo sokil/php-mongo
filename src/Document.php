@@ -316,7 +316,7 @@ class Document extends Structure
     /**
      * Set point as longitude and latitude
      * 
-     * @link http://docs.mongodb.org/manual/core/2dsphere/#geojson-point
+     * @link http://docs.mongodb.org/manual/core/2dsphere/#point
      * @param string $field
      * @param float $longitude
      * @param float $latitude
@@ -344,11 +344,13 @@ class Document extends Structure
     }
 
     /**
-     * Set line string as array of points
+     * Set polygon as array of line rings.
+     * Line ring is closed line string (first and last point same).
+     * Line string is array of points.
      *
-     * @link http://docs.mongodb.org/manual/core/2dsphere/#linestring
+     * @link http://docs.mongodb.org/manual/core/2dsphere/#polygon
      * @param string $field
-     * @param array $pointArray array of points
+     * @param array $lineRingsArray array of line rings
      * @return \Sokil\Mongo\Document
      */
     public function setPolygon($field, array $lineRingsArray)
@@ -365,6 +367,18 @@ class Document extends Structure
         
         // set polygon
         return $this->setGeoJSON($field, self::GEO_POLYGON, $lineRingsArray);
+    }
+
+    /**
+     * Set multi point as array of points
+     *
+     * @link http://docs.mongodb.org/manual/core/2dsphere/#multipoint
+     * @param array $pointArray array of point arrays
+     * @return \Sokil\Mongo\Document
+     */
+    public function setMultiPoint($field, $pointArray)
+    {
+        return $this->setGeoJSON($field, self::GEO_MULTIPOINT, $pointArray);
     }
 
     public function belongsToCollection(Collection $collection)
