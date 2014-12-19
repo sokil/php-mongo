@@ -5,24 +5,24 @@ namespace Sokil\Mongo;
 class Structure
 {
     protected $_data = array();
-    
+
     protected $_originalData = array();
-    
+
     protected $_modifiedFields = array();
-    
+
     public function reset()
     {
         $this->_data = $this->_originalData;
         $this->_modifiedFields = array();
-        
+
         return $this;
     }
-    
+
     public function __get($name)
     {
         return isset($this->_data[$name]) ? $this->_data[$name] : null;
     }
-    
+
     public function get($selector)
     {
         if(false === strpos($selector, '.')) {
@@ -41,10 +41,10 @@ class Structure
 
         return $value;
     }
-    
+
     /**
      * Get structure object from a document's value
-     * 
+     *
      * @param string $selector
      * @param string|callable $className string class name or closure, which accept data and return string class name
      * @return object representation of document with class, passed as argument
@@ -56,24 +56,24 @@ class Structure
         if(!$data) {
             return null;
         }
-        
+
         // get class name from callable
         if(is_callable($className)) {
             $className = $className($data);
         }
-        
+
         // prepare structure
         $structure =  new $className();
         if(!($structure instanceof Structure)) {
             throw new Exception('Wrong structure class specified');
         }
-        
+
         return clone $structure->merge($data);
     }
-    
+
     /**
      * Get list of structure objects from list of values in mongo document
-     * 
+     *
      * @param string $selector
      * @param string|callable $className Structure class name or closure, which accept data and return string class name of Structure
      * @return object representation of document with class, passed as argument
@@ -98,10 +98,10 @@ class Structure
                 return clone $structure->mergeUnmodified($dataItem);
             }, $data);
         }
-        
+
         // class name id callable
         if(is_callable($className)) {
-            
+
             $structurePrototypePool = array();
 
             return array_map(function($dataItem) use($structurePrototypePool, $className) {
@@ -123,13 +123,13 @@ class Structure
                 return $structure->merge($dataItem);
             }, $data);
         }
-        
+
         throw new Exception('Wrong class name specified. Use string or closure');
     }
-    
+
     /**
      * Handle setting params through public property
-     * 
+     *
      * @param string $name
      * @param mixed $value
      */
@@ -137,10 +137,10 @@ class Structure
     {
         $this->set($name, $value);
     }
-    
+
     /**
      * Store value to specified selector in local cache
-     * 
+     *
      * @param string $selector point-delimited field selector
      * @param mixed $value value
      * @return \Sokil\Mongo\Document
@@ -153,10 +153,10 @@ class Structure
         // modify
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
-        
+
         // optimize one-level selector search
         if(1 == $chunksNum) {
-            
+
             // update only if new value different from current
             if(!isset($this->_data[$selector]) || $this->_data[$selector] !== $value) {
                 // modify
@@ -164,10 +164,10 @@ class Structure
                 // mark field as modified
                 $this->_modifiedFields[] = $selector;
             }
-        
+
             return $this;
         }
-        
+
         // selector is nested
         $section = &$this->_data;
 
@@ -184,7 +184,7 @@ class Structure
 
             $section = &$section[$field];
         }
-        
+
         // update only if new value different from current
         if(!isset($section[$arraySelector[$chunksNum - 1]]) || $section[$arraySelector[$chunksNum - 1]] !== $value) {
             // modify
@@ -192,49 +192,56 @@ class Structure
             // mark field as modified
             $this->_modifiedFields[] = $selector;
         }
-        
+
         return $this;
     }
-    
+
     public function has($selector)
     {
         $pointer = &$this->_data;
-        
+
         foreach(explode('.', $selector) as $field) {
             if(!array_key_exists($field, $pointer)) {
                 return false;
             }
-            
+
             $pointer = &$pointer[$field];
         }
-        
+
         return true;
     }
-    
+
     private function _prepareValue($value)
     {
+        // if array - try to prepare every value
         if(is_array($value)) {
             foreach($value as $k => $v) {
                 $value[$k] = $this->_prepareValue($v);
             }
+
+            return $value;
         }
-        
-        // convert objects to arrays except internal mongo types
-        elseif(is_object($value)) {
-            if(!in_array(get_class($value), array('MongoId', 'MongoCode', 'MongoDate', 'MongoRegex', 'MongoBinData', 'MongoInt32', 'MongoInt64', 'MongoDBRef', 'MongoMinKey', 'MongoMaxKey', 'MongoTimestamp'))) {
-                $value = (array) $value;
-            }
+
+        // if scalar - return it
+        if(!is_object($value)) {
+            return $value;
         }
-        
-        return $value;
+
+        // if internal mongo types - pass it as is
+        if(in_array(get_class($value), array('MongoId', 'MongoCode', 'MongoDate', 'MongoRegex', 'MongoBinData', 'MongoInt32', 'MongoInt64', 'MongoDBRef', 'MongoMinKey', 'MongoMaxKey', 'MongoTimestamp'))) {
+            return $value;
+        }
+
+        // other objects convert to array
+        return (array) $value;
     }
-    
+
     public function unsetField($selector)
     {
         // modify
         $arraySelector = explode('.', $selector);
         $chunksNum = count($arraySelector);
-        
+
         // optimize one-level selector search
         if(1 == $chunksNum) {
             // check if field exists
@@ -244,10 +251,10 @@ class Structure
                 // mark field as modified
                 $this->_modifiedFields[] = $selector;
             }
-            
+
             return $this;
         }
-        
+
         // find section
         $section = &$this->_data;
 
@@ -261,7 +268,7 @@ class Structure
 
             $section = &$section[$field];
         }
-        
+
         // check if field exists
         if(isset($section[$arraySelector[$chunksNum - 1]])) {
             // unset field
@@ -269,15 +276,15 @@ class Structure
             // mark field as modified
             $this->_modifiedFields[] = $selector;
         }
-        
+
         return $this;
     }
-    
+
     /**
      * If field not exist - set value.
      * If field exists and is not array - convert to array and append
      * If field -s array - append
-     * 
+     *
      * @param type $selector
      * @param type $value
      * @return \Sokil\Mongo\Structure
@@ -292,49 +299,49 @@ class Structure
             $oldValue[] = $value;
             $value = $oldValue;
         }
-        
+
         $this->set($selector, $value);
         return $this;
     }
-    
+
     public function isModified($selector = null)
     {
         if(!$this->_modifiedFields) {
             return false;
         }
-        
+
         if(!$selector) {
             return (bool) $this->_modifiedFields;
         }
-        
+
         foreach($this->_modifiedFields as $modifiedField) {
             if(preg_match('/^' . $selector . '($|.)/', $modifiedField)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     public function getModifiedFields()
     {
         return $this->_modifiedFields;
     }
-    
+
     public function getOriginalData()
     {
         return $this->_originalData;
     }
-        
+
     public function toArray()
     {
         return $this->_data;
     }
-    
-    
+
+
     /**
      * Recursive function to merge data without setting modification mark
-     * 
+     *
      * @param array $target
      * @param array $source
      */
@@ -349,10 +356,10 @@ class Structure
             }
         }
     }
-    
+
     /**
      * Merge array to current structure
-     * 
+     *
      * @param array $data
      * @return \Sokil\Mongo\Structure
      */
@@ -360,10 +367,10 @@ class Structure
     {
         $this->_mergeUnmodified($this->_data, $data);
         $this->_mergeUnmodified($this->_originalData, $data);
-        
+
         return $this;
     }
-    
+
     /**
      * Check if array is sequential list
      * @param array $array
@@ -372,10 +379,10 @@ class Structure
     {
         return is_array($array) && (array_values($array) !== $array);
     }
-    
+
     /**
      * Recursive function to merge data with setting modification mark
-     * 
+     *
      * @param array $document
      * @param array $updatedDocument
      * @param string $prefix
@@ -394,10 +401,10 @@ class Structure
             }
         }
     }
-    
+
     /**
      * Merge array to current structure
-     * 
+     *
      * @param array $data
      * @return \Sokil\Mongo\Structure
      */
@@ -406,10 +413,10 @@ class Structure
         $this->_merge($this->_data, $data);
         return $this;
     }
-    
+
     /**
      * Merge data to document
-     * 
+     *
      * @deprecated since 1.8.1 and will be removed in next versions. Use concrete merge methods.
      * @param array $data
      * @param type $modified
@@ -422,22 +429,22 @@ class Structure
         } else {
             $this->mergeUnmodified($data);
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Replace data of document with passed.
      * Document became unmodified
-     * 
+     *
      * @param array $data new document data
      */
     public function replace(array $data)
     {
         $this->_originalData = $this->_data = $data;
-        
+
         $this->_modifiedFields = array();
-        
+
         return $this;
     }
 }

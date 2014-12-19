@@ -4,8 +4,61 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "325174ea2b1ebf0d1e7dba26e226f9a1",
+    "hash": "fa4420114f548742a8e2bfbf0502fd70",
     "packages": [
+        {
+            "name": "jmikola/geojson",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jmikola/geojson.git",
+                "reference": "086963e4fa5276a47d079b6b288a64f525196bce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jmikola/geojson/zipball/086963e4fa5276a47d079b6b288a64f525196bce",
+                "reference": "086963e4fa5276a47d079b6b288a64f525196bce",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~3.7"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "GeoJson\\": "src/"
+                },
+                "classmap": [
+                    "stubs/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeremy Mikola",
+                    "email": "jmikola@gmail.com"
+                }
+            ],
+            "description": "GeoJSON implementation for PHP",
+            "homepage": "https://github.com/jmikola/geojson",
+            "keywords": [
+                "geo",
+                "geojson",
+                "geospatial"
+            ],
+            "time": "2014-09-03 15:22:39"
+        },
         {
             "name": "psr/log",
             "version": "1.0.0",
