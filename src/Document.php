@@ -298,6 +298,14 @@ class Document extends Structure
         }
     }
 
+    /**
+     * Set geo data as GeoJson object
+     *
+     * @link http://geojson.org/
+     * @param string $field
+     * @param \GeoJson\Geometry\Geometry $geometry
+     * @return type
+     */
     public function setGeometry($field, Geometry $geometry)
     {
         return $this->set($field, $geometry);
@@ -410,7 +418,7 @@ class Document extends Structure
 
     /**
      * Set collection of different geometries
-     * 
+     *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#geometrycollection
      * @param string $field
      * @param array $geometryCollection
