@@ -174,7 +174,6 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
                 array(24.012228, 49.831485), // Lviv
                 array(36.230376, 49.993499), // Harkiv
                 array(34.174927, 45.035993), // Simferopol
-                array(24.012228, 49.831485), // Lviv
             ))
             ->save()
             ->getId();
@@ -186,7 +185,6 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
                     array(24.012228, 49.831485), // Lviv
                     array(36.230376, 49.993499), // Harkiv
                     array(34.174927, 45.035993), // Simferopol
-                    array(24.012228, 49.831485), // Lviv
                 )
             ),
             $this->collection->getDocument($documentId)->get('location')

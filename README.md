@@ -29,6 +29,7 @@ Why to use this library? You can easily work with document data through comforta
 * [Get and set data in document](#get-and-set-data-in-document)
 * [Storing document](#storing-document)
 * [Querying documents](#querying-documents)
+* [Geospatial queries](#geospatial-queries)
 * [Pagination](#pagination)
 * [Batch operations](#batch-operations)
   * [Batch insert](#batch-insert)
@@ -537,6 +538,140 @@ $queryBuilder = $this->collection
 
     $cache->set($hash, $result);
     return $result;
+```
+
+Geospatial queries
+------------------
+
+Before querying geospatial coordinates we need to create geospatial index 
+and add some data. 
+
+Index 2dsphere available since MongoDB version 2.4 and may be created in few ways:
+```php
+
+<?php
+// creates index on location field
+$collection->ensure2dSphereIndex('location');
+// cerate compound index
+$collection->ensureIndex(array(
+    'location' => '2dsphere',
+    'name'  => -1,
+));
+```
+
+Geo data can be added as array in [GeoJson](http://geojson.org/) format or 
+using GeoJson objects of library [GeoJson](https://github.com/jmikola/geojson):
+
+Add data as GeoJson object
+```php
+<?php
+
+$document->setGeometry(
+    'location',
+    new \GeoJson\Geometry\Point(array(30.523400000000038, 50.4501))
+);
+
+$document->setGeometry(
+    'location',
+    new \GeoJson\Geometry\Polygon(array(
+        array(24.012228, 49.831485), // Lviv
+        array(36.230376, 49.993499), // Harkiv
+        array(34.174927, 45.035993), // Simferopol
+        array(24.012228, 49.831485), // Lviv
+    ))
+);
+
+``
+
+Data may be set througn array:
+```php 
+<?php
+
+// Point
+$document->setPoint('location', 30.523400000000038, 50.4501);
+// LineString
+$document->setLineString('location', array(
+    array(30.523400000000038, 50.4501),
+    array(36.230376, 49.993499),
+));
+// Polygon
+$document->setPolygon('location', array(
+    array(
+        array(24.012228, 49.831485), // Lviv
+        array(36.230376, 49.993499), // Harkiv
+        array(34.174927, 45.035993), // Simferopol
+        array(24.012228, 49.831485), // Lviv
+    ),
+));
+// MultiPoint
+$document->setMultiPoint('location', array(
+    array(24.012228, 49.831485), // Lviv
+    array(36.230376, 49.993499), // Harkiv
+    array(34.174927, 45.035993), // Simferopol
+));
+// MultiLineString
+$document->setMultiLineString('location', array(
+    // line string 1
+    array(
+        array(34.551416, 49.588264), // Poltava
+        array(35.139561, 47.838796), // Zaporizhia
+    ),
+    // line string 2
+    array(
+        array(24.012228, 49.831485), // Lviv
+        array(34.174927, 45.035993), // Simferopol
+    )
+));
+// MultiPolygon
+$document->setMultyPolygon('location', array(
+    // polygon 1
+    array(
+        array(
+            array(24.012228, 49.831485), // Lviv
+            array(36.230376, 49.993499), // Harkiv
+            array(34.174927, 45.035993), // Simferopol
+            array(24.012228, 49.831485), // Lviv
+        ),
+    ),
+    // polygon 2
+    array(
+        array(
+            array(24.012228, 49.831485), // Lviv
+            array(36.230376, 49.993499), // Harkiv
+            array(34.174927, 45.035993), // Simferopol
+            array(24.012228, 49.831485), // Lviv
+        ),
+    ),
+));
+// GeometryCollection
+$document->setGeometryCollection('location', array(
+    // point
+    new \GeoJson\Geometry\Point(array(30.523400000000038, 50.4501)),
+    // line string
+    new \GeoJson\Geometry\LineString(array(
+        array(30.523400000000038, 50.4501),
+        array(24.012228, 49.831485),
+        array(36.230376, 49.993499),
+    )),
+    // polygon
+    new \GeoJson\Geometry\Polygon(array(
+        // line ring 1
+        array(
+            array(24.012228, 49.831485), // Lviv
+            array(36.230376, 49.993499), // Harkiv
+            array(34.174927, 45.035993), // Simferopol
+            array(24.012228, 49.831485), // Lviv
+        ),
+        // line ring 2
+        array(
+            array(34.551416, 49.588264), // Poltava
+            array(32.049226, 49.431181), // Cherkasy
+            array(35.139561, 47.838796), // Zaporizhia
+            array(34.551416, 49.588264), // Poltava
+        ),
+    )),
+));
+
 ```
 
 Pagination
