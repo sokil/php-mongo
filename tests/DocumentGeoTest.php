@@ -172,7 +172,45 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
 
     public function testSetMultiLineString()
     {
+        $documentId = $this->collection
+            ->createDocument()
+            ->setMultiLineString('location', array(
+                // line string 1
+                array(
+                    array(34.551416, 49.588264), // Poltava
+                    array(32.049226, 49.431181), // Cherkasy
+                    array(35.139561, 47.838796), // Zaporizhia
+                ),
+                // line string 2
+                array(
+                    array(24.012228, 49.831485), // Lviv
+                    array(36.230376, 49.993499), // Harkiv
+                    array(34.174927, 45.035993), // Simferopol
+                )
+            ))
+            ->save()
+            ->getId();
 
+        $this->assertEquals(
+            array(
+                'type' => 'MultiLineString',
+                'coordinates' => array(
+                    // line string 1
+                    array(
+                        array(34.551416, 49.588264), // Poltava
+                        array(32.049226, 49.431181), // Cherkasy
+                        array(35.139561, 47.838796), // Zaporizhia
+                    ),
+                    // line string 2
+                    array(
+                        array(24.012228, 49.831485), // Lviv
+                        array(36.230376, 49.993499), // Harkiv
+                        array(34.174927, 45.035993), // Simferopol
+                    )
+                )
+            ),
+            $this->collection->getDocument($documentId)->get('location')
+        );
     }
 
     public function testSetMultiPolygon()

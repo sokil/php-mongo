@@ -373,12 +373,26 @@ class Document extends Structure
      * Set multi point as array of points
      *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#multipoint
+     * @param string $field
      * @param array $pointArray array of point arrays
      * @return \Sokil\Mongo\Document
      */
     public function setMultiPoint($field, $pointArray)
     {
         return $this->setGeoJSON($field, self::GEO_MULTIPOINT, $pointArray);
+    }
+
+    /**
+     * Set multi line string as array of line strings
+     *
+     * http://docs.mongodb.org/manual/core/2dsphere/#multilinestring
+     * @param string $field
+     * @param array $lineStringArray array of line strings
+     * @return \Sokil\Mongo\Document
+     */
+    public function setMultiLineString($field, $lineStringArray)
+    {
+        return $this->setGeoJSON($field, self::GEO_MULTILINESTRING, $lineStringArray);
     }
 
     public function belongsToCollection(Collection $collection)
