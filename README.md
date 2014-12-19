@@ -582,7 +582,7 @@ $document->setGeometry(
     ))
 );
 
-``
+```
 
 Data may be set througn array:
 ```php 
