@@ -148,7 +148,7 @@ class Structure
      */
     public function set($selector, $value)
     {
-        $value = $this->_prepareValue($value);
+        $value = $this->prepareValue($value);
 
         // modify
         $arraySelector = explode('.', $selector);
@@ -211,12 +211,12 @@ class Structure
         return true;
     }
 
-    private function _prepareValue($value)
+    private function prepareValue($value)
     {
         // if array - try to prepare every value
         if(is_array($value)) {
             foreach($value as $k => $v) {
-                $value[$k] = $this->_prepareValue($v);
+                $value[$k] = $this->prepareValue($v);
             }
 
             return $value;
@@ -230,6 +230,11 @@ class Structure
         // if internal mongo types - pass it as is
         if(in_array(get_class($value), array('MongoId', 'MongoCode', 'MongoDate', 'MongoRegex', 'MongoBinData', 'MongoInt32', 'MongoInt64', 'MongoDBRef', 'MongoMinKey', 'MongoMaxKey', 'MongoTimestamp'))) {
             return $value;
+        }
+
+        // do not convert geo-json to array
+        if($value instanceof \GeoJson\Geometry\Geometry) {
+            return $value->jsonSerialize();
         }
 
         // other objects convert to array
