@@ -15,8 +15,9 @@ Why to use this library? You can easily work with document data through comforta
 
 * PHP 5.3 or above
 * PHP MongoDB Extension 0.9 or above (Some features require >= 1.5)
-* Symfony Event Dispatcher
-* PSR-3 logger interface
+* [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html)
+* [GeoJson version ~1.0](https://github.com/jmikola/geojson) 
+* [PSR-3 logger interface](https://github.com/php-fig/log)
 
 #### Table of contents
 
