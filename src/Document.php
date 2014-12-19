@@ -301,10 +301,16 @@ class Document extends Structure
     /**
      * Set geo data as GeoJson object
      *
+     * Requires MongoDB version 2.4 or above with 2dsparse index version 1
+     * to use Point, LineString and Polygon.
+     *
+     * Requires MongoDB version 2.6 or above with 2dsparse index version 2
+     * to use MultiPoint, MultiLineString, MultiPolygon and GeometryCollection.
+     *
      * @link http://geojson.org/
      * @param string $field
      * @param \GeoJson\Geometry\Geometry $geometry
-     * @return type
+     * @return \Sokil\Mongo\Document
      */
     public function setGeometry($field, Geometry $geometry)
     {
@@ -313,6 +319,9 @@ class Document extends Structure
 
     /**
      * Set point as longitude and latitude
+     *
+     * Requires MongoDB version 2.4 or above with 2dsparse index version 1
+     * to use Point, LineString and Polygon.
      *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#point
      * @param string $field
@@ -334,6 +343,9 @@ class Document extends Structure
     /**
      * Set line string as array of points
      *
+     * Requires MongoDB version 2.4 or above with 2dsparse index version 1
+     * to use Point, LineString and Polygon.
+     *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#linestring
      * @param string $field
      * @param array $pointArray array of points
@@ -349,8 +361,12 @@ class Document extends Structure
 
     /**
      * Set polygon as array of line rings.
+     *
      * Line ring is closed line string (first and last point same).
      * Line string is array of points.
+     *
+     * Requires MongoDB version 2.4 or above with 2dsparse index version 1
+     * to use Point, LineString and Polygon.
      *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#polygon
      * @param string $field
@@ -368,6 +384,9 @@ class Document extends Structure
     /**
      * Set multi point as array of points
      *
+     * Requires MongoDB version 2.6 or above with 2dsparse index version 2
+     * to use MultiPoint, MultiLineString, MultiPolygon and GeometryCollection.
+     *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#multipoint
      * @param string $field
      * @param array $pointArray array of point arrays
@@ -384,6 +403,9 @@ class Document extends Structure
     /**
      * Set multi line string as array of line strings
      *
+     * Requires MongoDB version 2.6 or above with 2dsparse index version 2
+     * to use MultiPoint, MultiLineString, MultiPolygon and GeometryCollection.
+     *
      * http://docs.mongodb.org/manual/core/2dsphere/#multilinestring
      * @param string $field
      * @param array $lineStringArray array of line strings
@@ -399,9 +421,13 @@ class Document extends Structure
 
     /**
      * Set multy polygon as array of polygons.
+     *
      * Polygon is array of line rings.
      * Line ring is closed line string (first and last point same).
      * Line string is array of points.
+     *
+     * Requires MongoDB version 2.6 or above with 2dsparse index version 2
+     * to use MultiPoint, MultiLineString, MultiPolygon and GeometryCollection.
      *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#multipolygon
      * @param string $field
@@ -419,6 +445,9 @@ class Document extends Structure
     /**
      * Set collection of different geometries
      *
+     * Requires MongoDB version 2.6 or above with 2dsparse index version 2
+     * to use MultiPoint, MultiLineString, MultiPolygon and GeometryCollection.
+     * 
      * @link http://docs.mongodb.org/manual/core/2dsphere/#geometrycollection
      * @param string $field
      * @param array $geometryCollection
