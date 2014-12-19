@@ -297,6 +297,22 @@ class Document extends Structure
         }
     }
 
+    public function setGeoJSON($field, $type, array $coordinates)
+    {
+        return $this->set($field, array(
+            'type' => $type,
+            'coordinates' => $coordinates,
+        ));
+    }
+
+    public function setPoint($field, $longitude, $latitude)
+    {
+        return $this->setGeoJSON($field, 'Point', array(
+            $longitude,
+            $latitude
+        ));
+    }
+
     public function belongsToCollection(Collection $collection)
     {
         // check connection
