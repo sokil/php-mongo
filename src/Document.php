@@ -47,6 +47,14 @@ class Document extends Structure
     const RELATION_HAS_MANY = 'HAS_MANY';
     const RELATION_MANY_MANY = 'MANY_MANY';
 
+    const GEO_POINT = 'Point';
+    const GEO_LINESTRING = 'LineString';
+    const GEO_POLYGON = 'Polygon';
+    const GEO_MULTIPOINT = 'MultiPoint';
+    const GEO_MULTILINESTRING = 'MultiLineString';
+    const GEO_MULTIPOLYGON = 'MultiPolygon';
+    const GEO_GEOMETRYCOLLECTION = 'GeometryCollection';
+
     private $resolvedRelationIds = array();
 
     /**
@@ -307,10 +315,15 @@ class Document extends Structure
 
     public function setPoint($field, $longitude, $latitude)
     {
-        return $this->setGeoJSON($field, 'Point', array(
+        return $this->setGeoJSON($field, self::GEO_POINT, array(
             $longitude,
             $latitude
         ));
+    }
+
+    public function setLineString($field, array $pointArray)
+    {
+        return $this->setGeoJSON($field, self::GEO_LINESTRING, $pointArray);
     }
 
     public function belongsToCollection(Collection $collection)
