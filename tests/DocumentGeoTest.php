@@ -373,6 +373,76 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
 
     public function testSetGeometryCollection()
     {
+        $documentId = $this->collection
+            ->createDocument()
+            ->setGeometryCollection('location', array(
+                // point
+                new \GeoJson\Geometry\Point(array(30.523400000000038, 50.4501)),
+                // line string
+                new \GeoJson\Geometry\LineString(array(
+                    array(30.523400000000038, 50.4501),
+                    array(24.012228, 49.831485),
+                    array(36.230376, 49.993499),
+                )),
+                // polygon
+                new \GeoJson\Geometry\Polygon(array(
+                    // line ring 1
+                    array(
+                        array(24.012228, 49.831485), // Lviv
+                        array(36.230376, 49.993499), // Harkiv
+                        array(34.174927, 45.035993), // Simferopol
+                        array(24.012228, 49.831485), // Lviv
+                    ),
+                    // line ring 2
+                    array(
+                        array(34.551416, 49.588264), // Poltava
+                        array(32.049226, 49.431181), // Cherkasy
+                        array(35.139561, 47.838796), // Zaporizhia
+                        array(34.551416, 49.588264), // Poltava
+                    ),
+                )),
+            ))
+            ->save()
+            ->getId();
 
+        $this->assertEquals(
+            array(
+                'type' => 'GeometryCollection',
+                'geometries' => array(
+                    array(
+                        'type' => 'Point',
+                        'coordinates' => array(30.523400000000038, 50.4501)
+                    ),
+                    array(
+                        'type' => 'LineString',
+                        'coordinates' => array(
+                            array(30.523400000000038, 50.4501),
+                            array(24.012228, 49.831485),
+                            array(36.230376, 49.993499),
+                        )
+                    ),
+                    array(
+                        'type' => 'Polygon',
+                        'coordinates' => array(
+                            // line ring 1
+                            array(
+                                array(24.012228, 49.831485), // Lviv
+                                array(36.230376, 49.993499), // Harkiv
+                                array(34.174927, 45.035993), // Simferopol
+                                array(24.012228, 49.831485), // Lviv
+                            ),
+                            // line ring 2
+                            array(
+                                array(34.551416, 49.588264), // Poltava
+                                array(32.049226, 49.431181), // Cherkasy
+                                array(35.139561, 47.838796), // Zaporizhia
+                                array(34.551416, 49.588264), // Poltava
+                            ),
+                        )
+                    ),
+                ),
+            ),
+            $this->collection->getDocument($documentId)->get('location')
+        );
     }
 }

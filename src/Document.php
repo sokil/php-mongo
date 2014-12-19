@@ -351,7 +351,6 @@ class Document extends Structure
      */
     public function setPolygon($field, array $lineRingsArray)
     {
-        // set polygon
         return $this->setGeometry(
             $field,
             new \GeoJson\Geometry\Polygon($lineRingsArray)
@@ -403,10 +402,25 @@ class Document extends Structure
      */
     public function setMultyPolygon($field, array $polygonsArray)
     {
-        // set polygon
         return $this->setGeometry(
             $field,
             new \GeoJson\Geometry\MultiPolygon($polygonsArray)
+        );
+    }
+
+    /**
+     * Set collection of different geometries
+     * 
+     * @link http://docs.mongodb.org/manual/core/2dsphere/#geometrycollection
+     * @param string $field
+     * @param array $geometryCollection
+     * @return \Sokil\Mongo\Document
+     */
+    public function setGeometryCollection($field, array $geometryCollection)
+    {
+        return $this->setGeometry(
+            $field,
+            new \GeoJson\Geometry\GeometryCollection($geometryCollection)
         );
     }
 
