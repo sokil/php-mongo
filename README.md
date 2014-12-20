@@ -683,8 +683,11 @@ longitude 34.551416 and distance 1000 meters from this point:
 $collection->find()->nearPoint('location', 34.551416, 49.588264, 1000);
 ```
 
-Distance may me specified as array `[minDistance, maxDistance]`.
-If some value empty, only existed value applied:
+This query require `2dsphere` or `2d` indexes.
+
+Distance may me specified as array `[minDistance, maxDistance]`. This
+feature allowed for MongoDB version 2.6 and greater. If some value
+empty, only existed value applied.
 
 ```php
 <?php
