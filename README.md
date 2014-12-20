@@ -685,7 +685,7 @@ $collection->find()->nearPoint('location', 34.551416, 49.588264, 1000);
 
 This query require `2dsphere` or `2d` indexes.
 
-Distance may me specified as array `[minDistance, maxDistance]`. This
+Distance may be specified as array `[minDistance, maxDistance]`. This
 feature allowed for MongoDB version 2.6 and greater. If some value
 empty, only existed value applied.
 
