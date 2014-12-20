@@ -471,6 +471,11 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
 
     public function testExpressionNearPointArrayDistabce()
     {
+        // this feature allowed only in MongoDB 2.6
+        if(version_compare($this->collection->getDatabase()->getClient()->getDbVersion(), '2.6', '<')) {
+            return;
+        }
+
         $this->collection->ensure2dSphereIndex('location');
 
         $document1Id = $this->collection

@@ -368,7 +368,8 @@ class Expression
      * @param string $field
      * @param float $longitude
      * @param float $latitude
-     * @param int $distance distance from point in meters
+     * @param int|array $distance distance from point in meters. Array distance
+     *  allowed only in MongoDB 2.6
      * @return \Sokil\Mongo\Expression
      */
     public function nearPoint($field, $longitude, $latitude, $distance)
