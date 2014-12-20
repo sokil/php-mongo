@@ -16,7 +16,7 @@ Why to use this library? You can easily work with document data through comforta
 * PHP 5.3 or above
 * PHP MongoDB Extension 0.9 or above (Some features require >= 1.5)
 * [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html)
-* [GeoJson version ~1.0](https://github.com/jmikola/geojson) 
+* [GeoJson version ~1.0](https://github.com/jmikola/geojson)
 * [PSR-3 logger interface](https://github.com/php-fig/log)
 
 #### Table of contents
@@ -544,8 +544,8 @@ $queryBuilder = $this->collection
 Geospatial queries
 ------------------
 
-Before querying geospatial coordinates we need to create geospatial index 
-and add some data. 
+Before querying geospatial coordinates we need to create geospatial index
+and add some data.
 
 Index 2dsphere available since MongoDB version 2.4 and may be created in few ways:
 ```php
@@ -560,7 +560,7 @@ $collection->ensureIndex(array(
 ));
 ```
 
-Geo data can be added as array in [GeoJson](http://geojson.org/) format or 
+Geo data can be added as array in [GeoJson](http://geojson.org/) format or
 using GeoJson objects of library [GeoJson](https://github.com/jmikola/geojson):
 
 Add data as GeoJson object
@@ -585,7 +585,7 @@ $document->setGeometry(
 ```
 
 Data may be set througn array:
-```php 
+```php
 <?php
 
 // Point
@@ -675,12 +675,25 @@ $document->setGeometryCollection('location', array(
 
 ```
 
-Query documents near point, defined by latitude 49.588264 and 
+Query documents near point, defined by latitude 49.588264 and
 longitude 34.551416 and distance 1000 meters from this point:
 
 ```php
 <?php
 $collection->find()->nearPoint('location', 34.551416, 49.588264, 1000);
+```
+
+Distance may me specified as array `[minDistance, maxDistance]`.
+If some value empty, only existed value applied:
+
+```php
+<?php
+// serch distance less 100 meters
+$collection->find()->nearPoint('location', 34.551416, 49.588264, array(null, 1000));
+// search distabce between 100 and 1000 meters
+$collection->find()->nearPoint('location', 34.551416, 49.588264, array(100, 1000));
+// search distabce greater than 1000 meters
+$collection->find()->nearPoint('location', 34.551416, 49.588264, array(1000, null));
 ```
 
 Pagination
