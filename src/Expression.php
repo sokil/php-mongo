@@ -378,12 +378,22 @@ class Expression
             (float) $latitude
         ));
 
-        $this->where($field, array(
-            '$near' => array(
-                '$geometry' => $point->jsonSerialize(),
-                '$maxDistance' => (int) $distance,
-            ),
-        ));
+        $near = array(
+            '$geometry' => $point->jsonSerialize(),
+        );
+        
+        if(is_array($distance)) {
+            if(!empty($distance[0])) {
+                $near['$minDistance'] = (int) $distance[0];
+            }
+            if(!empty($distance[1])) {
+                $near['$maxDistance'] = (int) $distance[1];
+            }
+        } else {
+            $near['$maxDistance'] = (int) $distance;
+        }
+
+        $this->where($field, array('$near' => $near));
 
         return $this;
     }
