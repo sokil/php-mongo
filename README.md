@@ -717,18 +717,6 @@ $this->collection
     ->findOne();
 ```
 
-To find geometries, which intersect specified:
-```php
-<?php
-$this->collection
-    ->find()
-    ->intersects('link', new \GeoJson\Geometry\LineString(array(
-        array(30.5326905, 50.4020355),
-        array(34.1092134, 44.946798),
-    )))
-    ->findOne();
-```
-
 To select documents with geospatial data that exists entirely within a specified shape:
 ```php
 <?php
