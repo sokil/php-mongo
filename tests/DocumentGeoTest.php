@@ -560,7 +560,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
 
     public function testExpressionIntersects()
     {
-        $this->collection->ensure2dSphereIndex('location');
+        $this->collection->ensure2dSphereIndex('link');
 
         $link1Id = $this->collection
             ->createDocument()
@@ -594,7 +594,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
 
     public function testExpressionWithin()
     {
-        $this->collection->ensure2dSphereIndex('location');
+        $this->collection->ensure2dSphereIndex('point');
 
         $point1Id = $this->collection
             ->createDocument()
@@ -623,5 +623,80 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotEmpty($point);
         $this->assertEquals($point2Id, $point->getId());
+    }
+
+    public function testExpressionWithinCircle()
+    {
+        $this->collection->ensure2dSphereIndex('point');
+
+        $point1Id = $this->collection
+            ->createDocument()
+            ->setPoint('point', 30.5326905, 50.4020355) // Kyiv
+            ->save()
+            ->getId();
+
+        $point2Id = $this->collection
+            ->createDocument()
+            ->setPoint('point', 28.4696339, 49.234734) // Vinnytsya
+            ->save()
+            ->getId();
+
+        $point = $this->collection
+            ->find()
+            ->withinCircle('point', 28.46963, 49.2347, 1)
+            ->findOne();
+
+        $this->assertNotEmpty($point);
+        $this->assertEquals($point2Id, $point->getId());
+    }
+
+    public function testExpressionWithinCircleSpherical()
+    {
+        $this->collection->ensure2dSphereIndex('point');
+
+        $point1Id = $this->collection
+            ->createDocument()
+            ->setPoint('point', 30.5326905, 50.4020355) // Kyiv
+            ->save()
+            ->getId();
+
+        $point2Id = $this->collection
+            ->createDocument()
+            ->setPoint('point', 28.4696339, 49.234734) // Vinnytsya
+            ->save()
+            ->getId();
+
+        $point = $this->collection
+            ->find()
+            ->withinCircleSpherical('point', 28.46963, 49.2347, 0.001)
+            ->findOne();
+
+        $this->assertNotEmpty($point);
+        $this->assertEquals($point2Id, $point->getId());
+    }
+
+    public function testExpressionWithinBox()
+    {
+        $this->collection->ensure2dIndex('point');
+
+        $point1Id = $this->collection
+            ->createDocument()
+            ->setLegacyPoint('point', 5, 4)
+            ->save()
+            ->getId();
+
+        $point2Id = $this->collection
+            ->createDocument()
+            ->setLegacyPoint('point', 50, 40)
+            ->save()
+            ->getId();
+
+        $point = $this->collection
+            ->find()
+            ->withinBox('point', array(0, 0), array(10, 10))
+            ->findOne();
+
+        $this->assertNotEmpty($point);
+        $this->assertEquals($point1Id, $point->getId());
     }
 }

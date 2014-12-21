@@ -341,6 +341,25 @@ class Document extends Structure
     }
 
     /**
+     * Set point as longitude and latitude in legacy format
+     *
+     * May be used 2d index
+     *
+     * @link http://docs.mongodb.org/manual/core/2d/#geospatial-indexes-store-grid-coordinates
+     * @param string $field
+     * @param float $longitude
+     * @param float $latitude
+     * @return \Sokil\Mongo\Document
+     */
+    public function setLegacyPoint($field, $longitude, $latitude)
+    {
+        return $this->set(
+            $field,
+            array($longitude, $latitude)
+        );
+    }
+
+    /**
      * Set line string as array of points
      *
      * Requires MongoDB version 2.4 or above with 2dsparse index version 1
@@ -447,7 +466,7 @@ class Document extends Structure
      *
      * Requires MongoDB version 2.6 or above with 2dsparse index version 2
      * to use MultiPoint, MultiLineString, MultiPolygon and GeometryCollection.
-     * 
+     *
      * @link http://docs.mongodb.org/manual/core/2dsphere/#geometrycollection
      * @param string $field
      * @param array $geometryCollection

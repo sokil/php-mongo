@@ -744,6 +744,34 @@ $point = $this->collection
         )
     )))
     ->findOne();
+```
+
+Search documents within flat circle:
+```php
+<?php
+$this->collection
+    ->find()
+    ->withinCircle('point', 28.46963, 49.2347, 1)
+    ->findOne();
+```
+
+Search document within spherical circle:
+```php
+<?php
+$point = $this->collection
+    ->find()
+    ->withinCircleSpherical('point', 28.46963, 49.2347, 0.001)
+    ->findOne();
+```
+
+Search documents within box:
+```php
+<?php
+$point = $this->collection
+    ->find()
+    ->withinBox('point', array(0, 0), array(10, 10))
+    ->findOne();
+```
 
 Pagination
 ----------

@@ -439,6 +439,18 @@ class Expression
         return $this;
     }
 
+    /**
+     * Selects documents whose geospatial data intersects with a specified
+     * GeoJSON object; i.e. where the intersection of the data and the
+     * specified object is non-empty. This includes cases where the data
+     * and the specified object share an edge. Uses spherical geometry.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/query/geoIntersects/
+     *
+     * @param string $field
+     * @param Geometry $geometry
+     * @return \Sokil\Mongo\Expression
+     */
     public function intersects($field, Geometry $geometry)
     {
         $this->where($field, array(
@@ -450,11 +462,97 @@ class Expression
         return $this;
     }
 
+    /**
+     * Selects documents with geospatial data that exists entirely within a specified shape.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/query/geoWithin/
+     * @param string $field
+     * @param Geometry $geometry
+     * @return \Sokil\Mongo\Expression
+     */
     public function within($field, Geometry $geometry)
     {
         $this->where($field, array(
             '$geoWithin' => array(
                 '$geometry' => $geometry->jsonSerialize(),
+            ),
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Select documents with geospatial data within circle defined
+     * by center point and radius in flat surface
+     *
+     * @param string $field
+     * @param float $longitude
+     * @param float $latitude
+     * @param float $radius
+     * @return \Sokil\Mongo\Expression
+     */
+    public function withinCircle($field, $longitude, $latitude, $radius)
+    {
+        $this->where($field, array(
+            '$geoWithin' => array(
+                '$center' => array(
+                    array($longitude, $latitude),
+                    $radius,
+                ),
+            ),
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Select documents with geospatial data within circle defined
+     * by center point and radius in spherical surface
+     *
+     * To calculate distance in radians
+     * @see http://docs.mongodb.org/manual/tutorial/calculate-distances-using-spherical-geometry-with-2d-geospatial-indexes/
+     *
+     * @param string $field
+     * @param float $longitude
+     * @param float $latitude
+     * @param float $radiusInRadians in radians.
+     * @return \Sokil\Mongo\Expression
+     */
+    public function withinCircleSpherical($field, $longitude, $latitude, $radiusInRadians)
+    {
+        $this->where($field, array(
+            '$geoWithin' => array(
+                '$centerSphere' => array(
+                    array($longitude, $latitude),
+                    $radiusInRadians,
+                ),
+            ),
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Return documents that are within the bounds of the rectangle, according
+     * to their point-based location data.
+     *
+     * Based on grid coordinates and does not query for GeoJSON shapes.
+     *
+     * Use planar geometry, so 2d index may be used but not required
+     * 
+     * @param string $field
+     * @param array $bottomLeftCoordinate Bottom left coordinate of box
+     * @param array $upperRightCoordinate Upper right coordinate of box
+     * @return \Sokil\Mongo\Expression
+     */
+    public function withinBox($field, array $bottomLeftCoordinate, array $upperRightCoordinate)
+    {
+        $this->where($field, array(
+            '$geoWithin' => array(
+                '$box' => array(
+                    $bottomLeftCoordinate,
+                    $upperRightCoordinate,
+                ),
             ),
         ));
 
