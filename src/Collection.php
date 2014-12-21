@@ -1008,6 +1008,23 @@ class Collection implements \Countable
     }
 
     /**
+     * Create geo index 2dsphere
+     *
+     * @link http://docs.mongodb.org/manual/tutorial/build-a-2d-index/
+     *
+     * @param string $field
+     * @return \Sokil\Mongo\Collection
+     */
+    public function ensure2dIndex($field)
+    {
+        $this->_mongoCollection->ensureIndex(array(
+            $field => '2d',
+        ));
+
+        return $this;
+    }
+
+    /**
      * Create indexes based on self::$_index metadata
      *
      * @return \Sokil\Mongo\Collection
