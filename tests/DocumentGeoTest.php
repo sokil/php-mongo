@@ -643,7 +643,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
 
         $point = $this->collection
             ->find()
-            ->withinCircle('point', 28.46963, 49.2347, 1)
+            ->withinCircle('point', 28.46963, 49.2347, 0.001)
             ->findOne();
 
         $this->assertNotEmpty($point);

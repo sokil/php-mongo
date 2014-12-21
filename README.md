@@ -739,7 +739,7 @@ Search documents within flat circle:
 <?php
 $this->collection
     ->find()
-    ->withinCircle('point', 28.46963, 49.2347, 1)
+    ->withinCircle('point', 28.46963, 49.2347, 0.001)
     ->findOne();
 ```
 
@@ -752,7 +752,7 @@ $point = $this->collection
     ->findOne();
 ```
 
-Search documents within box:
+Search documents with points (stored as legacy coordinates) within box:
 ```php
 <?php
 $point = $this->collection
