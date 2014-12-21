@@ -363,7 +363,7 @@ class Expression
     }
 
     /**
-     * Find document near points
+     * Find document near points in flat spatial
      *
      * @param string $field
      * @param float $longitude
@@ -382,7 +382,7 @@ class Expression
         $near = array(
             '$geometry' => $point->jsonSerialize(),
         );
-        
+
         if(is_array($distance)) {
             if(!empty($distance[0])) {
                 $near['$minDistance'] = (int) $distance[0];
@@ -395,6 +395,43 @@ class Expression
         }
 
         $this->where($field, array('$near' => $near));
+
+        return $this;
+    }
+
+    /**
+     * Find document near points in spherical spatial
+     *
+     * @param string $field
+     * @param float $longitude
+     * @param float $latitude
+     * @param int|array $distance distance from point in meters. Array distance
+     *  allowed only in MongoDB 2.6
+     * @return \Sokil\Mongo\Expression
+     */
+    public function nearPointSpherical($field, $longitude, $latitude, $distance)
+    {
+        $point = new \GeoJson\Geometry\Point(array(
+            (float) $longitude,
+            (float) $latitude
+        ));
+
+        $near = array(
+            '$geometry' => $point->jsonSerialize(),
+        );
+
+        if(is_array($distance)) {
+            if(!empty($distance[0])) {
+                $near['$minDistance'] = (int) $distance[0];
+            }
+            if(!empty($distance[1])) {
+                $near['$maxDistance'] = (int) $distance[1];
+            }
+        } else {
+            $near['$maxDistance'] = (int) $distance;
+        }
+
+        $this->where($field, array('$nearSphere' => $near));
 
         return $this;
     }

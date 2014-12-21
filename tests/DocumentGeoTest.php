@@ -505,7 +505,7 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
             ->findOne();
 
         $this->assertEmpty($document);
-        
+
         // point in min-max range
         $document = $this->collection
             ->find()
@@ -531,5 +531,30 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotEmpty($document);
         $this->assertEquals($document1Id, $document->getId());
+    }
+
+    public function testExpressionNearPointSpherical()
+    {
+        $this->collection->ensure2dSphereIndex('location');
+
+        $document1Id = $this->collection
+            ->createDocument()
+            ->setPoint('location', 24.012228, 49.831485)
+            ->save()
+            ->getId();
+
+        $document2Id = $this->collection
+            ->createDocument()
+            ->setPoint('location', 34.551416, 49.588264)
+            ->save()
+            ->getId();
+
+        $document = $this->collection
+            ->find()
+            ->nearPointSpherical('location', 34.551, 49.588, 200)
+            ->findOne();
+
+        $this->assertNotEmpty($document);
+        $this->assertEquals($document2Id, $document->getId());
     }
 }
