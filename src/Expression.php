@@ -539,7 +539,7 @@ class Expression
      * Based on grid coordinates and does not query for GeoJSON shapes.
      *
      * Use planar geometry, so 2d index may be used but not required
-     * 
+     *
      * @param string $field
      * @param array $bottomLeftCoordinate Bottom left coordinate of box
      * @param array $upperRightCoordinate Upper right coordinate of box
@@ -553,6 +553,29 @@ class Expression
                     $bottomLeftCoordinate,
                     $upperRightCoordinate,
                 ),
+            ),
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Return documents that are within the polygon, according
+     * to their point-based location data.
+     *
+     * Based on grid coordinates and does not query for GeoJSON shapes.
+     *
+     * Use planar geometry, so 2d index may be used but not required
+     *
+     * @param string $field
+     * @param array $points array of coordinates
+     * @return \Sokil\Mongo\Expression
+     */
+    public function withinPolygon($field, array $points)
+    {
+        $this->where($field, array(
+            '$geoWithin' => array(
+                '$polygon' => $points,
             ),
         ));
 

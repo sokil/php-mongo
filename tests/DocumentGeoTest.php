@@ -699,4 +699,37 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($point);
         $this->assertEquals($point1Id, $point->getId());
     }
+
+    public function testExpressionWithinPolygon()
+    {
+        $this->collection->ensure2dIndex('point');
+
+        $point1Id = $this->collection
+            ->createDocument()
+            ->setLegacyPoint('point', 5, 4)
+            ->save()
+            ->getId();
+
+        $point2Id = $this->collection
+            ->createDocument()
+            ->setLegacyPoint('point', 50, 40)
+            ->save()
+            ->getId();
+
+        $point = $this->collection
+            ->find()
+            ->withinPolygon(
+                'point',
+                array(
+                    array(0, 0),
+                    array(0, 10),
+                    array(10, 10),
+                    array(10, 0),
+                )
+            )
+            ->findOne();
+
+        $this->assertNotEmpty($point);
+        $this->assertEquals($point1Id, $point->getId());
+    }
 }

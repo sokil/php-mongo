@@ -761,6 +761,23 @@ $point = $this->collection
     ->findOne();
 ```
 
+Search documents with points (stored as legacy coordinates) within polygon:
+```php
+<?php
+$point = $this->collection
+    ->find()
+    ->withinPolygon(
+        'point',
+        array(
+            array(0, 0), 
+            array(0, 10), 
+            array(10, 10),
+            array(10, 0),
+        )
+    )
+    ->findOne();
+```
+
 Pagination
 ----------
 
