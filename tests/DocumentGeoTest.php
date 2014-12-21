@@ -591,4 +591,37 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($crossedLink);
         $this->assertEquals($link2Id, $crossedLink->getId());
     }
+
+    public function testExpressionWithin()
+    {
+        $this->collection->ensure2dSphereIndex('location');
+
+        $point1Id = $this->collection
+            ->createDocument()
+            ->setPoint('point', 30.5326905, 50.4020355) // Kyiv
+            ->save()
+            ->getId();
+
+        $point2Id = $this->collection
+            ->createDocument()
+            ->setPoint('point', 28.4696339, 49.234734) // Vinnytsya
+            ->save()
+            ->getId();
+
+        $point = $this->collection
+            ->find()
+            ->within('point', new \GeoJson\Geometry\Polygon(array(
+                array(
+                    array(24.0122356, 49.8326891), // Lviv
+                    array(24.717129, 48.9117731), // Ivano-Frankivsk
+                    array(34.1092134, 44.946798), // Simferopol
+                    array(34.5572385, 49.6020445), // Poltava
+                    array(24.0122356, 49.8326891), // Lviv
+                )
+            )))
+            ->findOne();
+
+        $this->assertNotEmpty($point);
+        $this->assertEquals($point2Id, $point->getId());
+    }
 }

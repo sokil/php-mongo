@@ -450,6 +450,17 @@ class Expression
         return $this;
     }
 
+    public function within($field, Geometry $geometry)
+    {
+        $this->where($field, array(
+            '$geoWithin' => array(
+                '$geometry' => $geometry->jsonSerialize(),
+            ),
+        ));
+
+        return $this;
+    }
+
     public function toArray()
     {
         return $this->_expression;
