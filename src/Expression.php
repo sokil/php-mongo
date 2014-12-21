@@ -2,6 +2,9 @@
 
 namespace Sokil\Mongo;
 
+use GeoJson\Geometry\Geometry;
+use GeoJson\Geometry\Point;
+
 /**
  * This class represents all expressions used to query document from collection
  *
@@ -363,7 +366,7 @@ class Expression
     }
 
     /**
-     * Find document near points in flat spatial
+     * Find document near points in flat surface
      *
      * @param string $field
      * @param float $longitude
@@ -400,7 +403,7 @@ class Expression
     }
 
     /**
-     * Find document near points in spherical spatial
+     * Find document near points in spherical surface
      *
      * @param string $field
      * @param float $longitude
@@ -411,7 +414,7 @@ class Expression
      */
     public function nearPointSpherical($field, $longitude, $latitude, $distance)
     {
-        $point = new \GeoJson\Geometry\Point(array(
+        $point = new Point(array(
             (float) $longitude,
             (float) $latitude
         ));
@@ -432,6 +435,17 @@ class Expression
         }
 
         $this->where($field, array('$nearSphere' => $near));
+
+        return $this;
+    }
+
+    public function intersects($field, Geometry $geometry)
+    {
+        $this->where($field, array(
+            '$geoIntersects' => array(
+                '$geometry' => $geometry->jsonSerialize(),
+            ),
+        ));
 
         return $this;
     }

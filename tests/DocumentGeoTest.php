@@ -557,4 +557,38 @@ class DocumentGeoTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($document);
         $this->assertEquals($document2Id, $document->getId());
     }
+
+    public function testExpressionIntersects()
+    {
+        $this->collection->ensure2dSphereIndex('location');
+
+        $link1Id = $this->collection
+            ->createDocument()
+            ->setLineString('link', array(
+                array(24.0122356, 49.8326891), // Lviv
+                array(24.717129, 48.9117731), // Ivano-Frankivsk
+            ))
+            ->save()
+            ->getId();
+
+        $link2Id = $this->collection
+            ->createDocument()
+            ->setLineString('link', array(
+                array(28.6737175, 50.2678865), // Gytomyr
+                array(34.5572385, 49.6020445), // Poltava
+            ))
+            ->save()
+            ->getId();
+
+        $crossedLink = $this->collection
+            ->find()
+            ->intersects('link', new \GeoJson\Geometry\LineString(array(
+                array(30.5326905, 50.4020355), // Kyiv
+                array(34.1092134, 44.946798), // Simferopol
+            )))
+            ->findOne();
+
+        $this->assertNotEmpty($crossedLink);
+        $this->assertEquals($link2Id, $crossedLink->getId());
+    }
 }

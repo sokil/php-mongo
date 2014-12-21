@@ -675,7 +675,7 @@ $document->setGeometryCollection('location', array(
 
 ```
 
-Query documents near point, defined by latitude 49.588264 and
+Query documents near point on flat surface, defined by latitude 49.588264 and
 longitude 34.551416 and distance 1000 meters from this point:
 
 ```php
@@ -697,6 +697,24 @@ $collection->find()->nearPoint('location', 34.551416, 49.588264, array(null, 100
 $collection->find()->nearPoint('location', 34.551416, 49.588264, array(100, 1000));
 // search distabce greater than 1000 meters
 $collection->find()->nearPoint('location', 34.551416, 49.588264, array(1000, null));
+```
+
+To search on spherical surface:
+```php
+<?php
+$collection->find()->nearPointSpherical('location', 34.551416, 49.588264, 1000);
+```
+
+To find geometries, which intersect specified:
+```php
+<?php
+$this->collection
+    ->find()
+    ->intersects('link', new \GeoJson\Geometry\LineString(array(
+        array(30.5326905, 50.4020355),
+        array(34.1092134, 44.946798),
+    )))
+    ->findOne();
 ```
 
 Pagination
