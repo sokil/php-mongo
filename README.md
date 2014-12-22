@@ -769,8 +769,8 @@ $point = $this->collection
     ->withinPolygon(
         'point',
         array(
-            array(0, 0), 
-            array(0, 10), 
+            array(0, 0),
+            array(0, 10),
             array(10, 10),
             array(10, 0),
         )
@@ -1088,11 +1088,24 @@ $collection->deleteDocuments($collection->expression()->where('param', 'value'))
 Aggregation framework
 --------------------------------
 
-To do aggregation you need first to create pipelines object:
+Create aggregator:
 ```php
 <?php
-$pipeline = $collection->createPipeline();
+$aggregator = $collection->createAggregator();
 ````
+
+Than you need to configure aggregator by pipelines.
+```php
+<?php
+// through array
+$aggregator->match(array(
+    'field' => 'value'
+));
+// through callable
+$aggregator->match(function($expression) {
+    $expression->whereLess('date', new \MongpDate);
+});
+```
 
 To get results of aggregation after configuring pipelines:
 ```php
@@ -1100,19 +1113,33 @@ To get results of aggregation after configuring pipelines:
 /**
  * @var array list of aggregation results
  */
-$result = $pipeline->aggregate();
+$result = $aggregator->aggregate();
+// or
+$result = $collection->aggregate($aggregator);
 ```
 
-Match pipeline:
+You can execute aggregation without previously created aggregator:
+
 ```php
 <?php
-$pipeline-> match([
-    'date' => [
-        '$lt' => new \MongoDate,
-    ]
-]);
+// by array
+$collection->aggregate(array(
+    array(
+        '$match' => array(
+            'field' => 'value',
+        ),
+    ),
+));
+// or callable
+$collection->aggregate(function($aggregator) {
+    $aggregator->match(function($expression) {
+        $expression->whereLess('date', new \MongpDate);
+    });
+});
 ```
 
+Using of Collection::createPipeline() is deprecated since 1.10.10. Use
+Collection::createAggregator(), callable or array in Collection::aggregate().
 
 Events
 -------

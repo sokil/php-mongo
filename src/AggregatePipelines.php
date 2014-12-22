@@ -2,27 +2,30 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\AggregatePipelines\GroupPipeline;
+
 class AggregatePipelines
 {
+
     private $pipelines = array();
-    
+
     /**
      * @var \Sokil\Mongo\Collection
      */
     private $collection;
-    
+
     public function __construct(Collection $collection)
     {
         $this->collection = $collection;
     }
-    
-    private function _add($operator, $pipeline) {
+
+    private function add($operator, $pipeline)
+    {
         $lastIndex = count($this->pipelines) - 1;
-        
-        if(!$this->pipelines || !isset($this->pipelines[$lastIndex][$operator]) || $operator == '$group') {
+
+        if (!$this->pipelines || !isset($this->pipelines[$lastIndex][$operator]) || $operator == '$group') {
             $this->pipelines[] = array($operator => $pipeline);
-        }
-        else {
+        } else {
             $this->pipelines[$lastIndex][$operator] = array_merge($this->pipelines[$lastIndex][$operator], $pipeline);
         }
     }
@@ -34,61 +37,99 @@ class AggregatePipelines
      * @return \Sokil\Mongo\AggregatePipelines
      * @throws \Sokil\Mongo\Exception
      */
-    public function match($expression) {
-        if(is_callable($expression)) {
+    public function match($expression)
+    {
+        if (is_callable($expression)) {
             $expressionConfigurator = $expression;
             $expression = new Expression();
             call_user_func($expressionConfigurator, $expression);
             $expression = $expression->toArray();
-        } elseif(!is_array($expression)) {
+        } elseif (!is_array($expression)) {
             throw new Exception('Must be array or instance of Expression');
         }
-        
-        $this->_add('$match', $expression);
+
+        $this->add('$match', $expression);
         return $this;
     }
-    
-    public function project(array $pipeline) {
-        $this->_add('$project', $pipeline);
+
+    /**
+     * Passes along the documents with only the specified fields to the next
+     * stage in the pipeline. The specified fields can be existing fields
+     * from the input documents or newly computed fields.
+     *
+     * @param array $pipeline
+     * @return \Sokil\Mongo\AggregatePipelines
+     */
+    public function project(array $pipeline)
+    {
+        $this->add('$project', $pipeline);
         return $this;
     }
-    
-    public function group(array $pipeline) {
-        
-        if(!isset($pipeline['_id'])) {
-            throw new Exception('Group field in _id key must be specified');
+
+    /**
+     * Groups documents by some specified expression and outputs to the next 
+     * stage a document for each distinct grouping. The output documents 
+     * contain an _id field which contains the distinct group by key. The 
+     * output documents can also contain computed fields that hold the values 
+     * of some accumulator expression grouped by the $group‘s _id field. $group 
+     * does not order its output documents.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/group/
+     * 
+     * @param array|callable $pipeline
+     * @return \Sokil\Mongo\AggregatePipelines
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function group($pipeline)
+    {
+        if (is_callable($pipeline)) {
+            $configurator = $pipeline;
+            $pipeline = new GroupPipeline();
+            call_user_func($configurator, $pipeline);
+            $pipeline = $pipeline->toArray();
+        } elseif(!is_array($pipeline)) {
+            throw new Exception('Group pipeline must be array or instance of Sokil\Mongo\AggregatePipelines\GroupPipeline');
         }
         
-        $this->_add('$group', $pipeline);
+        if (!isset($pipeline['_id'])) {
+            throw new Exception('Group field in _id key must be specified');
+        }
+
+        $this->add('$group', $pipeline);
         return $this;
     }
-    
-    public function sort(array $pipeline) {
-        $this->_add('$sort', $pipeline);
+
+    public function sort(array $sortFields)
+    {
+        $this->add('$sort', $sortFields);
         return $this;
     }
-    
-    public function toArray() {
+
+    public function toArray()
+    {
         return $this->pipelines;
     }
-    
-    public function limit($limit) {
-        $this->_add('$limit', (int) $limit);
+
+    public function limit($limit)
+    {
+        $this->add('$limit', (int) $limit);
         return $this;
     }
-    
-    public function skip($skip) {
-        $this->_add('$skip', (int) $skip);
+
+    public function skip($skip)
+    {
+        $this->add('$skip', (int) $skip);
         return $this;
     }
-    
+
     public function aggregate()
-    {        
+    {
         return $this->collection->aggregate($this);
     }
-    
+
     public function __toString()
     {
         return json_encode($this->pipelines);
     }
+
 }

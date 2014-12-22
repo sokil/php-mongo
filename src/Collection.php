@@ -832,9 +832,20 @@ class Collection implements \Countable
      * Create Aggregator pipelines instance
      *
      * @return \Sokil\Mongo\AggregatePipelines
-     * @deprecated since 1.10.10, use callable in Collection::aggregate()
+     * @deprecated since 1.10.10, use Collection::createAggregator() or callable in Collection::aggregate()
      */
     public function createPipeline()
+    {
+        return $this->createAggregator();
+    }
+
+    /**
+     * Start aggregation
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/
+     * @return \Sokil\Mongo\AggregatePipelines
+     */
+    public function createAggregator()
     {
         return new AggregatePipelines($this);
     }
@@ -843,6 +854,7 @@ class Collection implements \Countable
      * Aggregate using pipelines
      *
      * @param callable|array|\Sokil\Mongo\AggregatePipelines $pipelines list of pipelines
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/
      * @return array result of aggregation
      * @throws \Sokil\Mongo\Exception
      */
@@ -851,7 +863,7 @@ class Collection implements \Countable
         // configure through callable
         if (is_callable($pipelines)) {
             $pipelinesConfiguratorCallable = $pipelines;
-            $pipelines = new AggregatePipelines($this);
+            $pipelines = $this->createAggregator();
             call_user_func($pipelinesConfiguratorCallable, $pipelines);
         }
 

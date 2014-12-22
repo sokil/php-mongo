@@ -192,6 +192,30 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             (string) $pipelines
         );
     }
+
+    public function testGroupCallable()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->group(function($pipeline) {
+            /* @var $pipeline \Sokil\Mongo\AggregatePipelines\GroupPipeline */
+            $pipeline
+                ->setId('user.id')
+                ->sum('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\AggregatePipelines\Expression */
+                    $expression->multiply(array(
+                        '$amount',
+                        '$discount',
+                        0.95
+                    ));
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":{"$multiply":["$amount","$discount",0.95]}}}}]',
+            (string) $pipelines
+        );
+    }
     
     public function testMatchGroupAggregation()
     {
@@ -231,6 +255,158 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
                 'totalAmount' => 430,
             ),
         ), $result);
+    }
+
+    public function testAggregate()
+    {
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        $result = $this->collection
+            ->createAggregator()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
+            ->aggregate();
+
+        $this->assertEquals(9, $result[0]['sum']);
+
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong pipelines specified
+     */
+    public function testAggregate_WrongArgument()
+    {
+        $this->collection->aggregate('hello');
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Aggregate error: some_error
+     */
+    public function testAggregate_ServerSideError()
+    {
+        $mongoDatabaseMock = $this->getMock(
+            '\MongoDB',
+            array('command'),
+            array($this->collection->getDatabase()->getClient()->getMongoClient(), 'test')
+        );
+
+        $mongoDatabaseMock
+            ->expects($this->once())
+            ->method('command')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'errmsg' => 'some_error',
+                'code' => 1785342,
+            )));
+
+        $database = new Database($this->collection->getDatabase()->getClient(), $mongoDatabaseMock);
+        $database
+            ->getCollection('phpmongo_test_collection')
+            ->aggregate(array(
+                array('$match' => array('field' => 'value'))
+            ));
+    }
+
+    public function testLogAggregateResults()
+    {
+        // create documents
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        // create logger
+        $logger = $this->getMock('\Psr\Log\LoggerInterface');
+        $logger
+            ->expects($this->once())
+            ->method('debug')
+            ->with('Sokil\Mongo\Collection:<br><b>Pipelines</b>:<br>[{"$match":{"param":{"$gte":2}}},{"$group":{"_id":0,"sum":{"$sum":"$param"}}}]');
+
+        // set logger to client
+        $this->collection->getDatabase()->getClient()->setLogger($logger);
+
+        // aggregate
+        $this->collection
+            ->createAggregator()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
+            ->aggregate();
+    }
+
+    public function testExplainAggregate()
+    {
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        $pipelines = $this->collection
+            ->createAggregator()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')));
+
+        try {
+            $explain = $this->collection->explainAggregate($pipelines);
+            $this->assertArrayHasKey('stages', $explain);
+        } catch (\Exception $e) {
+            $this->assertEquals('Explain of aggregation implemented only from 2.6.0', $e->getMessage());
+        }
+
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Explain of aggregation implemented only from 2.6.0
+     */
+    public function testExplainAggregate_UnsupportedDbVersion()
+    {
+        // define db version where aggregate explanation supported
+        $clientMock = $this->getMock(
+            '\Sokil\Mongo\Client',
+            array('getDbVersion')
+        );
+
+        $clientMock
+            ->expects($this->once())
+            ->method('getDbVersion')
+            ->will($this->returnValue('2.4.0'));
+
+        $clientMock->setMongoClient($this->collection->getDatabase()->getClient()->getMongoClient());
+
+        $clientMock
+            ->getDatabase('test')
+            ->getCollection('phpmongo_test_collection')
+            ->explainAggregate(array());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong pipelines specified
+     */
+    public function testExplainAggregate_WrongArgument()
+    {
+        // define db version where aggregate explanation supported
+        $clientMock = $this->getMock(
+            '\Sokil\Mongo\Client',
+            array('getDbVersion')
+        );
+
+        $clientMock
+            ->expects($this->once())
+            ->method('getDbVersion')
+            ->will($this->returnValue('2.6.0'));
+
+        $clientMock->setMongoClient($this->collection->getDatabase()->getClient()->getMongoClient());
+
+        $this->collection = $clientMock
+            ->getDatabase('test')
+            ->getCollection('phpmongo_test_collection')
+            ->explainAggregate('wrong_argument');
     }
 
 }
