@@ -176,6 +176,23 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('[{"$skip":11},{"$limit":23}]', (string) $pipelines);
     }
 
+    public function testMatchCallable()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->match(function($expression) {
+            /* @var $expression \Sokil\Mongo\Expression */
+            $expression
+                ->where('a', 1)
+                ->whereLess('b', 12);
+        });
+
+        $this->assertEquals(
+            '[{"$match":{"a":1,"b":{"$lt":12}}}]',
+            (string) $pipelines
+        );
+    }
+    
     public function testMatchGroupAggregation()
     {
         $this->collection->insertMultiple(array(

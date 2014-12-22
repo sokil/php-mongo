@@ -26,9 +26,25 @@ class AggregatePipelines
             $this->pipelines[$lastIndex][$operator] = array_merge($this->pipelines[$lastIndex][$operator], $pipeline);
         }
     }
-    
-    public function match(array $pipeline) {
-        $this->_add('$match', $pipeline);
+
+    /**
+     * Filter documents by expression
+     *
+     * @param array|\Sokil\Mongo\Expression $expression
+     * @return \Sokil\Mongo\AggregatePipelines
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function match($expression) {
+        if(is_callable($expression)) {
+            $expressionConfigurator = $expression;
+            $expression = new Expression();
+            call_user_func($expressionConfigurator, $expression);
+            $expression = $expression->toArray();
+        } elseif(!is_array($expression)) {
+            throw new Exception('Must be array or instance of Expression');
+        }
+        
+        $this->_add('$match', $expression);
         return $this;
     }
     
