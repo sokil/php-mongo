@@ -77,6 +77,8 @@ class AggregatePipelinesExpressionTest extends \PHPUnit_Framework_TestCase
 
     public function testMultiply_Expression()
     {
+        $this->markTestIncomplete('Unserialising expressions not yet implemented');
+        
         $pipelines = new AggregatePipelines($this->collection);
 
         $pipelines->group(function($pipeline) {
