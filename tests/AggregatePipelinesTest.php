@@ -4,7 +4,6 @@ namespace Sokil\Mongo;
 
 class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      *
      * @var \Sokil\Mongo\Collection
@@ -28,7 +27,16 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $this->collection->delete();
     }
 
-    public function testPipelineAppendFewGroups()
+    public function testSkipLimit()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->skip(11)->limit(23);
+
+        $this->assertEquals('[{"$skip":11},{"$limit":23}]', (string) $pipelines);
+    }
+
+    public function testPipeline_AppendFewGroups()
     {
         $pipelines = new AggregatePipelines($this->collection);
 
@@ -60,7 +68,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
     /**
      * Check if pipeline added as new or appended to previouse on same operator
      */
-    public function testPipelineAppend()
+    public function testPipeline_Append()
     {
 
         $pipelines = new AggregatePipelines($this->collection);
@@ -112,7 +120,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
     /**
      * Check if pipeline added as new or appended to previouse on same operator
      */
-    public function testPipelineToString()
+    public function testPipeline_ToString()
     {
 
         $pipelines = new AggregatePipelines($this->collection);
@@ -155,28 +163,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($validJson, $pipelines->__toString());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     */
-    public function testErrorOnEmptyIDInGroup()
-    {
-        $pipelines = new AggregatePipelines($this->collection);
-
-        $pipelines->group(array(
-            'field' => 'value'
-        ));
-    }
-
-    public function testSkipLimit()
-    {
-        $pipelines = new AggregatePipelines($this->collection);
-
-        $pipelines->skip(11)->limit(23);
-
-        $this->assertEquals('[{"$skip":11},{"$limit":23}]', (string) $pipelines);
-    }
-
-    public function testMatchCallable()
+    public function testPipeline_MatchCallable()
     {
         $pipelines = new AggregatePipelines($this->collection);
 
@@ -192,32 +179,8 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             (string) $pipelines
         );
     }
-
-    public function testGroupCallable()
-    {
-        $pipelines = new AggregatePipelines($this->collection);
-
-        $pipelines->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\AggregatePipelines\GroupPipeline */
-            $pipeline
-                ->setId('user.id')
-                ->sum('totalAmount', function($expression) {
-                    /* @var $expression \Sokil\Mongo\AggregatePipelines\Expression */
-                    $expression->multiply(array(
-                        '$amount',
-                        '$discount',
-                        0.95
-                    ));
-                });
-        });
-
-        $this->assertEquals(
-            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":{"$multiply":["$amount","$discount",0.95]}}}}]',
-            (string) $pipelines
-        );
-    }
     
-    public function testMatchGroupAggregation()
+    public function testAggregate_Callable()
     {
         $this->collection->insertMultiple(array(
             array('order' => 1, 'item' => 1, 'amount' => 110, 'category' => 1),
@@ -257,7 +220,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         ), $result);
     }
 
-    public function testAggregate()
+    public function testAggregate_FluentInterface()
     {
         $this->collection->createDocument(array('param' => 1))->save();
         $this->collection->createDocument(array('param' => 2))->save();
@@ -312,7 +275,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             ));
     }
 
-    public function testLogAggregateResults()
+    public function testLogger()
     {
         // create documents
         $this->collection->createDocument(array('param' => 1))->save();

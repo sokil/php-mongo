@@ -34,8 +34,6 @@ class GroupPipeline
 
         if($expression instanceof Expression) {
             $expression = $expression->toArray();
-        } elseif(!is_array($expression)) {
-            throw new \Exception('Expression must be literal, callable or instance of \Sokil\Mongo\AggregatePipelines\Expression');
         }
 
         $this->pipeline[$field]['$sum'] = $expression;
