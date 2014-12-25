@@ -11,13 +11,15 @@ class Expression
 
     /**
      * @kibk http://docs.mongodb.org/manual/reference/operator/aggregation/add/
-     * @param array<literal|callable|\Sokil\Mongo\AggregatePipelines\Expression> $expressions
+     * @param array<literal|callable|\Sokil\Mongo\AggregatePipelines\Expression> $expressions may me specified as one array of expressions and as list of expressions
      */
     public function add($expressions)
     {
-        $this->expression['$add'] = (func_num_args() === 1)
-            ? $expressions
-            : func_get_args();
+        if(func_num_args() > 1) {
+            $expressions = func_get_args();
+        }
+
+        $this->expression['$add'] = $this->normalize($expressions);
 
         return $this;
     }
@@ -29,10 +31,10 @@ class Expression
      */
     public function divide($expression1, $expression2)
     {
-        $this->expression['$divide'] = array(
+        $this->expression['$divide'] = $this->normalize(array(
             $expression1,
             $expression2
-        );
+        ));
 
         return $this;
     }
@@ -44,21 +46,25 @@ class Expression
      */
     public function mod($expression1, $expression2)
     {
-        $this->expression['$mod'] = array(
+        $this->expression['$mod'] = $this->normalize(array(
             $expression1,
             $expression2
-        );
+        ));
 
         return $this;
     }
 
     /**
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/multiply/
-     * @param array<literal|callable|\Sokil\Mongo\AggregatePipelines\Expression> $expressions
+     * @param array<literal|callable|\Sokil\Mongo\AggregatePipelines\Expression> $expressions may me specified as one array of expressions and as list of expressions
      */
     public function multiply($expressions)
     {
-        $this->expression['$multiply'] = $expressions;
+        if(func_num_args() > 1) {
+            $expressions = func_get_args();
+        }
+        
+        $this->expression['$multiply'] = $this->normalize($expressions);
 
         return $this;
     }
@@ -70,14 +76,36 @@ class Expression
      */
     public function subtract($expression1, $expression2)
     {
-        $this->expression['$subtract'] = array(
+        $this->expression['$subtract'] = $this->normalize(array(
             $expression1,
             $expression2
-        );
+        ));
 
         return $this;
     }
 
+    /**
+     * Convert expressions specified in different formats to canonical array form
+     * 
+     * @param array $expressions
+     */
+    private function normalize(array $expressions)
+    {
+        foreach($expressions as $i => $expression) {
+            if(is_callable($expression)) {
+                $expressionConfigurator = $expression;
+                $expression = new Expression;
+                call_user_func($expressionConfigurator, $expression);
+            }
+
+            if($expression instanceof Expression) {
+                $expressions[$i] = $expression->toArray();
+            }
+        }
+
+        return $expressions;
+    }
+    
     public function toArray()
     {
         return $this->expression;
