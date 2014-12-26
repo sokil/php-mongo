@@ -95,6 +95,72 @@ class AggregatePipelinesExpressionTest extends \PHPUnit_Framework_TestCase
             (string) $pipelines
         );
     }
+
+    public function testDivide_Literal()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->group(function($pipeline) {
+            /* @var $pipeline \Sokil\Mongo\AggregatePipelines\GroupPipeline */
+            $pipeline
+                ->setId('user.id')
+                ->sum('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\AggregatePipelines\Expression */
+                    $expression->divide('$amount', 0.95);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":{"$divide":["$amount",0.95]}}}}]',
+            (string) $pipelines
+        );
+    }
+
+    public function testDivide_Array()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->group(function($pipeline) {
+            /* @var $pipeline \Sokil\Mongo\AggregatePipelines\GroupPipeline */
+            $pipeline
+                ->setId('user.id')
+                ->sum('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\AggregatePipelines\Expression */
+                    $expression->divide(
+                        array('$multiply' => array('$amount', 3.15)),
+                        0.95
+                    );
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":{"$divide":[{"$multiply":["$amount",3.15]},0.95]}}}}]',
+            (string) $pipelines
+        );
+    }
+
+    public function testDivide_Expression()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->group(function($pipeline) {
+            /* @var $pipeline \Sokil\Mongo\AggregatePipelines\GroupPipeline */
+            $pipeline
+                ->setId('user.id')
+                ->sum('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\AggregatePipelines\Expression */
+                    $expression->divide(
+                        function($expression) { $expression->multiply('$amount', 3.15); },
+                        0.95
+                    );
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":{"$divide":[{"$multiply":["$amount",3.15]},0.95]}}}}]',
+            (string) $pipelines
+        );
+    }
     
     public function testMultiply_Literal()
     {
