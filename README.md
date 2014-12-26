@@ -991,7 +991,7 @@ Note that persisted documents do not deleted from persistence manager after flus
 Document validation
 -------------------
 
-Document can be validated before save. To set validation rules method `\Sokil\Mongo\Document::roles()` must be override with validation rules. Supported rules are:
+Document can be validated before save. To set validation rules method `\Sokil\Mongo\Document::rules()` must be override with validation rules. Supported rules are:
 ```php
 <?php
 class CustomDocument except \Sokil\Mongo\Document
