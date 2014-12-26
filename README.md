@@ -592,10 +592,11 @@ that reason:
 
 ```php
 <?php
+
 $queryBuilder = $this->collection
     ->find()
     ->field('_id')
-    ->field('ineterests')
+    ->field('interests')
     ->sort(array(
         'age' => 1,
         'gender' => -1,
@@ -603,16 +604,15 @@ $queryBuilder = $this->collection
     ->limit(10, 20)
     ->whereAll('interests', ['php', 'snowboard']);
 
-    $hash = $queryBuilder->getHash(); // will return 508cc93b371c222c53ae90989d95caae
+$hash = $queryBuilder->getHash(); // will return 508cc93b371c222c53ae90989d95caae
 
-    if($cache->has($hash)) {
-        return $cache->get($hash);
-    }
+if($cache->has($hash)) {
+    return $cache->get($hash);
+}
 
-    $result = $queryBuilder->findAll();
+$result = $queryBuilder->findAll();
 
-    $cache->set($hash, $result);
-    return $result;
+$cache->set($hash, $result);
 ```
 
 Geospatial queries
