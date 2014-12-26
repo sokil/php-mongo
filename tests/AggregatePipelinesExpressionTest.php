@@ -299,4 +299,70 @@ class AggregatePipelinesExpressionTest extends \PHPUnit_Framework_TestCase
             (string) $pipelines
         );
     }
+
+    public function testSubtract_Literal()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->group(function($pipeline) {
+            /* @var $pipeline \Sokil\Mongo\AggregatePipelines\GroupPipeline */
+            $pipeline
+                ->setId('user.id')
+                ->sum('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\AggregatePipelines\Expression */
+                    $expression->subtract('$amount', 0.95);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":{"$subtract":["$amount",0.95]}}}}]',
+            (string) $pipelines
+        );
+    }
+
+    public function testSubtract_Array()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->group(function($pipeline) {
+            /* @var $pipeline \Sokil\Mongo\AggregatePipelines\GroupPipeline */
+            $pipeline
+                ->setId('user.id')
+                ->sum('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\AggregatePipelines\Expression */
+                    $expression->subtract(
+                        array('$multiply' => array('$amount', 3.15)),
+                        0.95
+                    );
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":{"$subtract":[{"$multiply":["$amount",3.15]},0.95]}}}}]',
+            (string) $pipelines
+        );
+    }
+
+    public function testSubtract_Expression()
+    {
+        $pipelines = new AggregatePipelines($this->collection);
+
+        $pipelines->group(function($pipeline) {
+            /* @var $pipeline \Sokil\Mongo\AggregatePipelines\GroupPipeline */
+            $pipeline
+                ->setId('user.id')
+                ->sum('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\AggregatePipelines\Expression */
+                    $expression->subtract(
+                        function($expression) { $expression->multiply('$amount', 3.15); },
+                        0.95
+                    );
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":{"$subtract":[{"$multiply":["$amount",3.15]},0.95]}}}}]',
+            (string) $pipelines
+        );
+    }
 }
