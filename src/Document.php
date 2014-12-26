@@ -48,6 +48,12 @@ class Document extends Structure
     const RELATION_HAS_MANY = 'HAS_MANY';
     const RELATION_MANY_MANY = 'MANY_MANY';
 
+    /**
+     * Suffix added to collection name to get name of revisions collection
+     * @var string
+     */
+    const REVISION_COLLECTION_SUFFIX = '.revisions';
+
     private $resolvedRelationIds = array();
 
     /**
@@ -1510,7 +1516,7 @@ class Document extends Structure
      */
     public function getRevisionsCollection()
     {
-        $revisionsCollectionName = $this->collection->getName() . '.revisions';
+        $revisionsCollectionName = $this->collection->getName() . self::REVISION_COLLECTION_SUFFIX;
 
         return $this
             ->collection
@@ -1539,6 +1545,12 @@ class Document extends Structure
         return $cursor->findAll();
     }
 
+    /**
+     * Get revision by id
+     * 
+     * @param int|string|\MongoId $id
+     * @return \Sokil\Mongo\Revision
+     */
     public function getRevision($id)
     {
         return $this

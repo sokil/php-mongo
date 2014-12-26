@@ -13,6 +13,21 @@ class Revision extends \Sokil\Mongo\Document
      * @var \Sokil\Mongo\Collection
      */
     private $baseCollection;
+
+    public function __construct(Collection $revisionsCollection, array $data = null, array $options = array())
+    {
+        parent::__construct($revisionsCollection, $data, $options);
+
+        $baseCollectionName = substr(
+            $revisionsCollection->getName(),
+            0,
+            -1 * strlen(Document::REVISION_COLLECTION_SUFFIX)
+        );
+
+        $this->baseCollection = $revisionsCollection
+            ->getDatabase()
+            ->getCollection($baseCollectionName);
+    }
     
     /**
      * Set document data

@@ -65,6 +65,34 @@ class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals('value1', $revision->param);
     }
+
+    public function testGetRevisionOriginalDocument()
+    {
+        $document = $this->collection
+            ->enableVersioning()
+            ->createDocument(array('param' => 'value'))
+            ->save()
+            ->set('param', 'value1')
+            ->save()
+            ->set('param', 'value2')
+            ->save();
+
+        $revisions = $document->getRevisions();
+        next($revisions);
+
+        $key = key($revisions);
+
+        $revision = $document->getRevision($key);
+
+        $originalDocument = $revision->getDocument();
+
+        $this->assertInstanceOf('\Sokil\Mongo\Document', $originalDocument);
+
+        $this->assertEquals(
+            'phpmongo_test_collection',
+            $originalDocument->getCollection()->getName()
+        );
+    }
     
     public function testGetRevisions()
     {
