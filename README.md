@@ -108,6 +108,9 @@ If you require migrations, you can add dependency to "[sokil/php-mongo-migrator]
 }
 ```
 
+Download latest release:
+[Latest sources from GitHub](https://github.com/sokil/php-mongo/releases/latest)
+
 Connecting
 ----------
 
