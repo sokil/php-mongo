@@ -586,7 +586,7 @@ $document->refresh();
 
 ### Comparing queries
 
-If you want to cache your results or want to compare to queries, you need some
+If you want to cache your search results or want to compare two queries, you need some
 identifier which unambiguously identify query. You can use `Cursor::getHash()` for
 that reason:
 
