@@ -588,7 +588,8 @@ $document->refresh();
 
 If you want to cache your search results or want to compare two queries, you need some
 identifier which unambiguously identify query. You can use `Cursor::getHash()` for
-that reason:
+that reason. This hash uniquely identify just query parameners rather
+than result set of documents, because it calculated from all query parameters:
 
 ```php
 <?php
