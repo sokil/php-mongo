@@ -30,6 +30,10 @@ Why to use this library? You can easily work with document data through comforta
 * [Get and set data in document](#get-and-set-data-in-document)
 * [Storing document](#storing-document)
 * [Querying documents](#querying-documents)
+  * [Query Builder](#query-builder)
+  * [Extending Query Builder](#extending-query-builder)
+  * [Identity Map](#identity-map)
+  * [Comparing queries](#comparing-queries)
 * [Geospatial queries](#geospatial-queries)
 * [Pagination](#pagination)
 * [Batch operations](#batch-operations)
@@ -417,6 +421,8 @@ $document = $collection->getDocument('23a4...')->set('param', 'value')->save();
 Querying documents
 ------------------
 
+### Query Builder
+
 To query documents, which satisfy some conditions you need to use query builder:
 ```php
 <?php
@@ -477,6 +483,8 @@ To get values from a single field in the result set of documents:
 $columnValues = $cursor->pluck('some.field.name');
 ```
 
+### Extending Query Builder
+
 For extending standart query builder class with custom condition methods you need to override property `Collection::$_queryExpressionClass` with class, which extends `\Sokil\Mongo\Expression`:
 
 ```php
@@ -511,6 +519,72 @@ $collection
     ->fetchRandom();
 
 ```
+### Identity Map
+
+Imagine that you have two different query builders and they are both
+return same document. Identity map helps us to get same instance of object
+from different queries, so if we made changes to document from first query,
+that changes will be in document from second query:
+
+```php
+<?php
+
+$document1 = $collection->find()->whereGreater('age' > 18)->findOne();
+$document2 = $collection->find()->where('gender', 'male')->findOne();
+
+$document1->name = 'Mary';
+echo $document2->name; // Mary
+```
+
+This two documents referenced same object. Collection by
+default store all requested documents to identity map and return same objects
+for different requests. But if we know that documents never be reused, we
+can disable storing documents to identity map:
+
+```php
+<?php
+
+$collection->disableDocumentPool();
+```
+
+To enable identity mapping:
+```php
+<?php
+
+$collection->enableDocumentPool();
+```
+
+To check if identity mapping enabled:
+```php
+<?php
+
+$collection->isDocumentPoolEnabled();
+```
+
+To clear pool identity map from previously stored documents:
+```php
+<?php
+
+$collection->clearDocumentPool();
+```
+
+To check if there are documents in map already:
+```php
+<?php
+
+$collection->isDocumentPoolEmpty();
+```
+
+If document already loaded, but it may be changed from another proces in db,
+then your copy is not fresh. You can manually refresh document state
+syncing it with db:
+```php
+<?php
+
+$document->refresh();
+```
+
+### Comparing queries
 
 If you want to cache your results or want to compare to queries, you need some
 identifier which unambiguously identify query. You can use `Cursor::getHash()` for
