@@ -30,22 +30,39 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
         $this->collection->delete();
     }
 
+    public function testConfigure_Array()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(array(
+            '_id' => '$userId',
+            'totalAmount' => array(
+                '$sum' => '$amount',
+            )
+        ));
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$sum":"$amount"}}}]',
+            (string) $pipeline
+        );
+    }
     public function testConfigure_Callable()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
-                ->setId('user.id')
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
                 ->sum('totalAmount', '$amount');
         });
 
         $this->assertEquals(
-            '[{"$group":{"_id":"user.id","totalAmount":{"$sum":"$amount"}}}]',
+            '[{"$group":{"_id":"$userId","totalAmount":{"$sum":"$amount"}}}]',
             (string) $pipeline
         );
     }
+
 
     /**
      * @expectedException \Sokil\Mongo\Exception
@@ -57,5 +74,285 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
         $pipeline->group(array(
             'field' => 'value'
         ));
+    }
+
+    public function testSum_Literal()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->sum('totalAmount', '$amount');
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$sum":"$amount"}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testSum_ArrayExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->sum('totalAmount', array(
+                    '$add' => ['$amount', 12]
+                ));
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$sum":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testSum_CallableExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->sum('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\Pipeline\Expression */
+                    $expression->add('$amount', 12);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$sum":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testAddToSet_Literal()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->addToSet('totalAmount', '$amount');
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$addToSet":"$amount"}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testAddToSet_ArrayExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->addToSet('totalAmount', array(
+                    '$add' => ['$amount', 12]
+                ));
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$addToSet":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testAddToSet_CallableExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->addToSet('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\Pipeline\Expression */
+                    $expression->add('$amount', 12);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$addToSet":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testAvg_Literal()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->avg('totalAmount', '$amount');
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$avg":"$amount"}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testAvg_ArrayExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->avg('totalAmount', array(
+                    '$add' => ['$amount', 12]
+                ));
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$avg":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testAvg_CallableExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->avg('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\Pipeline\Expression */
+                    $expression->add('$amount', 12);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$avg":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testFirst_Literal()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->first('totalAmount', '$amount');
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$first":"$amount"}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testFirst_ArrayExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->first('totalAmount', array(
+                    '$add' => ['$amount', 12]
+                ));
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$first":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testFirst_CallableExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->first('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\Pipeline\Expression */
+                    $expression->add('$amount', 12);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$first":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testLast_Literal()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->last('totalAmount', '$amount');
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$last":"$amount"}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testLast_ArrayExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->last('totalAmount', array(
+                    '$add' => ['$amount', 12]
+                ));
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$last":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testLast_CallableExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->last('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\Pipeline\Expression */
+                    $expression->add('$amount', 12);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$last":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
     }
 }

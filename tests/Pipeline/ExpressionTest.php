@@ -34,9 +34,9 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -53,13 +53,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testAdd_Array()
+    public function testAdd_ArrayExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -76,13 +76,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testAdd_Expression()
+    public function testAdd_CallableExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -103,9 +103,9 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -119,13 +119,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testDivide_Array()
+    public function testDivide_ArrayExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -142,13 +142,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testDivide_Expression()
+    public function testDivide_CallableExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -169,9 +169,9 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -185,13 +185,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testMod_Array()
+    public function testMod_ArrayExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -208,13 +208,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testMod_Expression()
+    public function testMod_CallableExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -235,9 +235,9 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -255,13 +255,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testMultiply_Array()
+    public function testMultiply_ArrayExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -279,13 +279,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testMultiply_Expression()
+    public function testMultiply_CallableExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -307,9 +307,9 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -323,13 +323,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testSubtract_Array()
+    public function testSubtract_ArrayExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */
@@ -346,13 +346,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testSubtract_Expression()
+    public function testSubtract_CallableExpressin()
     {
         $pipeline = new Pipeline($this->collection);
 
-        $pipeline->group(function($pipeline) {
-            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupPipeline */
-            $pipeline
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
                 ->setId('user.id')
                 ->sum('totalAmount', function($expression) {
                     /* @var $expression \Sokil\Mongo\Pipeline\Expression */

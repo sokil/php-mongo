@@ -19,7 +19,7 @@ class Expression
             $expressions = func_get_args();
         }
 
-        $this->expression['$add'] = $this->normalize($expressions);
+        $this->expression['$add'] = self::normalizeList($expressions);
 
         return $this;
     }
@@ -31,7 +31,7 @@ class Expression
      */
     public function divide($expression1, $expression2)
     {
-        $this->expression['$divide'] = $this->normalize(array(
+        $this->expression['$divide'] = self::normalizeList(array(
             $expression1,
             $expression2
         ));
@@ -46,7 +46,7 @@ class Expression
      */
     public function mod($expression1, $expression2)
     {
-        $this->expression['$mod'] = $this->normalize(array(
+        $this->expression['$mod'] = self::normalizeList(array(
             $expression1,
             $expression2
         ));
@@ -64,7 +64,7 @@ class Expression
             $expressions = func_get_args();
         }
         
-        $this->expression['$multiply'] = $this->normalize($expressions);
+        $this->expression['$multiply'] = self::normalizeList($expressions);
 
         return $this;
     }
@@ -76,7 +76,7 @@ class Expression
      */
     public function subtract($expression1, $expression2)
     {
-        $this->expression['$subtract'] = $this->normalize(array(
+        $this->expression['$subtract'] = self::normalizeList(array(
             $expression1,
             $expression2
         ));
@@ -85,25 +85,38 @@ class Expression
     }
 
     /**
-     * Convert expressions specified in different formats to canonical array form
+     * Convert expressions specified in different formats to canonical form
      * 
      * @param array $expressions
      */
-    private function normalize(array $expressions)
+    public static function normalizeList(array $expressions)
     {
         foreach($expressions as $i => $expression) {
-            if(is_callable($expression)) {
-                $expressionConfigurator = $expression;
-                $expression = new Expression;
-                call_user_func($expressionConfigurator, $expression);
-            }
-
-            if($expression instanceof Expression) {
-                $expressions[$i] = $expression->toArray();
-            }
+            $expressions[$i] = self::normalize($expression);
         }
 
         return $expressions;
+    }
+
+    /**
+     * Convert expression specified in different formats to canonical form
+     *
+     * @param type $expression
+     * @return type
+     */
+    public static function normalize($expression)
+    {
+        if(is_callable($expression)) {
+            $expressionConfigurator = $expression;
+            $expression = new Expression;
+            call_user_func($expressionConfigurator, $expression);
+        }
+
+        if($expression instanceof Expression) {
+            $expression = $expression->toArray();
+        }
+
+        return $expression;
     }
     
     public function toArray()

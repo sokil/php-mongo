@@ -2,6 +2,10 @@
 
 namespace Sokil\Mongo\Pipeline;
 
+/**
+ * Group stage accumulators
+ * @link http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#accumulators
+ */
 class GroupStage
 {
     private $stage = array();
@@ -13,30 +17,100 @@ class GroupStage
     }
 
     /**
+     * Sum accumulator
+     * 
      * Calculates and returns the sum of all the numeric values that result
      * from applying a specified expression to each document in a group of
      * documents that share the same group by key. $sum ignores
      * non-numeric values.
      *
-     * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/sum
      * 
      * @param string $field
      * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
-     * @return \Sokil\Mongo\Pipeline\GroupPipeline
+     * @return \Sokil\Mongo\Pipeline\GroupStage
      */
     public function sum($field, $expression)
     {
-        if(is_callable($expression)) {
-            $expressionConfigurator = $expression;
-            $expression = new Expression;
-            call_user_func($expressionConfigurator, $expression);
-        }
+        $this->stage[$field]['$sum'] = Expression::normalize($expression);
 
-        if($expression instanceof Expression) {
-            $expression = $expression->toArray();
-        }
+        return $this;
+    }
 
-        $this->stage[$field]['$sum'] = $expression;
+    /**
+     * Add to set accumulator
+     *
+     * Returns an array of all unique values that results from applying an
+     * expression to each document in a group of documents that share the
+     * same group by key. Order of the elements in the output
+     * array is unspecified.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/addToSet
+     *
+     * @param string $field
+     * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
+     * @return \Sokil\Mongo\Pipeline\GroupStage
+     */
+    public function addToSet($field, $expression)
+    {
+        $this->stage[$field]['$addToSet'] = Expression::normalize($expression);
+
+        return $this;
+    }
+
+    /**
+     * Average accumulator
+     *
+     * Returns the average value of the numeric values that result from
+     * applying a specified expression to each document in a group of
+     * documents that share the same group by key. $avg ignores
+     * non-numeric values.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/avg
+     *
+     * @param string $field
+     * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
+     * @return \Sokil\Mongo\Pipeline\GroupStage
+     */
+    public function avg($field, $expression)
+    {
+        $this->stage[$field]['$avg'] = Expression::normalize($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns the value that results from applying an expression
+     * to the first document in a group of documents that share the same
+     * group by key. Only meaningful when documents are in a defined order.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/first
+     *
+     * @param string $field
+     * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
+     * @return \Sokil\Mongo\Pipeline\GroupStage
+     */
+    public function first($field, $expression)
+    {
+        $this->stage[$field]['$first'] = Expression::normalize($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns the value that results from applying an expression to the last
+     * document in a group of documents that share the same group by a field.
+     * Only meaningful when documents are in a defined order.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/last
+     *
+     * @param string $field
+     * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
+     * @return \Sokil\Mongo\Pipeline\GroupStage
+     */
+    public function last($field, $expression)
+    {
+        $this->stage[$field]['$last'] = Expression::normalize($expression);
 
         return $this;
     }
