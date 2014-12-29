@@ -829,9 +829,9 @@ class Collection implements \Countable
     }
 
     /**
-     * Create Aggregator pipelines instance
+     * Create aggregator pipeline instance
      *
-     * @return \Sokil\Mongo\AggregatePipelines
+     * @return \Sokil\Mongo\Pipeline
      * @deprecated since 1.10.10, use Collection::createAggregator() or callable in Collection::aggregate()
      */
     public function createPipeline()
@@ -843,49 +843,49 @@ class Collection implements \Countable
      * Start aggregation
      *
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/
-     * @return \Sokil\Mongo\AggregatePipelines
+     * @return \Sokil\Mongo\Pipeline
      */
     public function createAggregator()
     {
-        return new AggregatePipelines($this);
+        return new Pipeline($this);
     }
 
     /**
-     * Aggregate using pipelines
+     * Aggregate using pipeline
      *
-     * @param callable|array|\Sokil\Mongo\AggregatePipelines $pipelines list of pipelines
+     * @param callable|array|\Sokil\Mongo\Pipeline $pipeline list of pipeline stages
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/
      * @return array result of aggregation
      * @throws \Sokil\Mongo\Exception
      */
-    public function aggregate($pipelines)
+    public function aggregate($pipeline)
     {
         // configure through callable
-        if (is_callable($pipelines)) {
-            $pipelinesConfiguratorCallable = $pipelines;
-            $pipelines = $this->createAggregator();
-            call_user_func($pipelinesConfiguratorCallable, $pipelines);
+        if (is_callable($pipeline)) {
+            $pipelineConfiguratorCallable = $pipeline;
+            $pipeline = $this->createAggregator();
+            call_user_func($pipelineConfiguratorCallable, $pipeline);
         }
 
         // get aggregation array
-        if ($pipelines instanceof AggregatePipelines) {
-            $pipelines = $pipelines->toArray();
-        } elseif (!is_array($pipelines)) {
-            throw new Exception('Wrong pipelines specified');
+        if ($pipeline instanceof Pipeline) {
+            $pipeline = $pipeline->toArray();
+        } elseif (!is_array($pipeline)) {
+            throw new Exception('Wrong pipeline specified');
         }
 
         // log
         $client = $this->_database->getClient();
         if($client->hasLogger()) {
             $client->getLogger()->debug(
-                get_called_class() . ':<br><b>Pipelines</b>:<br>' .
-                json_encode($pipelines));
+                get_called_class() . ':<br><b>Pipeline</b>:<br>' .
+                json_encode($pipeline));
         }
 
         // aggregate
         $status = $this->_database->executeCommand(array(
             'aggregate' => $this->getName(),
-            'pipeline'  => $pipelines
+            'pipeline'  => $pipeline
         ));
 
         if($status['ok'] != 1) {
@@ -895,23 +895,23 @@ class Collection implements \Countable
         return $status['result'];
     }
 
-    public function explainAggregate($pipelines)
+    public function explainAggregate($pipeline)
     {
         if(version_compare($this->getDatabase()->getClient()->getDbVersion(), '2.6.0', '<')) {
             throw new Exception('Explain of aggregation implemented only from 2.6.0');
         }
 
-        if($pipelines instanceof AggregatePipelines) {
-            $pipelines = $pipelines->toArray();
+        if($pipeline instanceof Pipeline) {
+            $pipeline = $pipeline->toArray();
         }
-        elseif(!is_array($pipelines)) {
-            throw new Exception('Wrong pipelines specified');
+        elseif(!is_array($pipeline)) {
+            throw new Exception('Wrong pipeline specified');
         }
 
         // aggregate
         return $this->_database->executeCommand(array(
             'aggregate' => $this->getName(),
-            'pipeline'  => $pipelines,
+            'pipeline'  => $pipeline,
             'explain'   => true
         ));
     }
