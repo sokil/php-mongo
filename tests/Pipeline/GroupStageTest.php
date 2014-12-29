@@ -102,7 +102,7 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             $stage
                 ->setId('$userId')
                 ->sum('totalAmount', array(
-                    '$add' => ['$amount', 12]
+                    '$add' => array('$amount', 12),
                 ));
         });
 
@@ -158,7 +158,7 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             $stage
                 ->setId('$userId')
                 ->addToSet('totalAmount', array(
-                    '$add' => ['$amount', 12]
+                    '$add' => array('$amount', 12),
                 ));
         });
 
@@ -214,7 +214,7 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             $stage
                 ->setId('$userId')
                 ->avg('totalAmount', array(
-                    '$add' => ['$amount', 12]
+                    '$add' => array('$amount', 12),
                 ));
         });
 
@@ -270,7 +270,7 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             $stage
                 ->setId('$userId')
                 ->first('totalAmount', array(
-                    '$add' => ['$amount', 12]
+                    '$add' => array('$amount', 12),
                 ));
         });
 
@@ -326,7 +326,7 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             $stage
                 ->setId('$userId')
                 ->last('totalAmount', array(
-                    '$add' => ['$amount', 12]
+                    '$add' => array('$amount', 12),
                 ));
         });
 
@@ -382,7 +382,7 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             $stage
                 ->setId('$userId')
                 ->min('totalAmount', array(
-                    '$add' => ['$amount', 12]
+                    '$add' => array('$amount', 12),
                 ));
         });
 
@@ -438,7 +438,7 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             $stage
                 ->setId('$userId')
                 ->max('maxAmount', array(
-                    '$add' => ['$amount', 12]
+                    '$add' => array('$amount', 12),
                 ));
         });
 
@@ -494,7 +494,7 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             $stage
                 ->setId('$userId')
                 ->push('itemsSold', array(
-                    '$add' => ['$amount', 12]
+                    '$add' => array('$amount', 12),
                 ));
         });
 
