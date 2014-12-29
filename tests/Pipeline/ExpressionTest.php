@@ -129,26 +129,26 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             array(
                 'field1' => 1,
                 'field2' => array(
-                    '$mod' => array('$fieldName', 2);
+                    '$mod' => array('$fieldName', 2),
                 ),
                 'field3' => array(
-                    '$add' => array('$fieldName', 5);
+                    '$add' => array('$fieldName', 5),
                 ),
                 'field4' => array(
                     'subField41' => 1,
                     'subField42' => array(
-                        '$mod' => array('$fieldName', 2);
+                        '$mod' => array('$fieldName', 2),
                     ),
                     'subField43' => array(
-                        '$add' => array('$fieldName', 5);
+                        '$add' => array('$fieldName', 5),
                     ),
                     'subField44' => array(
                         'subField441' => 1,
                         'subField442' => array(
-                            '$mod' => array('$fieldName', 2);
+                            '$mod' => array('$fieldName', 2),
                         ),
                         'subField443' => array(
-                            '$add' => array('$fieldName', 5);
+                            '$add' => array('$fieldName', 5),
                         )
                     )
                 )
