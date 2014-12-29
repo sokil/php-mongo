@@ -30,6 +30,131 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $this->collection->delete();
     }
 
+    public function testNormalize_Literal()
+    {
+        $this->assertEquals(1, Expression::normalize(1));
+        $this->assertEquals('hello', Expression::normalize('hello'));
+        $this->assertEquals('$field', Expression::normalize('$field'));
+    }
+
+    public function testNormalize_ExpressionObject()
+    {
+        $subExpression = new Expression;
+        $subExpression->mod('$field', 2);
+        
+        $expression = new Expression();
+        $expression->add(array(
+            1,
+            function($expression) {
+                $expression->multiply('$field', 12);
+            },
+            $subExpression,
+        ));
+        
+        $this->assertEquals(array(
+            '$add' => array(
+                1,
+                array(
+                    '$multiply' => array('$field', 12),
+                ),
+                array(
+                    '$mod' => array('$field', 2)
+                )
+            ),
+        ), Expression::normalize($expression));
+    }
+
+    public function testNormalize_ExpressionCallable()
+    {
+        $expression = Expression::normalize(function($expression) {
+            $subExpression = new Expression;
+            $subExpression->mod('$field', 2);
+
+            $expression->add(array(
+                1,
+                function($expression) {
+                    $expression->multiply('$field', 12);
+                },
+                $subExpression,
+            ));
+            
+        });
+
+        $this->assertEquals(
+            array(
+                '$add' => array(
+                    1,
+                    array(
+                        '$multiply' => array('$field', 12),
+                    ),
+                    array(
+                        '$mod' => array('$field', 2)
+                    )
+                ),
+            ),
+            $expression
+        );
+    }
+
+    public function testNormalize_Complex()
+    {
+        $subExpression = new Expression;
+        $subExpression->mod('$fieldName', 2);
+
+        $expression = Expression::normalize(array(
+            'field1' => 1,
+            'field2' => $subExpression,
+            'field3' => function($expression) {
+                $expression->add('$fieldName', 5);
+            },
+            'field4' => array(
+                'subField41' => 1,
+                'subField42' => $subExpression,
+                'subField43' => function($expression) {
+                    $expression->add('$fieldName', 5);
+                },
+                'subField44' => array(
+                    'subField441' => 1,
+                    'subField442' => $subExpression,
+                    'subField443' => function($expression) {
+                        $expression->add('$fieldName', 5);
+                    }
+                )
+            )
+        ));
+
+        $this->assertEquals(
+            array(
+                'field1' => 1,
+                'field2' => array(
+                    '$mod' => array('$fieldName', 2);
+                ),
+                'field3' => array(
+                    '$add' => array('$fieldName', 5);
+                ),
+                'field4' => array(
+                    'subField41' => 1,
+                    'subField42' => array(
+                        '$mod' => array('$fieldName', 2);
+                    ),
+                    'subField43' => array(
+                        '$add' => array('$fieldName', 5);
+                    ),
+                    'subField44' => array(
+                        'subField441' => 1,
+                        'subField442' => array(
+                            '$mod' => array('$fieldName', 2);
+                        ),
+                        'subField443' => array(
+                            '$add' => array('$fieldName', 5);
+                        )
+                    )
+                )
+            ),
+            $expression
+        );
+    }
+
     public function testAdd_Literal()
     {
         $pipeline = new Pipeline($this->collection);
