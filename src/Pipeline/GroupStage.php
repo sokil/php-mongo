@@ -115,6 +115,57 @@ class GroupStage
         return $this;
     }
 
+    /**
+     * Returns the highest value that results from applying an expression
+     * to each document in a group of documents that share the same group by key.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/max
+     *
+     * @param string $field
+     * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
+     * @return \Sokil\Mongo\Pipeline\GroupStage
+     */
+    public function max($field, $expression)
+    {
+        $this->stage[$field]['$max'] = Expression::normalize($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns the lowest value that results from applying an expression
+     * to each document in a group of documents that share the same group by key.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/min
+     *
+     * @param string $field
+     * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
+     * @return \Sokil\Mongo\Pipeline\GroupStage
+     */
+    public function min($field, $expression)
+    {
+        $this->stage[$field]['$min'] = Expression::normalize($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns an array of all values that result from applying an expression
+     * to each document in a group of documents that share the same group by key.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/push
+     *
+     * @param string $field
+     * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
+     * @return \Sokil\Mongo\Pipeline\GroupStage
+     */
+    public function push($field, $expression)
+    {
+        $this->stage[$field]['$push'] = Expression::normalize($expression);
+
+        return $this;
+    }
+
     public function toArray()
     {
         return $this->stage;

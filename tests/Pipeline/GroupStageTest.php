@@ -355,4 +355,208 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
             (string) $pipeline
         );
     }
+
+    public function testMin_Literal()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->min('totalAmount', '$amount');
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$min":"$amount"}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testMin_ArrayExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->min('totalAmount', array(
+                    '$add' => ['$amount', 12]
+                ));
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$min":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testMin_CallableExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->min('totalAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\Pipeline\Expression */
+                    $expression->add('$amount', 12);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","totalAmount":{"$min":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testMax_Literal()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->max('maxAmount', '$amount');
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","maxAmount":{"$max":"$amount"}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testMax_ArrayExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->max('maxAmount', array(
+                    '$add' => ['$amount', 12]
+                ));
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","maxAmount":{"$max":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testMax_CallableExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->max('maxAmount', function($expression) {
+                    /* @var $expression \Sokil\Mongo\Pipeline\Expression */
+                    $expression->add('$amount', 12);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","maxAmount":{"$max":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testPush_Literal()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->push('itemsSold', '$item');
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","itemsSold":{"$push":"$item"}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testPush_ArrayExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $pipeline \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->push('itemsSold', array(
+                    '$add' => ['$amount', 12]
+                ));
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","itemsSold":{"$push":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testPush_CallableExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$userId')
+                ->push('itemsSold', function($expression) {
+                    /* @var $expression \Sokil\Mongo\Pipeline\Expression */
+                    $expression->add('$amount', 12);
+                });
+        });
+
+        $this->assertEquals(
+            '[{"$group":{"_id":"$userId","itemsSold":{"$push":{"$add":["$amount",12]}}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testPush()
+    {
+        $this->collection->insertMultiple(array(
+            array("_id" => 1, "item" => "abc", "price" => 10, "quantity" => 2, "date" => new \MongoDate(strtotime("2014-01-01T08:00:00Z")) ),
+            array("_id" => 2, "item" => "jkl", "price" => 20, "quantity" => 1, "date" => new \MongoDate(strtotime("2014-02-03T09:00:00Z")) ),
+            array("_id" => 3, "item" => "xyz", "price" => 5, "quantity" => 5, "date" => new \MongoDate(strtotime("2014-02-03T09:05:00Z")) ),
+            array("_id" => 4, "item" => "abc", "price" => 10, "quantity" => 10, "date" => new \MongoDate(strtotime("2014-02-15T08:00:00Z")) ),
+            array("_id" => 5, "item" => "xyz", "price" => 5, "quantity" => 10, "date" => new \MongoDate(strtotime("2014-02-15T09:05:00Z")) ),
+            array("_id" => 6, "item" => "xyz", "price" => 5, "quantity" => 5, "date" => new \MongoDate(strtotime("2014-02-15T12:05:10Z")) ),
+            array("_id" => 7, "item" => "xyz", "price" => 5, "quantity" => 10, "date" => new \MongoDate(strtotime("2014-02-15T14:12:12Z")) ),
+        ));
+
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->group(function($stage) {
+            /* @var $stage \Sokil\Mongo\Pipeline\GroupStage */
+            $stage
+                ->setId('$item')
+                ->push('itemsSold', array(
+                    'quantity' => '$quantity',
+                    'price' => '$price',
+                    'quantityPrice' => array(
+                        '$multiply' => array('$quantity', '$price')
+                    ),
+                ));
+        });
+
+        $result = $pipeline->aggregate();
+
+        $this->assertEquals('xyz', $result[0]['_id']);
+
+        $this->assertEquals(5, $result[0]['itemsSold'][0]['quantity']);
+        $this->assertEquals(5, $result[0]['itemsSold'][0]['price']);
+        $this->assertEquals(25, $result[0]['itemsSold'][0]['quantityPrice']);
+    }
 }
