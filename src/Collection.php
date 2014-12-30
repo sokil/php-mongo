@@ -151,8 +151,6 @@ class Collection implements \Countable
         }
 
         return $class;
-
-
     }
 
     /**

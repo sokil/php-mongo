@@ -389,6 +389,22 @@ class CustomCollection extends \Sokil\Mongo\Collection
 }
 ```
 
+Also document class may be defined in collection mapping:
+
+```php
+<?php
+$client->map([
+    'databaseName'  => [
+        'collectionName1' => [
+            'documentClass' => '\CustomDocument',
+        ],
+        'collectionName2' => function(array $documentData = null) {
+            return '\Custom' . ucfirst(strtolower($documentData['type'])) . 'Document';
+        }
+    ],
+]);
+```
+
 In example above class `\CustomVideoDocument` related to `{"_id": "45..", "type": "video"}`, and `\CustomAudioDocument` to `{"_id": "45..", type: "audio"}`
 
 #### Document schema
