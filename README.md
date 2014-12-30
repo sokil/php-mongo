@@ -23,8 +23,10 @@ Why to use this library? You can easily work with document data through comforta
 
 * [Installation](#installation)
 * [Connecting](#connecting)
-* [Selecting database and collection](#selecting-database-and-collection)
-* [Document schema](#document-schema)
+* [Mapping](#mapping) 
+  * [Selecting database and collection](#selecting-database-and-collection)
+  * [Custom collections](#custom-collections)
+  * [Document schema](#document-schema)
 * [Getting documents by id](#getting-documents-by-id)
 * [Create new document](#create-new-document)
 * [Get and set data in document](#get-and-set-data-in-document)
@@ -179,8 +181,13 @@ $connect1Client = $pool->get('connect1');
 $connect2Client = $pool->get('connect2');
 ```
 
-Selecting database and collection
------------------------
+Mapping
+-------
+
+### Selecting database and collection
+
+You can get instances of databases and collections by its name.
+
 To get instance of database class `\Sokil\Mongo\Database`:
 ```php
 <?php
@@ -197,21 +204,46 @@ $collection = $database->getCollection('collectionName');
 $collection = $database->collectionName;
 ```
 
-Default database may be specified to get collection directly from `$client` object:
+Default database may be specified to get collection directly from `\Sokil\Mongo\Client` object:
 ```php
 <?php
 $client->useDatabase('databaseName');
 $collection = $client->getCollection('collectionName');
 ```
 
-If you need to use your own collection classes, you must create class extended from `\Sokil\Mongo\Collection` and map it to collection class:
+### Custom collections
+
+Custom collections used to add some collection-specific fetures in related class. First you need to create class extended from `\Sokil\Mongo\Collection`:
 ```php
 <?php
+
+// define class of collection
 class CustomCollection extends \Sokil\Mongo\Collection
 {
 
 }
+```
 
+This class must be then mapped to collection name in order to return object of this class when collection requested. Custom collection referenced in standart way:
+
+```php
+<?php
+/**
+ * @var \CustomCollection
+ */
+$collection = $client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName');
+```
+
+#### Mapping of collection name to collection class
+
+Any collection name may be mapped to class name directly:
+
+```php
+<?php
+
+// map class to collection name
 $client->map([
     'databaseName'  => [
         'collectionName' => '\CustomCollection'
@@ -224,7 +256,10 @@ $client->map([
 $collection = $client->getDatabase('databaseName')->getCollection('collectionName');
 ```
 
-Mapping may be specified through class prefix.
+#### Mapping with class preffix
+
+We can specify collection class prefix so any collection may be mapped to class without enumerating every collection name:
+
 ```php
 <?php
 $client->map([
@@ -242,6 +277,8 @@ $collection = $client->getDatabase('databaseName')->getCollection('collectionNam
 $collection = $client->getDatabase('databaseName')->getCollection('collectionName.subName');
 ```
 
+#### Collection definition options
+
 If you want to pass some options to collection's constructor, you also can
 configure them in mapping definition:
 
@@ -258,8 +295,17 @@ $client->map([
 ]);
 ```
 
-If 'class' omitted, then used standart `\Sokil\Mongo\Collection class`.
-All options lated may be accessed:
+Predefined options are:
+
+| Option           | Default value            | Description                                                |
+| ---------------- | ------------------------ | ---------------------------------------------------------- |
+| class            | \Sokil\Mongo\Collection  | Fully qualified collectin class                            |
+| documentClass    | \Sokil\Mongo\Document    | Fully qualified document class                             |
+| versioning       | false                    | Using document versioning                                  |
+| index            | null                     | Index definition                                           |
+| expressionClass  | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
+
+If `class` omitted, then used standart `\Sokil\Mongo\Collection` class. All options later may be accessed:
 
 ```php
 <?php
@@ -288,8 +334,9 @@ $document = $client
     ->createDocument();
 ```
 
-Collection name in mapping may be defined as RegExp pattern. Pattern must start
-from symbol `/`:
+#### Regexp mapping
+
+Collection name in mapping may be defined as RegExp pattern. Pattern must start from symbol `/`:
 
 ```php
 <?php
@@ -306,8 +353,7 @@ $col2 = $database->getCollection('someCollection2');
 $col4 = $database->getCollection('someCollection4');
 ```
 
-Document schema
-------------------------
+### Document schema
 
 Document object is instance of class `\Sokil\Mongo\Document`. If you want to use your own class, you must configure its name in collection's class:
 
