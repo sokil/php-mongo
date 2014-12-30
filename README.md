@@ -26,7 +26,7 @@ Why to use this library? You can easily work with document data through comforta
 * [Mapping](#mapping) 
   * [Selecting database and collection](#selecting-database-and-collection)
   * [Custom collections](#custom-collections)
-  * [Document schema](#document-schema)
+  * [Document schema and validating](#document-schema-and-validating)
 * [Getting documents by id](#getting-documents-by-id)
 * [Create new document](#create-new-document)
 * [Get and set data in document](#get-and-set-data-in-document)
@@ -353,9 +353,19 @@ $col2 = $database->getCollection('someCollection2');
 $col4 = $database->getCollection('someCollection4');
 ```
 
-### Document schema
+### Document schema and validating
 
-Document object is instance of class `\Sokil\Mongo\Document`. If you want to use your own class, you must configure its name in collection's class:
+Custom document class may be useful when required some processing of date on load, getting or save. Custom document class must extend `\Sokil\Mongo\Document`. 
+
+```php
+<?php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+
+}
+```
+
+Now you must configure its name in collection's class by overriding method `Collection::getDocumentClassName()`:
 
 ```php
 <?php
@@ -365,14 +375,10 @@ class CustomCollection extends \Sokil\Mongo\Collection
         return '\CustomDocument';
     }
 }
-
-class CustomDocument extends \Sokil\Mongo\Document
-{
-
-}
 ```
 
 You may flexibly configure document's class in `\Sokil\Mongo\Collection::getDocumentClassName()` relatively to concrete document's data:
+
 ```php
 <?php
 class CustomCollection extends \Sokil\Mongo\Collection
@@ -385,6 +391,8 @@ class CustomCollection extends \Sokil\Mongo\Collection
 
 In example above class `\CustomVideoDocument` related to `{"_id": "45..", "type": "video"}`, and `\CustomAudioDocument` to `{"_id": "45..", type: "audio"}`
 
+#### Document schema
+
 Document's scheme is completely not required. If field is required and has default value, it can be defined in special property of document class:
 ```php
 <?php
@@ -396,6 +404,156 @@ class CustomDocument extends \Sokil\Mongo\Document
             'subDocumentField' => 'value',
         ],
     ];
+}
+```
+
+#### Document validation
+
+Document can be validated before save. To set validation rules method `\Sokil\Mongo\Document::rules()` must be override with validation rules. Supported rules are:
+```php
+<?php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    public function rules()
+    {
+        return array(
+            array('email,password', 'required'),
+            array('role', 'equals', 'to' => 'admin'),
+            array('role', 'not_equals', 'to' => 'guest'),
+            array('role', 'in', 'range' => array('admin', 'manager', 'user')),
+            array('contract_number', 'numeric', 'message' => 'Custom error message, shown by getErrors() method'),
+            array('contract_number' ,'null', 'on' => 'SCENARIO_WHERE_CONTRACT_MUST_BE_NULL'),
+            array('code' ,'regexp', '#[A-Z]{2}[0-9]{10}#')
+        );
+    }
+}
+```
+
+Document can have validation state, based on scenario. Scenarion can be specified by method `Document::setScenario($scenario)`.
+```php
+<?php
+$document->setScenario('register');
+```
+
+If some validation rule applied only for some scenarios, this scenarios must be passed on `on` key, separated by comma.
+```php
+<?php
+public function rules()
+    {
+        return array(
+            array('field' ,'null', 'on' => 'register,update'),
+        );
+    }
+```
+
+If some validation rule applied to all except some scenarios, this scenarios must be passed on `except` key, separated by comma.
+
+```php
+<?php
+public function rules()
+    {
+        return array(
+            array('field' ,'null', 'except' => 'register,update'),
+        );
+    }
+```
+
+If document invalid, `\Sokil\Mongo\Document\Exception\Validate` will trigger and errors may be accessed through `Document::getErrors()` method of document object. This document may be get from exception method:
+```php
+<?php
+try {
+
+} catch(\Sokil\Mongo\Document\Exception\Validate $e) {
+    $e->getDocument()->getErrors();
+}
+```
+
+Error may be triggered manually by calling method `triggerError($fieldName, $rule, $message)`
+```php
+<?php
+$document->triggerError('someField', 'email', 'E-mail must be at domain example.com');
+```
+
+You may add you custom validation rule just adding method to document class and defining method name as rule:
+```php
+<?php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    punlic function rules()
+    {
+        return array(
+            array(
+                'email',
+                'uniqueFieldValidator',
+                'message' => 'E-mail must be unique in collection'
+            ),
+        );
+    }
+
+    /**
+     * Validator
+     */
+    public function uniqueFieldValidator($fieldName, $params)
+    {
+        // Some logic of checking unique mail.
+        //
+        // Before version 1.7 this method must return true if validator passes,
+        // and false otherwise.
+        //
+        // Since version 1.7 this method return no values and must call
+        // Document::addError() method to add error into stack.
+    }
+}
+```
+
+You may create your own validator class, if you want to use validator in few classes.
+Just extend your class from abstract validator class `\Sokil\Mongo\Validator` and register your own validator namespace:
+
+```php
+<?php
+namespace Vendor\Mongo\Validator;
+
+/**
+ * Validator class
+ */
+class MyOwnEqualsValidator extends \Sokil\Mongo\Validator
+{
+    public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
+    {
+        if (!$document->get($fieldName)) {
+            return;
+        }
+
+        if ($document->get($fieldName) === $params['to']) {
+            return;
+        }
+
+        if (!isset($params['message'])) {
+            $params['message'] = 'Field "' . $fieldName . '" must be equals to "' . $params['to'] . '" in model ' . get_called_class();
+        }
+
+        $document->addError($fieldName, $this->getName(), $params['message']);
+    }
+}
+
+/**
+ * Registering validator in document
+ */
+
+class SomeDocument extends \Sokil\Mongo\Document
+{
+    public function beforeConstruct()
+    {
+        $this->addValidatorNamespace('Vendor\Mongo\Validator');
+    }
+
+    public function rules()
+    {
+        return array(
+            // 'my_own_equals_validator' converts to 'MyOwnEqualsValidator' class name
+            array('field', 'my_own_equals_validator', 'to' => 42, 'message' => 'Not equals'),
+        );
+    }
 }
 ```
 
@@ -1033,157 +1191,6 @@ $persistence->flush();
 ```
 
 Note that persisted documents do not deleted from persistence manager after flush, but removed will be deleted.
-
-Document validation
--------------------
-
-Document can be validated before save. To set validation rules method `\Sokil\Mongo\Document::rules()` must be override with validation rules. Supported rules are:
-```php
-<?php
-class CustomDocument extends \Sokil\Mongo\Document
-{
-    public function rules()
-    {
-        return array(
-            array('email,password', 'required'),
-            array('role', 'equals', 'to' => 'admin'),
-            array('role', 'not_equals', 'to' => 'guest'),
-            array('role', 'in', 'range' => array('admin', 'manager', 'user')),
-            array('contract_number', 'numeric', 'message' => 'Custom error message, shown by getErrors() method'),
-            array('contract_number' ,'null', 'on' => 'SCENARIO_WHERE_CONTRACT_MUST_BE_NULL'),
-            array('code' ,'regexp', '#[A-Z]{2}[0-9]{10}#')
-        );
-    }
-}
-```
-
-Document can have validation state, based on scenario. Scenarion can be specified by method `Document::setScenario($scenario)`.
-```php
-<?php
-$document->setScenario('register');
-```
-
-If some validation rule applied only for some scenarios, this scenarios must be passed on `on` key, separated by comma.
-```php
-<?php
-public function rules()
-    {
-        return array(
-            array('field' ,'null', 'on' => 'register,update'),
-        );
-    }
-```
-
-If some validation rule applied to all except some scenarios, this scenarios must be passed on `except` key, separated by comma.
-
-```php
-<?php
-public function rules()
-    {
-        return array(
-            array('field' ,'null', 'except' => 'register,update'),
-        );
-    }
-```
-
-If document invalid, `\Sokil\Mongo\Document\Exception\Validate` will trigger and errors may be accessed through `Document::getErrors()` method of document object. This document may be get from exception method:
-```php
-<?php
-try {
-
-} catch(\Sokil\Mongo\Document\Exception\Validate $e) {
-    $e->getDocument()->getErrors();
-}
-```
-
-Error may be triggered manually by calling method `triggerError($fieldName, $rule, $message)`
-```php
-<?php
-$document->triggerError('someField', 'email', 'E-mail must be at domain example.com');
-```
-
-You may add you custom validation rule just adding method to document class and defining method name as rule:
-```php
-<?php
-class CustomDocument extends \Sokil\Mongo\Document
-{
-    punlic function rules()
-    {
-        return array(
-            array(
-                'email',
-                'uniqueFieldValidator',
-                'message' => 'E-mail must be unique in collection'
-            ),
-        );
-    }
-
-    /**
-     * Validator
-     */
-    public function uniqueFieldValidator($fieldName, $params)
-    {
-        // Some logic of checking unique mail.
-        //
-        // Before version 1.7 this method must return true if validator passes,
-        // and false otherwise.
-        //
-        // Since version 1.7 this method return no values and must call
-        // Document::addError() method to add error into stack.
-    }
-}
-```
-
-You may create your own validator class, if you want to use validator in few classes.
-Just extend your class from abstract validator class `\Sokil\Mongo\Validator` and register your own validator namespace:
-
-```php
-<?php
-namespace Vendor\Mongo\Validator;
-
-/**
- * Validator class
- */
-class MyOwnEqualsValidator extends \Sokil\Mongo\Validator
-{
-    public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
-    {
-        if (!$document->get($fieldName)) {
-            return;
-        }
-
-        if ($document->get($fieldName) === $params['to']) {
-            return;
-        }
-
-        if (!isset($params['message'])) {
-            $params['message'] = 'Field "' . $fieldName . '" must be equals to "' . $params['to'] . '" in model ' . get_called_class();
-        }
-
-        $document->addError($fieldName, $this->getName(), $params['message']);
-    }
-}
-
-/**
- * Registering validator in document
- */
-
-class SomeDocument extends \Sokil\Mongo\Document
-{
-    public function beforeConstruct()
-    {
-        $this->addValidatorNamespace('Vendor\Mongo\Validator');
-    }
-
-    public function rules()
-    {
-        return array(
-            // 'my_own_equals_validator' converts to 'MyOwnEqualsValidator' class name
-            array('field', 'my_own_equals_validator', 'to' => 42, 'message' => 'Not equals'),
-        );
-    }
-}
-```
 
 Deleting collections and documents
 -----------------------------------
