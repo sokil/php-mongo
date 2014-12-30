@@ -994,7 +994,7 @@ Document validation
 Document can be validated before save. To set validation rules method `\Sokil\Mongo\Document::rules()` must be override with validation rules. Supported rules are:
 ```php
 <?php
-class CustomDocument except \Sokil\Mongo\Document
+class CustomDocument extends \Sokil\Mongo\Document
 {
     public function rules()
     {
