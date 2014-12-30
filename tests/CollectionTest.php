@@ -9,35 +9,35 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      * @var \Sokil\Mongo\Database
      */
     private $database;
-    
+
     /**
      *
      * @var \Sokil\Mongo\Collection
      */
     private $collection;
-    
+
     public function setUp()
     {
         // connect to mongo
         $client = new Client();
-        
+
         // select database
         $this->database = $client->getDatabase('test');
         $this->collection = $this->database->getCollection('phpmongo_test_collection');
     }
-    
-    public function tearDown() 
+
+    public function tearDown()
     {
         $this->collection->delete();
     }
-    
+
     public function testGetDocument()
     {
         // create document
         $document = $this->collection
             ->createDocument(array('param' => 'value'))
-            ->save();   
-        
+            ->save();
+
         // get document
         $foundDocument = $this->collection->getDocument($document->getId());
         $this->assertEquals($document->getId(), $foundDocument->getId());
@@ -46,16 +46,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $foundDocument = $this->collection->{$document->getId()};
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
-    
+
     public function testGetStoredDocumentInstanceFromArray()
     {
         $document = $this->collection->getStoredDocumentInstanceFromArray(array(
             '_id' => new \MongoId(),
         ));
-        
+
         $this->assertTrue($document->isStored());
     }
-    
+
     /**
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Document must be stored and has _id key
@@ -65,39 +65,39 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $document = $this->collection->getStoredDocumentInstanceFromArray(array(
             'param' => 'value',
         ));
-        
+
         $this->assertTrue($document->isStored());
     }
-    
+
     public function testCreateDocument_IsNewDocumentStoredToPoolAfterSave()
     {
         $this->assertTrue($this->collection->isDocumentPoolEmpty());
-        
+
         $this->collection
             ->createDocument(array('param' => 'value'))
             ->save();
-        
+
         $this->assertFalse($this->collection->isDocumentPoolEmpty());
     }
-    
+
     public function testStoreDocumentInPool_DocumentAlreadyStored()
     {
         /**
          * Store document to pool
          */
         $this->assertTrue($this->collection->isDocumentPoolEmpty());
-        
+
         $document = $this->collection
             ->createDocument(array('param' => 'value'))
             ->save();
-        
+
         $this->assertFalse($this->collection->isDocumentPoolEmpty());
-        
+
         /**
          * Modify document in another thread
          */
         $client = new Client();
-        
+
         $client
             ->getDatabase($document->getCollection()->getDatabase()->getName())
             ->getCollection($document->getCollection()->getName())
@@ -105,52 +105,52 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->findOne()
             ->set('param', 'updatedValue')
             ->save();
-        
+
         // here oroginal document must be in unconsisted state
         $this->assertEquals('value', $document->get('param'));
-        
+
         // overload document in pool with new data
         $this->collection->find()->findOne();
         $this->assertEquals('updatedValue', $document->get('param'));
     }
-    
+
     public function testGetDocumentByStringId()
-    {        
+    {
         $document = $this->collection
             ->createDocument(array(
                 '_id'   => 'abcdef',
                 'param' => 'value'
             ))
             ->save();
-        
+
         // get document
         $foundDocument = $this->collection->getDocument('abcdef');
-        
+
         $this->assertNotNull($foundDocument);
-        
+
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
-    
+
     public function testGetDocuments()
     {
         // create document1
         $document1 = $this->collection
             ->createDocument(array('param' => 'value1'))
-            ->save();   
-        
+            ->save();
+
         // create document 2
         $document2 = $this->collection
             ->createDocument(array('param' => 'value2'))
-            ->save();   
-        
+            ->save();
+
         // get documents
         $foundDocuments = $this->collection->getDocuments(array(
             $document1->getId(),
             $document2->getId()
         ));
-        
+
         $this->assertEquals(2, count($foundDocuments));
-        
+
         $this->assertArrayHasKey((string) $document1->getId(), $foundDocuments);
         $this->assertArrayHasKey((string) $document2->getId(), $foundDocuments);
     }
@@ -164,7 +164,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             new \MongoId,
         )));
     }
-    
+
     public function testSaveValidNewDocument()
     {
         // create document
@@ -175,25 +175,25 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(array(
                 array('some-field-name', 'required')
             )));
-        
+
         $document->set('some-field-name', 'some-value')->save();
     }
-    
+
     public function testUpdateExistedDocument()
     {
         // create document
         $document = $this->collection
             ->createDocument(array('param' => 'value'))
-            ->save();   
-        
+            ->save();
+
         // update document
         $document->set('param', 'new-value')->save();
-        
+
         // test
         $document = $this->collection->getDocument($document->getId());
         $this->assertEquals('new-value', $document->param);
     }
-    
+
     /**
      * @expectedException \Sokil\Mongo\Document\Exception\Validate
      */
@@ -207,7 +207,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(array(
                 array('some-field-name', 'required')
             )));
-        
+
         // save document
         $this->collection->saveDocument($document);
     }
@@ -243,16 +243,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testDeleteDocuments()
-    {        
+    {
         // add
         $this->collection->createDocument(array('param' => 1))->save();
         $this->collection->createDocument(array('param' => 2))->save();
         $this->collection->createDocument(array('param' => 3))->save();
         $this->collection->createDocument(array('param' => 4))->save();
-        
+
         // delete
         $this->collection->deleteDocuments($this->collection->expression()->whereGreater('param', 2));
-        
+
         // test
         $this->assertEquals(2, count($this->collection));
     }
@@ -313,8 +313,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->save();
 
         $this->collection->deleteDocuments(
-            $this->collection->expression()
-                ->where('param', 'value')
+            $this->collection->expression()->where('param', 'value')
         );
     }
 
@@ -325,20 +324,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->getCollection('phpmongo_test_collection')
             ->delete()
             ->setWriteConcern(1);
-        
+
         // create documents
         $d1 = $this->collection->createDocument(array('p' => 1));
         $this->collection->saveDocument($d1);
-        
+
         $d2 = $this->collection->createDocument(array('p' => 1));
         $this->collection->saveDocument($d2);
-        
+
         // packet update
         $this->collection->updateMultiple(
             $this->collection->expression()->where('p', 1),
             $this->collection->operator()->set('k', 'v')
         );
-        
+
         // test
         foreach($this->collection->find() as $document) {
             $this->assertArrayHasKey('k', $document->toArray());
@@ -368,24 +367,24 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             $this->assertArrayHasKey('k', $document->toArray());
         }
     }
-    
+
     public function testUpdateAll_WithAcknowledgedWriteConcern()
     {
         // get collection
         $this->collection->setWriteConcern(1);
-        
+
         // create documents
         $d1 = $this->collection->createDocument(array('p' => 1));
         $this->collection->saveDocument($d1);
-        
+
         $d2 = $this->collection->createDocument(array('p' => 1));
         $this->collection->saveDocument($d2);
-        
+
         // packet update
         $this->collection->updateAll(
             $this->collection->operator()->set('k', 'v')
         );
-        
+
         // test
         foreach($this->collection->find() as $document) {
             $this->assertArrayHasKey('k', $document->toArray());
@@ -595,7 +594,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 )
             ))
             ->save();
-        
+
         $this->collection
             ->createDocument(array(
                 'k' => array(
@@ -604,7 +603,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 )
             ))
             ->save();
-        
+
         $this->collection
             ->createDocument(array(
                 'k' => array(
@@ -613,7 +612,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 )
             ))
             ->save();
-        
+
         $this->collection
             ->createDocument(array(
                 'k' => array(
@@ -622,11 +621,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 )
             ))
             ->save();
-        
+
         // get distinkt
         $distinctValues = $this->collection
             ->getDistinct('k.kk', $this->collection->expression()->where('k.f', 'F1'));
-        
+
         $this->assertEquals(array('A', 'B'), $distinctValues);
     }
 
@@ -675,21 +674,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array('A', 'B', 'C'), $distinctValues);
     }
-    
+
     public function testInsertMultiple_Acknowledged()
     {
         $this->collection->setWriteConcern(1);
-        
+
         $this->collection
             ->insertMultiple(array(
                 array('a' => 1, 'b' => 2),
                 array('a' => 3, 'b' => 4),
             ));
-        
+
         $document = $this->collection->find()->where('a', 1)->findOne();
-        
+
         $this->assertNotEmpty($document);
-        
+
         $this->assertEquals(2, $document->b);
     }
 
@@ -805,17 +804,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             array('a' => 3, 'b' => 4),
         ));
     }
-    
+
     public function testInsert_Acknowledged()
     {
         $this->collection->setWriteConcern(1);
-        
+
         $this->collection->insert(array('a' => 1, 'b' => 2));
-        
+
         $document = $this->collection->find()->where('a', 1)->findOne();
-        
+
         $this->assertNotEmpty($document);
-        
+
         $this->assertEquals(2, $document->b);
     }
 
@@ -881,7 +880,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $collection->insert(array('a' => 1, 'b' => 2));
     }
-    
+
     /**
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage ns not found
@@ -892,45 +891,45 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->getCollection('phpmongo_unexisted_collection')
             ->validate(true);
     }
-    
+
     public function testValidateOnExistedCollection()
-    {        
+    {
         $this->collection->createDocument(array('param' => 1))->save();
-       
+
         $result = $this->collection->validate(true);
-        
+
         $this->assertInternalType('array', $result);
     }
-    
+
     public function testCappedCollectionInsert()
     {
         $this->collection = $this->database
             ->createCappedCollection('capped_collection', 3, 30);
-        
+
         $this->collection->createDocument(array('param' => 1))->save();
         $this->collection->createDocument(array('param' => 2))->save();
         $this->collection->createDocument(array('param' => 3))->save();
         $this->collection->createDocument(array('param' => 4))->save();
-        
+
         $this->assertEquals(3, $this->collection->find()->count());
-        
-        $documents = $this->collection->find();   
-        
+
+        $documents = $this->collection->find();
+
         $this->assertEquals(2, $documents->current()->param);
-        
+
         $documents->next();
         $this->assertEquals(3, $documents->current()->param);
-        
+
         $documents->next();
         $this->assertEquals(4, $documents->current()->param);
-        
+
         $this->collection->delete();
     }
-    
+
     public function testStats()
     {
         $stats = $this->collection->stats();
-        
+
         // error occuned - ns not found
         $this->assertEquals((double) 0, $stats['ok']);
     }
@@ -1197,7 +1196,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('unique', $indexes[1]);
     }
-    
+
     public function testOverrideDefaultClassnameByString()
     {
         // define array of collections
@@ -1206,26 +1205,26 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 'documentClass' => '\Sokil\Mongo\CollectionTestDocumentMock',
             )
         ));
-        
+
         // define collection
         $this->database->map('collection2', array(
             'documentClass' => '\Sokil\Mongo\CollectionTestDocumentMock',
         ));
-        
+
         // check
         $collection1 = $this->database->getCollection('collection1');
         $this->assertEquals(
-            '\Sokil\Mongo\CollectionTestDocumentMock', 
+            '\Sokil\Mongo\CollectionTestDocumentMock',
             $collection1->getDocumentClassName()
         );
-        
+
         $collection2 = $this->database->getCollection('collection2');
         $this->assertEquals(
-            '\Sokil\Mongo\CollectionTestDocumentMock', 
+            '\Sokil\Mongo\CollectionTestDocumentMock',
             $collection2->getDocumentClassName()
         );
     }
-    
+
     public function testOverrideDefaultClassnameByCallable()
     {
         // define array of collections
@@ -1236,24 +1235,24 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 },
             )
         ));
-        
+
         // define collection
         $this->database->map('collection2', array(
             'documentClass' => function(array $data) {
                 return '\Sokil\Mongo\\' . $data['documentClassName'];
             },
         ));
-        
+
         // check
         $collection1 = $this->database->getCollection('collection1');
         $collection1DocumentClassName = $collection1->getDocumentClassName(array(
             'documentClassName' => 'CollectionTestDocumentMock',
         ));
         $this->assertEquals(
-            '\Sokil\Mongo\CollectionTestDocumentMock', 
+            '\Sokil\Mongo\CollectionTestDocumentMock',
             $collection1DocumentClassName
         );
-        
+
         $collection2 = $this->database->getCollection('collection2');
         $collection2DocumentClassName = $collection2->getDocumentClassName(array(
             'documentClassName' => 'CollectionTestDocumentMock',
@@ -1263,7 +1262,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             $collection2DocumentClassName
         );
     }
-    
+
     public function testGetOptionPassedToMapper()
     {
         // define array of collections
@@ -1272,7 +1271,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 'someOption' => 'someValue',
             )
         ));
-        
+
         $this->assertEquals('someValue', $this
             ->database
             ->getCollection('collection1')
@@ -1286,5 +1285,5 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
  */
 class CollectionTestDocumentMock extends Document
 {
-    
+
 }

@@ -328,9 +328,7 @@ class Collection implements \Countable
 
     private function getExpressionClass()
     {
-        return empty($this->_options['expressionClass'])
-            ? $this->_queryExpressionClass
-            : $this->_options['expressionClass'];
+        return $this->getOption('expressionClass', $this->_queryExpressionClass);
     }
 
     /**
@@ -360,11 +358,9 @@ class Collection implements \Countable
      */
     public function find($callable = null)
     {
-        $expressionClassName = $this->getExpressionClass();
-
         /** @var \Sokil\Mongo\Cursor $queryBuilder */
         $queryBuilder = new $this->_queryBuilderClass($this, array(
-            'expressionClass'   => $expressionClassName,
+            'expressionClass'   => $this->getExpressionClass(),
         ));
 
         if(is_callable($callable)) {
