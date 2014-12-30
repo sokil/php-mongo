@@ -295,6 +295,17 @@ $client->map([
 ]);
 ```
 
+All options later may be accessed by `Collection::getOption()` method:
+
+```php
+<?php
+// will return 'value1'
+$client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName')
+    ->getOption('collectionOption1');
+```
+
 Predefined options are:
 
 | Option           | Default value            | Description                                                |
@@ -305,16 +316,7 @@ Predefined options are:
 | index            | null                     | Index definition                                           |
 | expressionClass  | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
 
-If `class` omitted, then used standart `\Sokil\Mongo\Collection` class. All options later may be accessed:
-
-```php
-<?php
-// will return 'value1'
-$client
-    ->getDatabase('databaseName')
-    ->getCollection('collectionName')
-    ->getOption('collectionOption1');
-```
+If `class` omitted, then used standart `\Sokil\Mongo\Collection` class. 
 
 To override default document class use `documentClass` option of collection:
 ```php
