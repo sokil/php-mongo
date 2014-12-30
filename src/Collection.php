@@ -87,9 +87,10 @@ class Collection implements \Countable
         // May be override in constructor.
         // Used as default value for getting document classname.
         // May be fully qualified class name or callable that return fully qualified class name
-        'documentClass' => '\Sokil\Mongo\Document',
-        'versioning'    => false,
-        'index'         => null,
+        'documentClass'     => '\Sokil\Mongo\Document',
+        'versioning'        => false,
+        'index'             => null,
+        'expressionClass'   => null,
     );
 
     public function __construct(Database $database, $collection, array $options = null)
@@ -325,13 +326,21 @@ class Collection implements \Countable
 
     }
 
+    private function getExpressionClass()
+    {
+        return empty($this->_options['expressionClass'])
+            ? $this->_queryExpressionClass
+            : $this->_options['expressionClass'];
+    }
+
     /**
      *
      * @return \Sokil\Mongo\Expression
      */
     public function expression()
     {
-        return new $this->_queryExpressionClass;
+        $className = $this->getExpressionClass();
+        return new $className;
     }
 
     /**
@@ -351,9 +360,11 @@ class Collection implements \Countable
      */
     public function find($callable = null)
     {
+        $expressionClassName = $this->getExpressionClass();
+
         /** @var \Sokil\Mongo\Cursor $queryBuilder */
         $queryBuilder = new $this->_queryBuilderClass($this, array(
-            'expressionClass'   => $this->_queryExpressionClass,
+            'expressionClass'   => $expressionClassName,
         ));
 
         if(is_callable($callable)) {
