@@ -18,6 +18,16 @@ class Structure
         return $this;
     }
 
+    public function __isset($name)
+    {
+        return isset($this->_data[$name]);
+    }
+
+    public function __unset($name)
+    {
+        unset($this->_data[$name]);
+    }
+
     public function __get($name)
     {
         return isset($this->_data[$name]) ? $this->_data[$name] : null;
