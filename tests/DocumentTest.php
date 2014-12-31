@@ -540,6 +540,41 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(empty($document->fieldUnexisted));
     }
 
+    public function testUnsetField_NewDocument()
+    {
+        $document = $this->collection->createDocument(array(
+            'field' => 'value',
+        ));
+
+        $this->assertEquals('value', $document->field);
+
+        unset($document->field);
+
+        $this->assertEquals(null, $document->field);
+    }
+
+    public function testUnsetField_ExistedDocument()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'field' => 'value',
+            ))
+            ->save();
+
+        $this->assertEquals('value', $document->field);
+
+        unset($document->field);
+
+        $document->save();
+
+        $this->assertEquals(null, $document->field);
+
+        // reload from db
+        $document->refresh();
+
+        $this->assertEquals(null, $document->field);
+    }
+
     public function testAppend()
     {
         $document = $this->collection->createDocument(array(

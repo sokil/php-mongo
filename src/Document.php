@@ -1217,6 +1217,11 @@ class Document extends Structure
         return $this;
     }
 
+    public function __unset($fieldName)
+    {
+        $this->unsetField($fieldName);
+    }
+
     /**
      * @deprecated use self::merge() instead
      * @param array $data
@@ -1547,7 +1552,7 @@ class Document extends Structure
 
     /**
      * Get revision by id
-     * 
+     *
      * @param int|string|\MongoId $id
      * @return \Sokil\Mongo\Revision
      */
