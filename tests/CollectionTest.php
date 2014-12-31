@@ -1197,7 +1197,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('unique', $indexes[1]);
     }
 
-    public function testOverrideDefaultClassnameByString()
+    public function testOverrideDefaultDocumentClassByString()
     {
         // define array of collections
         $this->database->map(array(
@@ -1225,7 +1225,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testOverrideDefaultClassnameByCallable()
+    public function testOverrideDefaultDocumentClassByCallable()
     {
         // define array of collections
         $this->database->map(array(
@@ -1263,7 +1263,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetOptionPassedToMapper()
+    public function testGetOption()
     {
         // define array of collections
         $this->database->map(array(
@@ -1278,12 +1278,65 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->getOption('someOption')
         );
     }
+
+    public function testGetOption_DefaultValue_NotPredefinedOption()
+    {
+        // define array of collections
+        $this->database->map(array(
+            'collection1' => array(
+                'someOption' => 'someValue',
+            )
+        ));
+
+        $this->assertEquals('someDefaultValue', $this
+            ->database
+            ->getCollection('collection1')
+            ->getOption('unexistedOption', 'someDefaultValue')
+        );
+    }
+
+    public function testGetOption_DefaultValue_PredefinedOption_DocumentClass()
+    {
+        $documentClass = $this
+            ->database
+            ->getCollection('collection1')
+            ->getOption('documentClass', '/SomeDocument');
+
+        $this->assertEquals('/SomeDocument', $documentClass);
+    }
+
+    public function testGetOption_DefaultValue_PredefinedOption_Versioning()
+    {
+        $versioning = $this
+            ->database
+            ->getCollection('collection1')
+            ->getOption('versioning', true);
+
+        $this->assertTrue($versioning);
+    }
+
+    public function testIsVersioningEnabled()
+    {
+        // set by property
+        $this->database->map('col1', '\Sokil\Mongo\CollectionWithVersioningMock');
+        $this->assertTrue($this->database->col1->isVersioningEnabled());
+
+        // set by map definition
+        $this->database->map('col2', array(
+            'versioning' => true,
+        ));
+        $this->assertTrue($this->database->col2->isVersioningEnabled());
+
+        // set by map definition
+        $this->database->map('col3', array(
+            'versioning' => false,
+        ));
+        $this->assertFalse($this->database->col3->isVersioningEnabled());
+    }
 }
 
-/**
- * Document mock
- */
-class CollectionTestDocumentMock extends Document
-{
+class CollectionTestDocumentMock extends Document { }
 
+class CollectionWithVersioningMock extends Collection {
+    protected $versioning = true;
 }

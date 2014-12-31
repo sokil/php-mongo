@@ -32,6 +32,12 @@ class Collection implements \Countable
     protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
 
     /**
+     *
+     * @var string Default class for document
+     */
+    private $_documentClass = '\Sokil\Mongo\Document';
+
+    /**
      * List of arrays, where each item array is an index definition.
      * Every index definition must contain key 'keys' with list of fields and orders,
      * and optional options from @link http://php.net/manual/en/mongocollection.createindex.php:
@@ -83,12 +89,9 @@ class Collection implements \Countable
      *
      * @var array collection options
      */
-    private $_options = array(
-        // May be override in constructor.
-        // Used as default value for getting document classname.
-        // May be fully qualified class name or callable that return fully qualified class name
-        'documentClass'     => '\Sokil\Mongo\Document',
-        'versioning'        => false,
+    private $_options = array(        
+        'documentClass'     => null, // May be fully qualified class name or callable that return fully qualified class name
+        'versioning'        => null,
         'index'             => null,
         'expressionClass'   => null,
     );
@@ -143,7 +146,7 @@ class Collection implements \Countable
      */
     public function getDefaultDocumentClass()
     {
-        $class = $this->_options['documentClass'];
+        $class = $this->getOption('documentClass', $this->_documentClass);
 
         // May be fully qualified class name or callable that return fully qualified class name
         if(!is_callable($class) && !class_exists($class)) {
