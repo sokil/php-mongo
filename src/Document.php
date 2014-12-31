@@ -1202,6 +1202,12 @@ class Document extends Structure
         return $this;
     }
 
+    /**
+     * Remove field
+     * 
+     * @param string $fieldName field name
+     * @return \Sokil\Mongo\Document
+     */
     public function unsetField($fieldName)
     {
         if (!$this->has($fieldName)) {
