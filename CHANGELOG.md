@@ -1,3 +1,7 @@
+## 1.11.3 (2014-12-31)
+  * Fixed bug with default values of collection options
+  * Happy New Year
+
 ## 1.11.2 (2014-12-29)
   * `AggragetePipelines` class renamed to `Pipeline`. If you in some reason use it directly, use factory method `Collection::greateAggregator()` instead
   * Added some aggregation group accumulators and expressions
