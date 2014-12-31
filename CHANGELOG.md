@@ -1,3 +1,6 @@
+## 1.11.4
+  * Allow unset field end check for empty value by php functions `unset` and `isset`
+
 ## 1.11.3 (2014-12-31)
   * Fixed bug with default values of collection options
   * Happy New Year
