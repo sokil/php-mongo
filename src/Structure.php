@@ -211,6 +211,11 @@ class Structure
         return true;
     }
 
+    public function __isset($name)
+    {
+        return isset($this->_data[$name]);
+    }
+
     private function prepareValue($value)
     {
         // if array - try to prepare every value
