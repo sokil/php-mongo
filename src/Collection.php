@@ -104,6 +104,7 @@ class Collection implements \Countable
             $this->_mongoCollection = $database->getMongoDB()->selectCollection($collection);
         }
 
+        $options['versioning'] = $this->versioning;
         // set options
         if($options) {
             $this->setOptions($options);
