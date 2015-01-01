@@ -109,6 +109,7 @@ class Document extends Structure
     private $options = array(
         'versioning' => false, // enable or not of document versioning
         'stored' => false,
+        'behaviors' => null,
     );
 
     /**
@@ -261,6 +262,10 @@ class Document extends Structure
         $this->_operator = $this->getCollection()->operator();
 
         $this->attachBehaviors($this->behaviors());
+        
+        if($this->hasOption('behaviors')) {
+            $this->attachBehaviors($this->getOption('behaviors'));
+        }
     }
 
     public function __toString()

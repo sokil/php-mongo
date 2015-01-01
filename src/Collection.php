@@ -91,9 +91,10 @@ class Collection implements \Countable
      */
     private $_options = array(        
         'documentClass'     => null, // May be fully qualified class name or callable that return fully qualified class name
+        'expressionClass'   => null,
         'versioning'        => null,
         'index'             => null,
-        'expressionClass'   => null,
+        'behaviors'         => null,
     );
 
     public function __construct(Database $database, $collection, array $options = null)
@@ -257,6 +258,7 @@ class Collection implements \Countable
         $document = new $className($this, $data, array(
             'stored' => false,
             'versioning' => $this->isVersioningEnabled(),
+            'behaviors' => $this->getOption('behaviors'),
         ));
 
         // store document to identity map

@@ -102,4 +102,19 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
             )
         ));
     }
+
+    public function testBehaviorInMapping()
+    {
+        $db = $this->collection->getDatabase();
+
+        $db->map('col', array(
+            'behaviors' => array(
+                'get42' => new SomeBehavior(),
+            ),
+        ));
+        
+        $document = $db->getCollection('col')->createDocument();
+        
+        $this->assertEquals('42', $document->return42());
+    }
 }
