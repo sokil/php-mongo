@@ -315,6 +315,7 @@ Predefined options are:
 | versioning       | false                    | Using document versioning                                  |
 | index            | null                     | Index definition                                           |
 | expressionClass  | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
+| behaviors        | null                     | List of behaviors, attached to every document              |
 
 If `class` omitted, then used standart `\Sokil\Mongo\Collection` class. 
 
