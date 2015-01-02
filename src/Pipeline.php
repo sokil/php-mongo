@@ -110,11 +110,6 @@ class Pipeline
         return $this;
     }
 
-    public function toArray()
-    {
-        return $this->stages;
-    }
-
     public function limit($limit)
     {
         $this->addStage('$limit', (int) $limit);
@@ -130,6 +125,11 @@ class Pipeline
     public function aggregate()
     {
         return $this->collection->aggregate($this);
+    }
+
+    public function toArray()
+    {
+        return $this->stages;
     }
 
     public function __toString()

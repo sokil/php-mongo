@@ -10,6 +10,48 @@ class Expression
     private $expression = array();
 
     /**
+     * Returns true only when all its expressions evaluate to true.
+     * Accepts any number of argument expressions.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/and
+     */
+    public function all()
+    {
+        $expressions = func_get_args();
+
+        $this->expression['$and'] = self::normalizeEach($expressions);
+
+        return $this;
+    }
+
+    /**
+     * Returns the boolean value that is the opposite of its argument expression.
+     * Accepts a single argument expression.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/not
+     */
+    public function not($expression)
+    {
+        $this->expression['$not'] = self::normalize($expression);
+        return $this;
+    }
+
+    /**
+     * Returns true when any of its expressions evaluates to true.
+     * Accepts any number of argument expressions.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/or
+     */
+    public function any()
+    {
+        $expressions = func_get_args();
+
+        $this->expression['$or'] = self::normalizeEach($expressions);
+
+        return $this;
+    }
+
+    /**
      * @kibk http://docs.mongodb.org/manual/reference/operator/aggregation/add/
      * @param array<literal|callable|\Sokil\Mongo\Pipeline\Expression> $expressions may me specified as one array of expressions and as list of expressions
      */
