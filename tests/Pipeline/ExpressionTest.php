@@ -98,8 +98,6 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
 
     public function testNormalize_Complex()
     {
-        $this->markTestIncomplete('Complex structures not normalized');
-
         $subExpression = new Expression;
         $subExpression->mod('$fieldName', 2);
 

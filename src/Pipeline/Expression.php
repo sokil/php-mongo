@@ -19,7 +19,7 @@ class Expression
             $expressions = func_get_args();
         }
 
-        $this->expression['$add'] = self::normalizeList($expressions);
+        $this->expression['$add'] = self::normalizeEach($expressions);
 
         return $this;
     }
@@ -31,7 +31,7 @@ class Expression
      */
     public function divide($expression1, $expression2)
     {
-        $this->expression['$divide'] = self::normalizeList(array(
+        $this->expression['$divide'] = self::normalizeEach(array(
             $expression1,
             $expression2
         ));
@@ -46,7 +46,7 @@ class Expression
      */
     public function mod($expression1, $expression2)
     {
-        $this->expression['$mod'] = self::normalizeList(array(
+        $this->expression['$mod'] = self::normalizeEach(array(
             $expression1,
             $expression2
         ));
@@ -64,7 +64,7 @@ class Expression
             $expressions = func_get_args();
         }
         
-        $this->expression['$multiply'] = self::normalizeList($expressions);
+        $this->expression['$multiply'] = self::normalizeEach($expressions);
 
         return $this;
     }
@@ -76,7 +76,7 @@ class Expression
      */
     public function subtract($expression1, $expression2)
     {
-        $this->expression['$subtract'] = self::normalizeList(array(
+        $this->expression['$subtract'] = self::normalizeEach(array(
             $expression1,
             $expression2
         ));
@@ -87,9 +87,9 @@ class Expression
     /**
      * Convert expressions specified in different formats to canonical form
      * 
-     * @param array $expressions
+     * @param array<callable|\Sokil\Mongo\Expression> $expressions
      */
-    public static function normalizeList(array $expressions)
+    public static function normalizeEach(array $expressions)
     {
         foreach($expressions as $i => $expression) {
             $expressions[$i] = self::normalize($expression);
@@ -101,7 +101,7 @@ class Expression
     /**
      * Convert expression specified in different formats to canonical form
      *
-     * @param type $expression
+     * @param callable|\Sokil\Mongo\Expression $expression
      * @return type
      */
     public static function normalize($expression)
@@ -114,7 +114,13 @@ class Expression
 
         if($expression instanceof Expression) {
             $expression = $expression->toArray();
+        } elseif(is_array($expression)) {
+            foreach($expression as $fieldName => $value) {
+                $expression[$fieldName] = self::normalize($value);
+            }
         }
+
+
 
         return $expression;
     }
