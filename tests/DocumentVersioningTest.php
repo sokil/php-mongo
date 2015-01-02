@@ -93,6 +93,30 @@ class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
             $originalDocument->getCollection()->getName()
         );
     }
+
+    public function testGetRevisionDate()
+    {
+        $timeNow = time();
+        
+        $document = $this->collection
+            ->enableVersioning()
+            ->createDocument(array('param' => 'value'))
+            ->save()
+            ->set('param', 'value1')
+            ->save()
+            ->set('param', 'value2')
+            ->save();
+
+        $revisions = $document->getRevisions();
+        next($revisions);
+
+        $key = key($revisions);
+
+        $revision = $document->getRevision($key);
+
+        $this->assertLessThan(2, $revision->getDate() - $timeNow);
+        $this->assertLessThan(2, strtotime($revision->getDate('Y-m-d H:i:s') - $timeNow));
+    }
     
     public function testGetRevisions()
     {
