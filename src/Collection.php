@@ -563,7 +563,7 @@ class Collection implements \Countable
 
         $document = $this->getDocumentDirectly($id);
 
-        if(!is_null($document)) {
+        if($document) {
             $this->addDocumentToDocumentPool($document);
         }
 

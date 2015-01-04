@@ -47,6 +47,13 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
 
+    public function testGetDocument_WrongId()
+    {
+        // get document
+        $foundDocument = $this->collection->getDocument('someunexiteddocumentid');
+        $this->assertNull($foundDocument);
+    }
+
     public function testGetStoredDocumentInstanceFromArray()
     {
         $document = $this->collection->getStoredDocumentInstanceFromArray(array(
