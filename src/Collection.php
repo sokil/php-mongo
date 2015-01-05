@@ -132,12 +132,22 @@ class Collection implements \Countable
         return $this;
     }
 
+    /**
+     * Start versioning documents on modify
+     * 
+     * @return \Sokil\Mongo\Collection
+     */
     public function enableVersioning()
     {
         $this->_options['versioning'] = true;
         return $this;
     }
 
+    /**
+     * Check if versioning enabled
+     * 
+     * @return bool
+     */
     public function isVersioningEnabled()
     {
         return $this->getOption('versioning', $this->versioning);
@@ -186,6 +196,7 @@ class Collection implements \Countable
 
     /**
      * Get name of collection
+     * 
      * @return string name of collection
      */
     public function getName()
@@ -194,7 +205,8 @@ class Collection implements \Countable
     }
 
     /**
-     *
+     * Get native collection instance of mongo driver
+     * 
      * @return \MongoCollection
      */
     public function getMongoCollection()
@@ -211,6 +223,12 @@ class Collection implements \Countable
         return $this->_database;
     }
 
+    /**
+     * Delete collection
+     * 
+     * @return \Sokil\Mongo\Collection
+     * @throws \Sokil\Mongo\Exception
+     */
     public function delete() {
         $status = $this->_mongoCollection->drop();
         if($status['ok'] != 1) {
@@ -308,6 +326,11 @@ class Collection implements \Countable
         return $document;
     }
 
+    /**
+     * Total count of documents in collection
+     * 
+     * @return int 
+     */
     public function count()
     {
         return $this->find()->count();
@@ -331,13 +354,19 @@ class Collection implements \Countable
 
     }
 
+    /**
+     * Get fully qualified class name of expression for current collection instance
+     * 
+     * @return string
+     */
     private function getExpressionClass()
     {
         return $this->getOption('expressionClass', $this->_queryExpressionClass);
     }
 
     /**
-     *
+     * Create new Expression instance to use in query builder or update operations
+     * 
      * @return \Sokil\Mongo\Expression
      */
     public function expression()
@@ -347,7 +376,8 @@ class Collection implements \Countable
     }
 
     /**
-     *
+     * Create Operator instance to use in update operations
+     * 
      * @return \Sokil\Mongo\Operator
      */
     public function operator()
@@ -657,6 +687,13 @@ class Collection implements \Countable
         return $this;
     }
 
+    /**
+     * Delete documents by expression
+     * 
+     * @param callable|array|\Sokil\Mongo\Expression $expression
+     * @return \Sokil\Mongo\Collection
+     * @throws Exception
+     */
     public function deleteDocuments($expression)
     {
         // get expression from callable
@@ -682,6 +719,14 @@ class Collection implements \Countable
         return $this;
     }
 
+    /**
+     * Insert bultiple documents defined as arrays
+     *
+     * @param array $rows list of documents to insert, defined as arrays
+     * @return \Sokil\Mongo\Collection
+     * @throws \Sokil\Mongo\ValidateException
+     * @throws \Sokil\Mongo\Exception
+     */
     public function insertMultiple($rows)
     {
         $document = $this->createDocument();
@@ -925,6 +970,19 @@ class Collection implements \Countable
         ));
     }
 
+    /**
+     * Validates a collection. The method scans a collection’s data structures
+     * for correctness and returns a single document that describes the
+     * relationship between the logical collection and the physical
+     * representation of the data.
+     *
+     * @link http://docs.mongodb.org/manual/reference/method/db.collection.validate/
+     * @param bool $full Specify true to enable a full validation and to return
+     *      full statistics. MongoDB disables full validation by default because it
+     *      is a potentially resource-intensive operation.
+     * @return array
+     * @throws Exception
+     */
     public function validate($full = false)
     {
         $response = $this->_mongoCollection->validate($full);
