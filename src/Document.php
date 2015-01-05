@@ -1355,6 +1355,8 @@ class Document extends Structure
 
         // update local data
         parent::set($fieldName, $values);
+
+        return $this;
     }
 
     /**

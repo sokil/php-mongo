@@ -1032,14 +1032,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(
             array(1, 2, 3, 4, 5),
             $this->collection->getDocumentDirectly($doc->getId())->key
         );
     }
-
+    
     public function testPushFromArray_ToEmpty_OnExistedDocument()
     {
         // create document

@@ -85,15 +85,21 @@ class Operator
             );
         }
     }
-    
+
+    /**
+     * The $slice modifier limits the number of array elements during a
+     * $push operation. To project, or return, a specified number of array
+     * elements from a read operation, see the $slice projection operator instead.
+     * 
+     * @link http://docs.mongodb.org/manual/reference/operator/update/slice
+     * @param string $field
+     * @param int $slice
+     * @return \Sokil\Mongo\Operator
+     * @throws \Sokil\Mongo\Exception
+     */
     public function pushEachSlice($field, $slice)
     {
         $slice = (int) $slice;
-        
-        // add modifiers
-        if($slice <= 0) {
-            throw new Exception('Slice must be greater 0');
-        }
         
         if(!isset($this->_operators['$push'][$field]['$each'])) {
             throw new Exception('Field ' . $field . ' must be pushed wit $each modifier');
@@ -103,7 +109,16 @@ class Operator
         
         return $this;
     }
-    
+
+    /**
+     * The $sort modifier orders the elements of an array during a $push operation.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/update/sort
+     * @param string $field
+     * @param array $sort
+     * @return \Sokil\Mongo\Operator
+     * @throws \Sokil\Mongo\Exception
+     */
     public function pushEachSort($field, array $sort)
     {
         $slice = (int) $slice;
@@ -114,14 +129,23 @@ class Operator
         }
         
         if(!isset($this->_operators['$push'][$field]['$each'])) {
-            throw new Exception('Field ' . $field . ' must be pushed wit $each modifier');
+            throw new Exception('Field ' . $field . ' must be pushed with $each modifier');
         }
         
         $this->_operators['$push'][$field]['$sort'] = $slice;
         
         return $this;
     }
-    
+
+    /**
+     * The $position modifier specifies the location in the array at which the $push operator insert elements. Without the $position modifier, the $push operator inserts elements to the end of the array. See $push modifiers for more information.
+     * 
+     * @link http://docs.mongodb.org/manual/reference/operator/update/position
+     * @param string $field
+     * @param int $position
+     * @return \Sokil\Mongo\Operator
+     * @throws \Sokil\Mongo\Exception
+     */
     public function pushEachPosition($field, $position)
     {
         $position = (int) $position;
