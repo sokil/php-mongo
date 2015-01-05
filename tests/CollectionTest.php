@@ -462,7 +462,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Multiple update error: some_strange_error: Some strange error
+     * @expectedExceptionMessage Update error: some_strange_error: Some strange error
      */
     public function testUpdateMultiple_ErrorWithWriteConcern()
     {
@@ -496,7 +496,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Multiple update error
+     * @expectedExceptionMessage Update error
      */
     public function testUpdateMultiple_ErrorWithUnacknowledgedWriteConcern()
     {

@@ -747,14 +747,15 @@ class Collection implements \Countable
 
     /**
      * Update multiple documents
+     *
      * @param \Sokil\Mongo\Expression|array|callable $expression expression to define
      *  which documents will change.
-     * @param \Sokil\Mongo\Operator|array|callable $updateData new data or commands
+     * @param \Sokil\Mongo\Operator|array|callable $updateData new data or operators
      *  to update
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      */
-    public function updateMultiple($expression, $updateData)
+    public function update($expression, $updateData, $options = null)
     {
         // get expression from callable
         if(is_callable($expression)) {
@@ -765,7 +766,7 @@ class Collection implements \Countable
         if($expression instanceof Expression) {
             $expression = $expression->toArray();
         } elseif(!is_array($expression)) {
-            throw new Exception('Expression must be instance of Expression class or callable');
+            $expression = array();
         }
 
         // get operator from callable
@@ -784,45 +785,7 @@ class Collection implements \Countable
         $result = $this->_mongoCollection->update(
             $expression,
             $updateData,
-            array(
-                'multiple'  => true,
-            )
-        );
-
-        // if write concern acknowledged
-        if(is_array($result)) {
-            if($result['ok'] != 1) {
-                throw new Exception('Multiple update error: ' . $result['err'] . ': ' . $result['errmsg']);
-            }
-
-            return $this;
-        }
-
-        // if write concern unacknowledged
-        if(!$result) {
-            throw new Exception('Multiple update error');
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $updateData
-     * @return \Sokil\Mongo\Collection
-     * @throws \Sokil\Mongo\Exception
-     */
-    public function updateAll($updateData)
-    {
-        if($updateData instanceof Operator) {
-            $updateData = $updateData->getAll();
-        }
-
-        $result = $this->_mongoCollection->update(
-            array(),
-            $updateData,
-            array(
-                'multiple'  => true,
-            )
+            $options
         );
 
         // if write concern acknowledged
@@ -840,6 +803,37 @@ class Collection implements \Countable
         }
 
         return $this;
+    }
+
+    /**
+     * Update multiple documents
+     *
+     * @param \Sokil\Mongo\Expression|array|callable $expression expression to define
+     *  which documents will change.
+     * @param \Sokil\Mongo\Operator|array|callable $updateData new data or operators
+     *  to update
+     * @return \Sokil\Mongo\Collection
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function updateMultiple($expression, $updateData)
+    {
+        return $this->update($expression, $updateData, array(
+            'multiple'  => true,
+        ));
+    }
+
+    /**
+     * Update all documents
+     * 
+     * @param \Sokil\Mongo\Operator|array|callable $updateData new data or operators
+     * @return \Sokil\Mongo\Collection
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function updateAll($updateData)
+    {
+        return $this->update(array(), $updateData, array(
+            'multiple'  => true,
+        ));
     }
 
     /**
