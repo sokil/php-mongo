@@ -121,6 +121,45 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('updatedValue', $document->get('param'));
     }
 
+    public function testGetDocumentsFromDocumentPool()
+    {
+        $document1 = $this->collection
+            ->createDocument(array('field' => 'value1'))
+            ->save();
+
+        $document2 = $this->collection
+            ->createDocument(array('field' => 'value2'))
+            ->save();
+
+        $this->assertEquals(2, $this->collection->documentPoolCount());
+
+        // without arguments
+        $documents = $this->collection->getDocumentsFromDocumentPool();
+        $this->assertEquals(2, count($documents));
+        $this->assertArrayHasKey((string) $document1->getId(), $documents);
+        $this->assertArrayHasKey((string) $document2->getId(), $documents);
+
+        // with arguments
+        $documents = $this->collection->getDocumentsFromDocumentPool(
+            array($document1->getId())
+        );
+        $this->assertEquals(1, count($documents));
+        $this->assertArrayHasKey((string) $document1->getId(), $documents);
+    }
+
+    public function testIsDocumentInDocumentPool()
+    {
+        $document = $this->collection
+            ->createDocument(array('field' => 'value'))
+            ->save();
+
+        $this->assertTrue($this->collection->isDocumentInDocumentPool($document));
+        $this->assertTrue($this->collection->isDocumentInDocumentPool($document->getId()));
+        $this->assertTrue($this->collection->isDocumentInDocumentPool((string) $document->getId()));
+
+        $this->assertFalse($this->collection->isDocumentInDocumentPool(42));
+    }
+
     public function testGetDocumentByStringId()
     {
         $document = $this->collection
@@ -1320,6 +1359,26 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->getOption('versioning', true);
 
         $this->assertTrue($versioning);
+    }
+
+    public function testGetOptions()
+    {
+        // define array of collections
+        $this->database->map(array(
+            'collection1' => array(
+                'someOption' => 'someValue',
+            )
+        ));
+
+        $this->assertEquals(
+            array(
+                'someOption' => 'someValue',
+            ),
+            $this
+            ->database
+                ->getCollection('collection1')
+                ->getOptions()
+        );
     }
 
     public function testIsVersioningEnabled()

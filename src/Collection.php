@@ -88,14 +88,16 @@ class Collection implements \Countable
     /**
      *
      * @var array collection options
+     *
+     * Allowed options:
+     * 
+     * documentClass: May be fully qualified class name or callable that return fully qualified class name of document
+     * expressionClass: Fully qualified class name of expression
+     * versioning: is versioning enabled for documents
+     * index: list of collection indexes
+     * behaviors: list of document behaviors
      */
-    private $_options = array(        
-        'documentClass'     => null, // May be fully qualified class name or callable that return fully qualified class name
-        'expressionClass'   => null,
-        'versioning'        => null,
-        'index'             => null,
-        'behaviors'         => null,
-    );
+    private $_options = array();
 
     public function __construct(Database $database, $collection, array $options = null)
     {

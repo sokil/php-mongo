@@ -313,6 +313,7 @@ class Database
         // no object in pool - init new
         $classDefinition = $this->getCollectionClassDefinition($name);
         $className = $classDefinition['class'];
+        unset($classDefinition['class']);
 
         // create collection class
         $collection = new $className($this, $name, $classDefinition);
