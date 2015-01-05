@@ -752,10 +752,11 @@ class Collection implements \Countable
      *  which documents will change.
      * @param \Sokil\Mongo\Operator|array|callable $updateData new data or operators
      *  to update
+     * @param array $options update options, see http://php.net/manual/ru/mongocollection.update.php
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      */
-    public function update($expression, $updateData, $options = null)
+    public function update($expression, $updateData, array $options = array())
     {
         // get expression from callable
         if(is_callable($expression)) {
