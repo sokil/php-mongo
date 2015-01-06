@@ -1108,7 +1108,7 @@ Imagine that you have document, whicj represent `User` model:
     "login": "beebee",
     "email": "beebee@gmail.com",
     "profile": {
-        "birthday: "1984-08-11",
+        "birthday": "1984-08-11",
         "gender": "female",
         "country": "Ukraine",
         "city": "Kyiv"
