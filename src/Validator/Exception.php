@@ -11,4 +11,9 @@
 
 namespace Sokil\Mongo\Validator;
 
+/**
+ * Throws when error in rule configuration found
+ *
+ * @author Dmytro Sokil <dmytro.sokil@gmail.com>
+ */
 class Exception extends \Sokil\Mongo\Exception {}

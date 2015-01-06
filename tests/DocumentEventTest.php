@@ -118,7 +118,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
         try {
             $documentMock->validate();
             $this->fail('Must be validate exception');
-        } catch(\Sokil\Mongo\Document\Exception\Validate $e) {
+        } catch(\Sokil\Mongo\Document\InvalidDocumentException $e) {
             $this->assertEquals('error', $documentMock->status);
         }
     }

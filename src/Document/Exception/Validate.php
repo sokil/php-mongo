@@ -11,29 +11,9 @@
 
 namespace Sokil\Mongo\Document\Exception;
 
-use Sokil\Mongo\Document;
-
 /**
- * Validator exception
+ * Deprecated since 1.11.6. Use \Sokil\Mongo\Document\InvalidDocumentException
  *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
-class Validate extends \Sokil\Mongo\Exception
-{
-    /**
-     *
-     * @var \Sokil\Mongo\Document
-     */
-    private $_document;
-    
-    public function setDocument(Document $document)
-    {
-        $this->_document = $document;
-        return $this;
-    }
-    
-    public function getDocument()
-    {
-        return $this->_document;
-    }
-}
+class Validate extends \Sokil\Mongo\Document\InvalidDocumentException {}

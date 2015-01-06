@@ -490,15 +490,23 @@ public function rules()
     }
 ```
 
-If document invalid, `\Sokil\Mongo\Document\Exception\Validate` will trigger and errors may be accessed through `Document::getErrors()` method of document object. This document may be get from exception method:
+If document invalid, `\Sokil\Mongo\Document\InvalidDocumentException` is thrown and errors may
+be accessed through `Document::getErrors()` method of document object.
+This document may be get from exception method:
+
 ```php
 <?php
 try {
 
-} catch(\Sokil\Mongo\Document\Exception\Validate $e) {
+} catch(\Sokil\Mongo\Document\InvalidDocumentException $e) {
     $e->getDocument()->getErrors();
 }
 ```
+
+Exception `\Sokil\Mongo\Document\Exception\Validate` was thrown before `v.1.11.6`
+when document was invalid. Since `v.1.11.6` this exception is deprecated. Use
+`\Sokil\Mongo\Document\InvalidDocumentException` instead.
+
 
 Error may be triggered manually by calling method `triggerError($fieldName, $rule, $message)`
 ```php

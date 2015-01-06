@@ -744,13 +744,13 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
 
             $document->validate();
 
-            $this->fail('\Sokil\Mongo\Document\Exception\Validate must be thrown, no exception captured');
-        } catch (\Sokil\Mongo\Document\Exception\Validate $e) {
+            $this->fail('\Sokil\Mongo\Document\InvalidDocumentException must be thrown, no exception captured');
+        } catch (\Sokil\Mongo\Document\InvalidDocumentException $e) {
             $this->assertEquals(
                 array('field' => array('rule' => 'message')), $document->getErrors()
             );
         } catch (\Exception $e) {
-            $this->fail('\Sokil\Mongo\Document\Exception\Validate expected, ' . get_class($e) . ' found');
+            $this->fail('\Sokil\Mongo\Document\InvalidDocumentException expected, ' . get_class($e) . ' found');
         }
     }
 
@@ -780,11 +780,11 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
 
             $document->validate();
 
-            $this->fail('\Sokil\Mongo\Document\Exception\Validate must be thrown, no exception captured');
-        } catch (\Sokil\Mongo\Document\Exception\Validate $e) {
+            $this->fail('\Sokil\Mongo\Document\InvalidDocumentException must be thrown, no exception captured');
+        } catch (\Sokil\Mongo\Document\InvalidDocumentException $e) {
             $this->assertEquals($errors, $document->getErrors());
         } catch (\Exception $e) {
-            $this->fail('\Sokil\Mongo\Document\Exception\Validate expected, ' . get_class($e) . ' found');
+            $this->fail('\Sokil\Mongo\Document\InvalidDocumentException expected, ' . get_class($e) . ' found');
         }
     }
 
@@ -817,7 +817,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         try {
             $document->validate();
             $this->fail('Must be exception');
-        } catch (\Sokil\Mongo\Document\Exception\Validate $e) {
+        } catch (\Sokil\Mongo\Document\InvalidDocumentException $e) {
             $this->assertEquals($document, $e->getDocument());
         }
     }

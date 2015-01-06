@@ -11,7 +11,7 @@
 
 namespace Sokil\Mongo;
 
-use \Sokil\Mongo\Document\Exception\Validate as ValidateException;
+use \Sokil\Mongo\Document\InvalidDocumentException;
 /**
  * Instance of this class is a representation of mongo collection.
  * It aggregates \MongoCollection instance.
@@ -680,7 +680,7 @@ class Collection implements \Countable
      * @param bool $validate validate or not before save
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
-     * @throws \Sokil\Mongo\Document\Exception\Validate
+     * @throws \Sokil\Mongo\Document\InvalidDocumentException
      */
     public function saveDocument(Document $document, $validate = true)
     {
@@ -747,20 +747,22 @@ class Collection implements \Countable
      *
      * @param array $rows list of documents to insert, defined as arrays
      * @return \Sokil\Mongo\Collection
-     * @throws \Sokil\Mongo\ValidateException
+     * @throws \Sokil\Mongo\Document\InvalidDocumentException
      * @throws \Sokil\Mongo\Exception
      */
-    public function insertMultiple($rows)
+    public function insertMultiple($rows, $validate = true)
     {
-        $document = $this->createDocument();
-        foreach($rows as $row) {
-            $document->merge($row);
+        if($validate) {
+            $document = $this->createDocument();
+            foreach($rows as $row) {
+                $document->merge($row);
 
-            if(!$document->isValid()) {
-                throw new ValidateException('Document invalid');
+                if(!$document->isValid()) {
+                    throw new InvalidDocumentException('Document is invalid on batch insert');
+                }
+
+                $document->reset();
             }
-
-            $document->reset();
         }
 
         $result = $this->_mongoCollection->batchInsert($rows);

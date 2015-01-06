@@ -11,7 +11,8 @@
 
 namespace Sokil\Mongo;
 
-use \Symfony\Component\EventDispatcher\EventDispatcher;
+use Sokil\Mongo\Document\InvalidDocumentException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use GeoJson\Geometry\Geometry;
 
 /**
@@ -1042,7 +1043,7 @@ class Document extends Structure
 
     /**
      *
-     * @throws \Sokil\Mongo\Document\Exception\Validate
+     * @throws \Sokil\Mongo\Document\InvalidDocumentException
      * @return \Sokil\Mongo\Document
      */
     public function validate()
@@ -1052,7 +1053,7 @@ class Document extends Structure
         }
 
         if (!$this->isValid()) {
-            $exception = new \Sokil\Mongo\Document\Exception\Validate('Document not valid');
+            $exception = new InvalidDocumentException('Document not valid');
             $exception->setDocument($this);
 
             $this->triggerEvent('validateError');

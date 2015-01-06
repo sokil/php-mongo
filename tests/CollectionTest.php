@@ -241,7 +241,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Sokil\Mongo\Document\Exception\Validate
+     * @expectedException \Sokil\Mongo\Document\InvalidDocumentException
      */
     public function testSaveInvalidNewDocument()
     {
@@ -756,8 +756,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Sokil\Mongo\Document\Exception\Validate
-     * @expectedExceptionMessage Document invalid
+     * @expectedException \Sokil\Mongo\Document\InvalidDocumentException
+     * @expectedExceptionMessage Document is invalid on batch insert
      */
     public function testInsertMultiple_ValidateError()
     {
