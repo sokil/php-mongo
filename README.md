@@ -586,6 +586,20 @@ To get document from collection by its id:
 $document = $collection->getDocument('5332d21b253fe54adf8a9327');
 ```
 
+To add additional checks or query modifiers use callable:
+```php
+<?php
+$document = $collection->getDocument(
+    '5332d21b253fe54adf8a9327',
+    function(\Sokil\Mongo\Cursor $cursor) {
+        // get document only if active
+        $cursor->where('status', 'active');
+        // slice embedded documents
+        $cursor->slice('embdocs', 10, 30);
+    }
+);
+```
+
 Create new document
 -------------------
 
