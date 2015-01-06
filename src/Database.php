@@ -223,8 +223,9 @@ class Database
                     $regexpMappingClassDefinition['class'] = $defaultClass;
                 }
 
-                if(preg_match($collectionNamePattern, $name)) {
+                if(preg_match($collectionNamePattern, $name, $matches)) {
                     $classDefinition = $regexpMappingClassDefinition;
+                    $classDefinition['regexp'] = $matches;
                     break;
                 }
             }

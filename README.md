@@ -345,7 +345,7 @@ Collection name in mapping may be defined as RegExp pattern. Pattern must start 
 ```php
 <?php
 $database->map(array(
-    '/someCollection\d/' => '\Some\Collection\Class',
+    '/someCollection(\d)/' => '\Some\Collection\Class',
 ));
 ```
 
@@ -356,6 +356,8 @@ $col1 = $database->getCollection('someCollection1');
 $col2 = $database->getCollection('someCollection2');
 $col4 = $database->getCollection('someCollection4');
 ```
+
+Any stored regexp values than may be get through `$collection->getOption('regex');`.
 
 ### Document schema and validating
 

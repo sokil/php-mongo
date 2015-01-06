@@ -219,20 +219,34 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     public function testMapRegexpCollectionNameToClass()
     {
-        $this->database->map('/littleCar\d/', '\Sokil\Mongo\CarsCollection');
+        $this->database->map('/littleCar(\d)/', '\Sokil\Mongo\CarsCollection');
+        
         $this->database->map(array(
-            '/bigCar\d/' => '\Sokil\Mongo\CarsCollection',
+            '/bigCar(\d+)/' => '\Sokil\Mongo\CarsCollection',
         ));
 
+        $collection = $this->database->getCollection('littleCar5');
         $this->assertInstanceOf(
             '\Sokil\Mongo\CarsCollection',
-            $this->database->getCollection('littleCar5')
+            $collection
         );
+
+        $this->assertEquals(array(
+            'littleCar5',
+            5
+        ), $collection->getOption('regexp'));
+
+        $collection = $this->database->getCollection('bigCar42');
 
         $this->assertInstanceOf(
             '\Sokil\Mongo\CarsCollection',
-            $this->database->getCollection('bigCar5')
+            $collection
         );
+
+        $this->assertEquals(array(
+            'bigCar42',
+            42
+        ), $collection->getOption('regexp'));
     }
 
     /**
