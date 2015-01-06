@@ -32,6 +32,11 @@ Why to use this library? You can easily work with document data through comforta
 * [Get and set data in document](#get-and-set-data-in-document)
 * [Embedded documents](#embedded-documents)
 * [Storing document](#storing-document)
+  * [Storing mapped object](#storing-mapped-object)
+  * [Insert and update documents without ODM](#insert-and-update-documents-without-odm)
+  * [Batch insert](#batch-insert)
+  * [Batch update](#batch-update)
+  * [Moving data between collections](#moving-data-between-collections)
 * [Querying documents](#querying-documents)
   * [Query Builder](#query-builder)
   * [Extending Query Builder](#extending-query-builder)
@@ -39,12 +44,7 @@ Why to use this library? You can easily work with document data through comforta
   * [Comparing queries](#comparing-queries)
 * [Geospatial queries](#geospatial-queries)
 * [Pagination](#pagination)
-* [Batch operations](#batch-operations)
-  * [Batch insert](#batch-insert)
-  * [Batch update](#batch-update)
-  * [Moving data between collections](#moving-data-between-collections)
 * [Persistence (Unit of Work)](#persistence-unit-of-work)
-* [Document validation](#document-validation)
 * [Deleting collections and documents](#deleting-collections-and-documents)
 * [Aggregation framework](#aggregation-framework)
 * [Events](#events)
@@ -775,13 +775,129 @@ $document = $collection->getDocument('54ab8585c90b73d6949d4159', function(Cursor
 Storing document
 ----------------
 
-To store document in database just save it.
+### Storing mapped object
+
+If you have previously loaded and modified instane of `\Sokil\Mongo\Document`, just save it.
+Document will automatically be inserted or updated if it already stored.
+
 ```php
 <?php
-$document = $collection->createDocument(['param' => 'value'])->save();
 
-$document = $collection->getDocument('23a4...')->set('param', 'value')->save();
+// create new document and save
+$document = $collection
+    ->createDocument(['param' => 'value'])
+    ->save();
+
+// load existed document, modify and save
+$document = $collection
+    ->getDocument('23a4...')
+    ->set('param', 'value')
+    ->save();
 ```
+
+### Insert and update documents without ODM
+
+If required quick insert of document without validating, events just insert it as array:
+
+```php
+<?php
+$collection->insert(['param' => 'value']);
+```
+
+To update existed documents, use:
+
+```php
+<?php
+$collection->update($expression, $data, $options);
+```
+
+Expression may be defined as array, `\Sokil\Mongo\Expressin` object or callable, which configure expression.
+Operator may be defined as array, `\Sokil\Mongo\Operator` object or callable which configure operator.
+Options is array of all allowed options, described in http://php.net/manual/ru/mongocollection.update.php.
+
+For example:
+```php
+<?php
+$collection->update(
+    function(\Sokil\Mongo\Expression $expression) {
+        $expression->where('status', 'active');
+    },
+    function(\Sokil\Mongo\Operator $operator) {
+        $operator->increment('counter');
+    },
+    array(
+        'multiple' => true,
+    )
+);
+```
+
+### Batch insert
+
+To insert many documents at once with validation of inserted document:
+```php
+<?php
+$collection->insertMultiple(array(
+    array('i' => 1),
+    array('i' => 2),
+));
+```
+
+### Batch update
+
+Making changes in few documents:
+
+```php
+<?php
+
+$collection->updateMultiple(function(\Sokil\Mongo\Expression $expression) {
+    return $expression->where('field', 'value');
+}, array('field' => 'new value'));
+```
+
+To update all documents:
+```php
+<?php
+$collection->updateAll(array('field' => 'new value'));
+```
+
+### Moving data between collections
+
+To copy documents from one collection to another according to expression:
+
+```php
+<?php
+// to new collection of same database
+$collection
+    ->find()
+    ->where('condition', 1)
+    ->copyToCollection('newCollection');
+
+// to new collection in new database
+$collection
+    ->find()
+    ->where('condition', 1)
+    ->copyToCollection('newCollection', 'newDatabase');
+```
+
+To move documents from one collection to another according to expression:
+
+```php
+<?php
+// to new collection of same database
+$collection
+    ->find()
+    ->where('condition', 1)
+    ->moveToCollection('newCollection');
+
+// to new collection in new database
+$collection
+    ->find()
+    ->where('condition', 1)
+    ->moveToCollection('newCollection', 'newDatabase');
+```
+
+Important to note that there is no transactions so if error will occur
+during process, no changes will rollback.
 
 Querying documents
 ------------------
@@ -1234,77 +1350,6 @@ foreach($paginator as $document) {
 }
 ```
 
-
-Batch operations
-----------------
-
-### Batch insert
-
-To insert many documents at once with validation of inserted document:
-```php
-<?php
-$collection->insertMultiple(array(
-    array('i' => 1),
-    array('i' => 2),
-));
-```
-
-### Batch update
-
-Making changes in few documents:
-
-```php
-<?php
-
-$collection->updateMultiple(function(\Sokil\Mongo\Expression $expression) {
-    return $expression->where('field', 'value');
-}, array('field' => 'new value'));
-```
-
-To update all documents:
-```php
-<?php
-$collection->updateAll(array('field' => 'new value'));
-```
-
-### Moving data between collections
-
-To copy documents from one collection to another according to expression:
-
-```php
-<?php
-// to new collection of same database
-$collection
-    ->find()
-    ->where('condition', 1)
-    ->copyToCollection('newCollection');
-
-// to new collection in new database
-$collection
-    ->find()
-    ->where('condition', 1)
-    ->copyToCollection('newCollection', 'newDatabase');
-```
-
-To move documents from one collection to another according to expression:
-
-```php
-<?php
-// to new collection of same database
-$collection
-    ->find()
-    ->where('condition', 1)
-    ->moveToCollection('newCollection');
-
-// to new collection in new database
-$collection
-    ->find()
-    ->where('condition', 1)
-    ->moveToCollection('newCollection', 'newDatabase');
-```
-
-Important to note that there is no transactions so if error will occur
-during process, no changes will rollback.
 
 Persistence (Unit of Work)
 --------------------------
