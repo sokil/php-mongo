@@ -1,3 +1,6 @@
+## 1.11.7 (2014-01-06)
+  * Bug with passing behaviors, configured in mapping, to documents
+
 ## 1.11.6 (2014-01-06)
   * Refactor document validation exceptions. Exception `\Sokil\Mongo\Document\Exception\Validate` deprecated. Use `\Sokil\Mongo\Document\InvalidDocumentException`.
   * Allow to get matched params on regex mapping.

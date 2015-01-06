@@ -2,19 +2,6 @@
 
 namespace Sokil\Mongo;
 
-class SomeBehavior extends \Sokil\Mongo\Behavior
-{
-    public function return42()
-    {
-        return 42;
-    }
-    
-    public function getOwnerParam($name)
-    {
-        return $this->getOwner()->get($name);
-    }
-}
-
 class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -116,5 +103,48 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
         $document = $db->getCollection('col')->createDocument();
         
         $this->assertEquals('42', $document->return42());
+    }
+
+    public function testBehaviorInCursor()
+    {
+        $db = $this->collection->getDatabase();
+        $db->map('col', array(
+            'behaviors' => array(
+                'get42' => new SomeBehavior(),
+            ),
+        ));
+
+        $collection = $db->getCollection('col');
+
+        $collection->insertMultiple(
+            array(
+                array('key' => 'value1'),
+                array('key' => 'value2'),
+                array('key' => 'value3'),
+                array('key' => 'value4'),
+                array('key' => 'value5'),
+            ),
+            false
+        );
+
+        foreach($collection->find() as $document) {
+            $this->assertEquals(42, $document->return42());
+        }
+    }
+}
+
+/**
+ * Behavior
+ */
+class SomeBehavior extends \Sokil\Mongo\Behavior
+{
+    public function return42()
+    {
+        return 42;
+    }
+
+    public function getOwnerParam($name)
+    {
+        return $this->getOwner()->get($name);
     }
 }
