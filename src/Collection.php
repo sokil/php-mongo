@@ -590,19 +590,20 @@ class Collection implements \Countable
      * Get document by id
      *
      * @param string|\MongoId $id
+     * @param callable $callable cursor callable used to configure cursor
      * @return \Sokil\Mongo\Document|null
      */
-    public function getDocument($id)
+    public function getDocument($id, $callable = null)
     {
         if(!$this->isDocumentPoolEnabled) {
-            return $this->getDocumentDirectly($id);
+            return $this->getDocumentDirectly($id, $callable);
         }
 
         if($this->isDocumentInDocumentPool($id)) {
             return $this->getDocumentFromDocumentPool($id);
         }
 
-        $document = $this->getDocumentDirectly($id);
+        $document = $this->getDocumentDirectly($id, $callable);
 
         if($document) {
             $this->addDocumentToDocumentPool($document);
@@ -616,12 +617,18 @@ class Collection implements \Countable
      * Get document by id directly omitting cache
      *
      * @param string|\MongoId $id
+     * @param callable $callable cursor callable used to configure cursor
      * @return \Sokil\Mongo\Document|null
      */
-    public function getDocumentDirectly($id)
+    public function getDocumentDirectly($id, $callable = null)
     {
-        return $this
-            ->find()
+        $cursor = $this->find();
+
+        if(is_callable($callable)) {
+            call_user_func($callable, $cursor);
+        }
+
+        return $cursor
             ->byId($id)
             ->skipDocumentPool()
             ->findOne();
@@ -642,11 +649,18 @@ class Collection implements \Countable
      * Get documents by list of id
      *
      * @param array $idList list of ids
+     * @param callable $callable cursor callable used to configure cursor
      * @return array|null
      */
-    public function getDocuments(array $idList)
+    public function getDocuments(array $idList, $callable = null)
     {
-        $documents = $this->find()->byIdList($idList)->findAll();
+        $cursor = $this->find();
+
+        if(is_callable($callable)) {
+            call_user_func($callable, $cursor);
+        }
+        
+        $documents = $cursor->byIdList($idList)->findAll();
         if(!$documents) {
             return array();
         }
