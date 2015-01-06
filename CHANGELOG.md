@@ -1,3 +1,7 @@
+## 1.11.6 (2014-01-06)
+  * Refactor document validation exceptions. Exception `\Sokil\Mongo\Document\Exception\Validate` deprecated. Use `\Sokil\Mongo\Document\InvalidDocumentException`.
+  * Allow to get matched params on regex mapping.
+
 ## 1.11.5 (2014-01-06)
   * Configure cursor when get document by id to slice embedded documents or other reason
   * Add `Collection::update()` method that allow to define different update options
