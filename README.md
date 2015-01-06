@@ -359,6 +359,16 @@ $col4 = $database->getCollection('someCollection4');
 
 Any stored regexp values than may be get through `$collection->getOption('regex');`.
 
+```php
+<?php
+$database->map(array(
+    '/someCollection(\d+)/' => '\Some\Collection\Class',
+));
+$col42 = $database->getCollection('someCollection42');
+echo $col1->getOption('regexp')[0]; // someCollection42
+echo $col1->getOption('regexp')[1]; // 42
+```
+
 ### Document schema and validating
 
 Custom document class may be useful when required some processing of date on load, getting or save. Custom document class must extend `\Sokil\Mongo\Document`.
