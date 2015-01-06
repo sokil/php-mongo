@@ -1,4 +1,9 @@
-## 1.11.4 (2014-0104)
+## 1.11.5 (2014-01-06)
+  * Configure cursor when get document by id to slice embedded documents or other reason
+  * Add `Collection::update()` method that allow to define different update options
+  * Refactoring and bugfixes
+
+## 1.11.4 (2014-01-04)
   * Allow unset field end check for empty value by php functions `unset` and `isset`
   * Attach behaviors in mapping
   * Bugfixes

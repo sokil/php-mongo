@@ -23,7 +23,7 @@ Why to use this library? You can easily work with document data through comforta
 
 * [Installation](#installation)
 * [Connecting](#connecting)
-* [Mapping](#mapping) 
+* [Mapping](#mapping)
   * [Selecting database and collection](#selecting-database-and-collection)
   * [Custom collections](#custom-collections)
   * [Document schema and validating](#document-schema-and-validating)
@@ -38,6 +38,7 @@ Why to use this library? You can easily work with document data through comforta
   * [Comparing queries](#comparing-queries)
 * [Geospatial queries](#geospatial-queries)
 * [Pagination](#pagination)
+* [Embedded documents](#embedded-documents)
 * [Batch operations](#batch-operations)
   * [Batch insert](#batch-insert)
   * [Batch update](#batch-update)
@@ -317,7 +318,7 @@ Predefined options are:
 | expressionClass  | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
 | behaviors        | null                     | List of behaviors, attached to every document              |
 
-If `class` omitted, then used standart `\Sokil\Mongo\Collection` class. 
+If `class` omitted, then used standart `\Sokil\Mongo\Collection` class.
 
 To override default document class use `documentClass` option of collection:
 ```php
@@ -358,7 +359,7 @@ $col4 = $database->getCollection('someCollection4');
 
 ### Document schema and validating
 
-Custom document class may be useful when required some processing of date on load, getting or save. Custom document class must extend `\Sokil\Mongo\Document`. 
+Custom document class may be useful when required some processing of date on load, getting or save. Custom document class must extend `\Sokil\Mongo\Document`.
 
 ```php
 <?php
@@ -1093,6 +1094,129 @@ $totalPageNumber = $paginator->getTotalPagesCount();
 foreach($paginator as $document) {
     echo $document->getId();
 }
+```
+
+Embedded documents
+------------------
+
+### Embedded document
+
+Imagine that you have document, whicj represent `User` model:
+
+```javascript
+{
+    "login": "beebee",
+    "email": "beebee@gmail.com",
+    "profile": {
+        "birthday: "1984-08-11",
+        "gender": "female",
+        "country": "Ukraine",
+        "city": "Kyiv"
+    }
+}
+```
+
+You can define embedded `profile` document as standalone class:
+```php
+<?php
+
+/**
+ * Profile class
+ */
+class Profile extends \Sokil\Mongo\Structure
+{
+    public function getBirthday() { return $this->get('birthday'); }
+    public function getGender() { return $this->get('gender'); }
+    public function getCountry() { return $this->get('country'); }
+    public function getCity() { return $this->get('city'); }
+}
+
+/**
+ * User model
+ */
+class User extends \Sokil\Mongo\Document
+{
+    public function getProfile()
+    {
+        return $this->getObject('profile', '\Profile');
+    }
+}
+```
+
+Now you are able to get profile params:
+
+```php
+<?php
+$birthday = $user->getProfile()->getBirthday();
+```
+
+### Embedded list of documents
+
+Imagine that you have stored post data in collection 'posts', and post document has
+embedded comment documents:
+
+```javascript
+{
+    "title": "Storing embedded documents",
+    "text": "MongoDb allows to atomically modify embedded documents",
+    "comments": [
+        {
+            "author": "MadMike42",
+            "text": "That is really cool",
+            "date": ISODate("2015-01-06T06:49:41.622Z"
+        },
+        {
+            "author": "beebee",
+            "text": "Awesome!!!11!",
+            "date": ISODate("2015-01-06T06:49:48.622Z"
+        },
+    ]
+}
+```
+
+So we can create `Comment` model, which extends `\Sokil\Mongo\Structure`:
+
+```php
+<?php
+class Comment extends \Sokil\Mongo\Structure
+{
+    public function getAuthor() { return $this->get('author'); }
+    public function getText() { return $this->get('text'); }
+    public function getDate() { return $this->get('date')->sec; }
+}
+
+```
+
+Now we can create `Post` model with access to embedded `Comment` models:
+
+```php
+<?php
+
+class Post extends \Sokil\Mongo\Document
+{
+    public function getComments()
+    {
+        return $this->getObjectList('comments', '\Comment');
+    }
+}
+
+Method `Post::getComments()` allows you to get all of embedded document. To
+paginate embedded documents you can use `\Sokil\Mongo\Cursor::slice()` functionality.
+
+```php
+<?php
+$collection->find()->slice('comments', $limit, $offset)->findAll();
+```
+
+If you get `Document` instance through `Collection::getDocument()` you can define
+additional expressions for loading it:
+
+```php
+<?php
+$document = $collection->getDocument('54ab8585c90b73d6949d4159', function(Cursor $cursor) {
+    $cursor->slice('comments', $limit, $offset);
+});
+
 ```
 
 
