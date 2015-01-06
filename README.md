@@ -1199,6 +1199,7 @@ class Post extends \Sokil\Mongo\Document
         return $this->getObjectList('comments', '\Comment');
     }
 }
+```
 
 Method `Post::getComments()` allows you to get all of embedded document. To
 paginate embedded documents you can use `\Sokil\Mongo\Cursor::slice()` functionality.
