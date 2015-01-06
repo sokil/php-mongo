@@ -8,6 +8,7 @@
     <filter>
         <blacklist>
             <file>../src/Exception.php</file>
+            <file>../src/Validator/Exception.php</file>
         </blacklist>
     </filter>
 </phpunit>
