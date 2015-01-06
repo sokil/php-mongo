@@ -59,6 +59,8 @@ class Operator
         else {
             $this->_operators['$push'][$fieldName]['$each'][] = $value;
         }
+
+        return $this;
     }
     
     public function pushEach($fieldName, array $values)
@@ -93,6 +95,8 @@ class Operator
                 $values
             );
         }
+
+        return $this;
     }
 
     /**
