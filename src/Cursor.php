@@ -639,6 +639,14 @@ abstract class Cursor implements \Iterator, \Countable
         return $this->expression->toArray();
     }
 
+    /**
+     * Convert find result to object
+     *
+     * @param array $mongoFindResult array of key-values, received from mongo driver
+     * @return \Sokil\Mongo\Document
+     */
+    abstract protected function toObject($mongoFindResult);
+
     public function current()
     {
         $mongoDocument = $this->getCursor()->current();
@@ -652,14 +660,6 @@ abstract class Cursor implements \Iterator, \Countable
 
         return $this->toObject($mongoDocument);
     }
-
-    /**
-     * Convert find result to object
-     *
-     * @param array $mongoFindResult array of key-values, received from mongo driver
-     * @return \Sokil\Mongo\Document
-     */
-    abstract protected function toObject($mongoFindResult);
 
     public function key()
     {
