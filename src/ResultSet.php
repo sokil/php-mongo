@@ -24,28 +24,12 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     public function map($callable)
     {
-        $result = array();
-
-        foreach ($this->documents as $id => $document) {
-            $result[$id] = $callable($document);
-        }
-
-        return new ResultSet($result);
+        return new ResultSet(array_map($callable, $this->documents));
     }
 
     public function filter($callable)
     {
-        $result = array();
-
-        foreach ($this->documents as $id => $document) {
-            if (!$callable($document)) {
-                continue;
-            }
-
-            $result[$id] = $document;
-        }
-
-        return new ResultSet($result);
+        return new ResultSet(array_filter($this->documents, $callable));
     }
 
     public function each($callable)
@@ -66,9 +50,18 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         return count($this->documents);
     }
 
+    public function keys()
+    {
+        return array_keys($this->documents);
+    }
+
+    public function values()
+    {
+        return array_values($this->documents);
+    }
+
     /**
      * Return the current element
-     * @link http://php.net/manual/en/iterator.current.php
      * @return array|\Sokil\Mongo\Document
      */
     public function current()
@@ -78,7 +71,6 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Move forward to next element
-     * @link http://php.net/manual/en/iterator.next.php
      * @return void Any returned value is ignored.
      */
     public function next()
@@ -88,8 +80,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Return the key of the current element
-     * @link http://php.net/manual/en/iterator.key.php
-     * @return scalar scalar on success, or <b>NULL</b> on failure.
+     * @return scalar scalar on success, or NULL on failure.
      */
     public function key()
     {
@@ -98,9 +89,8 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Checks if current position is valid
-     * @link http://php.net/manual/en/iterator.valid.php
      * @return boolean The return value will be casted to boolean and then evaluated.
-     * Returns <b>TRUE</b> on success or <b>FALSE</b> on failure.
+     * Returns TRUE on success or FALSE on failure.
      */
     public function valid()
     {
@@ -109,7 +99,6 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Rewind the Iterator to the first element
-     * @link http://php.net/manual/en/iterator.rewind.php
      * @return void Any returned value is ignored.
      */
     public function rewind()
@@ -119,13 +108,9 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Whether a offset exists
-     * @link http://php.net/manual/en/arrayaccess.offsetexists.php
-     * @param mixed $offset <p>
+     * @param mixed $offset 
      * An offset to check for.
-     * </p>
-     * @return boolean <b>TRUE</b> on success or <b>FALSE</b> on failure.
-     * </p>
-     * <p>
+     * @return boolean TRUE on success or FALSE on failure.
      * The return value will be casted to boolean if non-boolean was returned.
      */
     public function offsetExists($offset)
@@ -135,10 +120,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Offset to retrieve
-     * @link http://php.net/manual/en/arrayaccess.offsetget.php
-     * @param mixed $offset <p>
-     * The offset to retrieve.
-     * </p>
+     * @param mixed $offset The offset to retrieve.
      * @return array|\Sokil\Mongo\Document
      */
     public function offsetGet($offset)
@@ -148,13 +130,8 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Offset to set
-     * @link http://php.net/manual/en/arrayaccess.offsetset.php
-     * @param mixed $offset <p>
-     * The offset to assign the value to.
-     * </p>
-     * @param mixed $value <p>
-     * The value to set.
-     * </p>
+     * @param mixed $offset The offset to assign the value to.
+     * @param mixed $value The value to set.
      * @return void No value is returned.
      */
     public function offsetSet($offset, $value)
@@ -164,10 +141,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Offset to unset
-     * @link http://php.net/manual/en/arrayaccess.offsetunset.php
-     * @param mixed $offset <p>
-     * The offset to unset.
-     * </p>
+     * @param mixed $offset The offset to unset.
      * @return void No value is returned.
      */
     public function offsetUnset($offset)

@@ -994,6 +994,25 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($d3->getId(), $queryBuilder->findOne()->getId());
     }
 
+    public function testGetResultSet()
+    {
+        $document1Id = $this->collection->createDocument(array('param' => 1))->save()->getId();
+        $document2Id = $this->collection->createDocument(array('param' => 2))->save()->getId();
+        $document3Id = $this->collection->createDocument(array('param' => 3))->save()->getId();
+        $document4Id = $this->collection->createDocument(array('param' => 4))->save()->getId();
+
+        $resultSet = $this->collection->find()->getResultSet();
+        $this->assertInstanceOf('\Sokil\Mongo\ResultSet', $resultSet);
+
+        $filtered = $resultSet
+            ->filter(function($item) {
+                return $item->param % 2;
+            })
+            ->keys();
+
+        $this->assertEquals(array($document1Id, $document3Id), $filtered);
+    }
+
     public function testReadPrimaryOnly()
     {
         $this->collection->readPrimaryOnly();

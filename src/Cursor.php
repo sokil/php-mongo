@@ -99,6 +99,28 @@ abstract class Cursor implements \Iterator, \Countable
         return $this;
     }
 
+    public function asArray()
+    {
+        $this->_resultAsArray = true;
+        return $this;
+    }
+
+    public function asObject()
+    {
+        $this->_resultAsArray = false;
+        return $this;
+    }
+
+    /**
+     * Check if result returned as array
+     *
+     * @return bool
+     */
+    public function isResultAsArray()
+    {
+        return $this->_resultAsArray;
+    }
+
     /**
      * Return only specified fields
      *
@@ -185,6 +207,11 @@ abstract class Cursor implements \Iterator, \Countable
         return $this;
     }
 
+    /**
+     * Merge expression
+     * @param \Sokil\Mongo\Expression $expression
+     * @return \Sokil\Mongo\Cursor
+     */
     public function query(Expression $expression)
     {
         $this->expression->merge($expression);
@@ -203,71 +230,6 @@ abstract class Cursor implements \Iterator, \Countable
             : $this->options['expressionClass'];
 
         return new $expressionClass;
-    }
-
-    /**
-     * Get query builder's expression
-     *
-     * @return Expression
-     */
-    public function getExpression()
-    {
-        return $this->expression;
-    }
-
-    /**
-     * Gte list of \MongoId of current search query
-     * @return array
-     */
-    public function getIdList()
-    {
-        return self::mixedToMongoIdList($this->findAll());
-    }
-
-    /**
-     * Get list of MongoId objects from array of strings, MongoId's and Document's
-     *
-     * @param array $list
-     * @return array list of \MongoId
-     */
-    public static function mixedToMongoIdList(array $list)
-    {
-        return array_map(function($element) {
-            // MongoId
-            if($element instanceof \MongoId) {
-                return $element;
-            }
-
-            // \Sokil\Mongo\Document
-            if($element instanceof Document) {
-                return $element->getId();
-            }
-
-            // array with id key
-            if(is_array($element)) {
-                if(!isset($element['_id'])) {
-                    throw new \InvalidArgumentException('Array must have _id key');
-                }
-                return $element['_id'];
-            }
-
-            // string
-            if(is_string($element)) {
-                try {
-                    return new \MongoId($element);
-                } catch (\MongoException $e) {
-                    return $element;
-                }
-            }
-
-            // int
-            if(is_int($element)) {
-                return $element;
-            }
-
-            throw new \InvalidArgumentException('Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer');
-
-        }, array_values($list));
     }
 
     /**
@@ -427,6 +389,16 @@ abstract class Cursor implements \Iterator, \Countable
             ->count($this->expression->toArray(), $this->limit, $this->skip);
     }
 
+
+    /**
+     * Gte list of \MongoId of current search query
+     * @return array
+     */
+    public function getIdList()
+    {
+        return self::mixedToMongoIdList($this->findAll());
+    }
+    
     public function findOne()
     {
         $mongoDocument = $this->_collection
@@ -444,28 +416,6 @@ abstract class Cursor implements \Iterator, \Countable
         return $this->toObject($mongoDocument);
     }
 
-    public function asArray()
-    {
-        $this->_resultAsArray = true;
-        return $this;
-    }
-
-    public function asObject()
-    {
-        $this->_resultAsArray = false;
-        return $this;
-    }
-
-    /**
-     * Check if result returned as array
-     *
-     * @return bool
-     */
-    public function isResultAsArray()
-    {
-        return $this->_resultAsArray;
-    }
-
     /**
      *
      * @return array result of searching
@@ -475,6 +425,56 @@ abstract class Cursor implements \Iterator, \Countable
         return iterator_to_array($this);
     }
 
+    /**
+     * Get random document
+     * @return
+     */
+    public function findRandom()
+    {
+        $count = $this->count();
+
+        if(!$count) {
+            return null;
+        }
+
+        if(1 === $count) {
+            return $this->findOne();
+        }
+
+        return $this
+            ->skip(mt_rand(0, $count - 1))
+            ->limit(1)
+            ->current();
+    }
+
+    /**
+     * Get query builder's expression
+     *
+     * @return Expression
+     */
+    public function getExpression()
+    {
+        return $this->expression;
+    }
+
+    /**
+     * @deprecated since 1.11.8. Use Cursor::getMongoQuery()
+     * @return array expression
+     */
+    public function toArray()
+    {
+        return $this->getMongoQuery();
+    }
+
+    /**
+     * Get MongoDB query array
+     * @return array
+     */
+    public function getMongoQuery()
+    {
+        return $this->expression->toArray();
+    }
+    
     /**
      * Return the values from a single field in the result set of documents
      *
@@ -599,22 +599,14 @@ abstract class Cursor implements \Iterator, \Countable
         return $result;
     }
 
-    public function findRandom()
+    /**
+     * Get result set of documents.
+     * 
+     * @return \Sokil\Mongo\ResultSet
+     */
+    public function getResultSet()
     {
-        $count = $this->count();
-
-        if(!$count) {
-            return null;
-        }
-
-        if(1 === $count) {
-            return $this->findOne();
-        }
-
-        return $this
-            ->skip(mt_rand(0, $count - 1))
-            ->limit(1)
-            ->current();
+        return new ResultSet($this->findAll());
     }
 
     /**
@@ -632,11 +624,6 @@ abstract class Cursor implements \Iterator, \Countable
             ->setCurrentPage($page)
             ->setItemsOnPage($itemsOnPage);
 
-    }
-
-    public function toArray()
-    {
-        return $this->expression->toArray();
     }
 
     /**
@@ -882,5 +869,51 @@ abstract class Cursor implements \Iterator, \Countable
 
         // get hash
         return md5(implode(':', $hash));
+    }
+
+    /**
+     * Get list of MongoId objects from array of strings, MongoId's and Document's
+     *
+     * @param array $list
+     * @return array list of \MongoId
+     */
+    public static function mixedToMongoIdList(array $list)
+    {
+        return array_map(function($element) {
+            // MongoId
+            if($element instanceof \MongoId) {
+                return $element;
+            }
+
+            // \Sokil\Mongo\Document
+            if($element instanceof Document) {
+                return $element->getId();
+            }
+
+            // array with id key
+            if(is_array($element)) {
+                if(!isset($element['_id'])) {
+                    throw new \InvalidArgumentException('Array must have _id key');
+                }
+                return $element['_id'];
+            }
+
+            // string
+            if(is_string($element)) {
+                try {
+                    return new \MongoId($element);
+                } catch (\MongoException $e) {
+                    return $element;
+                }
+            }
+
+            // int
+            if(is_int($element)) {
+                return $element;
+            }
+
+            throw new \InvalidArgumentException('Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer');
+
+        }, array_values($list));
     }
 }
