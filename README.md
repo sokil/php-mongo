@@ -984,6 +984,35 @@ To get values from a single field in the result set of documents:
 $columnValues = $cursor->pluck('some.field.name');
 ```
 
+To map found documents:
+```php
+<?php
+$result = $collection->find()->map(function(Document $document) {
+    return $document->param;
+});
+```
+
+To filter found documents:
+```php
+<?php
+$result = $collection->find()->filter(function(Document $document) {
+    return $document->param % 2;
+});
+```
+
+To apply chain of functions to result, use `ResultSet`:
+```php
+<?php
+$collection->find()
+    ->getResultSet()
+    ->filter(function($doc) { return $doc->param % 2 })
+    ->filter(function($doc) { return $doc->param > 6 })
+    ->map(function($item) {
+        $item->param = 'update' . $item->param;
+        return $item;
+    });
+```
+
 ### Extending Query Builder
 
 For extending standart query builder class with custom condition methods you need to override property `Collection::$_queryExpressionClass` with class, which extends `\Sokil\Mongo\Expression`:
