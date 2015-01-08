@@ -1,3 +1,6 @@
+## 1.12.0 (2015-01-09)
+  * Apply chain of functions over result set
+
 ## 1.11.7 (2014-01-06)
   * Bug with passing behaviors, configured in mapping, to documents
 
