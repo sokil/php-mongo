@@ -25,6 +25,22 @@ class ResultSetTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testReduce()
+    {
+        $resultSet = new ResultSet(array(
+            1 => array('_id' => 1, 'field' => '10'),
+            2 => array('_id' => 2, 'field' => '20'),
+            3 => array('_id' => 3, 'field' => '30'),
+        ));
+
+        $value = $resultSet->reduce(function($accumulator, $item) {
+            $accumulator += $item['field'];
+            return $accumulator;
+        }, 0);
+
+        $this->assertEquals(60, $value);
+    }
+
     public function testFilter()
     {
         $resultSet = new ResultSet(array(

@@ -42,6 +42,17 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
+     *
+     * @param callable $callable apply arguments [$accumulator, $document]
+     * @param mixed $initial
+     * @return mixed
+     */
+    public function reduce($callable, $initial = null)
+    {
+        return array_reduce($this->documents, $callable, $initial);
+    }
+
+    /**
      * Count documents in result set
      * @return int count
      */
