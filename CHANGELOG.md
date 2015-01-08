@@ -1,19 +1,19 @@
 ## 1.12.0 (2015-01-09)
   * Apply chain of functions over result set
 
-## 1.11.7 (2014-01-06)
+## 1.11.7 (2015-01-06)
   * Bug with passing behaviors, configured in mapping, to documents
 
-## 1.11.6 (2014-01-06)
+## 1.11.6 (2015-01-06)
   * Refactor document validation exceptions. Exception `\Sokil\Mongo\Document\Exception\Validate` deprecated. Use `\Sokil\Mongo\Document\InvalidDocumentException`.
   * Allow to get matched params on regex mapping.
 
-## 1.11.5 (2014-01-06)
+## 1.11.5 (2015-01-06)
   * Configure cursor when get document by id to slice embedded documents or other reason
   * Add `Collection::update()` method that allow to define different update options
   * Refactoring and bugfixes
 
-## 1.11.4 (2014-01-04)
+## 1.11.4 (2015-01-04)
   * Allow unset field end check for empty value by php functions `unset` and `isset`
   * Attach behaviors in mapping
   * Bugfixes
