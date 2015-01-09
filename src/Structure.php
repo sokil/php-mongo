@@ -157,7 +157,7 @@ class Structure
      */
     public function set($selector, $value)
     {
-        $value = $this->prepareValue($value);
+        $value = self::prepareToStore($value);
 
         // modify
         $arraySelector = explode('.', $selector);
@@ -225,12 +225,12 @@ class Structure
         return isset($this->_data[$name]);
     }
 
-    private function prepareValue($value)
+    public static function prepareToStore($value)
     {
         // if array - try to prepare every value
         if(is_array($value)) {
             foreach($value as $k => $v) {
-                $value[$k] = $this->prepareValue($v);
+                $value[$k] = self::prepareToStore($v);
             }
 
             return $value;

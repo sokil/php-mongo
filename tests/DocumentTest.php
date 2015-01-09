@@ -285,7 +285,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
     }
 
-    public function testSetStructure()
+    public function testSetStructure_NewDocument()
     {
         $obj = new Structure;
         $obj->param = 'value';
@@ -294,6 +294,29 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $document = $this->collection->createDocument()
             ->set('d', $obj)
             ->save();
+
+        $this->assertEquals(
+            array('param' => 'value'),
+            $document->d
+        );
+
+        $this->assertEquals(
+            array('param' => 'value'),
+            $this->collection->getDocumentDirectly($document->getId())->d
+        );
+    }
+
+    public function testSetStructure_StoredDocument()
+    {
+        $document = $this->collection->createDocument([
+            'some' => 'field',
+        ])->save();
+
+        $obj = new Structure;
+        $obj->param = 'value';
+
+        // save
+        $document->set('d', $obj)->save();
 
         $this->assertEquals(
             array('param' => 'value'),

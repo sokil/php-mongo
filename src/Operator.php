@@ -25,7 +25,7 @@ class Operator
             $this->_operators['$set'] = array();
         }
         
-        $this->_operators['$set'][$fieldName] = $value;
+        $this->_operators['$set'][$fieldName] = Structure::prepareToStore($value);
         
         return $this;
     }
@@ -36,6 +36,9 @@ class Operator
         if(is_array($value)) {
             $value = array_values($value);
         }
+
+        // prepasre to store
+        $value = Structure::prepareToStore($value);
         
         // no $push operator found
         if(!isset($this->_operators['$push'])) {
@@ -67,7 +70,10 @@ class Operator
     {
         // value must be list, not dictionary
         $values = array_values($values);
-        
+
+        // prepasre to store
+        $values = Structure::prepareToStore($values);
+
         // no $push operator found
         if(!isset($this->_operators['$push'])) {
             $this->_operators['$push'] = array();
