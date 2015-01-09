@@ -1,3 +1,6 @@
+## 1.12.1 (2015-01-10)
+  * Set `Structure` to document as embedded document
+
 ## 1.12.0 (2015-01-09)
   * Apply chain of functions over result set
 

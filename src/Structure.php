@@ -251,6 +251,11 @@ class Structure
             return $value->jsonSerialize();
         }
 
+        // structure
+        if($value instanceof Structure) {
+            return $value->toArray();
+        }
+
         // other objects convert to array
         return (array) $value;
     }

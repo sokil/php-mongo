@@ -285,6 +285,27 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
     }
 
+    public function testSetStructure()
+    {
+        $obj = new Structure;
+        $obj->param = 'value';
+
+        // save
+        $document = $this->collection->createDocument()
+            ->set('d', $obj)
+            ->save();
+
+        $this->assertEquals(
+            array('param' => 'value'),
+            $document->d
+        );
+
+        $this->assertEquals(
+            array('param' => 'value'),
+            $this->collection->getDocumentDirectly($document->getId())->d
+        );
+    }
+
     public function testSetObject()
     {
         $obj = new \stdclass;
