@@ -308,9 +308,9 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testSetStructure_StoredDocument()
     {
-        $document = $this->collection->createDocument([
+        $document = $this->collection->createDocument(array(
             'some' => 'field',
-        ])->save();
+        ))->save();
 
         $obj = new Structure;
         $obj->param = 'value';
