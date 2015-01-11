@@ -2,23 +2,6 @@
 
 namespace Sokil\Mongo;
 
-class DocumentMock extends \Sokil\Mongo\Document
-{
-    protected $_data = array(
-        'status' => 'ACTIVE',
-        'profile' => array(
-            'name' => 'USER_NAME',
-            'birth' => array(
-                'year' => 1984,
-                'month' => 8,
-                'day' => 10,
-            )
-        ),
-        'interests' => 'none',
-        'languages' => array('php'),
-    );
-}
-
 class DocumentTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -246,7 +229,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($document->isStored());
     }
 
-    public function testSet_Unsaved()
+    public function testSet_NewDocument()
     {
         $document = $this->collection
             ->createDocument(array(
@@ -264,7 +247,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
     }
 
-    public function testSet_Saved()
+    public function testSet_NewKey_StoredDocument()
     {
         $document = $this->collection
             ->createDocument(array(
@@ -272,17 +255,207 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             ))
             ->save();
 
+        // update existed document
+        $document->set('a', 'value')->save();
+
+        // get document from db
         $document = $this->collection->getDocumentDirectly($document->getId());
+        $this->assertEquals('value', $document->get('a'));
+    }
 
-        $document->set('a.b.c', 'value1');
-        $this->assertEquals('value1', $document->get('a.b.c'));
-        $this->assertEquals(array('c' => 'value1'), $document->get('a.b'));
-        $this->assertEquals(array('b' => array('c' => 'value1')), $document->get('a'));
+    public function testSet_ExistedKey_StoredDocument()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'a' => 'value1',
+            ))
+            ->save();
 
-        $document->set('a.b.c', 'value2');
-        $this->assertEquals('value2', $document->get('a.b.c'));
-        $this->assertEquals(array('c' => 'value2'), $document->get('a.b'));
-        $this->assertEquals(array('b' => array('c' => 'value2')), $document->get('a'));
+        // update existed document
+        $document->set('a', 'value2')->save();
+
+        // get document from db
+        $document = $this->collection->getDocumentDirectly($document->getId());
+        $this->assertEquals('value2', $document->get('a'));
+    }
+
+    public function testSet_SubkeyOfNewKey_StoredDocument()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'param' => 1,
+            ))
+            ->save();
+
+        // update existed document
+        $document->set('a.b', 'value2')->save();
+
+        // get document from db
+        $document = $this->collection->getDocumentDirectly($document->getId());
+        $this->assertEquals('value2', $document->get('a.b'));
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Assigning sub-document to scalar value not allowed
+     */
+    public function testSet_NewScalarSubkeyOfExistedScalarKey_StoredDocument()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'a' => 1,
+                'b' => 2,
+            ))
+            ->save();
+
+        // update existed document
+        $document->set('a.b.c', 'value')->save();
+    }
+
+    public function testSet_NewScalarSubkeyOfExistedArrayKey_StoredDocument()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'a' => [
+                    'z' => 1,
+                ],
+                'b' => 2,
+            ))
+            ->save();
+
+        // update existed document
+        $document->set('a.b', 'value')->save();
+
+        // get document from db
+        $document = $this->collection->getDocumentDirectly($document->getId());
+        $data = $document->toArray();
+        unset($data['_id']);
+
+        $this->assertEquals(array(
+            'a' => array(
+                'b' => 'value',
+                'z' => 1
+            ),
+            'b' => 2,
+        ), $data);
+    }
+
+    public function testSet_ExistedScalarSubkeyOfExistedArrayKey_StoredDocument()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'a' => [
+                    'b' => array('some' => 'value'),
+                ],
+                'b' => 2,
+            ))
+            ->save();
+
+        // update existed document
+        $document->set('a.b', 'value')->save();
+
+        // get document from db
+        $document = $this->collection->getDocumentDirectly($document->getId());
+        $data = $document->toArray();
+        unset($data['_id']);
+
+        $this->assertEquals(array(
+            'a' => array(
+                'b' => 'value',
+            ),
+            'b' => 2,
+        ), $data);
+    }
+
+    public function testSet_SubkeyOverwrite_NewDocument()
+    {
+        /**
+         * Modify new document
+         */
+        $document = $this->collection
+            ->createDocument(array(
+                'param' => 'value',
+            ))
+            ->set('driving', array('license' => 1, 'other' => 'field'))
+            ->set('driving.license', 2);
+
+        $this->assertEquals(array(
+            'param' => 'value',
+            'driving' => array(
+                'other' => 'field',
+                'license' => 2,
+            )
+        ), $document->toArray());
+
+        /**
+         * Save new document
+         */
+        $document->save();
+
+        $data = $this->collection->getDocumentDirectly($document->getId())->toArray();
+        unset($data['_id']);
+        
+        $this->assertEquals(
+            array(
+                'param' => 'value',
+                'driving' => array(
+                    'other' => 'field',
+                    'license' => 2,
+                )
+            ),
+            $data
+        );
+    }
+
+    /**
+     * @todo now test fails because second set not overwrite first and occured exception:
+     * 
+     * MongoWriteConcernException: 127.0.0.1:27017: Cannot update 'driving' and 'driving.license' at the same time
+     * Need implementation of overwritting values
+     */
+    public function testSet_SubkeyOverwrite_StoredDocument()
+    {
+        $this->markTestSkipped("Cannot update 'driving' and 'driving.license' at the same time");
+        /**
+         * Modify existed document
+         */
+        $document = $this->collection
+            ->createDocument(array(
+                'param' => 'value',
+            ))
+            ->save()
+            ->set('driving', array('license' => 1, 'other' => 'field'))
+            ->set('driving.license', 2);
+
+        $data = $document->toArray();
+        unset($data['_id']);
+        
+        $this->assertEquals(array(
+            'param' => 'value',
+            'driving' => array(
+                'other' => 'field',
+                'license' => 2,
+            )
+        ), $data);
+
+        /**
+         * Save new document
+         */
+        $document->save();
+
+        $data = $this->collection->getDocumentDirectly($document->getId())->toArray();
+        unset($data['_id']);
+
+        $this->assertEquals(
+            array(
+                'param' => 'value',
+                'driving' => array(
+                    'other' => 'field',
+                    'license' => 2,
+                )
+            ),
+            $data
+        );
     }
 
     public function testSetStructure_NewDocument()
@@ -1504,4 +1677,21 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         // update document with error
         $document->set('p', 'v1')->save();
     }
+}
+
+class DocumentMock extends \Sokil\Mongo\Document
+{
+    protected $_data = array(
+        'status' => 'ACTIVE',
+        'profile' => array(
+            'name' => 'USER_NAME',
+            'birth' => array(
+                'year' => 1984,
+                'month' => 8,
+                'day' => 10,
+            )
+        ),
+        'interests' => 'none',
+        'languages' => array('php'),
+    );
 }

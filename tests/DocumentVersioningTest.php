@@ -115,7 +115,7 @@ class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
         $revision = $document->getRevision($key);
 
         $this->assertLessThan(2, $revision->getDate() - $timeNow);
-        $this->assertLessThan(2, strtotime($revision->getDate('Y-m-d H:i:s') - $timeNow));
+        $this->assertLessThan(2, strtotime($revision->getDate('Y-m-d H:i:s')) - $timeNow);
     }
     
     public function testGetRevisions()
