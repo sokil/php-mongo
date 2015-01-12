@@ -316,9 +316,9 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     {
         $document = $this->collection
             ->createDocument(array(
-                'a' => [
+                'a' => array(
                     'z' => 1,
-                ],
+                ),
                 'b' => 2,
             ))
             ->save();
@@ -344,9 +344,9 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     {
         $document = $this->collection
             ->createDocument(array(
-                'a' => [
+                'a' => array(
                     'b' => array('some' => 'value'),
-                ],
+                ),
                 'b' => 2,
             ))
             ->save();
