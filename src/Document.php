@@ -1382,15 +1382,16 @@ class Document extends Structure
     }
 
     /**
-     * Removes from an existing array all instances of a value or values that match a specified query
+     * Removes from an existing array all instances of a value or
+     * values that match a specified query
      *
-     * @param string $fieldName
-     * @param integer|string|array|\Sokil\Mongo\Expression $expression
+     * @param integer|string|array|\Sokil\Mongo\Expression|callable $expression
+     * @param mixed|\Sokil\Mongo\Expression|callable $value
      * @return \Sokil\Mongo\Document
      */
-    public function pull($fieldName, $expression)
+    public function pull($expression, $value = null)
     {
-        $this->_operator->pull($fieldName, $expression);
+        $this->_operator->pull($expression, $value);
         return $this;
     }
 

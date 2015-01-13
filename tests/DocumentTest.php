@@ -1410,7 +1410,10 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $this->collection->getDocumentDirectly($doc->getId())->some);
     }
 
-    public function testPullFromThreeDimensionalUsingExpressionArray()
+    /**
+     * @deprecated using expression as value
+     */
+    public function testPullFromThreeDimensionalUsingExpression()
     {
         $this->collection->delete();
 
@@ -1434,7 +1437,51 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->collection->saveDocument($doc);
 
         // push array to array
-        $doc->pull('some', $this->collection->expression()->where('sub.a', 1));
+        $doc->pull(function($e) {
+            $e->where('some', array('sub' => array('a' => 1)));
+        });
+
+        $this->collection->saveDocument($doc);
+
+        $this->assertEquals(array(
+            array(
+                'sub'  => array(
+                    array('a' => 3),
+                    array('b' => 4),
+                )
+            )
+        ), $this->collection->getDocument($doc->getId())->some);
+    }
+
+    public function testPullFromThreeDimensionalUsingExpressionInValue()
+    {
+        $this->collection->delete();
+
+        // create document
+        $doc = $this->collection->createDocument(array(
+            'some' => array(
+                array(
+                    'sub'  => array(
+                        array('a' => 1),
+                        array('b' => 2),
+                    )
+                ),
+                array(
+                    'sub'  => array(
+                        array('a' => 3),
+                        array('b' => 4),
+                    )
+                )
+            ),
+        ));
+        $this->collection->saveDocument($doc);
+
+        // push array to array
+        $doc->pull(
+            'some',
+            $this->collection->expression()->where('sub.a', 1)
+        );
+
         $this->collection->saveDocument($doc);
 
         $this->assertEquals(array(

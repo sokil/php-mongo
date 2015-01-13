@@ -1,3 +1,6 @@
+## 1.12.2@DEV
+  * `Operator` refactoring and bugfixes
+
 ## 1.12.1 (2015-01-10)
   * Set `Structure` to document as embedded document
 

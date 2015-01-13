@@ -139,9 +139,7 @@ class Operator
      * @throws \Sokil\Mongo\Exception
      */
     public function pushEachSort($field, array $sort)
-    {
-        $slice = (int) $slice;
-        
+    {        
         // add modifiers
         if(!$sort) {
             throw new Exception('Sort condition is empty');
@@ -151,17 +149,20 @@ class Operator
             throw new Exception('Field ' . $field . ' must be pushed with $each modifier');
         }
         
-        $this->_operators['$push'][$field]['$sort'] = $slice;
+        $this->_operators['$push'][$field]['$sort'] = $sort;
         
         return $this;
     }
 
     /**
-     * The $position modifier specifies the location in the array at which the $push operator insert elements. Without the $position modifier, the $push operator inserts elements to the end of the array. See $push modifiers for more information.
+     * The $position modifier specifies the location in the array at which
+     * the $push operator insert elements. Without the $position modifier,
+     * the $push operator inserts elements to the end of the array. See
+     * $push modifiers for more information.
      * 
      * @link http://docs.mongodb.org/manual/reference/operator/update/position
      * @param string $field
-     * @param int $position
+     * @param int $position non-negative number that corresponds to the position in the array, based on a zero-based index
      * @return \Sokil\Mongo\Operator
      * @throws \Sokil\Mongo\Exception
      */
@@ -175,7 +176,7 @@ class Operator
         }
         
         if(!isset($this->_operators['$push'][$field]['$each'])) {
-            throw new Exception('Field ' . $field . ' must be pushed wit $each modifier');
+            throw new Exception('Field ' . $field . ' must be pushed with $each modifier');
         }
         
         $this->_operators['$push'][$field]['$position'] = $position;
@@ -195,19 +196,68 @@ class Operator
         
         return $this;
     }
-    
-    public function pull($fieldName, $value)
+
+    /**
+     * The $pull operator removes from an existing array all instances of a
+     * value or values that match a specified query.
+     *
+     * @link http://docs.mongodb.org/manual/reference/operator/update/pull
+     * @param integer|string|\Sokil\Mongo\Expression|callable $expression
+     * @param mixed|\Sokil\Mongo\Expression|callable $value
+     * @return \Sokil\Mongo\Operator
+     */
+    public function pull($expression, $value = null)
     {
-        if($value instanceof Expression) {
-            $value = $value->toArray();
+        // field-value pulling
+        if($value) {
+
+            // expression
+            if(is_callable($value)) {
+                $configurator = $value;
+                $value = new Expression();
+                call_user_func($configurator, $value);
+            }
+
+            if($value instanceof Expression) {
+                $value = $value->toArray();
+            }
+            
+            $this->_operators['$pull'][$expression] = $value;
+            
+            return $this;
+        }
+
+        // expression
+        if(is_callable($expression)) {
+            $configurator = $expression;
+            $expression = new Expression();
+            call_user_func($configurator, $expression);
+        }
+
+        if($expression instanceof Expression) {
+            $expression = $expression->toArray();
+        } elseif(!is_array($expression)) {
+            throw new \InvalidArgumentException('Expression must be field name, callable or Expression object');
         }
         
-        // no $push operator found
-        $this->_operators['$pull'][$fieldName] = $value;
+        if(!isset($this->_operators['$pull'])) {
+            // no $pull operator found
+            $this->_operators['$pull'] = $expression;
+        } else {
+            // $pull operator found
+            $this->_operators['$pull'] = array_merge($this->_operators['$pull'], $expression);
+        }
         
         return $this;
     }
-    
+
+    /**
+     * The $unset operator deletes a particular field
+     * 
+     * @link http://docs.mongodb.org/manual/reference/operator/update/unset
+     * @param string $fieldName
+     * @return \Sokil\Mongo\Operator
+     */
     public function unsetField($fieldName)
     {
         $this->_operators['$unset'][$fieldName] = '';
