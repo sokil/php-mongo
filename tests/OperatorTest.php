@@ -219,21 +219,6 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testPull_Value_New()
-    {
-        $operator = new Operator();
-        $operator->pull('fieldName', 42);
-
-        $this->assertEquals(
-            array(
-                '$pull' => array(
-                    'fieldName' => 42,
-                ),
-            ),
-            $operator->getAll()
-        );
-    }
-
     public function testPull_MongoId()
     {
         $id = new \MongoId;
@@ -251,7 +236,22 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testPull_Value_Existed()
+    public function testPull_Value_Scalar_New()
+    {
+        $operator = new Operator();
+        $operator->pull('fieldName', 42);
+
+        $this->assertEquals(
+            array(
+                '$pull' => array(
+                    'fieldName' => 42,
+                ),
+            ),
+            $operator->getAll()
+        );
+    }
+
+    public function testPull_Value_Scalar_Existed()
     {
         $operator = new Operator();
         $operator->pull('fieldName', 41);
@@ -261,6 +261,25 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
             array(
                 '$pull' => array(
                     'fieldName' => 42,
+                ),
+            ),
+            $operator->getAll()
+        );
+    }
+
+    public function testPull_Value_QueryCallable()
+    {
+        $operator = new Operator();
+        $operator->pull('fieldName', function(Expression $e) {
+            $e->where('sub.field', 42);
+        });
+
+        $this->assertEquals(
+            array(
+                '$pull' => array(
+                    'fieldName' => array(
+                        'sub.field' => 42,
+                    ),
                 ),
             ),
             $operator->getAll()
