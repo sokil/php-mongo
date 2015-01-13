@@ -402,7 +402,7 @@ For example you have products in your shop `Song` and `VideoClip`, which inherit
 They have same fields like author or duration, but may also have other different fields and
 behaviors. This situation described in example [Product Catalog](http://docs.mongodb.org/ecosystem/use-cases/product-catalog/).
 
-You may flexibly configure document's class in `\Sokil\Mongo\Collection::getDocumentClassName()` relatively to concrete document's data:
+You may flexibly configure document's class in `\Sokil\Mongo\Collection::getDocumentClassName()` relatively to concrete value of field (this field called discriminator), or other more complex logic:
 
 ```php
 <?php
