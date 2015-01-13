@@ -371,6 +371,8 @@ echo $col1->getOption('regexp')[1]; // 42
 
 ### Document schema and validating
 
+#### Custom document class
+
 Custom document class may be useful when required some processing of date on load, getting or save. Custom document class must extend `\Sokil\Mongo\Document`.
 
 ```php
@@ -392,6 +394,13 @@ class CustomCollection extends \Sokil\Mongo\Collection
     }
 }
 ```
+
+#### Single Collection Inheritance
+
+Often useful to have different document classes, which store data in single collection.
+For example you have products in your shop `Song` and `VideoClip`, which inherit abstract `Product`.
+They have same fields like author or duration, but may also have other different fields and
+behaviors. This situation described in example [Product Catalog](http://docs.mongodb.org/ecosystem/use-cases/product-catalog/).
 
 You may flexibly configure document's class in `\Sokil\Mongo\Collection::getDocumentClassName()` relatively to concrete document's data:
 

@@ -1,5 +1,6 @@
-## 1.12.2@DEV
+## 1.12.2(2015-01-13)
   * `Operator` refactoring and bugfixes
+  * Fix Collection::update when update data set as array
 
 ## 1.12.1 (2015-01-10)
   * Set `Structure` to document as embedded document
