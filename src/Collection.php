@@ -844,6 +844,12 @@ class Collection implements \Countable
         // get operator from callable
         if(is_callable($updateData)) {
             $updateData = call_user_func($updateData, new Operator);
+        } elseif (is_array($updateData)) {
+            $updateDataOperators = new Operator();
+            foreach ($updateData as $fieldName => $value) {
+                $updateDataOperators->set($fieldName, $value);
+            }
+            $updateData = $updateDataOperators;
         }
 
         // get operator as array
