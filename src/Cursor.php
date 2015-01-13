@@ -398,7 +398,12 @@ abstract class Cursor implements \Iterator, \Countable
     {
         return self::mixedToMongoIdList($this->findAll());
     }
-    
+
+    /**
+     * Find one document which correspond to expression
+     * 
+     * @return \Sokil\Mongo\Document
+     */
     public function findOne()
     {
         $mongoDocument = $this->_collection

@@ -843,13 +843,15 @@ class Collection implements \Countable
 
         // get operator from callable
         if(is_callable($updateData)) {
-            $updateData = call_user_func($updateData, new Operator);
+            $operatorConfigurator = $updateData;
+            $updateData = new Operator();
+            call_user_func($operatorConfigurator, $updateData);
         }
 
         // get operator as array
         if($updateData instanceof Operator) {
             $updateData = $updateData->getAll();
-        } else {
+        } elseif(!is_array($updateData)) {
             throw new Exception('Operator must be instance of Operator or callable');
         }
 

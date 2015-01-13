@@ -363,6 +363,103 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testUpdate_UpdateDataIsOperatorObject()
+    {
+        // create documents
+        $this->collection->createDocument(array('p' => 1))->save();
+
+        $this->collection->update(
+            array(),
+            $this->collection->operator()->set('k', 'v')
+        );
+
+        // test
+        $data = $this->collection->find()->findOne()->toArray();
+        unset($data['_id']);
+
+        $this->assertEquals(
+            array(
+                'p' => 1,
+                'k' => 'v',
+            ),
+            $data
+        );
+    }
+
+    public function testUpdate_UpdateDataIsOperatorArray()
+    {
+        // create documents
+        $this->collection->createDocument(array('p' => 1))->save();
+
+        $this->collection->update(
+            array(),
+            array(
+                '$set' => array('k' => 'v'),
+            )
+        );
+
+        // test
+        $data = $this->collection->find()->findOne()->toArray();
+        unset($data['_id']);
+
+        $this->assertEquals(
+            array(
+                'p' => 1,
+                'k' => 'v',
+            ),
+            $data
+        );
+    }
+
+    public function testUpdate_UpdateDataIsOperatorCallable()
+    {
+        // create documents
+        $this->collection->createDocument(array('p' => 1))->save();
+
+        $this->collection->update(
+            array(),
+            function(Operator $o) {
+                $o->set('k', 'v');
+            }
+        );
+
+        // test
+        $data = $this->collection->find()->findOne()->toArray();
+        unset($data['_id']);
+
+        $this->assertEquals(
+            array(
+                'p' => 1,
+                'k' => 'v',
+            ),
+            $data
+        );
+    }
+
+    public function testUpdate_UpdateData()
+    {
+        $this->collection->disableDocumentPool();
+        
+        // create documents
+        $this->collection->createDocument(array('p' => 1))->save();
+
+        $this->collection->update(
+            array(),
+            array('k' => 'v')
+        );
+
+        // test
+        $data = $this->collection->find()->findOne()->refresh()->toArray();
+        unset($data['_id']);
+
+        $this->assertEquals(
+            array(
+                'k' => 'v',
+            ),
+            $data
+        );
+    }
+
     public function testUpdateMultiple_WithAcknowledgedWriteConcern()
     {
         // get collection
