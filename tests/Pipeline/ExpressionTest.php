@@ -30,6 +30,38 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $this->collection->delete();
     }
 
+    public function testAll()
+    {
+        $expression = new Expression;
+        $expression->all('$field1', '$field2');
+        
+        $this->assertEquals(
+            array(
+                '$and' => array(
+                    '$field1',
+                    '$field2',
+                )
+            ),
+            $expression->toArray()
+        );
+    }
+
+    public function testAny()
+    {
+        $expression = new Expression;
+        $expression->any('$field1', '$field2');
+
+        $this->assertEquals(
+            array(
+                '$or' => array(
+                    '$field1',
+                    '$field2',
+                )
+            ),
+            $expression->toArray()
+        );
+    }
+
     public function testNormalize_Literal()
     {
         $this->assertEquals(1, Expression::normalize(1));
