@@ -86,4 +86,99 @@ class ResultSetTest extends \PHPUnit_Framework_TestCase
             iterator_to_array($resultSet)
         );
     }
+
+    public function testKeys()
+    {
+        $resultSet = new ResultSet(array(
+            'a' => array('_id' => 'a', 'field' => 'value1'),
+            'b' => array('_id' => 'b', 'field' => 'value2'),
+            'c' => array('_id' => 'c', 'field' => 'value3'),
+        ));
+
+        $values = $resultSet->keys();
+
+        $this->assertEquals(array('a', 'b', 'c'), $values);
+    }
+
+    public function testValues()
+    {
+        $resultSet = new ResultSet(array(
+            'a' => array('_id' => 'a', 'field' => 'value1'),
+            'b' => array('_id' => 'b', 'field' => 'value2'),
+            'c' => array('_id' => 'c', 'field' => 'value3'),
+        ));
+
+        $values = $resultSet->values();
+
+        $this->assertEquals(array(
+            array('_id' => 'a', 'field' => 'value1'),
+            array('_id' => 'b', 'field' => 'value2'),
+            array('_id' => 'c', 'field' => 'value3'),
+        ), $values);
+    }
+
+    public function testToArray()
+    {
+        $resultSet = new ResultSet(array(
+            'a' => array('_id' => 'a', 'field' => 'value1'),
+            'b' => array('_id' => 'b', 'field' => 'value2'),
+            'c' => array('_id' => 'c', 'field' => 'value3'),
+        ));
+
+        $values = $resultSet->toArray();
+
+        $this->assertEquals(array(
+            'a' => array('_id' => 'a', 'field' => 'value1'),
+            'b' => array('_id' => 'b', 'field' => 'value2'),
+            'c' => array('_id' => 'c', 'field' => 'value3'),
+        ), $values);
+    }
+
+    public function testOffsetExists()
+    {
+        $resultSet = new ResultSet(array(
+            'a' => array('_id' => 'a', 'field' => 'value1'),
+            'b' => array('_id' => 'b', 'field' => 'value2'),
+            'c' => array('_id' => 'c', 'field' => 'value3'),
+        ));
+
+        $this->assertTrue(isset($resultSet['a']));
+    }
+
+    public function testOffsetSet()
+    {
+        $resultSet = new ResultSet(array(
+            'a' => array('_id' => 'a', 'field' => 'value1'),
+            'b' => array('_id' => 'b', 'field' => 'value2'),
+            'c' => array('_id' => 'c', 'field' => 'value3'),
+        ));
+
+        $resultSet['d'] = array('_id' => 'd', 'field' => 'value4');
+
+        $this->assertEquals(
+            array(
+                'a' => array('_id' => 'a', 'field' => 'value1'),
+                'b' => array('_id' => 'b', 'field' => 'value2'),
+                'c' => array('_id' => 'c', 'field' => 'value3'),
+                'd' => array('_id' => 'd', 'field' => 'value4'),
+            ),
+            $resultSet->toArray()
+        );
+    }
+
+    public function testOffsetGet()
+    {
+        $resultSet = new ResultSet(array(
+            'a' => array('_id' => 'a', 'field' => 'value1'),
+            'b' => array('_id' => 'b', 'field' => 'value2'),
+            'c' => array('_id' => 'c', 'field' => 'value3'),
+        ));
+
+        $resultSet['d'] = array('_id' => 'd', 'field' => 'value4');
+
+        $this->assertEquals(
+            array('_id' => 'b', 'field' => 'value2'),
+            $resultSet['b']
+        );
+    }
 }
