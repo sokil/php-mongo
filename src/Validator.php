@@ -16,7 +16,10 @@ abstract class Validator
     public function getName()
     {
         $class = explode('\\', get_called_class());
-        return strtolower(array_pop($class));
+        $class = strtolower(array_pop($class));
+
+        // remove 'validator' suffix
+        return substr($class, 0, -9);
     }
     
     abstract public function validateField(Document $document, $fieldName, array $params);
