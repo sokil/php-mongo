@@ -1095,6 +1095,11 @@ class Document extends Structure
     public function addError($fieldName, $ruleName, $message)
     {
         $this->_errors[$fieldName][$ruleName] = $message;
+
+        // Deprecated. Related to bug when suffix not removed from class.
+        // Added for back compatibility and will be removed in next versions
+        $this->_errors[$fieldName][$ruleName . 'validator'] = $message;
+        
         return $this;
     }
 

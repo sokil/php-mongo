@@ -789,6 +789,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'field' => array(
                 'validateEquals42' => 'Not equals to 42',
+                'validateEquals42validator' => 'Not equals to 42',
             ),
             ), $document->getErrors());
     }
