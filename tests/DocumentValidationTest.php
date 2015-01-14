@@ -415,7 +415,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             array(
                 'some-field-name' => array(
-                    'lengthvalidator' => 'Field "some-field-name" length not equal to 5 in model Sokil\\Mongo\\Validator\\LengthValidator',
+                    'length' => 'Field "some-field-name" length not equal to 5 in model Sokil\\Mongo\\Validator\\LengthValidator',
                 ),
             ),
             $document->getErrors()
@@ -575,6 +575,82 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
 
         $document->set('some-field-name', 42);
         $this->assertTrue($document->isValid());
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Type not specified
+     */
+    public function testIsValid_TypeValidator_TypeNotSpecified()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document', array('rules'), array($this->collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(
+                array(
+                    array('some-field-name', 'type')
+                )
+            ));
+
+        $document->set('some-field-name', 42);
+        $document->validate();
+    }
+
+    public function testIsValid_TypeValidator_DefaultMessageForOneType()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document', array('rules'), array($this->collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(
+                array(
+                    array('some-field-name', 'type', array('int'))
+                )
+            ));
+
+        $document->set('some-field-name', 'iAmNot42');
+        $this->assertFalse($document->isValid());
+        $this->assertEquals(
+            array(
+                'some-field-name' => array(
+                    'type' => '',
+                ),
+            ),
+            $document->getErrors()
+        );
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Type must be one of array, bool, callable, double, float, int, integer, long, null, numeric, object, real, resource, scalar, string
+     */
+    public function testIsValid_TypeValidator_UnexistedType()
+    {
+        // mock of document
+        $document = $this->getMock(
+            '\Sokil\Mongo\Document', array('rules'), array($this->collection)
+        );
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(
+                array(
+                    array('some-field-name', 'type', 'iAmWrongType')
+                )
+            ));
+
+        $document->set('some-field-name', 42);
+        $document->validate();
     }
 
     public function testIsValid_FieldCardNumber()

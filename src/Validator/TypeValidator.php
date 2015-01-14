@@ -63,6 +63,10 @@ class TypeValidator extends \Sokil\Mongo\Validator
         }
 
         $document->addError($fieldName, $this->getName(), $params['message']);
+
+        // Deprecated. Related to bug when suffix not removed from class.
+        // Added for back compatibility and will be removed in next versions
+        $document->addError($fieldName, $this->getName() . 'validator', $params['message']);
     }
 
 }
