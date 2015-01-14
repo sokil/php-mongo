@@ -416,6 +416,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             array(
                 'some-field-name' => array(
                     'length' => 'Field "some-field-name" length not equal to 5 in model Sokil\\Mongo\\Validator\\LengthValidator',
+                    'lengthvalidator' => 'Field "some-field-name" length not equal to 5 in model Sokil\\Mongo\\Validator\\LengthValidator',
                 ),
             ),
             $document->getErrors()
@@ -622,7 +623,8 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             array(
                 'some-field-name' => array(
-                    'type' => '',
+                    'type' => 'Field "some-field-name" must be of type int in Sokil\Mongo\Validator\TypeValidator',
+                    'typevalidator' => 'Field "some-field-name" must be of type int in Sokil\Mongo\Validator\TypeValidator',
                 ),
             ),
             $document->getErrors()
