@@ -80,12 +80,12 @@ class Database
      */
     public function authenticate($username, $password)
     {
-        $result = $this->mongoDB->authenticate($username, $password);
+        $this->mongoDB->authenticate($username, $password);
     }
 
     public function logout()
     {
-        $result = $this->executeCommand(array(
+        $this->executeCommand(array(
             'logout' => 1,
         ));
     }

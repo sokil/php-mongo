@@ -492,14 +492,9 @@ class Collection implements \Countable
             // load and before getting in second place may be changed
             // and this changes must be preserved:
             //
-            // 1. Here document loads and modifies
-            // $document = $collection->getDocument()->set('field', 'value');
-            //
-            // 2. Here document modified in another session
-            //
-            // 3. Here document loads once again.
-            //    Changes from stage 2 merges as unmodified
-            // $collection->find();
+            // 1. Document loads and modifies in current session
+            // 2. Document loads modified in another session
+            // 3. Document loads once again in current session. Changes from stage 2 merges as unmodified
 
             $this->documentPool[$documentId]->mergeUnmodified($document->toArray());
         }
@@ -702,7 +697,7 @@ class Collection implements \Countable
         $document->triggerEvent('afterDelete');
 
         if(true !== $status && $status['ok'] != 1) {
-            throw new Exception('Delete document error: ' . $status['err']);
+            throw new Exception(sprintf('Delete document error: %s', $status['err']));
         }
 
         // drop from document's pool
@@ -865,7 +860,11 @@ class Collection implements \Countable
         // if write concern acknowledged
         if(is_array($result)) {
             if($result['ok'] != 1) {
-                throw new Exception('Update error: ' . $result['err'] . ': ' . $result['errmsg']);
+                throw new Exception(sprintf(
+                    'Update error: %s: %s',
+                    $result['err'],
+                    $result['errmsg']
+                ));
             }
 
             return $this;

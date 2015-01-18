@@ -1502,7 +1502,11 @@ class Document extends Structure
             );
 
             if ($status['ok'] != 1) {
-                throw new Exception('Update error: ' . $status['err'] . ': ' . $status['errmsg']);
+                throw new Exception(sprintf(
+                    'Update error: %s: %s',
+                    $status['err'],
+                    $status['errmsg']
+                ));
             }
 
             if ($this->getOperator()->isReloadRequired()) {
