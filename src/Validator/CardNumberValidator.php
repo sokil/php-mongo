@@ -21,8 +21,9 @@ class CardNumberValidator extends \Sokil\Mongo\Validator
     private function getMod($cardNumber)
     {        
         $digitList = str_split($cardNumber);
+        $digitListLength = count($digitList);
         
-        for($i = 0; $i < count($digitList); $i = $i + 2) {
+        for($i = 0; $i < $digitListLength; $i = $i + 2) {
             $digit = $digitList[$i] * 2;
             if($digit > 9) {
                 $digit -= 9;
