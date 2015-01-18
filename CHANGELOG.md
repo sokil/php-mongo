@@ -1,9 +1,9 @@
-## 1.12.3@DEV
+## 1.12.3 (2015-01-18)
   * Fixed bug with naming of validator in errors array. Removed suffix 'validator'.
   * Behavior refactoring. 
 Old validator name is kept for back compatibility and will be removed in next versions
 
-## 1.12.2(2015-01-13)
+## 1.12.2 (2015-01-13)
   * `Operator` refactoring and bugfixes
   * Fix Collection::update when update data set as array
 
