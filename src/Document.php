@@ -1160,26 +1160,38 @@ class Document extends Structure
     public function attachBehaviors(array $behaviors)
     {
         foreach ($behaviors as $name => $behavior) {
-
-            if (!($behavior instanceof Behavior)) {
-                if (empty($behavior['class'])) {
-                    throw new Exception('Behavior class not specified');
-                }
-
-                $className = $behavior['class'];
-                unset($behavior['class']);
-
-                $behavior = new $className($behavior);
-            }
-
             $this->attachBehavior($name, $behavior);
         }
 
         return $this;
     }
 
-    public function attachBehavior($name, Behavior $behavior)
+    /**
+     *
+     * @param string $name unique name of attached behavior
+     * @param string|array|\Sokil\Mongo\Behavior $behavior Behavior instance or behavior definition
+     * @return \Sokil\Mongo\Document
+     * @throws Exception
+     */
+    public function attachBehavior($name, $behavior)
     {
+        if(is_string($behavior)) {
+            // behavior defined as string
+            $className = $behavior;
+            $behavior = new $className();
+        } elseif(is_array($behavior)) {
+            // behavior defined as array
+            if (empty($behavior['class'])) {
+                throw new Exception('Behavior class not specified');
+            }
+            $className = $behavior['class'];
+            unset($behavior['class']);
+            $behavior = new $className($behavior);
+        } elseif (!($behavior instanceof Behavior)) {
+            // behavior bust be Behavior instance, but something else found
+            throw new Exception('Wrong behavior specified with name ' . $name);
+        }
+
         $behavior->setOwner($this);
 
         $this->_behaviors[$name] = $behavior;

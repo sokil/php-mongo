@@ -17,12 +17,12 @@ class Database
      *
      * @var \Sokil\Mongo\Client
      */
-    private $_client;
+    private $client;
 
     /**
      * @var \MongoDB
      */
-    private $_mongoDB;
+    private $mongoDB;
 
     /**
      * @var array map collection name to class
@@ -63,12 +63,12 @@ class Database
     private $defultGridFsClass = '\Sokil\Mongo\GridFS';
 
     public function __construct(Client $client, $database) {
-        $this->_client = $client;
+        $this->client = $client;
 
         if($database instanceof \MongoDB) {
-            $this->_mongoDB = $database;
+            $this->mongoDB = $database;
         } else {
-            $this->_mongoDB = $this->_client->getMongoClient()->selectDB($database);
+            $this->mongoDB = $this->client->getMongoClient()->selectDB($database);
         }
 
     }
@@ -80,7 +80,7 @@ class Database
      */
     public function authenticate($username, $password)
     {
-        $result = $this->_mongoDB->authenticate($username, $password);
+        $result = $this->mongoDB->authenticate($username, $password);
     }
 
     public function logout()
@@ -100,7 +100,7 @@ class Database
      */
     public function getName()
     {
-        return $this->_mongoDB->__toString();
+        return $this->mongoDB->__toString();
     }
 
     /**
@@ -109,7 +109,7 @@ class Database
      */
     public function getMongoDB()
     {
-        return $this->_mongoDB;
+        return $this->mongoDB;
     }
 
     /**
@@ -118,7 +118,7 @@ class Database
      */
     public function getClient()
     {
-        return $this->_client;
+        return $this->client;
     }
 
     public function disableCollectionPool()
@@ -396,37 +396,37 @@ class Database
 
     public function readPrimaryOnly()
     {
-        $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);
+        $this->mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
 
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->_mongoDB->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+        $this->mongoDB->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
 
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->_mongoDB->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+        $this->mongoDB->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
 
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->_mongoDB->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        $this->mongoDB->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
 
     public function readNearest(array $tags = null)
     {
-        $this->_mongoDB->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+        $this->mongoDB->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
 
     public function getReadPreference()
     {
-        return $this->_mongoDB->getReadPreference();
+        return $this->mongoDB->getReadPreference();
     }
 
     /**
@@ -440,7 +440,7 @@ class Database
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
-        if(!$this->_mongoDB->setWriteConcern($w, (int) $timeout)) {
+        if(!$this->mongoDB->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
         }
 
@@ -481,7 +481,7 @@ class Database
      */
     public function getWriteConcern()
     {
-        return $this->_mongoDB->getWriteConcern();
+        return $this->mongoDB->getWriteConcern();
     }
 
     /**

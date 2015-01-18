@@ -1,5 +1,6 @@
 ## 1.12.3@DEV
   * Fixed bug with naming of validator in errors array. Removed suffix 'validator'.
+  * Behavior refactoring. 
 Old validator name is kept for back compatibility and will be removed in next versions
 
 ## 1.12.2(2015-01-13)

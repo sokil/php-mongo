@@ -1572,8 +1572,12 @@ $document
 Behaviors
 ----------
 
-Behavior is a posibility to extend functionality of document object and reuse code among documents of different class.
-Behavior is a class extended from `\Sokil\Mongo\Behavior`:
+Behavior is a posibility to extend functionality of document object and reuse 
+code among documents of different class.
+
+Behavior is a class extended from `\Sokil\Mongo\Behavior`. Any public method may be 
+accessed through document, where behavior is attached.
+
 ```php
 <?php
 class SomeBehavior extends \Sokil\Mongo\Behavior
@@ -1614,7 +1618,32 @@ class CustomDocument extends \Sokil\Mongo\Document
 You can attach behavior in runtime too:
 ```php
 <?php
-$document->attachBehavior(new \SomeBehavior);
+// single behavior
+$document->attachBehavior('42behavior', '\SomeBehavior');
+// set of behaviors
+$document->attachBehaviors([
+    '42behavior' => '\SomeBehavior',
+]);
+```
+
+Behaviors may be defined as fully qualified class names, arrays, or `Behavior` instances:
+```php
+<?php
+// class name
+$document->attachBehavior('42behavior', '\SomeBehavior');
+
+// array with parameters
+$document->attachBehavior('42behavior', [
+    'class'     => '\SomeBehavior',
+    'param1'    => 1,
+    'param2'    => 2,
+]);
+
+// Behavior instance
+$document->attachBehavior('42behavior', new \SomeBehavior([
+    'param1'    => 1,
+    'param2'    => 2,
+]);
 ```
 
 Then you can call any methods of behaviors. This methods searches in order of atraching behaviors:

@@ -18,23 +18,28 @@ namespace Sokil\Mongo;
  */
 abstract class Behavior
 {
-    private $_owner;
+    private $owner;
     
-    private $_options;
+    private $options;
     
     public function __construct(array $options = array()) 
-    {        
-        $this->_options = $options;
+    {
+        $this->options = $options;
+    }
+
+    protected function getOption($name)
+    {
+        return isset($this->options[$name]) ? $this->options[$name] : null;
     }
     
     public function setOwner($owner)
     {
-        $this->_owner = $owner;
+        $this->owner = $owner;
         return $this;
     }
     
     protected function getOwner()
     {
-        return $this->_owner;
+        return $this->owner;
     }
 }

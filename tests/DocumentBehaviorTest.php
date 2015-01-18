@@ -48,21 +48,61 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
         $document->unexistedMethod();
     }
     
-    public function testBehaviorOwner()
+    public function testGetOwner()
     {
-        $document = $this->collection->createDocument(array('param' => 42));
+        $document = $this->collection->createDocument(
+            array('param' => 42)
+        );
         
-        $document->attachBehavior('someBehavior', new SomeBehavior());
+        $document->attachBehavior(
+            'someBehavior',
+            new SomeBehavior()
+        );
         
-        $this->assertEquals(42, $document->getOwnerParam('param'));
+        $this->assertEquals(
+            42,
+            $document->returnOwnerParam('param')
+        );
     }
 
-    public function testAttachBehaviors_AsInstanceOfbehaviorClass()
+    public function testGetOption()
+    {
+        $document = $this->collection->createDocument(
+            array('param' => 42)
+        );
+
+        $document->attachBehavior(
+            'someBehavior',
+            array(
+                'class' => '\Sokil\Mongo\SomeBehavior',
+                'param' => 'value',
+            )
+        );
+
+        $this->assertEquals(
+            'value',
+            $document->returnOption('param')
+        );
+    }
+
+    public function testAttachBehaviors_AsClassName()
+    {
+        $document = $this->collection->createDocument(array('param' => 0));
+        $document->attachBehaviors(array(
+            'get42' => '\Sokil\Mongo\SomeBehavior',
+        ));
+
+        $this->assertEquals(42, $document->return42());
+    }
+
+    public function testAttachBehaviors_AsInstanceOfBehaviorClass()
     {
         $document = $this->collection->createDocument(array('param' => 0));
         $document->attachBehaviors(array(
             'get42' => new SomeBehavior(),
         ));
+
+        $this->assertEquals(42, $document->return42());
     }
 
     public function testAttachBehaviors_AsArray()
@@ -74,6 +114,8 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
                 'param' => 'value',
             )
         ));
+
+        $this->assertEquals(42, $document->return42());
     }
 
     /**
@@ -143,8 +185,13 @@ class SomeBehavior extends \Sokil\Mongo\Behavior
         return 42;
     }
 
-    public function getOwnerParam($name)
+    public function returnOwnerParam($name)
     {
         return $this->getOwner()->get($name);
+    }
+
+    public function returnOption($name)
+    {
+        return $this->getOption($name);
     }
 }
