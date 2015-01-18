@@ -6,6 +6,7 @@ PHPMongo
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Documentation Status](https://readthedocs.org/projects/phpmongo/badge/?version=latest)](https://readthedocs.org/projects/phpmongo/?badge=latest)
 [![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6/mini.png)](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6)
 
 #### PHP ODM for MongoDB.
 
