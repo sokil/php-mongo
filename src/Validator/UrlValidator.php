@@ -12,7 +12,7 @@
 namespace Sokil\Mongo\Validator;
 
 class UrlValidator extends \Sokil\Mongo\Validator
-{
+{    
     public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
     {
         $value = $document->get($fieldName);
@@ -39,8 +39,8 @@ class UrlValidator extends \Sokil\Mongo\Validator
         }
         
         // ping required
-        $headers = @get_headers($value, true);
-        if(!$headers) {
+        $dnsRecordExists = dns_get_record(parse_url($value, PHP_URL_HOST));
+        if(!$dnsRecordExists) {
             if (!isset($params['message'])) {
                 $params['message'] = 'Value of field "' . $fieldName . '" is valid url but host is unreachable in model ' . get_called_class();
             }
@@ -48,6 +48,8 @@ class UrlValidator extends \Sokil\Mongo\Validator
             $document->addError($fieldName, $this->getName(), $params['message']);
             return;
         }
+
+        $headers = get_headers($value, true);
         
         $isAccessible = false;
         $i = 0;
