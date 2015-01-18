@@ -81,34 +81,34 @@ class Document extends Structure
     /**
      * @var array validator errors
      */
-    private $_errors = array();
+    private $errors = array();
 
     /**
      * @var array manually added validator errors
      */
-    private $_triggeredErrors = array();
+    private $triggeredErrors = array();
 
     /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcher Event Dispatcher instance
      */
-    private $_eventDispatcher;
+    private $eventDispatcher;
 
     /**
      * @var \Sokil\Mongo\Operator Modification operator instance
      */
-    private $_operator;
+    private $operator;
 
     /**
      *
      * @var array list of defined behaviors
      */
-    private $_behaviors = array();
+    private $behaviors = array();
 
     /**
      *
      * @var array list of namespaces
      */
-    private $_validatorNamespaces = array(
+    private $validatorNamespaces = array(
         '\Sokil\Mongo\Validator',
     );
 
@@ -135,7 +135,7 @@ class Document extends Structure
         $this->options = $options + $this->options;
 
         // init document
-        $this->_init();
+        $this->initDocument();
 
         // execute before construct callable
         $this->beforeConstruct();
@@ -167,7 +167,7 @@ class Document extends Structure
         }
 
         // execure after construct event handlers
-        $this->_eventDispatcher->dispatch('afterConstruct');
+        $this->eventDispatcher->dispatch('afterConstruct');
     }
 
     public function getOptions()
@@ -193,7 +193,7 @@ class Document extends Structure
      */
     public function addValidatorNamespace($namespace)
     {
-        $this->_validatorNamespaces[] = rtrim($namespace, '\\');
+        $this->validatorNamespaces[] = rtrim($namespace, '\\');
         return $this;
     }
 
@@ -227,14 +227,14 @@ class Document extends Structure
         parent::reset();
 
         // reset errors
-        $this->_errors = array();
-        $this->_triggeredErrors = array();
+        $this->errors = array();
+        $this->triggeredErrors = array();
 
         // reset behaviors
         $this->clearBehaviors();
 
         // init delegates
-        $this->_init();
+        $this->initDocument();
 
         return $this;
     }
@@ -258,7 +258,7 @@ class Document extends Structure
 
         $this->_modifiedFields = array();
 
-        $this->_operator = $this->getCollection()->operator();
+        $this->operator = $this->getCollection()->operator();
 
         return $this;
     }
@@ -266,13 +266,16 @@ class Document extends Structure
     /**
      * Initialise relative classes
      */
-    private function _init()
+    private function initDocument()
     {
-        $this->_eventDispatcher = new EventDispatcher;
-        $this->_operator = $this->getCollection()->operator();
-
-        $this->attachBehaviors($this->behaviors());
+        // start event dispatching
+        $this->eventDispatcher = new EventDispatcher;
         
+        // create operator
+        $this->operator = $this->getCollection()->operator();
+
+        // attacj behaviors
+        $this->attachBehaviors($this->behaviors());
         if($this->hasOption('behaviors')) {
             $this->attachBehaviors($this->getOption('behaviors'));
         }
@@ -287,7 +290,7 @@ class Document extends Structure
     {
 
         // behaviors
-        foreach ($this->_behaviors as $behavior) {
+        foreach ($this->behaviors as $behavior) {
             if (!method_exists($behavior, $name)) {
                 continue;
             }
@@ -310,7 +313,7 @@ class Document extends Structure
 
     public function __get($name)
     {
-        if ($this->_isRelationExists($name)) {
+        if ($this->isRelationExists($name)) {
             // resolve relation
             return $this->getRelated($name);
         } else {
@@ -537,7 +540,7 @@ class Document extends Structure
      * @param string $name
      * @return boolean
      */
-    private function _isRelationExists($name)
+    private function isRelationExists($name)
     {
         $relations = $this->relations();
 
@@ -660,7 +663,7 @@ class Document extends Structure
 
     public function addRelation($relationName, Document $document)
     {
-        if (!$this->_isRelationExists($relationName)) {
+        if (!$this->isRelationExists($relationName)) {
             throw new \Exception('Relation "' . $relationName . '" not configured');
         }
 
@@ -719,7 +722,7 @@ class Document extends Structure
 
     public function removeRelation($relationName, Document $document = null)
     {
-        if (!$this->_isRelationExists($relationName)) {
+        if (!$this->isRelationExists($relationName)) {
             throw new \Exception('Relation ' . $relationName . ' not configured');
         }
 
@@ -792,7 +795,7 @@ class Document extends Structure
 
         $event->setTarget($this);
 
-        return $this->_eventDispatcher->dispatch($eventName, $event);
+        return $this->eventDispatcher->dispatch($eventName, $event);
     }
 
     /**
@@ -803,7 +806,7 @@ class Document extends Structure
      */
     public function attachEvent($event, $handler)
     {
-        $this->_eventDispatcher->addListener($event, $handler);
+        $this->eventDispatcher->addListener($event, $handler);
         return $this;
     }
 
@@ -815,78 +818,78 @@ class Document extends Structure
      */
     public function hasEvent($event)
     {
-        return $this->_eventDispatcher->hasListeners($event);
+        return $this->eventDispatcher->hasListeners($event);
     }
 
     public function onAfterConstruct($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('afterConstruct', $handler, $priority);
+        $this->eventDispatcher->addListener('afterConstruct', $handler, $priority);
         return $this;
     }
 
     public function onBeforeValidate($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('beforeValidate', $handler, $priority);
+        $this->eventDispatcher->addListener('beforeValidate', $handler, $priority);
         return $this;
     }
 
     public function onAfterValidate($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('afterValidate', $handler, $priority);
+        $this->eventDispatcher->addListener('afterValidate', $handler, $priority);
         return $this;
     }
 
     public function onValidateError($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('validateError', $handler, $priority);
+        $this->eventDispatcher->addListener('validateError', $handler, $priority);
         return $this;
     }
 
     public function onBeforeInsert($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('beforeInsert', $handler, $priority);
+        $this->eventDispatcher->addListener('beforeInsert', $handler, $priority);
         return $this;
     }
 
     public function onAfterInsert($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('afterInsert', $handler, $priority);
+        $this->eventDispatcher->addListener('afterInsert', $handler, $priority);
         return $this;
     }
 
     public function onBeforeUpdate($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('beforeUpdate', $handler, $priority);
+        $this->eventDispatcher->addListener('beforeUpdate', $handler, $priority);
         return $this;
     }
 
     public function onAfterUpdate($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('afterUpdate', $handler, $priority);
+        $this->eventDispatcher->addListener('afterUpdate', $handler, $priority);
         return $this;
     }
 
     public function onBeforeSave($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('beforeSave', $handler, $priority);
+        $this->eventDispatcher->addListener('beforeSave', $handler, $priority);
         return $this;
     }
 
     public function onAfterSave($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('afterSave', $handler, $priority);
+        $this->eventDispatcher->addListener('afterSave', $handler, $priority);
         return $this;
     }
 
     public function onBeforeDelete($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('beforeDelete', $handler, $priority);
+        $this->eventDispatcher->addListener('beforeDelete', $handler, $priority);
         return $this;
     }
 
     public function onAfterDelete($handler, $priority = 0)
     {
-        $this->_eventDispatcher->addListener('afterDelete', $handler, $priority);
+        $this->eventDispatcher->addListener('afterDelete', $handler, $priority);
         return $this;
     }
 
@@ -981,7 +984,7 @@ class Document extends Structure
             $className = ucfirst(strtolower($ruleName));
         }
 
-        foreach ($this->_validatorNamespaces as $namespace) {
+        foreach ($this->validatorNamespaces as $namespace) {
             $fullyQualifiedClassName = $namespace . '\\' . $className . 'Validator';
             if (class_exists($fullyQualifiedClassName)) {
                 return $fullyQualifiedClassName;
@@ -997,7 +1000,7 @@ class Document extends Structure
      */
     public function isValid()
     {
-        $this->_errors = array();
+        $this->errors = array();
 
         foreach ($this->rules() as $rule) {
             $fields = array_map('trim', explode(',', $rule[0]));
@@ -1068,7 +1071,7 @@ class Document extends Structure
 
     public function hasErrors()
     {
-        return ($this->_errors || $this->_triggeredErrors);
+        return ($this->errors || $this->triggeredErrors);
     }
 
     /**
@@ -1080,7 +1083,7 @@ class Document extends Structure
      */
     public function getErrors()
     {
-        return array_merge_recursive($this->_errors, $this->_triggeredErrors);
+        return array_merge_recursive($this->errors, $this->triggeredErrors);
     }
 
     /**
@@ -1094,11 +1097,11 @@ class Document extends Structure
      */
     public function addError($fieldName, $ruleName, $message)
     {
-        $this->_errors[$fieldName][$ruleName] = $message;
+        $this->errors[$fieldName][$ruleName] = $message;
 
         // Deprecated. Related to bug when suffix not removed from class.
         // Added for back compatibility and will be removed in next versions
-        $this->_errors[$fieldName][$ruleName . 'validator'] = $message;
+        $this->errors[$fieldName][$ruleName . 'validator'] = $message;
         
         return $this;
     }
@@ -1111,7 +1114,7 @@ class Document extends Structure
      */
     public function addErrors(array $errors)
     {
-        $this->_errors = array_merge_recursive($this->_errors, $errors);
+        $this->errors = array_merge_recursive($this->errors, $errors);
         return $this;
     }
 
@@ -1125,7 +1128,7 @@ class Document extends Structure
      */
     public function triggerError($fieldName, $ruleName, $message)
     {
-        $this->_triggeredErrors[$fieldName][$ruleName] = $message;
+        $this->triggeredErrors[$fieldName][$ruleName] = $message;
         return $this;
     }
 
@@ -1137,7 +1140,7 @@ class Document extends Structure
      */
     public function triggerErrors(array $errors)
     {
-        $this->_triggeredErrors = array_merge_recursive($this->_triggeredErrors, $errors);
+        $this->triggeredErrors = array_merge_recursive($this->triggeredErrors, $errors);
         return $this;
     }
 
@@ -1148,7 +1151,7 @@ class Document extends Structure
      */
     public function clearTriggeredErrors()
     {
-        $this->_triggeredErrors = array();
+        $this->triggeredErrors = array();
         return $this;
     }
 
@@ -1194,25 +1197,25 @@ class Document extends Structure
 
         $behavior->setOwner($this);
 
-        $this->_behaviors[$name] = $behavior;
+        $this->behaviors[$name] = $behavior;
 
         return $this;
     }
 
     public function clearBehaviors()
     {
-        $this->_behaviors = array();
+        $this->behaviors = array();
         return $this;
     }
 
     public function getOperator()
     {
-        return $this->_operator;
+        return $this->operator;
     }
 
     public function isModificationOperatorDefined()
     {
-        return $this->_operator->isDefined();
+        return $this->operator->isDefined();
     }
 
     /**
@@ -1228,7 +1231,7 @@ class Document extends Structure
 
         // if document saved - save through update
         if ($this->getId()) {
-            $this->_operator->set($fieldName, $value);
+            $this->operator->set($fieldName, $value);
         }
 
         return $this;
@@ -1249,7 +1252,7 @@ class Document extends Structure
         parent::unsetField($fieldName);
 
         if ($this->getId()) {
-            $this->_operator->unsetField($fieldName);
+            $this->operator->unsetField($fieldName);
         }
 
         return $this;
@@ -1299,7 +1302,7 @@ class Document extends Structure
 
         // if document saved - save through update
         if ($this->getId()) {
-            $this->_operator->set($selector, $this->get($selector));
+            $this->operator->set($selector, $this->get($selector));
         }
 
         return $this;
@@ -1323,25 +1326,25 @@ class Document extends Structure
         // field not exists
         if (!$oldValue) {
             if ($this->getId()) {
-                $this->_operator->push($fieldName, $value);
+                $this->operator->push($fieldName, $value);
             }
             $value = array($value);
         } // field already exist and has single value
         elseif (!is_array($oldValue)) {
             $value = array_merge((array) $oldValue, array($value));
             if ($this->getId()) {
-                $this->_operator->set($fieldName, $value);
+                $this->operator->set($fieldName, $value);
             }
         } // field exists and is array
         else {
             if ($this->getId()) {
                 // check if array because previous $set operation on single value was executed
-                $setValue = $this->_operator->get('$set', $fieldName);
+                $setValue = $this->operator->get('$set', $fieldName);
                 if ($setValue) {
                     $setValue[] = $value;
-                    $this->_operator->set($fieldName, $setValue);
+                    $this->operator->set($fieldName, $setValue);
                 } else {
-                    $this->_operator->push($fieldName, $value);
+                    $this->operator->push($fieldName, $value);
                 }
             }
             $value = array_merge($oldValue, array($value));
@@ -1366,12 +1369,12 @@ class Document extends Structure
 
         if ($this->getId()) {
             if (!$oldValue) {
-                $this->_operator->pushEach($fieldName, $values);
+                $this->operator->pushEach($fieldName, $values);
             } elseif (!is_array($oldValue)) {
                 $values = array_merge((array) $oldValue, $values);
-                $this->_operator->set($fieldName, $values);
+                $this->operator->set($fieldName, $values);
             } else {
-                $this->_operator->pushEach($fieldName, $values);
+                $this->operator->pushEach($fieldName, $values);
                 $values = array_merge($oldValue, $values);
             }
         } else {
@@ -1408,7 +1411,7 @@ class Document extends Structure
      */
     public function pull($expression, $value = null)
     {
-        $this->_operator->pull($expression, $value);
+        $this->operator->pull($expression, $value);
         return $this;
     }
 
@@ -1417,7 +1420,7 @@ class Document extends Structure
         parent::set($fieldName, (int) $this->get($fieldName) + $value);
 
         if ($this->getId()) {
-            $this->_operator->increment($fieldName, $value);
+            $this->operator->increment($fieldName, $value);
         }
 
 
@@ -1434,7 +1437,7 @@ class Document extends Structure
         parent::set($field, (int) $this->get($field) & $value);
 
         if ($this->getId()) {
-            $this->_operator->bitwiceAnd($field, $value);
+            $this->operator->bitwiceAnd($field, $value);
         }
 
         return $this;
@@ -1445,7 +1448,7 @@ class Document extends Structure
         parent::set($field, (int) $this->get($field) | $value);
 
         if ($this->getId()) {
-            $this->_operator->bitwiceOr($field, $value);
+            $this->operator->bitwiceOr($field, $value);
         }
 
         return $this;
@@ -1460,9 +1463,9 @@ class Document extends Structure
 
         if ($this->getId()) {
             if(version_compare($this->getCollection()->getDatabase()->getClient()->getDbVersion(), '2.6', '>=')) {
-                $this->_operator->bitwiceXor($field, $value);
+                $this->operator->bitwiceXor($field, $value);
             } else {
-                $this->_operator->set($field, $newValue);
+                $this->operator->set($field, $newValue);
             }
         }
 

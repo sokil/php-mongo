@@ -908,7 +908,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             ->addValidatorNamespace('\Vendor\Mongo\Validator\\');
 
         $reflectionClass = new \ReflectionClass($document);
-        $property = $reflectionClass->getProperty('_validatorNamespaces');
+        $property = $reflectionClass->getProperty('validatorNamespaces');
         $property->setAccessible(true);
 
         $namespaces = $property->getValue($document);

@@ -502,10 +502,10 @@ abstract class Cursor implements \Iterator, \Countable
         }
 
         // if field with subdocument or native php function not exists
-        return $this->_pluck($fieldName);
+        return $this->pluckDotNoteted($fieldName);
     }
 
-    private function _pluck($fieldName)
+    private function pluckDotNoteted($fieldName)
     {
         if($this->isResultAsArray()) {
             $queryBuilder = clone $this;

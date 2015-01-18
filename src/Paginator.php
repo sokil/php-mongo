@@ -13,11 +13,11 @@ namespace Sokil\Mongo;
 
 class Paginator implements \Iterator
 {
-    private $_currentPage = 1;
+    private $currentPage = 1;
     
-    private $_itemsOnPage = 30;
+    private $itemsOnPage = 30;
     
-    private $_totalRowsCount;
+    private $totalRowsCount;
     
     /**
      *
@@ -44,10 +44,10 @@ class Paginator implements \Iterator
      */
     public function setItemsOnPage($itemsOnPage)
     {
-        $this->_itemsOnPage = (int) $itemsOnPage;
+        $this->itemsOnPage = (int) $itemsOnPage;
         
         // define offset
-        $this->_applyLimits();
+        $this->applyLimits();
         
         return $this;
     }
@@ -59,10 +59,10 @@ class Paginator implements \Iterator
      */
     public function setCurrentPage($currentPage)
     {        
-        $this->_currentPage = (int) $currentPage;
+        $this->currentPage = (int) $currentPage;
         
         // define offset
-        $this->_applyLimits();
+        $this->applyLimits();
         
         return $this;
     }
@@ -77,8 +77,8 @@ class Paginator implements \Iterator
             return 1;
         }
         
-        if($this->_currentPage <= $totalPageCount) {
-            $currentPage = $this->_currentPage;
+        if($this->currentPage <= $totalPageCount) {
+            $currentPage = $this->currentPage;
         } else {
             $currentPage = $totalPageCount;
         }
@@ -96,7 +96,7 @@ class Paginator implements \Iterator
     {
         $this->_cursor = clone $cursor;
         
-        $this->_applyLimits();
+        $this->applyLimits();
         
         return $this;
     }
@@ -115,21 +115,21 @@ class Paginator implements \Iterator
     
     public function getTotalRowsCount()
     {
-        if($this->_totalRowsCount) {
-            return $this->_totalRowsCount;
+        if($this->totalRowsCount) {
+            return $this->totalRowsCount;
         }
         
-        $this->_totalRowsCount = $this->_cursor->count();
+        $this->totalRowsCount = $this->_cursor->count();
         
-        return $this->_totalRowsCount;
+        return $this->totalRowsCount;
     }
     
     public function getTotalPagesCount()
     {
-        return (int) ceil($this->getTotalRowsCount() / $this->_itemsOnPage);
+        return (int) ceil($this->getTotalRowsCount() / $this->itemsOnPage);
     }
     
-    private function _applyLimits()
+    private function applyLimits()
     {
         if(!$this->_cursor) {
             return;
@@ -139,8 +139,8 @@ class Paginator implements \Iterator
         
         // get page of rows
         $this->_cursor
-            ->limit($this->_itemsOnPage)
-            ->skip(($currentPage - 1) * $this->_itemsOnPage);
+            ->limit($this->itemsOnPage)
+            ->skip(($currentPage - 1) * $this->itemsOnPage);
     }
     
     /**

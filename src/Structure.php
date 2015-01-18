@@ -363,33 +363,32 @@ class Structure
 
 
     /**
-     * Recursive function to merge data without setting modification mark
+     * Recursive function to merge data for Structure::mergeUnmodified()
      *
      * @param array $target
      * @param array $source
      */
-    private function _mergeUnmodified(array &$target, array $source)
+    private function mergeUnmodifiedPartial(array &$target, array $source)
     {
         foreach($source as $key => $value) {
             if(is_array($value) && isset($target[$key])) {
-                $this->_mergeUnmodified($target[$key], $value);
-            }
-            else {
+                $this->mergeUnmodifiedPartial($target[$key], $value);
+            } else {
                 $target[$key] = $value;
             }
         }
     }
 
     /**
-     * Merge array to current structure
+     * Merge array to current structure without setting modification mark
      *
      * @param array $data
      * @return \Sokil\Mongo\Structure
      */
     public function mergeUnmodified(array $data)
     {
-        $this->_mergeUnmodified($this->_data, $data);
-        $this->_mergeUnmodified($this->_originalData, $data);
+        $this->mergeUnmodifiedPartial($this->_data, $data);
+        $this->mergeUnmodifiedPartial($this->_originalData, $data);
 
         return $this;
     }
@@ -404,18 +403,18 @@ class Structure
     }
 
     /**
-     * Recursive function to merge data with setting modification mark
+     * Recursive function to merge data for Structure::merge()
      *
      * @param array $document
      * @param array $updatedDocument
      * @param string $prefix
      */
-    private function _merge(array &$document, array $updatedDocument, $prefix = null)
+    private function mergePartial(array &$document, array $updatedDocument, $prefix = null)
     {
         foreach($updatedDocument as $key => $newValue) {
             // if original data is embedded document and value also - then merge
             if(is_array($newValue) && isset($document[$key]) && $this->isEmbeddedDocument($document[$key])) {
-                $this->_merge($document[$key], $newValue, $prefix . $key . '.');
+                $this->mergePartial($document[$key], $newValue, $prefix . $key . '.');
             }
             // in other cases just set new value
             else {
@@ -426,14 +425,14 @@ class Structure
     }
 
     /**
-     * Merge array to current structure
+     * Merge array to current structure with setting modification mark
      *
      * @param array $data
      * @return \Sokil\Mongo\Structure
      */
     public function merge(array $data)
     {
-        $this->_merge($this->_data, $data);
+        $this->mergePartial($this->_data, $data);
         return $this;
     }
 
