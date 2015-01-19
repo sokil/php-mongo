@@ -1090,9 +1090,9 @@ class Document extends Structure
      * Add validator error from validator classes and methods. This error
      * reset on every revalidation
      *
-     * @param type $fieldName
-     * @param type $ruleName
-     * @param type $message
+     * @param string $fieldName dot-notated field name
+     * @param string $ruleName name of validation rule
+     * @param string $message error message
      * @return \Sokil\Mongo\Document
      */
     public function addError($fieldName, $ruleName, $message)
