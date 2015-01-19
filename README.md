@@ -7,6 +7,7 @@ PHPMongo
 [![Documentation Status](https://readthedocs.org/projects/phpmongo/badge/?version=latest)](https://readthedocs.org/projects/phpmongo/?badge=latest)
 [![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6/mini.png)](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sokil/php-mongo/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sokil/php-mongo/?branch=master)
 
 #### PHP ODM for MongoDB.
 
@@ -1573,10 +1574,10 @@ $document
 Behaviors
 ----------
 
-Behavior is a posibility to extend functionality of document object and reuse 
+Behavior is a posibility to extend functionality of document object and reuse
 code among documents of different class.
 
-Behavior is a class extended from `\Sokil\Mongo\Behavior`. Any public method may be 
+Behavior is a class extended from `\Sokil\Mongo\Behavior`. Any public method may be
 accessed through document, where behavior is attached.
 
 ```php
