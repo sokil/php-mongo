@@ -173,6 +173,32 @@ class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals(42, $document->return42());
         }
     }
+
+    public function testPublicMethods()
+    {
+        $behavior = new \Sokil\Mongo\SomeBehavior();
+        $reflection = new \ReflectionClass($behavior);
+
+        $methods = array_map(
+            function($method) {
+                return $method->getName();
+            },
+            $reflection->getMethods(\ReflectionMethod::IS_PUBLIC)
+        );
+
+        $this->assertEquals(
+            array(
+                // behaviors
+                'return42',
+                'returnOwnerParam',
+                'returnOption',
+                // internal methods
+                '__construct',
+                'setOwner',
+            ),
+            $methods
+        );
+    }
 }
 
 /**
