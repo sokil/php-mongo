@@ -47,20 +47,20 @@ abstract class Cursor implements \Iterator, \Countable
     private $readPreference = array();
 
     /**
-     *
-     * @var string If specified in child class - overload config from collection class
+     * If specified in child class - overload config from collection class
+     * @var string
      */
     protected $_queryExpressionClass;
 
     /**
-     *
-     * @var type Return result as array or as Document instance
+     * Return result as array or as Document instance
+     * @var boolean 
      */
     protected $_resultAsArray = false;
 
     /**
-     *
-     * @var boolean results are arrays instead of objects
+     * Cursor options
+     * @var array
      */
     private $options = array(
         'expressionClass'   => '\Sokil\Mongo\Expression'
@@ -68,7 +68,6 @@ abstract class Cursor implements \Iterator, \Countable
 
     /**
      * Use document pool to create Document object from array
-     *
      * @var bool
      */
     private $isDocumentPoolUsed = true;
@@ -402,7 +401,7 @@ abstract class Cursor implements \Iterator, \Countable
     /**
      * Find one document which correspond to expression
      * 
-     * @return \Sokil\Mongo\Document
+     * @return \Sokil\Mongo\Document|array|null
      */
     public function findOne()
     {
@@ -473,6 +472,7 @@ abstract class Cursor implements \Iterator, \Countable
 
     /**
      * Get MongoDB query array
+     * 
      * @return array
      */
     public function getMongoQuery()
@@ -483,8 +483,8 @@ abstract class Cursor implements \Iterator, \Countable
     /**
      * Return the values from a single field in the result set of documents
      *
-     * @param type $fieldName
-     * @return type
+     * @param string $fieldName
+     * @return array
      */
     public function pluck($fieldName)
     {
@@ -505,6 +505,12 @@ abstract class Cursor implements \Iterator, \Countable
         return $this->pluckDotNoteted($fieldName);
     }
 
+    /**
+     * Pluck by dot-notated field name
+     * 
+     * @param string $fieldName field name
+     * @return array
+     */
     private function pluckDotNoteted($fieldName)
     {
         if($this->isResultAsArray()) {

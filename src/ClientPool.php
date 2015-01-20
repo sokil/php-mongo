@@ -18,20 +18,30 @@ namespace Sokil\Mongo;
  */
 class ClientPool
 {
-    private $_pool = array();
+    private $pool = array();
     
-    private $_configuration;
+    private $configuration;
     
     public function __construct(array $configuration = array())
     {
-        $this->_configuration = $configuration;
+        $this->configuration = $configuration;
     }
-    
-    public function addConnection($name, $dsn = null, $mapping = null, $defaultDatabase = null, array $options = null)
+
+    /**
+     * Add connection to pool
+     *
+     * @param string $name connection identifier
+     * @param string $dsn data source name
+     * @param array $mapping mapping configuration
+     * @param string $defaultDatabase name of database used as default
+     * @param array $connectOptions connect options
+     * @return \Sokil\Mongo\ClientPool
+     */
+    public function addConnection($name, $dsn = null, array $mapping = null, $defaultDatabase = null, array $connectOptions = null)
     {
-        $this->_configuration[$name] = array(
+        $this->configuration[$name] = array(
             'dsn'               => $dsn,
-            'connectOptions'    => $options,
+            'connectOptions'    => $connectOptions,
             'defaultDatabase'   => $defaultDatabase,
             'mapping'           => $mapping,
         );
@@ -47,47 +57,47 @@ class ClientPool
     /**
      * Get instance of connection
      * 
-     * @param string $name
-     * @return \Sokil\Mongo\ClientPool
-     * @throws \Exception
+     * @param string $name connection identifier
+     * @return \Sokil\Mongo\Client
+     * @throws \Sokil\Mongo\Exception
      */
     public function get($name)
     {
         // get from cache
-        if(isset($this->_pool[$name])) {
-            return $this->_pool[$name];
+        if(isset($this->pool[$name])) {
+            return $this->pool[$name];
         }
         
         // check if connection exists
-        if(!isset($this->_configuration[$name])) {
+        if(!isset($this->configuration[$name])) {
             throw new Exception('Connection with name ' . $name . ' not found');
         }
         
         // check if dsn exists
-        if(!isset($this->_configuration[$name]['dsn'])) {
-            $this->_configuration[$name]['dsn'] = null;
+        if(!isset($this->configuration[$name]['dsn'])) {
+            $this->configuration[$name]['dsn'] = null;
         }
         
         // check if connect options exists
-        if(empty($this->_configuration[$name]['connectOptions'])) {
-            $this->_configuration[$name]['connectOptions'] = null;
+        if(empty($this->configuration[$name]['connectOptions'])) {
+            $this->configuration[$name]['connectOptions'] = null;
         }
         
         // init client
         $client = new Client(
-            $this->_configuration[$name]['dsn'],
-            $this->_configuration[$name]['connectOptions']
+            $this->configuration[$name]['dsn'],
+            $this->configuration[$name]['connectOptions']
         );
         
-        if(isset($this->_configuration[$name]['mapping'])) {
-            $client->map($this->_configuration[$name]['mapping']);
+        if(isset($this->configuration[$name]['mapping'])) {
+            $client->map($this->configuration[$name]['mapping']);
         }
         
-        if(isset($this->_configuration[$name]['defaultDatabase'])) {
-            $client->useDatabase($this->_configuration[$name]['defaultDatabase']);
+        if(isset($this->configuration[$name]['defaultDatabase'])) {
+            $client->useDatabase($this->configuration[$name]['defaultDatabase']);
         }
         
-        $this->_pool[$name] = $client;
+        $this->pool[$name] = $client;
         
         return $client;
     }

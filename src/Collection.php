@@ -44,7 +44,7 @@ class Collection implements \Countable
      *
      * @var string Default class for document
      */
-    private $_documentClass = '\Sokil\Mongo\Document';
+    private $documentClass = '\Sokil\Mongo\Document';
 
     /**
      * List of arrays, where each item array is an index definition.
@@ -106,7 +106,7 @@ class Collection implements \Countable
      * index: list of collection indexes
      * behaviors: list of document behaviors
      */
-    private $_options = array();
+    private $options = array();
 
     public function __construct(Database $database, $collection, array $options = null)
     {
@@ -136,7 +136,7 @@ class Collection implements \Countable
      */
     private function setOptions(array $options)
     {
-        $this->_options = $options + $this->_options;
+        $this->options = $options + $this->options;
 
         return $this;
     }
@@ -148,7 +148,7 @@ class Collection implements \Countable
      */
     public function enableVersioning()
     {
-        $this->_options['versioning'] = true;
+        $this->options['versioning'] = true;
         return $this;
     }
 
@@ -168,7 +168,7 @@ class Collection implements \Countable
      */
     public function getDefaultDocumentClass()
     {
-        $class = $this->getOption('documentClass', $this->_documentClass);
+        $class = $this->getOption('documentClass', $this->documentClass);
 
         // May be fully qualified class name or callable that return fully qualified class name
         if(!is_callable($class) && !class_exists($class)) {
@@ -184,7 +184,7 @@ class Collection implements \Countable
      */
     public function getOptions()
     {
-        return $this->_options;
+        return $this->options;
     }
 
     /**
@@ -195,7 +195,7 @@ class Collection implements \Countable
      */
     public function getOption($name, $default = null)
     {
-        return isset($this->_options[$name]) ? $this->_options[$name] : $default;
+        return isset($this->options[$name]) ? $this->options[$name] : $default;
     }
 
     public function __get($name)
