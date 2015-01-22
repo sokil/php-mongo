@@ -166,7 +166,7 @@ class Database
      * Map collection name to class
      *
      * @param string|array $name collection name or array like [collectionName => collectionClass, ...]
-     * @param string|null $classDefinition if $name is string, then full class name, else omitted
+     * @param string|array|null $classDefinition if $name is string, then full class name or array with parameters, else omitted
      * @return \Sokil\Mongo\Client
      */
     public function map($name, $classDefinition = null)
