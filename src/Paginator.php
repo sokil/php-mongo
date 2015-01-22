@@ -21,9 +21,9 @@ class Paginator implements \Iterator
     
     /**
      *
-     * @var \Sokil\Mongo\QueryBuilder
+     * @var \Sokil\Mongo\Cursor
      */
-    private $_cursor;
+    private $cursor;
     
     public function __construct(Cursor $cursor = null)
     {
@@ -34,7 +34,7 @@ class Paginator implements \Iterator
     
     public function __destruct()
     {
-        $this->_cursor = null;
+        $this->cursor = null;
     }
     
     /**
@@ -94,7 +94,7 @@ class Paginator implements \Iterator
      */
     public function setCursor(Cursor $cursor)
     {
-        $this->_cursor = clone $cursor;
+        $this->cursor = clone $cursor;
         
         $this->applyLimits();
         
@@ -119,7 +119,7 @@ class Paginator implements \Iterator
             return $this->totalRowsCount;
         }
         
-        $this->totalRowsCount = $this->_cursor->count();
+        $this->totalRowsCount = $this->cursor->count();
         
         return $this->totalRowsCount;
     }
@@ -131,14 +131,14 @@ class Paginator implements \Iterator
     
     private function applyLimits()
     {
-        if(!$this->_cursor) {
+        if(!$this->cursor) {
             return;
         }
         
         $currentPage = $this->getCurrentPage();
         
         // get page of rows
-        $this->_cursor
+        $this->cursor
             ->limit($this->itemsOnPage)
             ->skip(($currentPage - 1) * $this->itemsOnPage);
     }
@@ -148,28 +148,28 @@ class Paginator implements \Iterator
      */
     public function current()
     {
-        return $this->_cursor->current();
+        return $this->cursor->current();
     }
     
     public function key()
     {
-        return $this->_cursor->key();
+        return $this->cursor->key();
     }
     
     public function next()
     {
-        $this->_cursor->next();
+        $this->cursor->next();
         return $this;
     }
     
     public function rewind()
     {
-        $this->_cursor->rewind();
+        $this->cursor->rewind();
         return $this;
     }
     
     public function valid()
     {
-        return $this->_cursor->valid();
+        return $this->cursor->valid();
     }
 }
