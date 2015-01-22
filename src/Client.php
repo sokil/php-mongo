@@ -395,6 +395,6 @@ class Client
      */
     public function createPersistence()
     {
-        return new Persistence($this);
+        return new Persistence();
     }
 }
