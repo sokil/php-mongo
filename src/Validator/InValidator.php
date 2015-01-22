@@ -25,10 +25,10 @@ class InValidator extends \Sokil\Mongo\Validator
         }
         
         if (!isset($params['message'])) {
-            $rule['message'] = 'Field "' . $fieldName . '" not in range of allowed values in model ' . get_called_class();
+            $params['message'] = 'Field "' . $fieldName . '" not in range of allowed values in model ' . get_called_class();
         }
 
-        $document->addError($fieldName, $this->getName(), $rule['message']);
+        $document->addError($fieldName, $this->getName(), $params['message']);
         
     }
 

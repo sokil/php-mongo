@@ -93,7 +93,7 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($document->isValid());
     }
 
-    public function testIsValid_FieldInRange()
+    public function testIsValid_FieldInRange_Success()
     {
         // mock of document
         $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
@@ -101,19 +101,67 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('rules')
             ->will($this->returnValue(array(
-                    array('some-field-name', 'in', 'range' => array('acceptedValue1', 'acceptedValue2'))
+                array('some-field-name', 'in', 'range' => array('acceptedValue1', 'acceptedValue2')),
         )));
 
         // required field empty
         $this->assertTrue($document->isValid());
 
-        // required field set to wrong value
+        // required field set to valid value
+        $document->set('some-field-name1', 'acceptedValue1');
+        $this->assertTrue($document->isValid());
+    }
+
+    public function testIsValid_FieldInRange_Error_DefaultMessage()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'in', 'range' => array('acceptedValue1', 'acceptedValue2')),
+        )));
+
+        // required field empty
+        $this->assertTrue($document->isValid());
+
+        // required field set to wrong value - default error message
         $document->set('some-field-name', 'wrongValue');
         $this->assertFalse($document->isValid());
 
-        // required field set to valid value
-        $document->set('some-field-name', 'acceptedValue1');
+        $this->assertEquals(array(
+            'some-field-name' => array(
+                'in' => 'Field "some-field-name" not in range of allowed values in model Sokil\Mongo\Validator\InValidator',
+                'invalidator' => 'Field "some-field-name" not in range of allowed values in model Sokil\Mongo\Validator\InValidator',
+            )
+        ), $document->getErrors());
+    }
+
+    public function testIsValid_FieldInRange_Error_CustomMessage()
+    {
+        // mock of document
+        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('some-field-name', 'in', 'range' => array('acceptedValue1', 'acceptedValue2'), 'message' => 'not in range'),
+        )));
+
+        // required field empty
         $this->assertTrue($document->isValid());
+
+        // required field set to wrong value - default error message
+        $document->set('some-field-name', 'wrongValue');
+        $this->assertFalse($document->isValid());
+
+        $this->assertEquals(array(
+            'some-field-name' => array(
+                'in' => 'not in range',
+                'invalidator' => 'not in range',
+            )
+        ), $document->getErrors());
     }
 
     /**
