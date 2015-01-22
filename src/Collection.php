@@ -584,10 +584,12 @@ class Collection implements \Countable
 
     /**
      * Get document by id
+     * If callable specified, document always loaded directly omitting document pool.
+     * Method may return document as array if cursor configured through Cursor::asArray()
      *
      * @param string|\MongoId $id
      * @param callable $callable cursor callable used to configure cursor
-     * @return \Sokil\Mongo\Document|null
+     * @return \Sokil\Mongo\Document|array|null
      */
     public function getDocument($id, $callable = null)
     {
@@ -595,13 +597,15 @@ class Collection implements \Countable
             return $this->getDocumentDirectly($id, $callable);
         }
 
-        if($this->isDocumentInDocumentPool($id)) {
+        if(!$callable && $this->isDocumentInDocumentPool($id)) {
             return $this->getDocumentFromDocumentPool($id);
         }
 
         $document = $this->getDocumentDirectly($id, $callable);
 
-        if($document) {
+        // if callable configure cursor to return document as array,
+        // than it can't be stored to document pool
+        if($document instanceof Document) {
             $this->addDocumentToDocumentPool($document);
         }
 
@@ -611,10 +615,11 @@ class Collection implements \Countable
 
     /**
      * Get document by id directly omitting cache
-     *
+     * Method may return document as array if cursor configured through Cursor::asArray()
+     * 
      * @param string|\MongoId $id
      * @param callable $callable cursor callable used to configure cursor
-     * @return \Sokil\Mongo\Document|null
+     * @return \Sokil\Mongo\Document|array|null
      */
     public function getDocumentDirectly($id, $callable = null)
     {

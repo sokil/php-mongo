@@ -1,6 +1,9 @@
+## 1.12.4@DEV
+  * If callable in `Dollection::getDocument()` specified, document always loaded directly omitting document pool.
+
 ## 1.12.3 (2015-01-18)
   * Fixed bug with naming of validator in errors array. Removed suffix 'validator'.
-  * Behavior refactoring. 
+  * Behavior refactoring.
   * Old validator name is kept for back compatibility and will be removed in next versions
 
 ## 1.12.2 (2015-01-13)

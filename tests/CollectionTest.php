@@ -47,6 +47,116 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
 
+    public function testGetDocumentDirectly()
+    {
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $this->collection->updateAll(array(
+            '$set' => array('param' => 'updatedValue')
+        ));
+
+        // already loaded document
+        $this->assertEquals('value', $document->param);
+
+        // get document from pool
+        $this->assertEquals(
+            'value',
+            $this->collection->getDocument($document->getId())->param
+        );
+
+        $this->assertEquals(
+            'updatedValue',
+            $this->collection->getDocumentDirectly($document->getId())->param
+        );
+    }
+
+    public function testGetDocument_ConfigureCursor_DocumentPoolMustBeOmitted()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'param' => 'value'
+            ))
+            ->save();
+
+        $this->assertTrue($this->collection->isDocumentInDocumentPool($document));
+
+        // get document with wrong param
+        $this->assertEmpty(
+            $this->collection
+                ->getDocument(
+                    $document->getId(),
+                    function($cursor) {
+                        $cursor->where('param', 'notValidValue');
+                    }
+                )
+        );
+
+        // get document with valid param
+        $this->assertEquals(
+            'value',
+            $this->collection
+                ->getDocument(
+                    $document->getId(),
+                    function($cursor) {
+                        $cursor->where('param', 'value');
+                    }
+                )
+                ->param
+        );
+    }
+
+    public function testGetDocument_ConfigureCursor_getAsArray()
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'param' => 'value'
+            ))
+            ->save();
+
+        $this->assertTrue($this->collection->isDocumentInDocumentPool($document));
+
+        // get document with wrong param
+        $this->assertEquals(
+            array('param' => 'value'),
+            $this->collection
+                ->getDocument(
+                    $document->getId(),
+                    function($cursor) {
+                        $cursor
+                            ->asArray()
+                            ->skipField('_id');
+                    }
+                )
+        );
+    }
+
+    public function testGetDocument_ConfigureCursor_ReturnAsArray()
+    {
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $this->collection->updateAll(array(
+            '$set' => array('param' => 'updatedValue')
+        ));
+
+        // already loaded document
+        $this->assertEquals('value', $document->param);
+
+        // get document from pool
+        $this->assertEquals(
+            'value',
+            $this->collection->getDocument($document->getId())->param
+        );
+
+        $this->assertEquals(
+            'updatedValue',
+            $this->collection->getDocumentDirectly($document->getId())->param
+        );
+    }
+
     public function testGetDocument_WrongId()
     {
         // get document

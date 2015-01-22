@@ -631,6 +631,8 @@ $document = $collection->getDocument(
 );
 ```
 
+Note that if callable specified, document always loaded directly omitting document pool.
+
 Create new document
 -------------------
 
