@@ -83,8 +83,8 @@ class GridFS extends Collection
      * Get file instance by id of document
      * Used \MongoGridFS::findOne() instead of \MongoGridFS::get() due to backward compatibility with old mongo extensions
      *
-     * @param $id
-     * @return \Sokil\Mongo\GridFSFile
+     * @param \MongoId|string|int $id
+     * @return \Sokil\Mongo\GridFSFile|null
      */
     public function getFileById($id)
     {

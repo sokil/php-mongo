@@ -79,8 +79,9 @@ class Revision extends \Sokil\Mongo\Document
     
     /**
      * Get date
-     * 
-     * @return \MongoDate
+     *
+     * @param string $format format of date compartible with php's date function
+     * @return \MongoDate|string
      */
     public function getDate($format = null)
     {

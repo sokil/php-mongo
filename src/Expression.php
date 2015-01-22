@@ -94,9 +94,9 @@ class Expression
      * Selects the documents where the value of a
      * field equals any value in the specified array.
      *
-     * @param type $field
+     * @param string $field
      * @param array $values
-     * @return type
+     * @return \Sokil\Mongo\Expression
      */
     public function whereIn($field, array $values)
     {
@@ -272,7 +272,7 @@ class Expression
      *
      * @param type $field
      * @param \Sokil\Mongo\Expression|callable|array $expression
-     * @return type
+     * @return \Sokil\Mongo\Expression
      */
     public function whereElemNotMatch($field, $expression)
     {
@@ -282,9 +282,9 @@ class Expression
     /**
      * Selects documents if the array field is a specified size.
      *
-     * @param type $field
-     * @param type $length
-     * @return type
+     * @param string $field
+     * @param integer $length
+     * @return \Sokil\Mongo\Expression
      */
     public function whereArraySize($field, $length)
     {
