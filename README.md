@@ -2058,9 +2058,9 @@ $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 Versioning
 ----------
 
-To enable versioning of documents in collection, you can set protected
-property `Collection::$versioning` to `true`, or call `Collection::enableVersioning()`
-method.
+Versioninbg allows you to have history of all document changes. To enable versioning of documents in collection, you can set protected
+property `Collection::$versioning` to `true`, call `Collection::enableVersioning()`
+method or define versioning in mapping.
 
 ```php
 <?php
@@ -2073,6 +2073,11 @@ class MyCollection extends \Sokil\Mongo\Collection
 // througn method
 $collection = $database->getCollection('my');
 $collection->enableVersioning();
+
+// through mapping
+$database->map('someCollectionName', [
+    'versioning' => true,
+]);
 ```
 
 To check if documents in collections is versioned call:
