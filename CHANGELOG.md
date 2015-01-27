@@ -1,6 +1,7 @@
-## 1.12.4@DEV
+## 1.12.4 (2015-01-27)
   * If callable in `Dollection::getDocument()` specified, document always loaded directly omitting document pool.
   * Fixed 'in' validator when custom error message specified
+  * Dependency from major version number of Symfony Event Dispatcher
 
 ## 1.12.3 (2015-01-18)
   * Fixed bug with naming of validator in errors array. Removed suffix 'validator'.
