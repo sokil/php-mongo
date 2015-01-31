@@ -156,9 +156,12 @@ class Document extends Structure
             $self = $this;
             $createRevisionCallback = function() use($self) {
                 // create new revision
-                $self
+                /* @var $revision \Sokil\Mongo\Revision */
+                $revision = $self
                     ->getRevisionsCollection()
-                    ->createDocument()
+                    ->createDocument();
+
+                $revision
                     ->setDocumentData($self->getOriginalData())
                     ->save();
             };
