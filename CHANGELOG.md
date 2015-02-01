@@ -1,5 +1,6 @@
 ## 1.12.5 (2015-02-01)
   * Fix update when expression defined as callable
+  * Fix deleting documents when expression specified as callable
 
 ## 1.12.4 (2015-01-27)
   * If callable in `Dollection::getDocument()` specified, document always loaded directly omitting document pool.
