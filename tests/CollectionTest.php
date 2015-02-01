@@ -398,7 +398,39 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $collection->delete();
     }
 
-    public function testDeleteDocuments()
+    public function testDeleteDocuments_ExpressionAsArray()
+    {
+        // add
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        // delete
+        $this->collection->deleteDocuments(array('param' => array('$gt' => 2)));
+
+        // test
+        $this->assertEquals(2, count($this->collection));
+    }
+
+    public function testDeleteDocuments_ExpressionAsCallable()
+    {
+        // add
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        // delete
+        $this->collection->deleteDocuments(function($expression) {
+            $expression->whereGreater('param', 2);
+        });
+
+        // test
+        $this->assertEquals(2, count($this->collection));
+    }
+
+    public function testDeleteDocuments_ExpressionAsObject()
     {
         // add
         $this->collection->createDocument(array('param' => 1))->save();
@@ -414,32 +446,19 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Delete document error: Some strange error
+     * @expectedException Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong expression specified
      */
-    public function testDeleteDocument_ErrorDeletingDocument()
+    public function testDeleteDocuments_WrongExpressionSpecified()
     {
-        $this->collectionMock = $this->getMock(
-            '\MongoCollection',
-            array('remove'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        // add
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
 
-        $this->collectionMock
-            ->expects($this->once())
-            ->method('remove')
-            ->will($this->returnValue(array(
-                'ok' => (double) 0,
-                'err' => 'Some strange error',
-            )));
-
-        $this->collection = new Collection($this->database, $this->collectionMock);
-
-        $document = $this->collection
-            ->createDocument(array('param' => 'value'))
-            ->save();
-
-        $this->collection->deleteDocument($document);
+        // delete
+        $this->collection->deleteDocuments('hello');
     }
 
     /**
@@ -471,6 +490,35 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->collection->deleteDocuments(
             $this->collection->expression()->where('param', 'value')
         );
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Delete document error: Some strange error
+     */
+    public function testDeleteDocument_ErrorDeletingDocument()
+    {
+        $this->collectionMock = $this->getMock(
+            '\MongoCollection',
+            array('remove'),
+            array($this->database->getMongoDB(), 'phpmongo_test_collection')
+        );
+
+        $this->collectionMock
+            ->expects($this->once())
+            ->method('remove')
+            ->will($this->returnValue(array(
+                'ok' => (double) 0,
+                'err' => 'Some strange error',
+            )));
+
+        $this->collection = new Collection($this->database, $this->collectionMock);
+
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $this->collection->deleteDocument($document);
     }
 
     public function testUpdate_ExpressionIsArray()
@@ -510,8 +558,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->toArray();
 
         unset($data2['_id']);
-
-        var_export($data2);
 
         $this->assertEquals(
             array(
@@ -559,8 +605,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         unset($data2['_id']);
 
-        var_export($data2);
-
         $this->assertEquals(
             array(
                 'p' => 2,
@@ -606,8 +650,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->toArray();
 
         unset($data2['_id']);
-
-        var_export($data2);
 
         $this->assertEquals(
             array(

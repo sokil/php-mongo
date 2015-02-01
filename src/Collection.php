@@ -386,6 +386,32 @@ class Collection implements \Countable
     }
 
     /**
+     * Transform extression in different formats to canonical array form
+     * 
+     * @param array|callable|\Sokil\Mongo\Expression $expression
+     * @return array
+     * @throws \Sokil\Mongo\Exception
+     */
+    private static function mixedExpressionToArray($expression)
+    {
+        // get expression from callable
+        if(is_callable($expression)) {
+            $expressionConfigurator = $expression;
+            $expression = new Expression();
+            call_user_func($expressionConfigurator, $expression);
+        }
+
+        // get expression array
+        if($expression instanceof Expression) {
+            $expression = $expression->toArray();
+        } elseif(!is_array($expression)) {
+            throw new Exception('Wrong expression specified');
+        }
+
+        return $expression;
+    }
+
+    /**
      * Create Operator instance to use in update operations
      * 
      * @return \Sokil\Mongo\Operator
@@ -393,6 +419,32 @@ class Collection implements \Countable
     public function operator()
     {
         return new Operator();
+    }
+
+    /**
+     * Transform operator in different formats to array in canonical form
+     * 
+     * @param array|callable|\Sokil\Mongo\Operator $updateData
+     * @return array canonical array form
+     * @throws \Sokil\Mongo\Exception
+     */
+    private static function mixedOperatorToArray($updateData)
+    {
+        // get operator from callable
+        if(is_callable($updateData)) {
+            $operatorConfigurator = $updateData;
+            $updateData = new Operator();
+            call_user_func($operatorConfigurator, $updateData);
+        }
+
+        // get operator as array
+        if($updateData instanceof Operator) {
+            $updateData = $updateData->getAll();
+        } elseif(!is_array($updateData)) {
+            throw new Exception('Operator must be instance of Operator or callable');
+        }
+
+        return $updateData;
     }
 
     /**
@@ -718,22 +770,12 @@ class Collection implements \Countable
      * @return \Sokil\Mongo\Collection
      * @throws Exception
      */
-    public function deleteDocuments($expression)
+    public function deleteDocuments($expression = array())
     {
-        // get expression from callable
-        if(is_callable($expression)) {
-            $expression = call_user_func($expression, $this->expression());
-        }
-
-        // get array from Expression object
-        if($expression instanceof Expression) {
-            $expression = $expression->toArray();
-        } elseif(!is_array($expression)) {
-            throw new Exception('Wrong expression specified');
-        }
-
         // remove
-        $result = $this->_mongoCollection->remove($expression);
+        $result = $this->_mongoCollection->remove(
+            self::mixedExpressionToArray($expression)
+        );
 
         // check result
         if(true !== $result && $result['ok'] != 1) {
@@ -829,51 +871,18 @@ class Collection implements \Countable
      */
     public function update($expression, $updateData, array $options = array())
     {
-        // get expression from callable
-        if(is_callable($expression)) {
-            $expressionConfigurator = $expression;
-            $expression = new Expression();
-            call_user_func($expressionConfigurator, $expression);
-        }
-
-        // get expression array
-        if($expression instanceof Expression) {
-            $expression = $expression->toArray();
-        } elseif(!is_array($expression)) {
-            $expression = array();
-        }
-
-        // get operator from callable
-        if(is_callable($updateData)) {
-            $operatorConfigurator = $updateData;
-            $updateData = new Operator();
-            call_user_func($operatorConfigurator, $updateData);
-        }
-
-        // get operator as array
-        if($updateData instanceof Operator) {
-            $updateData = $updateData->getAll();
-        } elseif(!is_array($updateData)) {
-            throw new Exception('Operator must be instance of Operator or callable');
-        }
-
         // execute update operator
         $result = $this->_mongoCollection->update(
-            $expression,
-            $updateData,
+            self::mixedExpressionToArray($expression),
+            self::mixedOperatorToArray($updateData),
             $options
         );
 
         // if write concern acknowledged
         if(is_array($result)) {
             if($result['ok'] != 1) {
-                throw new Exception(sprintf(
-                    'Update error: %s: %s',
-                    $result['err'],
-                    $result['errmsg']
-                ));
+                throw new Exception(sprintf('Update error: %s: %s', $result['err'], $result['errmsg']));
             }
-
             return $this;
         }
 
