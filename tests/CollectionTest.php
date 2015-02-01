@@ -473,6 +473,150 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testUpdate_ExpressionIsArray()
+    {
+        // create documents
+        $d1 = $this->collection->createDocument(array('p' => 1))->save();
+        $d2 = $this->collection->createDocument(array('p' => 2))->save();
+
+        $this->collection->update(
+            array('p' => 1),
+            $this->collection->operator()->set('k', 'v'),
+            array(
+                'multiple' => true,
+            )
+        );
+
+        // test 1
+        $data1 = $this
+            ->collection
+            ->getDocumentDirectly($d1->getId())
+            ->toArray();
+
+        unset($data1['_id']);
+
+        $this->assertEquals(
+            array(
+                'p' => 1,
+                'k' => 'v',
+            ),
+            $data1
+        );
+
+        // test 2
+        $data2 = $this
+            ->collection
+            ->getDocumentDirectly($d2->getId())
+            ->toArray();
+
+        unset($data2['_id']);
+
+        var_export($data2);
+
+        $this->assertEquals(
+            array(
+                'p' => 2,
+            ),
+            $data2
+        );
+    }
+
+    public function testUpdate_ExpressionIsCallable()
+    {
+        // create documents
+        $d1 = $this->collection->createDocument(array('p' => 1))->save();
+        $d2 = $this->collection->createDocument(array('p' => 2))->save();
+
+        $this->collection->update(
+            function($expression) { $expression->where('p', 1); },
+            $this->collection->operator()->set('k', 'v'),
+            array(
+                'multiple' => true,
+            )
+        );
+
+        // test 1
+        $data1 = $this
+            ->collection
+            ->getDocumentDirectly($d1->getId())
+            ->toArray();
+        
+        unset($data1['_id']);
+
+        $this->assertEquals(
+            array(
+                'p' => 1,
+                'k' => 'v',
+            ),
+            $data1
+        );
+
+        // test 2
+        $data2 = $this
+            ->collection
+            ->getDocumentDirectly($d2->getId())
+            ->toArray();
+
+        unset($data2['_id']);
+
+        var_export($data2);
+
+        $this->assertEquals(
+            array(
+                'p' => 2,
+            ),
+            $data2
+        );
+    }
+
+    public function testUpdate_ExpressionIsExpressionObject()
+    {
+        // create documents
+        $d1 = $this->collection->createDocument(array('p' => 1))->save();
+        $d2 = $this->collection->createDocument(array('p' => 2))->save();
+
+        $this->collection->update(
+            $this->collection->expression()->where('p', 1),
+            $this->collection->operator()->set('k', 'v'),
+            array(
+                'multiple' => true,
+            )
+        );
+
+        // test 1
+        $data1 = $this
+            ->collection
+            ->getDocumentDirectly($d1->getId())
+            ->toArray();
+
+        unset($data1['_id']);
+
+        $this->assertEquals(
+            array(
+                'p' => 1,
+                'k' => 'v',
+            ),
+            $data1
+        );
+
+        // test 2
+        $data2 = $this
+            ->collection
+            ->getDocumentDirectly($d2->getId())
+            ->toArray();
+
+        unset($data2['_id']);
+
+        var_export($data2);
+
+        $this->assertEquals(
+            array(
+                'p' => 2,
+            ),
+            $data2
+        );
+    }
+
     public function testUpdate_UpdateDataIsOperatorObject()
     {
         // create documents
