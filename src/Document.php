@@ -940,9 +940,6 @@ class Document extends Structure
         } catch (\MongoException $e) {
             return $this->set('_id', $id);
         }
-
-
-        return $this;
     }
 
     public function isStored()
