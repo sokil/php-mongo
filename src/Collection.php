@@ -831,7 +831,9 @@ class Collection implements \Countable
     {
         // get expression from callable
         if(is_callable($expression)) {
-            $expression = call_user_func($expression, new Expression);
+            $expressionConfigurator = $expression;
+            $expression = new Expression();
+            call_user_func($expressionConfigurator, $expression);
         }
 
         // get expression array
