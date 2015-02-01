@@ -49,24 +49,7 @@ class UrlValidator extends \Sokil\Mongo\Validator
             return;
         }
 
-        $headers = get_headers($value, true);
-        
-        $isAccessible = false;
-        $i = 0;
-        while(true) {
-            if(false !== strpos($headers[$i], '200')) {
-                $isAccessible = true;
-                break;
-            }
-            
-            $i++;
-            if(!isset($headers[$i])) {
-                break;
-            }
-        }
-
-        // page is accessible
-        if($isAccessible) {
+        if($this->isUrlAccessible($value)) {
             return;
         }
         
@@ -77,4 +60,25 @@ class UrlValidator extends \Sokil\Mongo\Validator
         $document->addError($fieldName, $this->getName(), $params['message']);
     }
 
+    private function isUrlAccessible($url)
+    {
+        $headers = get_headers($url, true);
+
+        $isAccessible = false;
+        $i = 0;
+        while(true) {
+            if(false !== strpos($headers[$i], '200')) {
+                $isAccessible = true;
+                break;
+            }
+
+            $i++;
+            if(!isset($headers[$i])) {
+                break;
+            }
+        }
+
+        // page is accessible
+        return $isAccessible;
+    }
 }
