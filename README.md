@@ -1026,6 +1026,24 @@ $collection->find()
     });
 ```
 
+To get distinct values of field:
+```php
+<?php
+// return all distinct values
+$values = $collection->getDistinct('country');
+```
+
+Values may be filtered by expression specified as array, callable or `Expression` object:
+```php
+<?php
+// by array
+$collection->getDistinct('country', array('age' => array('$gte' => 25)));
+// by object
+$collection->getDistinct('country', $collection->expression()->whereGreater('age', 25));
+// by callable
+$collection->getDistinct('country', function($expression) { return $expression->whereGreater('age', 25); });
+```
+
 ### Extending Query Builder
 
 For extending standart query builder class with custom condition methods you need to override property `Collection::$_queryExpressionClass` with class, which extends `\Sokil\Mongo\Expression`:
