@@ -87,7 +87,7 @@ If you use Symfony framework, you can use [Symfony MongoDB Bundle](https://githu
 
 ```javascript
 {
-    "require": {
+    "require": {ge
         "sokil/php-mongo-bundle": "dev-master"
     }
 }
@@ -1025,6 +1025,8 @@ $collection->find()
         return $item;
     });
 ```
+
+### Distinct values
 
 To get distinct values of field:
 ```php
