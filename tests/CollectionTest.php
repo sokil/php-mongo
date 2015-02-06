@@ -1022,93 +1022,70 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->collection->isDocumentPoolEnabled());
     }
 
-    public function testGetDistinct()
+    public function testGetDistinct_ExpressionArray()
     {
-        // create documents
-        $this->collection
-            ->createDocument(array(
-                'k' => array(
-                    'f'     => 'F1',
-                    'kk'    => 'A',
-                )
-            ))
-            ->save();
-
-        $this->collection
-            ->createDocument(array(
-                'k' => array(
-                    'f'     => 'F1',
-                    'kk'    => 'A',
-                )
-            ))
-            ->save();
-
-        $this->collection
-            ->createDocument(array(
-                'k' => array(
-                    'f'     => 'F1',
-                    'kk'    => 'B',
-                )
-            ))
-            ->save();
-
-        $this->collection
-            ->createDocument(array(
-                'k' => array(
-                    'f'     => 'F2',
-                    'kk'    => 'C',
-                )
-            ))
-            ->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'A',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'A',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'B',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F2', 'kk' => 'C',)))->save();
 
         // get distinkt
-        $distinctValues = $this->collection
-            ->getDistinct('k.kk', $this->collection->expression()->where('k.f', 'F1'));
+        $distinctValues = $this
+            ->collection
+            ->getDistinct(
+                'k.kk',
+                array('k.f' => 'F1')
+            );
 
         $this->assertEquals(array('A', 'B'), $distinctValues);
     }
 
-    public function testGetDistinctWithoutExpression()
+    public function testGetDistinct_ExpressionCallable()
     {
-        // create documents
-        $this->collection
-            ->createDocument(array(
-                'k' => array(
-                    'f'     => 'F1',
-                    'kk'    => 'A',
-                )
-            ))
-            ->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'A',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'A',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'B',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F2', 'kk' => 'C',)))->save();
 
-        $this->collection
-            ->createDocument(array(
-                'k' => array(
-                    'f'     => 'F1',
-                    'kk'    => 'A',
-                )
-            ))
-            ->save();
+        // get distinkt
+        $distinctValues = $this
+            ->collection
+            ->getDistinct(
+                'k.kk',
+                function($expression) { $expression->where('k.f', 'F1'); }
+            );
 
-        $this->collection
-            ->createDocument(array(
-                'k' => array(
-                    'f'     => 'F1',
-                    'kk'    => 'B',
-                )
-            ))
-            ->save();
+        $this->assertEquals(array('A', 'B'), $distinctValues);
+    }
 
-        $this->collection
-            ->createDocument(array(
-                'k' => array(
-                    'f'     => 'F2',
-                    'kk'    => 'C',
-                )
-            ))
-            ->save();
+    public function testGetDistinct_ExpressionObject()
+    {
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'A',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'A',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'B',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F2', 'kk' => 'C',)))->save();
+
+        // get distinkt
+        $distinctValues = $this
+            ->collection
+            ->getDistinct(
+                'k.kk',
+                $this->collection->expression()->where('k.f', 'F1')
+            );
+
+        $this->assertEquals(array('A', 'B'), $distinctValues);
+    }
+
+    public function testGetDistinct_NoExpression()
+    {
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'A',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'A',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F1', 'kk' => 'B',)))->save();
+        $this->collection->createDocument(array('k' => array('f' => 'F2', 'kk' => 'C',)))->save();
 
         // get distinct
-        $distinctValues = $this->collection
+        $distinctValues = $this
+            ->collection
             ->getDistinct('k.kk');
 
         $this->assertEquals(array('A', 'B', 'C'), $distinctValues);

@@ -1,3 +1,6 @@
+## 1.12.6 (2015-02-06)
+  * Accept expression array and callable when call `Collection::getDistinct()`
+
 ## 1.12.5 (2015-02-01)
   * Fix update when expression defined as callable
   * Fix deleting documents when expression specified as callable

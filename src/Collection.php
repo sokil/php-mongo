@@ -350,18 +350,16 @@ class Collection implements \Countable
      * Retrieve a list of distinct values for the given key across a collection.
      *
      * @param string $selector field selector
-     * @param \Sokil\Mongo\Expression $expression expression to search documents
+     * @param array|callable|\Sokil\Mongo\Expression $expression expression to search documents
      * @return array distinct values
      */
-    public function getDistinct($selector, Expression $expression = null)
+    public function getDistinct($selector, $expression = null)
     {
         if($expression) {
-            return $this->_mongoCollection->distinct($selector, $expression->toArray());
-        } else {
-            return $this->_mongoCollection->distinct($selector);
+            return $this->_mongoCollection->distinct($selector, self::mixedExpressionToArray($expression));
         }
 
-
+        return $this->_mongoCollection->distinct($selector);
     }
 
     /**
