@@ -24,6 +24,10 @@ Why to use this ODM? You can easily work with document data through comfortable 
 #### Table of contents
 
 * [Installation](#installation)
+  * [Common installation](#common-installation)
+  * [Symfony bundle](#symfony-bundle)
+  * [Yii component](#yii-component)
+  * [Support of migrations](#support-of-migrations)
 * [Connecting](#connecting)
 * [Mapping](#mapping)
   * [Selecting database and collection](#selecting-database-and-collection)
@@ -74,6 +78,8 @@ Why to use this ODM? You can easily work with document data through comfortable 
 Installation
 ------------
 
+#### Common installation
+
 You can install library through Composer:
 ```javascript
 {
@@ -83,16 +89,21 @@ You can install library through Composer:
 }
 ```
 
+Download latest release:
+[Latest sources from GitHub](https://github.com/sokil/php-mongo/releases/latest)
+
+#### Symfony bundle
 If you use Symfony framework, you can use [Symfony MongoDB Bundle](https://github.com/sokil/php-mongo-bundle) which wraps this library
 
 ```javascript
 {
-    "require": {ge
+    "require": {
         "sokil/php-mongo-bundle": "dev-master"
     }
 }
 ```
 
+#### Yii component
 If you use Yii Framework, you can use [Yii Adapter](https://github.com/sokil/php-mongo-yii) which wraps this library
 
 ```javascript
@@ -103,6 +114,7 @@ If you use Yii Framework, you can use [Yii Adapter](https://github.com/sokil/php
 }
 ```
 
+#### Support of migrations
 If you require migrations, you can add dependency to "[sokil/php-mongo-migrator](https://github.com/sokil/php-mongo-migrator)", based on this library:
 
 ```javascript
@@ -112,9 +124,6 @@ If you require migrations, you can add dependency to "[sokil/php-mongo-migrator]
     }
 }
 ```
-
-Download latest release:
-[Latest sources from GitHub](https://github.com/sokil/php-mongo/releases/latest)
 
 Connecting
 ----------
