@@ -114,6 +114,8 @@ If you use Yii Framework, you can use [Yii Adapter](https://github.com/sokil/php
 }
 ```
 
+This package in addition to PHPMongo adapter also has data provider and log router for MongoDb.
+
 #### Support of migrations
 If you require migrations, you can add dependency to "[sokil/php-mongo-migrator](https://github.com/sokil/php-mongo-migrator)", based on this library:
 
