@@ -42,11 +42,6 @@ abstract class Cursor implements \Iterator, \Countable
 
     private $limit = 0;
 
-    /**
-     * @link http://docs.mongodb.org/manual/reference/method/cursor.batchSize/
-     * @var int number of documents to return in each batch of the response from the MongoDB instance
-     */
-    private $batchSize;
 
     private $sort = array();
 
@@ -69,7 +64,12 @@ abstract class Cursor implements \Iterator, \Countable
      * @var array
      */
     private $options = array(
-        'expressionClass'   => '\Sokil\Mongo\Expression'
+        'expressionClass'   => '\Sokil\Mongo\Expression',
+        /**
+         * @link http://docs.mongodb.org/manual/reference/method/cursor.batchSize/
+         * @var int number of documents to return in each batch of the response from the MongoDB instance
+         */
+        'batchSize' => null,
     );
 
     /**
@@ -92,7 +92,7 @@ abstract class Cursor implements \Iterator, \Countable
         $this->client = $this->_collection->getDatabase()->getClient();
 
         if($options) {
-            $this->options = array_merge($this->options, $options);
+            $this->options = $options + $this->options;
         }
 
         // expression
@@ -310,7 +310,7 @@ abstract class Cursor implements \Iterator, \Countable
      */
     public function setBatchSize($size)
     {
-        $this->batchSize = (int) $size;
+        $this->options['batchSize'] = (int) $size;
 
         return $this;
     }
@@ -350,8 +350,8 @@ abstract class Cursor implements \Iterator, \Countable
             $this->cursor->limit($this->limit);
         }
 
-        if($this->batchSize) {
-            $this->cursor->batchSize($this->batchSize);
+        if($this->options['batchSize']) {
+            $this->cursor->batchSize($this->options['batchSize']);
         }
 
         if($this->sort) {
