@@ -584,6 +584,30 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(4, $document->param);
     }
 
+    public function testSetBatchSize()
+    {
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        $list = $this->collection
+            ->find()
+            ->limit(2, 2)
+            ->setBatchSize(3)
+            ->findAll();
+
+        $this->assertEquals(2, count($list));
+
+        $document = current($list);
+        $this->assertEquals(3, $document->param);
+
+        next($list);
+
+        $document = current($list);
+        $this->assertEquals(4, $document->param);
+    }
+
     public function testCount()
     {
         $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();

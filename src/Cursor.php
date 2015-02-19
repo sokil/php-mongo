@@ -42,6 +42,12 @@ abstract class Cursor implements \Iterator, \Countable
 
     private $limit = 0;
 
+    /**
+     * @link http://docs.mongodb.org/manual/reference/method/cursor.batchSize/
+     * @var int number of documents to return in each batch of the response from the MongoDB instance
+     */
+    private $batchSize;
+
     private $sort = array();
 
     private $readPreference = array();
@@ -296,6 +302,20 @@ abstract class Cursor implements \Iterator, \Countable
     }
 
     /**
+     * Specifies the number of documents to return in each batch of the response from the MongoDB instance.
+     *
+     * @param int $size number of documents
+     * @link http://docs.mongodb.org/manual/reference/method/cursor.batchSize/
+     * @return \Sokil\Mongo\Cursor
+     */
+    public function setBatchSize($size)
+    {
+        $this->batchSize = (int) $size;
+
+        return $this;
+    }
+
+    /**
      * Sort result by specified keys and directions
      *
      * @param array $sort
@@ -328,6 +348,10 @@ abstract class Cursor implements \Iterator, \Countable
 
         if($this->limit) {
             $this->cursor->limit($this->limit);
+        }
+
+        if($this->batchSize) {
+            $this->cursor->batchSize($this->batchSize);
         }
 
         if($this->sort) {
