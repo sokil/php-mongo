@@ -330,7 +330,7 @@ Predefined options are:
 | index            | null                     | Index definition                                           |
 | expressionClass  | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
 | behaviors        | null                     | List of behaviors, attached to every document              |
-| batchSize        | null                     | number of documents to return in each batch of response    |
+| batchSize        | null                     | Number of documents to return in each batch of response    |
 
 If `class` omitted, then used standart `\Sokil\Mongo\Collection` class.
 
@@ -1047,7 +1047,7 @@ To define this numner of documents:
 <?php
 
 $cursor->setBatchSize(20);
-```php
+```
 
 ### Distinct values
 
