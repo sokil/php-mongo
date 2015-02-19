@@ -608,6 +608,22 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(4, $document->param);
     }
 
+    public function testSetBatchSizeInMapping()
+    {
+        $batchSize = $this->collection
+            ->getDatabase()
+            ->map(array(
+                'col1' => array(
+                    'batchSize' => 42,
+                )
+            ))
+            ->getCollection('col1')
+            ->find()
+            ->getOption('batchSize');
+
+        $this->assertEquals(42, $batchSize);
+    }
+
     public function testCount()
     {
         $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();

@@ -105,6 +105,7 @@ class Collection implements \Countable
      * versioning: is versioning enabled for documents
      * index: list of collection indexes
      * behaviors: list of document behaviors
+     * batchSize: number of documents to return in each batch of the response from the MongoDB instance
      */
     private $options = array();
 
@@ -456,6 +457,7 @@ class Collection implements \Countable
         /** @var \Sokil\Mongo\Cursor $queryBuilder */
         $queryBuilder = new $this->_queryBuilderClass($this, array(
             'expressionClass'   => $this->getExpressionClass(),
+            'batchSize'         => $this->getOption('batchSize'),
         ));
 
         if(is_callable($callable)) {

@@ -104,6 +104,17 @@ abstract class Cursor implements \Iterator, \Countable
         return $this;
     }
 
+    /**
+     * Get option
+     *
+     * @param string|int $name
+     * @return mixed
+     */
+    public function getOption($name, $default = null)
+    {
+        return isset($this->options[$name]) ? $this->options[$name] : $default;
+    }
+
     public function asArray()
     {
         $this->_resultAsArray = true;

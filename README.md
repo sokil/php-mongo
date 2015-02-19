@@ -330,6 +330,7 @@ Predefined options are:
 | index            | null                     | Index definition                                           |
 | expressionClass  | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
 | behaviors        | null                     | List of behaviors, attached to every document              |
+| batchSize        | null                     | number of documents to return in each batch of response    |
 
 If `class` omitted, then used standart `\Sokil\Mongo\Collection` class.
 
@@ -1036,6 +1037,17 @@ $collection->find()
         return $item;
     });
 ```
+
+When iterating through cursor client 
+[retrieve some amount of documents](http://docs.mongodb.org/manual/reference/method/cursor.batchSize/)
+from the server in one round trip.
+To define this numner of documents:
+
+```php
+<?php
+
+$cursor->setBatchSize(20);
+```php
 
 ### Distinct values
 
