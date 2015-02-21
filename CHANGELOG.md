@@ -1,3 +1,6 @@
+## 1.12.7 (2015-02-20)
+  * Define cursor's batch size
+
 ## 1.12.6 (2015-02-06)
   * Accept expression array and callable when call `Collection::getDistinct()`
 
