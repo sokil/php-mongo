@@ -2363,7 +2363,7 @@ $client->setLogger($logger);
 
 ### Profiling
 
-Mode details about profiling at [Analyze Performance of Database Operations](http://docs.mongodb.org/manual/tutorial/manage-the-database-profiler/)
+More details about profiling at [Analyze Performance of Database Operations](http://docs.mongodb.org/manual/tutorial/manage-the-database-profiler/)
 profiler data stores to `system.profile` collection, which you can query through query builder:
 
 ```php
@@ -2409,4 +2409,7 @@ $slowms = $database->getProfilerSlowMs();
 
 <hr/>
 <br/>
+
+See [changelog](https://github.com/sokil/php-mongo/blob/master/CHANGELOG.md) for detailed information about new releases.
+
 Pull requests, bug reports and feature requests is welcome. Add new to [issues](https://github.com/sokil/php-mongo/issues)
