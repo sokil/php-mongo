@@ -2,15 +2,13 @@ PHPMongo
 ========
 [![Latest Stable Version](https://poser.pugx.org/sokil/php-mongo/v/stable.png)](https://packagist.org/packages/sokil/php-mongo)
 [![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master&1)](https://travis-ci.org/sokil/php-mongo)
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6/mini.png)](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sokil/php-mongo/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sokil/php-mongo/?branch=master)
 [![Code Climate](https://codeclimate.com/github/sokil/php-mongo/badges/gpa.svg)](https://codeclimate.com/github/sokil/php-mongo)
-
-[![Documentation Status](https://readthedocs.org/projects/phpmongo/badge/?version=latest)](https://readthedocs.org/projects/phpmongo/?badge=latest)
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 #### PHP ODM for MongoDB.
 
