@@ -6,9 +6,9 @@ PHPMongo
 
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master&1)](https://travis-ci.org/sokil/php-mongo)
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6/mini.png)](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sokil/php-mongo/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sokil/php-mongo/?branch=master)
 [![Code Climate](https://codeclimate.com/github/sokil/php-mongo/badges/gpa.svg)](https://codeclimate.com/github/sokil/php-mongo)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6/mini.png)](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6)
 
 #### PHP ODM for MongoDB.
 
