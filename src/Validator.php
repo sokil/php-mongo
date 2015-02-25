@@ -24,7 +24,7 @@ abstract class Validator
     
     abstract public function validateField(Document $document, $fieldName, array $params);
     
-    public function validate(Document $document, array $fieldNameList, array $params)
+    final public function validate(Document $document, array $fieldNameList, array $params)
     {
         foreach($fieldNameList as $fieldName) {           
             $this->validateField($document, $fieldName, $params);
