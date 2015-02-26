@@ -614,8 +614,8 @@ class SomeDocument extends \Sokil\Mongo\Document
     public function rules()
     {
         return array(
-            // 'my_own_equals_validator' converts to 'MyOwnEqualsValidator' class name
-            array('field', 'my_own_equals_validator', 'to' => 42, 'message' => 'Not equals'),
+            // 'my_own_equals' converts to 'MyOwnEqualsValidator' class name
+            array('field', 'my_own_equals', 'to' => 42, 'message' => 'Not equals'),
         );
     }
 }
