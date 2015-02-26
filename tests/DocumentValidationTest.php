@@ -2,9 +2,10 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\DocumentValidationTest\ValidatorMethodDocument;
+
 class DocumentValidationTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      *
      * @var \Sokil\Mongo\Collection
@@ -825,13 +826,13 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
 
     public function testIsValid_FieldValidatedByMethod_Passed()
     {
-        $document = new DocumentWithMethodValidator($this->collection);
+        $document = new ValidatorMethodDocument($this->collection);
         $this->assertTrue($document->set('field', 42)->isValid());
     }
 
     public function testIsValid_FieldValidatedByMethod_Failed()
     {
-        $document = new DocumentWithMethodValidator($this->collection);
+        $document = new ValidatorMethodDocument($this->collection);
         $this->assertFalse($document->set('field', 43)->isValid());
 
         $this->assertEquals(array(
@@ -983,7 +984,27 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
 
         $document
             ->set('field', '42')
-            ->addValidatorNamespace('\Sokil\Mongo');
+            ->addValidatorNamespace('\Sokil\Mongo\DocumentValidationTest\Validator');
+
+        $document->isValid();
+    }
+
+    public function testIsValid_ValidatorClass()
+    {
+        // mock of document
+        $document = $this
+            ->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+
+        $document
+            ->expects($this->any())
+            ->method('rules')
+            ->will($this->returnValue(array(
+                array('field', 'my_own_equals', 'to' => 42)
+            )));
+
+        $document
+            ->set('field', '42')
+            ->addValidatorNamespace('\Sokil\Mongo\DocumentValidationTest\Validator');
 
         $document->isValid();
     }
@@ -1068,31 +1089,5 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             );
         }
     }
-
-}
-
-class DocumentWithMethodValidator extends \Sokil\Mongo\Document
-{
-
-    public function rules()
-    {
-        return array(
-            array('field', 'validateEquals42'),
-        );
-    }
-
-    public function validateEquals42($fieldName, array $params)
-    {
-        if (42 !== $this->get($fieldName)) {
-            $errorMessage = isset($params['message']) ? $params['message'] : 'Not equals to 42';
-
-            $this->addError($fieldName, 'validateEquals42', $errorMessage);
-        }
-    }
-
-}
-
-class WrongSuperclassValidator
-{
 
 }
