@@ -19,6 +19,7 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
                     'engines'   => '\Sokil\Mongo\DocumentRelationTest\EnginesCollection',
                     'wheels'    => '\Sokil\Mongo\DocumentRelationTest\WheelsCollection',
                     'drivers'   => '\Sokil\Mongo\DocumentRelationTest\DriversCollection',
+                    'wrongRel'  => '\Sokil\Mongo\DocumentRelationTest\WrongRelationCollection',
                 ),
             ))
             ->getDatabase('test');
@@ -237,6 +238,22 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $carsCollection->delete();
         $wheelsCollection->delete();
     }
+
+    /**
+     * @expectedException Sokil\Mongo\Exception
+     * @expectedExceptionMessage Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"
+     */
+    public function testGetRelated_WronkRelationType()
+    {
+        $wrongRelCollection = $this->database->getCollection('wrongRel');
+
+        // add documents
+        $wrongRelDocument = $wrongRelCollection
+            ->createDocument(array('some_id' => 42))
+            ->save();
+
+        $wrongRelDocument->engine;
+    }
     
     public function testAddRelation_Belongs()
     {
@@ -336,6 +353,29 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
             $driver1->getId(),
             $driver2->getId(),
         ), array_keys($car2->getRelated('drivers')));
+    }
+
+    /**
+     * @expectedException Sokil\Mongo\Exception
+     * @expectedExceptionMessage Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"
+     */
+    public function testAddRelation_WronkRelationType()
+    {
+        $wrongRelCollection = $this->database->getCollection('wrongRel');
+        $enginesCollection = $this->database->getCollection('engines');
+
+        $engineDocument = $enginesCollection
+            ->createDocument(array(
+                'power' => 300,
+            ))
+            ->save();
+
+        // add documents
+        $wrongRelDocument = $wrongRelCollection
+            ->createDocument(array('some_id' => 42))
+            ->save();
+
+        $wrongRelDocument->addRelation('engine', $engineDocument);
     }
     
     public function testRemoveRelation_Belongs()
@@ -449,6 +489,29 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             $driver1->getId(),
         ), array_keys($car2->getRelated('drivers')));
+    }
+
+    /**
+     * @expectedException Sokil\Mongo\Exception
+     * @expectedExceptionMessage Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"
+     */
+    public function testRemoveRelation_WronkRelationType()
+    {
+        $wrongRelCollection = $this->database->getCollection('wrongRel');
+        $enginesCollection = $this->database->getCollection('engines');
+
+        $engineDocument = $enginesCollection
+            ->createDocument(array(
+                'power' => 300,
+            ))
+            ->save();
+
+        // add documents
+        $wrongRelDocument = $wrongRelCollection
+            ->createDocument(array('some_id' => 42))
+            ->save();
+
+        $wrongRelDocument->removeRelation('engine', $engineDocument);
     }
     
     public function testUnconsistedState()

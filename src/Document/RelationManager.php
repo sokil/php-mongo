@@ -40,7 +40,7 @@ class RelationManager
     {
         // check if relation exists
         if (!$this->isRelationExists($relationName)) {
-            throw new Exception('Relation with name "' . $relationName . '" not found');
+            throw new \Sokil\Mongo\Exception('Relation with name "' . $relationName . '" not found');
         }
 
         // get relation metadata
@@ -67,9 +67,6 @@ class RelationManager
         }
 
         switch ($relationType) {
-
-            default:
-                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
 
             case Document::RELATION_HAS_ONE:
                 $internalField = '_id';
@@ -141,6 +138,9 @@ class RelationManager
                 }
 
                 return $documents;
+                
+            default:
+                throw new \Sokil\Mongo\Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
     }
 
@@ -160,28 +160,28 @@ class RelationManager
             ->getCollection($relatedCollectionName);
 
         if (!$relatedCollection->hasDocument($document)) {
-            throw new Exception('Document must belongs to related collection');
+            throw new \Sokil\Mongo\Exception('Document must belongs to related collection');
         }
 
         switch ($relationType) {
 
             case Document::RELATION_BELONGS:
                 if (!$document->isStored()) {
-                    throw new Exception('Document ' . get_class($document) . ' must be saved before adding relation');
+                    throw new \Sokil\Mongo\Exception('Document ' . get_class($document) . ' must be saved before adding relation');
                 }
                 $this->document->set($field, $document->getId());
                 break;
 
             case Document::RELATION_HAS_ONE;
                 if (!$this->document->isStored()) {
-                    throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
+                    throw new \Sokil\Mongo\Exception('Document ' . get_class($this) . ' must be saved before adding relation');
                 }
                 $document->set($field, $this->document->getId())->save();
                 break;
 
             case Document::RELATION_HAS_MANY:
                 if (!$this->document->isStored()) {
-                    throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
+                    throw new \Sokil\Mongo\Exception('Document ' . get_class($this) . ' must be saved before adding relation');
                 }
                 $document->set($field, $this->document->getId())->save();
                 break;
@@ -196,7 +196,7 @@ class RelationManager
                 break;
 
             default:
-                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
+                throw new \Sokil\Mongo\Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
 
         return $this;
@@ -218,7 +218,7 @@ class RelationManager
             ->getCollection($relatedCollectionName);
 
         if ($document && !$relatedCollection->hasDocument($document)) {
-            throw new Exception('Document must belongs to related collection');
+            throw new \Sokil\Mongo\Exception('Document must belongs to related collection');
         }
 
         switch ($relationType) {
@@ -238,7 +238,7 @@ class RelationManager
 
             case Document::RELATION_HAS_MANY:
                 if (!$document) {
-                    throw new Exception('Related document must be defined');
+                    throw new \Sokil\Mongo\Exception('Related document must be defined');
                 }
                 $document->unsetField($field)->save();
                 break;
@@ -246,7 +246,7 @@ class RelationManager
 
             case Document::RELATION_MANY_MANY:
                 if (!$document) {
-                    throw new Exception('Related document must be defined');
+                    throw new \Sokil\Mongo\Exception('Related document must be defined');
                 }
                 $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
                 if ($isRelationListStoredInternally) {
@@ -257,7 +257,7 @@ class RelationManager
                 break;
 
             default:
-                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
+                throw new \Sokil\Mongo\Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
         }
 
         return $this;
