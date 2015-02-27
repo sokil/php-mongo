@@ -695,7 +695,18 @@ class Collection implements \Countable
      */
     public function hasDocument(Document $document)
     {
-        return (bool) $this->getDocument($document->getId());
+        // check connection
+        if($document->getCollection()->getDatabase()->getClient()->getDsn() !== $this->getDatabase()->getClient()->getDsn()) {
+            return false;
+        }
+
+        // check database
+        if ($document->getCollection()->getDatabase()->getName() !== $this->getDatabase()->getName()) {
+            return false;
+        }
+
+        // check collection
+        return $document->getCollection()->getName() == $this->getName();
     }
 
     /**

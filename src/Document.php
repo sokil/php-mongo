@@ -515,23 +515,13 @@ class Document extends Structure
     /**
      * Check if document belongs to specified collection
      *
+     * @deprecated since 1.12.8 Use Collection::hasDocument()
      * @param \Sokil\Mongo\Collection $collection collection instance
      * @return boolean
      */
     public function belongsToCollection(Collection $collection)
     {
-        // check connection
-        if($collection->getDatabase()->getClient()->getDsn() !== $this->collection->getDatabase()->getClient()->getDsn()) {
-            return false;
-        }
-
-        // check database
-        if ($collection->getDatabase()->getName() !== $this->collection->getDatabase()->getName()) {
-            return false;
-        }
-
-        // check collection
-        return $collection->getName() == $this->collection->getName();
+        return $collection->hasDocument($this);
     }
 
     /**
