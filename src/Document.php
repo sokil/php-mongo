@@ -29,6 +29,19 @@ use GeoJson\Geometry\Geometry;
  * @link https://github.com/sokil/php-mongo#behaviors Behaviors
  * @link https://github.com/sokil/php-mongo#relations Relations
  *
+ * @method \Sokil\Mongo\Document onAfterConstruct(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onBeforeValidate(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onAfterValidate(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onValidateError(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onBeforeInsert(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onAfterInsert(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onBeforeUpdate(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onAfterUpdate(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onBeforeSave(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onAfterSave(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onBeforeDelete(callable $handler, int $priority = 0)
+ * @method \Sokil\Mongo\Document onAfterDelete(callable $handler, int $priority = 0)
+ *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
 class Document extends Structure
@@ -296,7 +309,6 @@ class Document extends Structure
 
     public function __call($name, $arguments)
     {
-
         // behaviors
         foreach ($this->behaviors as $behavior) {
             if (!method_exists($behavior, $name)) {
@@ -304,6 +316,20 @@ class Document extends Structure
             }
 
             return call_user_func_array(array($behavior, $name), $arguments);
+        }
+
+        // adding event
+        if('on' === substr($name, 0, 2)) {
+            // prepent ebent name to function args
+            $addListenerArguments = $arguments;
+            array_unshift($addListenerArguments, lcfirst(substr($name, 2)));
+            // add listener
+            call_user_func_array(
+                array($this->eventDispatcher, 'addListener'),
+                $addListenerArguments
+            );
+            
+            return $this;
         }
 
         // getter
@@ -589,9 +615,9 @@ class Document extends Structure
      * @param callable|array|string $handler event handler
      * @return \Sokil\Mongo\Document
      */
-    public function attachEvent($event, $handler)
+    public function attachEvent($event, $handler, $priority = 0)
     {
-        $this->eventDispatcher->addListener($event, $handler);
+        $this->eventDispatcher->addListener($event, $handler, $priority);
         return $this;
     }
 
@@ -604,78 +630,6 @@ class Document extends Structure
     public function hasEvent($event)
     {
         return $this->eventDispatcher->hasListeners($event);
-    }
-
-    public function onAfterConstruct($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('afterConstruct', $handler, $priority);
-        return $this;
-    }
-
-    public function onBeforeValidate($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('beforeValidate', $handler, $priority);
-        return $this;
-    }
-
-    public function onAfterValidate($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('afterValidate', $handler, $priority);
-        return $this;
-    }
-
-    public function onValidateError($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('validateError', $handler, $priority);
-        return $this;
-    }
-
-    public function onBeforeInsert($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('beforeInsert', $handler, $priority);
-        return $this;
-    }
-
-    public function onAfterInsert($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('afterInsert', $handler, $priority);
-        return $this;
-    }
-
-    public function onBeforeUpdate($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('beforeUpdate', $handler, $priority);
-        return $this;
-    }
-
-    public function onAfterUpdate($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('afterUpdate', $handler, $priority);
-        return $this;
-    }
-
-    public function onBeforeSave($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('beforeSave', $handler, $priority);
-        return $this;
-    }
-
-    public function onAfterSave($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('afterSave', $handler, $priority);
-        return $this;
-    }
-
-    public function onBeforeDelete($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('beforeDelete', $handler, $priority);
-        return $this;
-    }
-
-    public function onAfterDelete($handler, $priority = 0)
-    {
-        $this->eventDispatcher->addListener('afterDelete', $handler, $priority);
-        return $this;
     }
 
     public function getId()
