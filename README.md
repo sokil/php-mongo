@@ -1611,7 +1611,7 @@ Event listener is a function that calls when event triggered:
 $listener = function(
     \Sokil\Mongo\Event $event, // instance of event
     string $eventName, // event name
-    Symfony\Component\EventDispatcher\EventDispatcher $eventDispatcher // instance of dispatcher
+    \Symfony\Component\EventDispatcher\EventDispatcher $eventDispatcher // instance of dispatcher
 ) {}
 ```
 
