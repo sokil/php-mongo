@@ -1669,7 +1669,7 @@ $event = new \OwnEvent;
 $event->status = 'ok';
 
 // trigger event
-$this->triggerEvent('myOwnEvent', $event);
+$this->triggerEvent('someEvent', $event);
 ```
 
 To cancel operation execution on some condition use event handling cancel:
