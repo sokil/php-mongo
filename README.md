@@ -1584,7 +1584,9 @@ Collection::createAggregator(), callable or array in Collection::aggregate().
 Events
 -------
 
-Event support based on Symfony's Event Dispatcher component. You can attach and trigger
+Event support based on Symfony's
+[Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html)
+component. You can attach and trigger
 any event you want, but there are some already defined events:
 
 | Event name     | Description                                                |
