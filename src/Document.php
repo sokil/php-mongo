@@ -598,7 +598,7 @@ class Document extends Structure
      * @param string $eventName event name
      * @return \Sokil\Mongo\Event
      */
-    public function triggerEvent($eventName, \Sokil\Mongo\Event $event = null)
+    public function triggerEvent($eventName, Event $event = null)
     {
         if(!$event) {
             $event = new Event;

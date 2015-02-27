@@ -1039,7 +1039,7 @@ $collection->find()
     });
 ```
 
-When iterating through cursor client 
+When iterating through cursor client
 [retrieve some amount of documents](http://docs.mongodb.org/manual/reference/method/cursor.batchSize/)
 from the server in one round trip.
 To define this numner of documents:
@@ -1583,7 +1583,51 @@ Collection::createAggregator(), callable or array in Collection::aggregate().
 
 Events
 -------
-Event support based on Symfony's Event Dispatcher component. Events can be attached in class while initialusing object or any time to the object. To attach events in Document class you need to override `Document::beforeConstruct()` method:
+
+Event support based on Symfony's Event Dispatcher component. You can attach and trigger
+any event you want, but there are some already defined events:
+
+| Event name     | Description                                                |
+| -------------- | ---------------------------------------------------------- |
+| afterConstruct | Already after construct executed                           |
+| beforeValidate | Before document validation                                 |
+| afterValidate  | After document validation                                  |
+| validateError  | After document validation when document is invalid         |
+| beforeInsert   | Before document will insert to collection                  |
+| afterInsert    | After successfull insert                                   |
+| beforeUpdate   | Before document will be updated                            |
+| afterUpdate    | After successfull update of document                       |
+| beforeSave     | Before insert or update of document                        |
+| afterSave      | After insert or update of document                         |
+| beforeDelete   | Before delete of document                                  |
+| afterDelete    | After delete of document                                   |
+
+Event listener is a function that calls when event triggered:
+
+```php
+<?php
+$listener = function(
+    \Sokil\Mongo\Event $event, // instance of event
+    string $eventName, // event name
+    Symfony\Component\EventDispatcher\EventDispatcher $eventDispatcher // instance of dispatcher
+) {}
+```
+
+Event listener may be attached by method `Document::attachEvent()`:
+```php
+<?php
+$document->attachEvent('myOwnEvent', $listener, $priority);
+```
+
+It also may be attached through helper methods:
+```php
+<?php
+$document->onMyOwnEvent($listener, $priority);
+// which is equals to
+$this->attachEvent('myOwnEvent', $listener, $priority);
+```
+
+Event may be attached in runtime or in `Document` class by override `Document::beforeConstruct()` method:
 ```php
 <?php
 class CustomDocument extends \Sokil\Mongo\Document
@@ -1597,23 +1641,44 @@ class CustomDocument extends \Sokil\Mongo\Document
 }
 ```
 
-Or you can attach event handler to document object:
+Event may be triggered to call all attached event listeners:
 ```php
 <?php
-$document->onBeforeSave(function() {
-    $this->set('date' => new \MongoDate);
-});
+$this->triggerEvent('myOwnEvent');
 ```
+
+You can create your own event class, which extends `\Sokil\Mongo\Event' and pass it to listeners.
+This allows toy tu pass some data to listener:
+
+```php
+<?php
+// create class
+class OwnEvent extends \Sokil\Mongo\Event {
+    public $status;
+}
+
+// define listener
+$document->attachEvent('someEvent', function(\OwnEvent $event) {
+    echo $event->status;
+});
+
+// configure event
+$event = new \OwnEvent;
+$event->status = 'ok';
+
+// trigger event
+$this->triggerEvent('myOwnEvent', $event);
+```
+
 To cancel operation execution on some condition use event handling cancel:
 ```php
 <?php
-$document
-    ->onBeforeSave(function(\Sokil\Mongo\Event $event) {
-        if($this->get('field') === 42) {
-            $event->cancel();
-        }
-    })
-    ->save();
+$document->onBeforeSave(function(\Sokil\Mongo\Event $event) {
+    if($this->get('field') === 42) {
+        $event->cancel();
+    }
+})
+->save();
 ```
 
 

@@ -2,6 +2,7 @@
   * Method 'Validator::validate()' marked as final
   * Refactoring or document relations
   * `Document::belongsToCollection()` now deprecated. Use Collection::hasDocument()
+  * Refactor document events
 
 ## 1.12.7 (2015-02-20)
   * Define cursor's batch size
