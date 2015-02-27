@@ -1,5 +1,6 @@
 ## 1.12.8@DEV
   * Method 'Validator::validate()' marked as final
+  * Refactoring or document relations
 
 ## 1.12.7 (2015-02-20)
   * Define cursor's batch size
