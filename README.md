@@ -1650,7 +1650,7 @@ $this->triggerEvent('myOwnEvent');
 ```
 
 You can create your own event class, which extends `\Sokil\Mongo\Event' and pass it to listeners.
-This allows toy tu pass some data to listener:
+This allows you to pass some data to listener:
 
 ```php
 <?php
