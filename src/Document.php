@@ -11,6 +11,7 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Document\RelationManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use GeoJson\Geometry\Geometry;
@@ -53,6 +54,12 @@ class Document extends Structure
     const FIELD_TYPE_MIN_KEY = 255;
     const FIELD_TYPE_MAX_KEY = 127;
 
+    /**
+     *
+     * @var \Sokil\Mongo\Document\RelationManager
+     */
+    private $relationManager;
+
     const RELATION_HAS_ONE = 'HAS_ONE';
     const RELATION_BELONGS = 'BELONGS';
     const RELATION_HAS_MANY = 'HAS_MANY';
@@ -63,8 +70,6 @@ class Document extends Structure
      * @var string
      */
     const REVISION_COLLECTION_SUFFIX = '.revisions';
-
-    private $resolvedRelationIds = array();
 
     /**
      *
@@ -316,9 +321,9 @@ class Document extends Structure
 
     public function __get($name)
     {
-        if ($this->isRelationExists($name)) {
+        if ($this->getRelationManager()->isRelationExists($name)) {
             // resolve relation
-            return $this->getRelated($name);
+            return $this->getRelationManager()->getRelated($name);
         } else {
             // get document parameter
             return parent::__get($name);
@@ -539,248 +544,35 @@ class Document extends Structure
     }
 
     /**
-     * Check if relation with specified name configured
-     * @param string $name
-     * @return boolean
+     *
+     * @return \Sokil\Mongo\Document\RelationManager
      */
-    private function isRelationExists($name)
+    private function getRelationManager()
     {
-        $relations = $this->relations();
+        if($this->relationManager) {
+            return $this->relationManager;
+        }
 
-        return isset($relations[$name]);
+        $this->relationManager = new RelationManager($this);
+
+        return $this->relationManager;
     }
 
-    /**
-     * Get related documents
-     * @param string $relationName name of relation
-     */
     public function getRelated($relationName)
     {
-        // get relation config
-        $relations = $this->relations();
-
-        // check if relation exists
-        if (!isset($relations[$relationName])) {
-            throw new Exception('Relation with name "' . $relationName . '" not found');
-        }
-
-        // get relation metadata
-        $relation = $relations[$relationName];
-
-        $relationType = $relation[0];
-        $targetCollectionName = $relation[1];
-
-        // get target collection
-        $targetCollection = $this->collection
-            ->getDatabase()
-            ->getCollection($targetCollectionName);
-
-        // check if relation already resolved
-        if (isset($this->resolvedRelationIds[$relationName])) {
-            if(is_array($this->resolvedRelationIds[$relationName])) {
-                // has_many, many_many
-                return $targetCollection->getDocumentsFromDocumentPool($this->resolvedRelationIds[$relationName]);
-            } else {
-                //has_one, belongs
-                return $targetCollection->getDocumentFromDocumentPool($this->resolvedRelationIds[$relationName]);
-            }
-        }
-
-        switch ($relationType) {
-
-            default:
-                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
-
-            case self::RELATION_HAS_ONE:
-                $internalField = '_id';
-                $externalField = $relation[2];
-
-                $document = $targetCollection
-                    ->find()
-                    ->where($externalField, $this->get($internalField))
-                    ->findOne();
-
-                $this->resolvedRelationIds[$relationName] = (string) $document->getId();
-
-                return $document;
-
-            case self::RELATION_BELONGS:
-                $internalField = $relation[2];
-
-                $document = $targetCollection->getDocument($this->get($internalField));
-
-                $this->resolvedRelationIds[$relationName] = (string) $document->getId();
-
-                return $document;
-
-            case self::RELATION_HAS_MANY:
-                $internalField = '_id';
-                $externalField = $relation[2];
-
-                $documents = $targetCollection
-                    ->find()
-                    ->where($externalField, $this->get($internalField))
-                    ->findAll();
-
-                foreach($documents as $document) {
-                    $this->resolvedRelationIds[$relationName][] = (string) $document->getId();
-                }
-
-                return $documents;
-
-            case self::RELATION_MANY_MANY:
-                $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
-                if ($isRelationListStoredInternally) {
-                    // relation list stored in this document
-                    $internalField = $relation[2];
-                    $relatedIdList = $this->get($internalField);
-                    if (!$relatedIdList) {
-                        return array();
-                    }
-
-                    $externalField = '_id';
-
-                    $documents = $targetCollection
-                        ->find()
-                        ->whereIn($externalField, $relatedIdList)
-                        ->findAll();
-
-                } else {
-                    // relation list stored in external document
-                    $internalField = '_id';
-                    $externalField = $relation[2];
-
-                    $documents = $targetCollection
-                        ->find()
-                        ->where($externalField, $this->get($internalField))
-                        ->findAll();
-                }
-
-                foreach($documents as $document) {
-                    $this->resolvedRelationIds[$relationName][] = (string) $document->getId();
-                }
-
-                return $documents;
-        }
+        return $this->getRelationManager()->getRelated($relationName);
     }
 
     public function addRelation($relationName, Document $document)
     {
-        if (!$this->isRelationExists($relationName)) {
-            throw new \Exception('Relation "' . $relationName . '" not configured');
-        }
-
-        $relations = $this->relations();
-        $relation = $relations[$relationName];
-
-        list($relationType, $relatedCollectionName, $field) = $relation;
-
-        $relatedCollection = $this
-            ->getCollection()
-            ->getDatabase()
-            ->getCollection($relatedCollectionName);
-
-        if (!$relatedCollection->hasDocument($document)) {
-            throw new Exception('Document must belongs to related collection');
-        }
-
-        switch ($relationType) {
-
-            case self::RELATION_BELONGS:
-                if (!$document->isStored()) {
-                    throw new Exception('Document ' . get_class($document) . ' must be saved before adding relation');
-                }
-                $this->set($field, $document->getId());
-                break;
-
-            case self::RELATION_HAS_ONE;
-                if (!$this->isStored()) {
-                    throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
-                }
-                $document->set($field, $this->getId())->save();
-                break;
-
-            case self::RELATION_HAS_MANY:
-                if (!$this->isStored()) {
-                    throw new Exception('Document ' . get_class($this) . ' must be saved before adding relation');
-                }
-                $document->set($field, $this->getId())->save();
-                break;
-
-            case self::RELATION_MANY_MANY:
-                $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
-                if ($isRelationListStoredInternally) {
-                    $this->push($field, $document->getId())->save();
-                } else {
-                    $document->push($field, $this->getId())->save();
-                }
-                break;
-
-            default:
-                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
-        }
+        $this->getRelationManager()->addRelation($relationName, $document);
 
         return $this;
     }
 
     public function removeRelation($relationName, Document $document = null)
     {
-        if (!$this->isRelationExists($relationName)) {
-            throw new \Exception('Relation ' . $relationName . ' not configured');
-        }
-
-        $relations = $this->relations();
-        $relation = $relations[$relationName];
-
-        list($relationType, $relatedCollectionName, $field) = $relation;
-
-        $relatedCollection = $this
-            ->getCollection()
-            ->getDatabase()
-            ->getCollection($relatedCollectionName);
-
-        if ($document && !$relatedCollection->hasDocument($document)) {
-            throw new Exception('Document must belongs to related collection');
-        }
-
-        switch ($relationType) {
-
-            case self::RELATION_BELONGS:
-                $this->unsetField($field)->save();
-                break;
-
-            case self::RELATION_HAS_ONE;
-                $document = $this->getRelated($relationName);
-                if (!$document) {
-                    // relation not exists
-                    return $this;
-                }
-                $document->unsetField($field)->save();
-                break;
-
-            case self::RELATION_HAS_MANY:
-                if (!$document) {
-                    throw new Exception('Related document must be defined');
-                }
-                $document->unsetField($field)->save();
-                break;
-
-
-            case self::RELATION_MANY_MANY:
-                if (!$document) {
-                    throw new Exception('Related document must be defined');
-                }
-                $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
-                if ($isRelationListStoredInternally) {
-                    $this->pull($field, $document->getId())->save();
-                } else {
-                    $document->pull($field, $this->getId())->save();
-                }
-                break;
-
-            default:
-                throw new Exception('Unsupported relation type "' . $relationType . '" when resolve relation "' . $relationName . '"');
-        }
+        $this->getRelationManager()->removeRelation($relationName, $document);
 
         return $this;
     }
