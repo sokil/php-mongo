@@ -1570,6 +1570,53 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $indexes = $this->collection->getIndexes();
 
+        /*
+            v.2.6.8
+            array (
+                0 => array (
+                    'v' => 1,
+                    'key' => array (
+                        '_id' => 1,
+                    ),
+                    'name' => '_id_',
+                    'ns' => 'test.phpmongo_test_collection',
+                ),
+                1 => array (
+                    'v' => 1,
+                    'unique' => true,
+                    'key' => array (
+                        'uniqueAsc' => 1,
+                        'uniqueDesc' => -1,
+                    ),
+                    'name' => 'uniqueAsc_1_uniqueDesc_-1',
+                    'ns' => 'test.phpmongo_test_collection',
+                    'dropDups' => true,
+                ),
+            )
+
+            v.3.0.0
+            array(
+                0 => array(
+                    'v' => 1,
+                    'key' => array (
+                        '_id' => 1,
+                    ),
+                    'name' => '_id_',
+                    'ns' => 'test.phpmongo_test_collection',
+                ),
+                1 => array (
+                    'v' => 1,
+                    'unique' => true,
+                    'key' => array (
+                        'uniqueAsc' => 1,
+                        'uniqueDesc' => -1,
+                    ),
+                    'name' => 'uniqueAsc_1_uniqueDesc_-1',
+                    'ns' => 'test.phpmongo_test_collection',
+                ),
+            )
+         */
+
         $this->assertEquals(array(
             'uniqueAsc'     => 1,
             'uniqueDesc'    => -1,
