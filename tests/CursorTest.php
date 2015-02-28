@@ -667,7 +667,13 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ->where('param1', 2)
             ->explain();
 
-        $this->assertArrayHasKey('cursor', $explain);
+        $currentVersion = $this->collection->getDatabase()->getClient()->getDbVersion();
+        if(version_compare($currentVersion, '3', '<')) {
+            $this->assertArrayHasKey('cursor', $explain);
+        } else {
+            $this->assertArrayHasKey('queryPlanner', $explain);
+        }
+
     }
 
     public function testReadPrimaryOnly()
@@ -784,23 +790,30 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ));
 
         // without hint
-        $explain = $this
+        $explainWithoutHint = $this
             ->collection
             ->find()
             ->where('a', 1)
             ->explain();
-
-        $this->assertEquals('BtreeCursor a_1', $explain['cursor']);
-
+        
         // with hint
-        $explain = $this
+        $explainWithHint = $this
             ->collection
             ->find()
             ->hint(array('a' => 1, 'b' => 1))
             ->where('a', 1)
             ->explain();
 
-        $this->assertEquals('BtreeCursor a_1_b_1', $explain['cursor']);
+        $currentVersion = $this->collection->getDatabase()->getClient()->getDbVersion();
+        if(version_compare($currentVersion, '3', '<')) {
+            $this->assertEquals('BtreeCursor a_1', $explainWithoutHint['cursor']);
+            $this->assertEquals('BtreeCursor a_1_b_1', $explainWithHint['cursor']);
+        } else {
+            $this->assertEquals('a_1', $explainWithoutHint['queryPlanner']['winningPlan']['inputStage']['indexName']);
+            $this->assertEquals('a_1_b_1', $explainWithHint['queryPlanner']['winningPlan']['inputStage']['indexName']);
+        }
+
+
     }
 
     public function testMoveToCollection()
