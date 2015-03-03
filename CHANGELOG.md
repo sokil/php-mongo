@@ -1,4 +1,4 @@
-## 1.12.8@DEV
+## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final
   * Refactoring or document relations
   * `Document::belongsToCollection()` now deprecated. Use Collection::hasDocument()
