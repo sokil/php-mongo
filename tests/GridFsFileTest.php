@@ -25,7 +25,9 @@ class GridFsFileTest extends \PHPUnit_Framework_TestCase
     
     public function tearDown()
     {
-        $this->gridFs->delete();
+        if($this->gridFs) {
+            $this->gridFs->delete();
+        }
     }
 
     public function testInitFileWithArray()

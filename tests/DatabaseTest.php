@@ -269,7 +269,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->database->map('\Sokil\Mongo');
 
         $reflectionClass = new \ReflectionClass($this->database);
-        $method = $reflectionClass->getMethod('getGridFSClassDefinition');
+        $method = $reflectionClass->getMethod('getCollectionDefinition');
         $method->setAccessible(true);
 
         $classDefinition1 = $method->invoke($this->database, 'carPhotosGridFS');
@@ -277,12 +277,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
-            $classDefinition1['class']
+            $classDefinition1->class
         );
 
         $this->assertEquals(
             '\Sokil\Mongo\CarPhotosGridFS',
-            $classDefinition2['class']
+            $classDefinition2->class
         );
     }
 
@@ -303,7 +303,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Must be GridFS
+     * @expectedExceptionMessage Must be instance of \Sokil\Mongo\GridFS
      */
     public function testGetGridFs_SpecifiedGridFSClassInMappingIsNotInstanceOfGridFS()
     {

@@ -46,11 +46,11 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
             ->getDatabase('db2');
         
         $reflectionClass = new \ReflectionClass($database);
-        $method = $reflectionClass->getMethod('getCollectionClassDefinition');
+        $method = $reflectionClass->getMethod('getCollectionDefinition');
         $method->setAccessible(true);
         $collectionClassName = $method->invoke($database, 'col2');
         
-        $this->assertEquals('\Sokil\Mongo\Collection8', $collectionClassName['class']);
+        $this->assertEquals('\Sokil\Mongo\Collection8', $collectionClassName->class);
     }
 
     /**
@@ -174,11 +174,11 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
             ->getDatabase('db2');
         
         $reflectionClass = new \ReflectionClass($database);
-        $method = $reflectionClass->getMethod('getCollectionClassDefinition');
+        $method = $reflectionClass->getMethod('getCollectionDefinition');
         $method->setAccessible(true);
         $collectionClassName = $method->invoke($database, 'col2');
 
-        $this->assertEquals('\Sokil\Mongo\Collection8', $collectionClassName['class']);
+        $this->assertEquals('\Sokil\Mongo\Collection8', $collectionClassName->class);
     }
 
     public function testGet_DsnNotSpecified()

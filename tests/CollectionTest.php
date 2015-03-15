@@ -28,7 +28,9 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        $this->collection->delete();
+        if($this->collection) {
+            $this->collection->delete();
+        }
     }
 
     public function testGetDocument()
@@ -1632,10 +1634,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testInitIndexes()
     {
         $reflection = new \ReflectionClass($this->collection);
-        $property = $reflection->getProperty('_index');
+        $property = $reflection->getProperty('definition');
         $property->setAccessible(true);
 
-        $property->setValue($this->collection, array(
+        $definition = $property->getValue($this->collection);
+        $definition->setOption('index', array(
             array(
                 'keys' => array('asc' => 1, 'desc' => -1),
                 'unique' => true,
@@ -1661,10 +1664,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testInitIndexes_KeysNotSpecified()
     {
         $reflection = new \ReflectionClass($this->collection);
-        $property = $reflection->getProperty('_index');
+        $property = $reflection->getProperty('definition');
         $property->setAccessible(true);
 
-        $property->setValue($this->collection, array(
+        $definition = $property->getValue($this->collection);
+        $definition->setOption('index', array(
             array(
                 'unique' => true,
             ),
@@ -1764,42 +1768,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetOption_DefaultValue_NotPredefinedOption()
-    {
-        // define array of collections
-        $this->database->map(array(
-            'collection1' => array(
-                'someOption' => 'someValue',
-            )
-        ));
-
-        $this->assertEquals('someDefaultValue', $this
-            ->database
-            ->getCollection('collection1')
-            ->getOption('unexistedOption', 'someDefaultValue')
-        );
-    }
-
-    public function testGetOption_DefaultValue_PredefinedOption_DocumentClass()
-    {
-        $documentClass = $this
-            ->database
-            ->getCollection('collection1')
-            ->getOption('documentClass', '/SomeDocument');
-
-        $this->assertEquals('/SomeDocument', $documentClass);
-    }
-
-    public function testGetOption_DefaultValue_PredefinedOption_Versioning()
-    {
-        $versioning = $this
-            ->database
-            ->getCollection('collection1')
-            ->getOption('versioning', true);
-
-        $this->assertTrue($versioning);
-    }
-
     public function testGetOptions()
     {
         // define array of collections
@@ -1809,15 +1777,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             )
         ));
 
-        $this->assertEquals(
-            array(
-                'someOption' => 'someValue',
-            ),
-            $this
-            ->database
-                ->getCollection('collection1')
-                ->getOptions()
-        );
+        $options = $this->database
+            ->getCollection('collection1')
+            ->getOptions();
+
+        $this->assertArrayHasKey('someOption', $options);
+        $this->assertEquals($options['someOption'], 'someValue');
     }
 
     public function testIsVersioningEnabled()

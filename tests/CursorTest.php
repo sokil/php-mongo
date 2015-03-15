@@ -24,7 +24,9 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        $this->collection->delete();
+        if($this->collection) {
+            $this->collection->delete();
+        }
     }
 
     public function testReturnSpecifiedFields()

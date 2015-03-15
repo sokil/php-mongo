@@ -21,7 +21,9 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     
     public function tearDown()
     {
-        $this->cache->clear();
+        if($this->cache) {
+            $this->cache->clear();
+        }
     }
 
     public function testGet_NotExistedKey()

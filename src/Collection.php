@@ -12,6 +12,7 @@
 namespace Sokil\Mongo;
 
 use \Sokil\Mongo\Document\InvalidDocumentException;
+use \Sokil\Mongo\Collection\Definition;
 /**
  * Instance of this class is a representation of mongo collection.
  * It aggregates \MongoCollection instance.
@@ -38,13 +39,13 @@ class Collection implements \Countable
      * @var string expression class. This class may be overloaded to define
      *  own query methods (whereUserAgeGreatedThan(), etc.)
      */
-    protected $_queryExpressionClass = '\Sokil\Mongo\Expression';
+    protected $_queryExpressionClass;
 
     /**
      *
      * @var string Default class for document
      */
-    private $documentClass = '\Sokil\Mongo\Document';
+    private $documentClass;
 
     /**
      * List of arrays, where each item array is an index definition.
@@ -92,24 +93,14 @@ class Collection implements \Countable
      *
      * @var bool default value of versioning
      */
-    protected $versioning = false;
+    protected $versioning;
 
     /**
-     *
-     * @var array collection options
-     *
-     * Allowed options:
-     * 
-     * documentClass: May be fully qualified class name or callable that return fully qualified class name of document
-     * expressionClass: Fully qualified class name of expression
-     * versioning: is versioning enabled for documents
-     * index: list of collection indexes
-     * behaviors: list of document behaviors
-     * batchSize: number of documents to return in each batch of the response from the MongoDB instance
+     * @var \Sokil\Mongo\Collection\Definition collection options
      */
-    private $options = array();
+    private $definition;
 
-    public function __construct(Database $database, $collection, array $options = null)
+    public function __construct(Database $database, $collection, Definition $definition = null)
     {
         // define db
         $this->_database = $database;
@@ -121,25 +112,26 @@ class Collection implements \Countable
             $this->_mongoCollection = $database->getMongoDB()->selectCollection($collection);
         }
 
-        // set options
-        if($options) {
-            $this->setOptions($options);
-        }
-
+        $this->setDefinition($definition);
     }
 
-    /**
-     * Configure object in constructor
-     *
-     * @param array $options
-     * @return \Sokil\Mongo\Collection
-     * @throws Exception
-     */
-    private function setOptions(array $options)
+    protected function setDefinition(Definition $definition = null)
     {
-        $this->options = $options + $this->options;
+        // init definition
+        $this->definition = $definition ? $definition : new Definition();
 
-        return $this;
+        if($this->documentClass) {
+            $this->definition->setOption('documentClass', $this->documentClass);
+        }
+        if($this->versioning !== null) {
+            $this->definition->setOption('versioning', $this->versioning);
+        }
+        if($this->_index) {
+            $this->definition->setOption('index', $this->_index);
+        }
+        if($this->_queryExpressionClass) {
+            $this->definition->setOption('expressionClass', $this->_queryExpressionClass);
+        }
     }
 
     /**
@@ -149,7 +141,7 @@ class Collection implements \Countable
      */
     public function enableVersioning()
     {
-        $this->options['versioning'] = true;
+        $this->definition->setOption('versioning', true);
         return $this;
     }
 
@@ -160,7 +152,7 @@ class Collection implements \Countable
      */
     public function isVersioningEnabled()
     {
-        return $this->getOption('versioning', $this->versioning);
+        return $this->definition->getOption('versioning');
     }
 
     /**
@@ -169,7 +161,7 @@ class Collection implements \Countable
      */
     public function getDefaultDocumentClass()
     {
-        $class = $this->getOption('documentClass', $this->documentClass);
+        $class = $this->definition->getOption('documentClass');
 
         // May be fully qualified class name or callable that return fully qualified class name
         if(!is_callable($class) && !class_exists($class)) {
@@ -180,23 +172,19 @@ class Collection implements \Countable
     }
 
     /**
-     * Get all options
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    /**
      * Get option
      *
      * @param string|int $name
      * @return mixed
      */
-    public function getOption($name, $default = null)
+    public function getOption($name)
     {
-        return isset($this->options[$name]) ? $this->options[$name] : $default;
+        return $this->definition->getOption($name);
+    }
+
+    public function getOptions()
+    {
+        return $this->definition->getOptions();
     }
 
     public function __get($name)
@@ -288,7 +276,7 @@ class Collection implements \Countable
         $document = new $className($this, $data, array(
             'stored'        => false,
             'versioning'    => $this->isVersioningEnabled(),
-            'behaviors'     => $this->getOption('behaviors'),
+            'behaviors'     => $this->definition->getOption('behaviors'),
         ));
 
         // store document to identity map
@@ -326,7 +314,7 @@ class Collection implements \Countable
         $document = new $className($this, $data, array(
             'stored'        => true,
             'versioning'    => $this->isVersioningEnabled(),
-            'behaviors'     => $this->getOption('behaviors'),
+            'behaviors'     => $this->definition->getOption('behaviors'),
         ));
 
         // store document in cache
@@ -364,23 +352,13 @@ class Collection implements \Countable
     }
 
     /**
-     * Get fully qualified class name of expression for current collection instance
-     * 
-     * @return string
-     */
-    private function getExpressionClass()
-    {
-        return $this->getOption('expressionClass', $this->_queryExpressionClass);
-    }
-
-    /**
      * Create new Expression instance to use in query builder or update operations
      * 
      * @return \Sokil\Mongo\Expression
      */
     public function expression()
     {
-        $className = $this->getExpressionClass();
+        $className = $this->definition->getExpressionClass();
         return new $className;
     }
 
@@ -456,8 +434,8 @@ class Collection implements \Countable
     {
         /** @var \Sokil\Mongo\Cursor $queryBuilder */
         $queryBuilder = new $this->_queryBuilderClass($this, array(
-            'expressionClass'   => $this->getExpressionClass(),
-            'batchSize'         => $this->getOption('batchSize'),
+            'expressionClass'   => $this->definition->getExpressionClass(),
+            'batchSize'         => $this->definition->getOption('batchSize'),
         ));
 
         if(is_callable($callable)) {
@@ -1167,7 +1145,7 @@ class Collection implements \Countable
     {
         // read index definition from collection options
         // if not specified - use defined in property
-        $indexDefinition = $this->getOption('index', $this->_index);
+        $indexDefinition = $this->definition->getOption('index');
 
         // ensure indexes
         foreach($indexDefinition as $options) {

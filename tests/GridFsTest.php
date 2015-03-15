@@ -116,7 +116,7 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testFind()
-    {        
+    {
         $this->gridFs->storeBytes('somebinarydata', array(
             'meta' => 1,
         ));

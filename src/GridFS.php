@@ -11,6 +11,8 @@
 
 namespace Sokil\Mongo;
 
+use \Sokil\Mongo\Collection\Definition;
+
 /**
  * Representation of GridFS as collection of files
  *
@@ -21,7 +23,7 @@ class GridFS extends Collection
 {
     protected $_queryBuilderClass = '\Sokil\Mongo\GridFSQueryBuilder';
     
-    public function __construct(Database $database, $collection = 'fs')
+    public function __construct(Database $database, $collection = 'fs', Definition $definition = null)
     {
         $this->_database = $database;
 
@@ -30,6 +32,8 @@ class GridFS extends Collection
         } else {
            $this->_mongoCollection = new \MongoGridFS($database->getMongoDB(), $collection);
         }
+
+        $this->setDefinition($definition);
     }
     
     /**

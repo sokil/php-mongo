@@ -193,16 +193,27 @@ class Database
         return $this;
     }
 
-    public function defineCollection($name, $classDefinition)
+    /**
+     *
+     * @param string $name collection name
+     * @param \Sokil\Mongo\Collection\Definition|array $definition collection definition
+     * @return \Sokil\Mongo\Database
+     */
+    public function defineCollection($name, $definition)
     {
-        if(!is_array($classDefinition)) {
-            $classDefinition = array('class' => $classDefinition);
+        // prepate definition object
+        if(($definition instanceof Definition) === false) {
+            if(is_string($definition)) {
+                $definition = array('class' => $definition);
+            }
+            $definition = new Definition($definition);
         }
 
+        // set definition
         if('/' !== substr($name, 0, 1)) {
-            $this->mapping[$name] = $classDefinition;
+            $this->mapping[$name] = $definition;
         } else {
-            $this->regexpMapping[$name] = $classDefinition;
+            $this->regexpMapping[$name] = $definition;
         }
 
         return $this;
@@ -211,60 +222,40 @@ class Database
     /**
      * Get class name mapped to collection
      * @param string $name name of collection
+     * @param array $defaultDefinition definition used when no definition found for defined class
      * @return string|array name of class or array of class definition
      */
-    protected function getCollectionClassDefinition($name, $defaultClass = null)
+    private function getCollectionDefinition($name, array $defaultDefinition = null)
     {
-        if(!$defaultClass) {
-            $defaultClass = Definition::DEFAULT_COLLECTION_CLASS;
-        }
-
         if(isset($this->mapping[$name])) {
             $classDefinition = $this->mapping[$name];
-            if(empty($classDefinition['class'])) {
-                $classDefinition['class'] = $defaultClass;
-            }
         } elseif($this->regexpMapping) {
             foreach($this->regexpMapping as $collectionNamePattern => $regexpMappingClassDefinition) {
-                if(empty($regexpMappingClassDefinition['class'])) {
-                    $regexpMappingClassDefinition['class'] = $defaultClass;
-                }
-
                 if(preg_match($collectionNamePattern, $name, $matches)) {
                     $classDefinition = $regexpMappingClassDefinition;
-                    $classDefinition['regexp'] = $matches;
+                    $classDefinition->setOption('regexp', $matches);
                     break;
                 }
             }
         }
 
+        // mapping not configured - use default
         if(!isset($classDefinition)) {
+            $classDefinition = new Definition();
             if($this->collectionNamespace) {
-                $classDefinition = array(
-                    'class' => $this->collectionNamespace . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)))
-                );
-            } else {
-                $classDefinition = array(
-                    'class' => $defaultClass,
-                );
+                $class = $this->collectionNamespace . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
+                $classDefinition->setCollectionClass($class);
+            } elseif($defaultDefinition) {
+                $classDefinition->merge($defaultDefinition);
             }
         }
 
-        if(!class_exists($classDefinition['class'])) {
-            throw new Exception('Class ' . $classDefinition['class'] . ' not found while map collection name to class');
+        // check if class exists
+        if(!class_exists($classDefinition->getCollectionClass())) {
+            throw new Exception('Class ' . $classDefinition->getCollectionClass() . ' not found while map collection name to class');
         }
 
         return $classDefinition;
-    }
-
-    /**
-     * Get class name mapped to collection
-     * @param string $name name of collection
-     * @return string name of class
-     */
-    protected function getGridFSClassDefinition($name)
-    {
-        return $this->getCollectionClassDefinition($name, Definition::DEFAULT_GRIDFS_CLASS);
     }
 
     /**
@@ -277,17 +268,20 @@ class Database
      */
     public function createCollection($name, array $options = null)
     {
-        $classDefinition = $this->getCollectionClassDefinition($name);
-        $className = $classDefinition['class'];
+        $classDefinition = $this->getCollectionDefinition($name);
+        $classDefinition->merge($options);
 
-        $options = $options + $classDefinition;
+        $mongoCollection = $this->getMongoDB()->createCollection(
+            $name,
+            $classDefinition->getMongoCollectionOptions()
+        );
 
-        $mongoCollection = $this->getMongoDB()->createCollection($name, $options);
-
+        // create collection
+        $className = $classDefinition->getCollectionClass();
         return new $className(
             $this,
             $mongoCollection,
-            $options
+            $classDefinition
         );
     }
 
@@ -320,22 +314,21 @@ class Database
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      */
-    public function getCollection($name) {
-
+    public function getCollection($name)
+    {
         // return from pool
         if($this->collectionPoolEnabled && isset($this->collectionPool[$name])) {
             return $this->collectionPool[$name];
         }
 
         // no object in pool - init new
-        $classDefinition = $this->getCollectionClassDefinition($name);
-        $className = $classDefinition['class'];
-        unset($classDefinition['class']);
+        $classDefinition = $this->getCollectionDefinition($name);
+        $className = $classDefinition->getCollectionClass();
 
         // create collection class
         $collection = new $className($this, $name, $classDefinition);
         if(!$collection instanceof \Sokil\Mongo\Collection) {
-            throw new Exception('Must be Collection');
+            throw new Exception('Must be instance of \Sokil\Mongo\Collection');
         }
 
         // store to pool
@@ -354,30 +347,30 @@ class Database
      * @return \Sokil\Mongo\GridFS
      * @throws \Sokil\Mongo\Exception
      */
-    public function getGridFS($prefix = 'fs')
+    public function getGridFS($name = 'fs')
     {
-        // get from cache if enabled
-        if($this->collectionPoolEnabled && isset($this->collectionPool[$prefix])) {
-            return $this->collectionPool[$prefix];
+        // return from pool
+        if($this->collectionPoolEnabled && isset($this->collectionPool[$name])) {
+            return $this->collectionPool[$name];
         }
 
-        // no object in cache - init new
-        $classDefinition = $this->getGridFSClassDefinition($prefix);
-        $className = $classDefinition['class'];
+        // no object in pool - init new
+        $classDefinition = $this->getCollectionDefinition($name, array('gridfs' => true));
+        $className = $classDefinition->getCollectionClass();
 
-        $gridFS = new $className($this, $prefix, $classDefinition);
-        if(!$gridFS instanceof GridFS) {
-            throw new Exception('Must be GridFS');
+        // create collection class
+        $collection = new $className($this, $name, $classDefinition);
+        if(!$collection instanceof \Sokil\Mongo\GridFS) {
+            throw new Exception('Must be instance of \Sokil\Mongo\GridFS');
         }
 
-        // store to cache
+        // store to pool
         if($this->collectionPoolEnabled) {
-            $this->collectionPool[$prefix] = $gridFS;
+            $this->collectionPool[$name] = $collection;
         }
 
         // return
-        return $gridFS;
-
+        return $collection;
     }
 
     /**
