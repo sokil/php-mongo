@@ -11,8 +11,6 @@
 
 namespace Sokil\Mongo;
 
-use \Sokil\Mongo\Collection\Definition;
-
 /**
  * Representation of GridFS as collection of files
  *
