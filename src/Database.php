@@ -11,6 +11,8 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Collection\Definition;
+
 class Database
 {
     /**
@@ -49,18 +51,6 @@ class Database
      * @var bool is collection pool enabled
      */
     private $collectionPoolEnabled = true;
-
-    /**
-     *
-     * @var string default collection class
-     */
-    private $defultCollectionClass = '\Sokil\Mongo\Collection';
-
-    /**
-     *
-     * @var string default gridFs class
-     */
-    private $defultGridFsClass = '\Sokil\Mongo\GridFS';
 
     public function __construct(Client $client, $database) {
         $this->client = $client;
@@ -209,7 +199,7 @@ class Database
     protected function getCollectionClassDefinition($name, $defaultClass = null)
     {
         if(!$defaultClass) {
-            $defaultClass = $this->defultCollectionClass;
+            $defaultClass = Definition::DEFAULT_COLLECTION_CLASS;
         }
 
         if(isset($this->mapping[$name])) {
@@ -257,7 +247,7 @@ class Database
      */
     protected function getGridFSClassDefinition($name)
     {
-        return $this->getCollectionClassDefinition($name, $this->defultGridFsClass);
+        return $this->getCollectionClassDefinition($name, Definition::DEFAULT_GRIDFS_CLASS);
     }
 
     /**

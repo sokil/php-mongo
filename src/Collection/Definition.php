@@ -4,10 +4,13 @@ namespace Sokil\Mongo\Collection;
 
 class Definition
 {
+    const DEFAULT_COLLECTION_CLASS = '\Sokil\Mongo\Collection';
+    const DEFAULT_GRIDFS_CLASS = '\Sokil\Mongo\GridFS';
+
     /**
      * Fully qualified collectin class
      */
-    private $class = '\Sokil\Mongo\Collection';
+    private $class = self::DEFAULT_COLLECTION_CLASS;
 
     /**
      * Fully qualified document class
