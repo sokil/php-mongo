@@ -169,14 +169,21 @@ class Database
         // map collections to classes
         if(is_array($name)) {
             foreach($name as $collectionName => $classDefinition) {
-                $this->map($collectionName, $classDefinition);
+                $this->defineCollection($collectionName, $classDefinition);
             }
             return $this;
         }
 
         // define class prefix
-        $this->classPrefix = rtrim($name, '\\');
+        $this->setClassPrefix($name);
 
+        return $this;
+    }
+
+    public function setClassPrefix($prefix)
+    {
+        $this->classPrefix = rtrim($prefix, '\\');
+        
         return $this;
     }
 
