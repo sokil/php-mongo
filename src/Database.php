@@ -163,18 +163,7 @@ class Database
     {
         // map collection to class
         if($classDefinition) {
-
-            if(!is_array($classDefinition)) {
-                $classDefinition = array('class' => $classDefinition);
-            }
-
-            if('/' !== substr($name, 0, 1)) {
-                $this->mapping[$name] = $classDefinition;
-            } else {
-                $this->regexpMapping[$name] = $classDefinition;
-            }
-
-            return $this;
+            return $this->defineCollection($name, $classDefinition);
         }
 
         // map collections to classes
@@ -187,6 +176,21 @@ class Database
 
         // define class prefix
         $this->classPrefix = rtrim($name, '\\');
+
+        return $this;
+    }
+
+    public function defineCollection($name, $classDefinition)
+    {
+        if(!is_array($classDefinition)) {
+            $classDefinition = array('class' => $classDefinition);
+        }
+
+        if('/' !== substr($name, 0, 1)) {
+            $this->mapping[$name] = $classDefinition;
+        } else {
+            $this->regexpMapping[$name] = $classDefinition;
+        }
 
         return $this;
     }
