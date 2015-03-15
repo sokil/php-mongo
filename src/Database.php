@@ -39,7 +39,7 @@ class Database
     /**
      * @var string if mapping not specified, use class prefix to create class path from collection name
      */
-    private $classPrefix;
+    private $collectionNamespace;
 
     /**
      * @var array pool of initialised collections
@@ -147,7 +147,7 @@ class Database
     public function resetMapping()
     {
         $this->mapping = array();
-        $this->classPrefix = null;
+        $this->collectionNamespace = null;
 
         return $this;
     }
@@ -175,14 +175,20 @@ class Database
         }
 
         // define class prefix
-        $this->setClassPrefix($name);
+        $this->defineCollectionNamespace($name);
 
         return $this;
     }
 
-    public function setClassPrefix($prefix)
+    /**
+     * Define mapping through class prefix
+     * 
+     * @param string $prefix Namespace prefix
+     * @return \Sokil\Mongo\Database
+     */
+    public function defineCollectionNamespace($prefix)
     {
-        $this->classPrefix = rtrim($prefix, '\\');
+        $this->collectionNamespace = rtrim($prefix, '\\');
         
         return $this;
     }
@@ -233,9 +239,9 @@ class Database
         }
 
         if(!isset($classDefinition)) {
-            if($this->classPrefix) {
+            if($this->collectionNamespace) {
                 $classDefinition = array(
-                    'class' => $this->classPrefix . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)))
+                    'class' => $this->collectionNamespace . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)))
                 );
             } else {
                 $classDefinition = array(
