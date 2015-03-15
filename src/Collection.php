@@ -105,18 +105,8 @@ class Collection implements \Countable
         // define db
         $this->_database = $database;
 
-        // init mongo collection
-        if($collection instanceof \MongoCollection) {
-            $this->_mongoCollection = $collection;
-        } else {
-            $this->_mongoCollection = $database->getMongoDB()->selectCollection($collection);
-        }
+        $this->initCollection($collection);
 
-        $this->setDefinition($definition);
-    }
-
-    protected function setDefinition(Definition $definition = null)
-    {
         // init definition
         $this->definition = $definition ? $definition : new Definition();
 
@@ -131,6 +121,16 @@ class Collection implements \Countable
         }
         if($this->_queryExpressionClass) {
             $this->definition->setOption('expressionClass', $this->_queryExpressionClass);
+        }
+    }
+
+    protected function initCollection($collection)
+    {
+        // init mongo collection
+        if($collection instanceof \MongoCollection) {
+            $this->_mongoCollection = $collection;
+        } else {
+            $this->_mongoCollection = $this->_database->getMongoDB()->selectCollection($collection);
         }
     }
 

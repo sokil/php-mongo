@@ -22,18 +22,14 @@ use \Sokil\Mongo\Collection\Definition;
 class GridFS extends Collection
 {
     protected $_queryBuilderClass = '\Sokil\Mongo\GridFSQueryBuilder';
-    
-    public function __construct(Database $database, $collection = 'fs', Definition $definition = null)
-    {
-        $this->_database = $database;
 
+    protected function initCollection($collection)
+    {
         if($collection instanceof \MongoGridFS) {
             $this->_mongoCollection = $collection;
         } else {
-           $this->_mongoCollection = new \MongoGridFS($database->getMongoDB(), $collection);
+           $this->_mongoCollection = new \MongoGridFS($this->_database->getMongoDB(), $collection);
         }
-
-        $this->setDefinition($definition);
     }
     
     /**
