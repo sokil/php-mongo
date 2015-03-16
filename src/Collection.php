@@ -156,22 +156,6 @@ class Collection implements \Countable
     }
 
     /**
-     * Get fully qualified document class name or callable that return fully qualified class name
-     * @return string
-     */
-    public function getDefaultDocumentClass()
-    {
-        $class = $this->definition->getOption('documentClass');
-
-        // May be fully qualified class name or callable that return fully qualified class name
-        if(!is_callable($class) && !class_exists($class)) {
-            throw new Exception('Property "documentClass" must be callable or valid name of class');
-        }
-
-        return $class;
-    }
-
-    /**
      * Get option
      *
      * @param string|int $name
@@ -248,19 +232,17 @@ class Collection implements \Countable
      */
     public function getDocumentClassName(array $documentData = null)
     {
-        $defaultDocumentClass = $this->getDefaultDocumentClass();
+        $documentClass = $this->definition->getOption('documentClass');
 
-        if(is_callable($defaultDocumentClass)) {
-            $className = call_user_func($defaultDocumentClass, $documentData);
-        } else {
-            $className = $defaultDocumentClass;
+        if(is_callable($documentClass)) {
+            return call_user_func($documentClass, $documentData);
         }
 
-        if(!class_exists($className)) {
-            throw new Exception('Class ' . $className . ' not found');
+        if(class_exists($documentClass)) {
+            return $documentClass;
         }
 
-        return $className;
+        throw new Exception('Property "documentClass" must be callable or valid name of class');
     }
 
     /**

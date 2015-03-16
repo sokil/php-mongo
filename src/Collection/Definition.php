@@ -19,7 +19,8 @@ class Definition
     private $gridfs;
 
     /**
-     * Fully qualified document class
+     * Fully qualified document class or callable that returns classname
+     * @var string|callable
      */
     private $documentClass = '\Sokil\Mongo\Document';
 
