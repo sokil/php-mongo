@@ -127,20 +127,6 @@ class Client
     /**
      * Set mongo's client
      * 
-     * @deprecated since v.1.8.0 use Client::setMongoClient()
-     * @param \MongoClient $client
-     * @return \Sokil\Mongo\Client
-     */
-    public function setConnection(\MongoClient $client)
-    {
-        $this->setMongoClient($client);
-        
-        return $this;
-    }
-    
-    /**
-     * Set mongo's client
-     * 
      * @param \MongoClient $client
      * @return \Sokil\Mongo\Client
      */

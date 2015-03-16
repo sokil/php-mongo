@@ -37,19 +37,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($mongoClient, $client->getMongoClient());
     }
 
-    /**
-     * @deprecated
-     */
-    public function testSetConnection()
-    {
-        $mongoClient = new \MongoClient();
-
-        $client = new Client;
-        $client->setConnection($mongoClient);
-
-        $this->assertEquals($mongoClient, $client->getConnection());
-    }
-
     public function testSetCredentials()
     {
         $client = new Client;
