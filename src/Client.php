@@ -135,18 +135,6 @@ class Client
         $this->_mongoClient = $client;
         return $this;
     }
-
-    /**
-     * Get mongo connection instance
-     *
-     * @deprecated since v.1.8.0 use Client::getMongoClient()
-     * @return \MongoClient
-     * @throws \Sokil\Mongo\Exception
-     */
-    public function getConnection()
-    {
-        return $this->getMongoClient();
-    }
     
     /**
      * Get mongo connection instance

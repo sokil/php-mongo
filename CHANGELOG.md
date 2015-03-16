@@ -3,6 +3,7 @@
   * Default argument removed from `Collection::getOption()`.
   * Removed deprecated method `Collection::saveDocument()`
   * Removed deprecated method `Client::setConnection()`. Use Client::setMongoClient().
+  * Removed deprecated method `Client::getConnection()`. Use Client::getMongoClient().
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final
