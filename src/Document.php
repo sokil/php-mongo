@@ -1126,18 +1126,6 @@ class Document extends Structure
     }
 
     /**
-     * Push each element of argument's array as single element to field value
-     *
-     * @deprecated since 1.6.0 use self::pushEach() instead
-     * @param string $fieldName point-delimited field name
-     * @param array $values
-     */
-    public function pushFromArray($fieldName, array $values)
-    {
-        return $this->pushEach($fieldName, $values);
-    }
-
-    /**
      * Removes from an existing array all instances of a value or
      * values that match a specified query
      *

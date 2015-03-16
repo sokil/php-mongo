@@ -1256,65 +1256,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             $this->collection->getDocumentDirectly($doc->getId())->key
         );
     }
-    
-    public function testPushFromArray_ToEmpty_OnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        $doc->save();
-
-        // push array to empty
-        $doc->pushFromArray('key', array(1));
-        $doc->save();
-
-        $this->assertEquals(
-            array(1),
-            $this->collection->getDocumentDirectly($doc->getId())->key
-        );
-
-    }
-
-    public function testPushFromArray_ToSingle_OnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        $doc->save();
-
-        // push array to single
-        $doc->pushFromArray('some', array('another'));
-        $doc->save();
-
-        $this->assertEquals(
-            array('some', 'another'),
-            $this->collection->getDocumentDirectly($doc->getId())->some
-        );
-
-    }
-
-    public function testPushFromArray_ToArray_OnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => array('some1', 'some2'),
-        ));
-
-        $doc->save();
-
-        // push array to array
-        $doc->pushFromArray('some', array('some3'));
-        $doc->save();
-
-        $this->assertEquals(
-            array('some1', 'some2', 'some3'),
-            $this->collection->getDocumentDirectly($doc->getId())->some
-        );
-    }
 
     public function testPullFromOneDimensionalArray()
     {
