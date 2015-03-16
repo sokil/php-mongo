@@ -73,24 +73,6 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($d12->getId(), $pager->key());
     }
-
-    public function testSetCursor()
-    {
-        $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
-        $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
-        $d21 = $this->collection->createDocument(array('param1' => 2, 'param2' => 1))->save();
-        $d22 = $this->collection->createDocument(array('param1' => 2, 'param2' => 2))->save();
-
-        $cursor = $this->collection->find();
-
-        $pager = new Paginator;
-        $pager
-            ->setItemsOnPage(1)
-            ->setCurrentPage(2)
-            ->setCursor($cursor);
-
-        $this->assertEquals($d12->getId(), $pager->key());
-    }
     
     public function testPaginatorWhenPageExistsAndRowsLessThenItemsOnPage()
     {        
