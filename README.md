@@ -20,7 +20,7 @@ Why to use this ODM? You can easily work with document data through comfortable 
 
 * PHP 5.3 or above
 * PHP MongoDB Extension 0.9 or above (Some features require >= 1.5)
-* Tested over MongoDB v.2.6 - v.3.0.0-rc11
+* Tested over MongoDB v.2.6 - v.3.0.0
 * [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html)
 * [GeoJson version ~1.0](https://github.com/jmikola/geojson)
 * [PSR-3 logger interface](https://github.com/php-fig/log)
