@@ -1,3 +1,7 @@
+## 1.13@DEV
+  * Refactoring of mapping configs. 
+  * Default argument removed from `Collection::getOption()`.
+
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final
   * Refactoring or document relations
