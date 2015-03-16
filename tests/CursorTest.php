@@ -40,7 +40,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 'd'    => 'd1',
             ));
 
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
 
         // fild some fields of document
@@ -106,7 +106,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             'd'    => 'd1',
         ));
 
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
 
         // fild some fields of document
@@ -293,19 +293,19 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             'p1'    => 'v',
             'p2'    => 'doc1',
         ));
-        $this->collection->saveDocument($document1);
+        $document1->save();
 
         $document2 = $this->collection->createDocument(array(
             'p1'    => 'v',
             'p2'    => 'doc2',
         ));
-        $this->collection->saveDocument($document2);
+        $document2->save();
 
         $document3 = $this->collection->createDocument(array(
             'p1'    => 'other_v',
             'p2'    => 'doc3',
         ));
-        $this->collection->saveDocument($document3);
+        $document3->save();
 
         // find unexisted random document
         $document = $this->collection->find()->where('pZZZ', 'v')->findRandom();
@@ -326,7 +326,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $document = $this->collection->createDocument(array(
             'some-field'    => 'some-value',
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
 
         // find
         $documents = $this->collection->find()->where('some-field', 'some-value');
@@ -405,7 +405,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             'some-field'    => 'some-value',
         ));
 
-        $this->collection->saveDocument($document);
+        $document->save();
 
         // find all rows
         $document = $this->collection->findAsArray()->where('some-field', 'some-value')->rewind()->current();

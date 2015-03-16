@@ -367,7 +367,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             )));
 
         // save document
-        $this->collection->saveDocument($document);
+        $document->save();
     }
 
     public function testDeleteCollection_UnexistedCollection()
@@ -768,10 +768,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // create documents
         $d1 = $this->collection->createDocument(array('p' => 1));
-        $this->collection->saveDocument($d1);
+        $d1->save();
 
         $d2 = $this->collection->createDocument(array('p' => 1));
-        $this->collection->saveDocument($d2);
+        $d2->save();
 
         // packet update
         $this->collection->updateMultiple(
@@ -792,10 +792,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // create documents
         $d1 = $this->collection->createDocument(array('p' => 1));
-        $this->collection->saveDocument($d1);
+        $d1->save();
 
         $d2 = $this->collection->createDocument(array('p' => 1));
-        $this->collection->saveDocument($d2);
+        $d2->save();
 
         // packet update
         $this->collection->updateMultiple(
@@ -816,10 +816,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // create documents
         $d1 = $this->collection->createDocument(array('p' => 1));
-        $this->collection->saveDocument($d1);
+        $d1->save();
 
         $d2 = $this->collection->createDocument(array('p' => 1));
-        $this->collection->saveDocument($d2);
+        $d2->save();
 
         // packet update
         $this->collection->updateAll(
@@ -839,10 +839,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // create documents
         $d1 = $this->collection->createDocument(array('p' => 1));
-        $this->collection->saveDocument($d1);
+        $d1->save();
 
         $d2 = $this->collection->createDocument(array('p' => 1));
-        $this->collection->saveDocument($d2);
+        $d2->save();
 
         // packet update
         $this->collection->updateAll(

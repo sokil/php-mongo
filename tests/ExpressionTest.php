@@ -52,7 +52,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $document->push('param', 'value1');
         $document->push('param', 'value2');
         
-        $this->collection->saveDocument($document);
+        $document->save();
         
         // find document
         $document = $this->collection->find()->where('param', 'value1')->findOne();
@@ -66,7 +66,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             'param'    => 'value1',
         ));
         
-        $this->collection->saveDocument($document);
+        $document->save();
         
         $documentId = $document->getId();
         
@@ -89,7 +89,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             'f_array'     => array(),
         ));
         
-        $this->collection->saveDocument($document);
+        $document->save();
         
         $documentId = $document->getId();
         
@@ -160,7 +160,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             'param'    => 'value',
         ));
         
-        $this->collection->saveDocument($document);
+        $document->save();
         
         $documentId = $document->getId();
         
@@ -218,7 +218,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $document = $this->collection->createDocument(array(
             'param'    => 'abcd',
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find all rows
@@ -244,7 +244,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             'f_date'            => new \MongoDate,
             'f_null'            => null,
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         
         $this->assertNotEmpty($this->collection->find()->whereDouble('f_double')->findOne());
         $this->assertNotEmpty($this->collection->find()->whereString('f_string')->findOne());
@@ -264,7 +264,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             'param'    => 'abcd',
         ));
         
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // try to found - must be empty result
@@ -299,14 +299,14 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             'param1'    => 'p11',
             'param2'    => 'p12',
         ));
-        $this->collection->saveDocument($document1);
+        $document1->save();
         $document1Id = $document1->getId();
         
         $document2 = $this->collection->createDocument(array(
             'param1'    => 'p21',
             'param2'    => 'p22',
         ));
-        $this->collection->saveDocument($document2);
+        $document2->save();
         $document2Id = $document2->getId();
         
         // find
@@ -329,7 +329,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $document = $this->collection->createDocument(array(
             'param'    => '1',
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find
@@ -346,7 +346,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $document = $this->collection->createDocument(array(
             'param'    => '1',
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // scalar value
@@ -377,7 +377,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find
@@ -413,7 +413,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find
@@ -444,7 +444,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find
@@ -479,7 +479,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find
@@ -524,7 +524,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find
@@ -569,7 +569,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find
@@ -600,7 +600,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // find
@@ -634,7 +634,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $document = $this->collection->createDocument(array(
             'fieldName'    => '1',
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         // scalar value
@@ -648,7 +648,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $document = $this->collection->createDocument(array(
             'fieldName'    => '1',
         ));
-        $this->collection->saveDocument($document);
+        $document->save();
         $documentId = $document->getId();
         
         $this->assertEmpty($this->collection->find()->whereNotExists('fieldName')->findOne());

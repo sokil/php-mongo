@@ -82,7 +82,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'param1'    => 'value1'
         ));
 
-        $this->collection->saveDocument($document);
+        $document->save();
 
         $this->assertEquals((string) $document, $document->getId());
     }
@@ -165,7 +165,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $doc = $this->collection->createDocument(array('a' => 'a'));
         $doc->setId($id);
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // find document
         $this->assertNotEmpty($this->collection->getDocument($id));
@@ -181,7 +181,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $doc = $this->collection->createDocument(array('a' => 'a'));
         $doc->setId($id);
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // find document
         $this->assertNotEmpty($this->collection->getDocument($id));
@@ -197,7 +197,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $doc = $this->collection->createDocument(array('a' => 'a'));
         $doc->setId($id);
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // find document
         $this->assertNotEmpty($this->collection->getDocument($id));
@@ -213,7 +213,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($document->isStored());
 
         // stored
-        $this->collection->saveDocument($document);
+        $document->save();
         $this->assertTrue($document->isStored());
     }
 
@@ -225,7 +225,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($document->isStored());
 
         // stored
-        $this->collection->saveDocument($document);
+        $document->save();
         $this->assertTrue($document->isStored());
     }
 
@@ -808,7 +808,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('c' => array('value1', 'value2')), $document->get('a.b'));
         $this->assertEquals(array('b' => array('c' => array('value1', 'value2'))), $document->get('a'));
 
-        $this->collection->saveDocument($document);
+        $document->save();
         $document = $this->collection->getDocument($document->getId());
 
         $document->append('a.b.c', 'value3');
@@ -991,12 +991,12 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => 'some',
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push single to empty
         $doc->push('key', 1);
         $doc->push('key', 2);
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array(1, 2), $this->collection->getDocument($doc->getId())->key);
     }
@@ -1027,7 +1027,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => 'some',
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $object1 = new \stdclass;
         $object2 = new \stdclass;
@@ -1035,7 +1035,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         // push single to empty
         $doc->push('key', $object1);
         $doc->push('key', $object2);
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(
             array((array)$object1, (array)$object2),
@@ -1076,12 +1076,12 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => 'some',
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to empty
         $doc->push('key', array(1));
         $doc->push('key', array(2));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array(array(1),array(2)), $this->collection->getDocument($doc->getId())->key);
 
@@ -1096,7 +1096,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         // push array to empty
         $doc->push('key', array(1));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array(array(1)), $this->collection->getDocument($doc->getId())->key);
     }
@@ -1111,7 +1111,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         // push single to single
         $doc->push('some', 'another1');
         $doc->push('some', 'another2');
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array('some', 'another1', 'another2'), $this->collection->getDocument($doc->getId())->some);
     }
@@ -1123,12 +1123,12 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => 'some',
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push single to single
         $doc->push('some', 'another1');
         $doc->push('some', 'another2');
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array('some', 'another1', 'another2'), $this->collection->getDocument($doc->getId())->some);
     }
@@ -1140,11 +1140,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => 'some',
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to single
         $doc->push('some', array('another'));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array('some', array('another')), $this->collection->getDocument($doc->getId())->some);
     }
@@ -1158,7 +1158,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         // push array to single
         $doc->push('some', array('another'));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array('some', array('another')), $this->collection->getDocument($doc->getId())->some);
     }
@@ -1170,11 +1170,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => array('some1', 'some2'),
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push single to array
         $doc->push('some', 'some3');
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array('some1', 'some2', 'some3'), $this->collection->getDocument($doc->getId())->some);
 
@@ -1187,11 +1187,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => array('some1', 'some2'),
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to array
         $doc->push('some', array('some3'));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array('some1', 'some2', array('some3')), $this->collection->getDocument($doc->getId())->some);
     }
@@ -1205,7 +1205,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         // push array to array
         $doc->push('some', array('some3'));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array('some1', 'some2', array('some3')), $this->collection->getDocument($doc->getId())->some);
     }
@@ -1225,7 +1225,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(
             array(1, 2, 3, 4, 5),
@@ -1264,11 +1264,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => 'some',
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to empty
         $doc->pushFromArray('key', array(1));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(
             array(1),
@@ -1284,11 +1284,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => 'some',
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to single
         $doc->pushFromArray('some', array('another'));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(
             array('some', 'another'),
@@ -1304,11 +1304,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => array('some1', 'some2'),
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to array
         $doc->pushFromArray('some', array('some3'));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(
             array('some1', 'some2', 'some3'),
@@ -1323,11 +1323,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'some' => array('some1', 'some2'),
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to array
         $doc->pull('some', 'some2');
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(
             array('some1'),
@@ -1350,13 +1350,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             ),
         ));
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to array
         $doc->pull('some', array(
             'sub'  => 2
         ));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array(array('sub' => 1)), $this->collection->getDocument($doc->getId())->some);
     }
@@ -1382,13 +1382,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                 )
             ),
         ));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // pull 1
         $doc->pull('some', array(
             'sub.a'  => 1
         ));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array(
             array(
@@ -1405,7 +1405,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                 'a' => 3,
             )
         ));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array(), $this->collection->getDocumentDirectly($doc->getId())->some);
     }
@@ -1434,14 +1434,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                 )
             ),
         ));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to array
         $doc->pull(function($e) {
             $e->where('some', array('sub' => array('a' => 1)));
         });
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array(
             array(
@@ -1474,7 +1474,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                 )
             ),
         ));
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         // push array to array
         $doc->pull(
@@ -1482,7 +1482,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             $this->collection->expression()->where('sub.a', 1)
         );
 
-        $this->collection->saveDocument($doc);
+        $doc->save();
 
         $this->assertEquals(array(
             array(
