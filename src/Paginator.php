@@ -101,18 +101,6 @@ class Paginator implements \Iterator
         return $this;
     }
     
-    /**
-     * Define cursor for paginator
-     * 
-     * @deprecated since 1.2.0 use self::setCursor()
-     * @param \Sokil\Mongo\Cursor $cursor
-     * @return \Sokil\Mongo\Paginator
-     */
-    public function setQueryBuilder(Cursor $cursor)
-    {
-        return $this->setCursor($cursor);
-    }
-    
     public function getTotalRowsCount()
     {
         if($this->totalRowsCount) {

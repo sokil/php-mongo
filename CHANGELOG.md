@@ -5,6 +5,7 @@
   * Removed deprecated method `Client::setConnection()`. Use Client::setMongoClient().
   * Removed deprecated method `Client::getConnection()`. Use Client::getMongoClient().
   * Removed `Document::pushFromArray()`. Use `Document::pushEach()`.
+  * Removed `Paginator::setQueryBuilder()’. Use `Paginator::setCursor()`.
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final

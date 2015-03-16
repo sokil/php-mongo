@@ -74,7 +74,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($d12->getId(), $pager->key());
     }
 
-    public function testSetQueryBuilder()
+    public function testSetCursor()
     {
         $d11 = $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
         $d12 = $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
@@ -87,7 +87,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $pager
             ->setItemsOnPage(1)
             ->setCurrentPage(2)
-            ->setQueryBuilder($cursor);
+            ->setCursor($cursor);
 
         $this->assertEquals($d12->getId(), $pager->key());
     }
