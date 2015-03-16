@@ -7,6 +7,7 @@
   * Removed `Document::pushFromArray()`. Use `Document::pushEach()`.
   * Removed `Paginator::setQueryBuilder()’. Use `Paginator::setCursor()`.
   * Removed `Document::fromArray()`. Use `Document::merge()` instead.
+  * Removed `Structure::load()`. Use `merge` or `mergeUnmidified` instead.
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final

@@ -377,7 +377,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     {
         $structure = new Structure;
         
-        $structure->load(array(
+        $structure->merge(array(
             'param1'    => array(
                 'param2'    => 'value2',
             )
@@ -394,7 +394,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     {
         $structure = new Structure;
         
-        $structure->load(array(
+        $structure->merge(array(
             'param'    => null
         ));
         
@@ -513,7 +513,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     {
         $structure = new Structure;
 
-        $structure->load(array(
+        $structure->merge(array(
             'param' => 'value',
         ), true);
 
@@ -526,7 +526,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     {
         $structure = new Structure;
 
-        $structure->load(array(
+        $structure->merge(array(
             'param' => array(
                 'subparam' => 'value',
             )
@@ -542,9 +542,9 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     {
         $structure = new Structure;
 
-        $structure->load(array(
+        $structure->mergeUnmodified(array(
             'param' => 'value',
-        ), false);
+        ));
 
         $this->assertEquals('value', $structure->get('param'));
 
@@ -555,7 +555,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
     {
         $structure = new Structure;
 
-        $structure->load(array(
+        $structure->merge(array(
             'param' => array(
                 'subparam' => 'value',
             )

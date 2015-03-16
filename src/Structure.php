@@ -437,25 +437,6 @@ class Structure
     }
 
     /**
-     * Merge data to document
-     *
-     * @deprecated since 1.8.1 and will be removed in next versions. Use concrete merge methods.
-     * @param array $data
-     * @param type $modified
-     * @return \Sokil\Mongo\Structure
-     */
-    public function load(array $data, $modified = true)
-    {
-        if($modified) {
-            $this->merge($data);
-        } else {
-            $this->mergeUnmodified($data);
-        }
-
-        return $this;
-    }
-
-    /**
      * Replace data of document with passed.
      * Document became unmodified
      *
