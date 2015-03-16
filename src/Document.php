@@ -999,17 +999,6 @@ class Document extends Structure
         $this->unsetField($fieldName);
     }
 
-    /**
-     * @deprecated use self::merge() instead
-     * @param array $data
-     * @return \Sokil\Mongo\Structure
-     */
-    public function fromArray(array $data)
-    {
-        $this->merge($data);
-        return $this;
-    }
-
     public function merge(array $data)
     {
         if ($this->isStored()) {

@@ -1569,7 +1569,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentMock($this->collection);
 
-        $document->fromArray(array(
+        $document->merge(array(
             'balance' => 123, // not existed key
             'status' => 'DELETED', // update value
             'profile' => array(
