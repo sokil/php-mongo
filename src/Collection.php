@@ -255,11 +255,11 @@ class Collection implements \Countable
         $className = $this->getDocumentClassName($data);
 
         /* @var $document \Sokil\Mongo\Document */
-        $document = new $className($this, $data, array(
-            'stored'        => false,
-            'versioning'    => $this->isVersioningEnabled(),
-            'behaviors'     => $this->definition->getOption('behaviors'),
-        ));
+        $document = new $className(
+            $this,
+            $data,
+            array('stored' => false) + $this->definition->getOptions()
+        );
 
         // store document to identity map
         if($this->isDocumentPoolEnabled()) {
@@ -293,11 +293,11 @@ class Collection implements \Countable
 
         // init document instance
         $className = $this->getDocumentClassName($data);
-        $document = new $className($this, $data, array(
-            'stored'        => true,
-            'versioning'    => $this->isVersioningEnabled(),
-            'behaviors'     => $this->definition->getOption('behaviors'),
-        ));
+        $document = new $className(
+            $this,
+            $data,
+            array('stored' => true) + $this->definition->getOptions()
+        );
 
         // store document in cache
         if($useDocumentPool && $this->isDocumentPoolEnabled()) {

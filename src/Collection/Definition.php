@@ -25,12 +25,17 @@ class Definition
     private $documentClass = '\Sokil\Mongo\Document';
 
     /**
-     * Using document versioning
+     * @var bool Using document versioning
      */
     private $versioning = false;
 
     /**
-     * Index definition
+     * @var array List of relations
+     */
+    private $relations = array();
+
+    /**
+     * @var array Index definition
      */
     private $index = array();
 
@@ -150,6 +155,7 @@ class Definition
             'documentClass'     => $this->documentClass,
             'versioning'        => $this->versioning,
             'index'             => $this->index,
+            'relations'         => $this->relations,
             'expressionClass'   => $this->expressionClass,
             'behaviors'         => $this->behaviors,
             'batchSize'         => $this->batchSize,

@@ -19,7 +19,7 @@ class RelationManager
     public function __construct(Document $document = null)
     {
         $this->document = $document;
-        $this->relations = $document->relations();
+        $this->relations = $document->getRelationDefinition();
     }
 
     /**

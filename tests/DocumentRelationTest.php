@@ -535,4 +535,29 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEmpty($engineDocument->car_id);
     }
+
+    public function testRelationDefinitionInMapping()
+    {
+        $this->database->defineCollection('someCollection', array(
+            'documentClass' => 'Sokil\Mongo\DocumentRelationTest\CarDocument',
+            'relations'     => array(
+                'someRelation'   => array(Document::RELATION_MANY_MANY, 'drivers', 'driver_id', true),
+            ),
+        ));
+
+        $relationDefinition = $this->database
+            ->getCollection('someCollection')
+            ->createDocument()
+            ->getRelationDefinition();
+
+        $this->assertEquals(
+            array(
+                'someRelation'  => array(Document::RELATION_MANY_MANY, 'drivers', 'driver_id', true),
+                'engine'        => array(Document::RELATION_HAS_ONE, 'engines', 'car_id'),
+                'wheels'        => array(Document::RELATION_HAS_MANY, 'wheels', 'car_id'),
+                'drivers'       => array(Document::RELATION_MANY_MANY, 'drivers', 'driver_id', true),
+            ),
+            $relationDefinition
+        );
+    }
 }

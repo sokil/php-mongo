@@ -135,11 +135,7 @@ class Document extends Structure
      *
      * @var array document options
      */
-    private $options = array(
-        'versioning' => false, // enable or not of document versioning
-        'stored' => false,
-        'behaviors' => null,
-    );
+    private $options;
 
     /**
      * @param \Sokil\Mongo\Collection $collection instance of Mongo collection
@@ -151,7 +147,7 @@ class Document extends Structure
         $this->collection = $collection;
 
         // configure document with options
-        $this->options = $options + $this->options;
+        $this->options = $options;
 
         // init document
         $this->initDocument();
@@ -539,12 +535,27 @@ class Document extends Structure
     }
 
     /**
+     * Override in child class to define relations
      * @return array relation description
      */
-    public function relations()
+    protected function relations()
     {
         // [relationName => [relationType, targetCollection, reference], ...]
         return array();
+    }
+
+    /**
+     * Relation definition through mapping is more prior to defined in class
+     * @return array definition of relations
+     */
+    public function getRelationDefinition()
+    {
+        $relations = $this->getOption('relations');
+        if(!is_array($relations)) {
+            return $this->relations();
+        }
+
+        return $relations + $this->relations();
     }
 
     /**
@@ -562,6 +573,11 @@ class Document extends Structure
         return $this->relationManager;
     }
 
+    /**
+     * Get related documents
+     * @param string $relationName
+     * @return array|\Sokil\Mongo\Document related document or array of documents
+     */
     public function getRelated($relationName)
     {
         return $this->getRelationManager()->getRelated($relationName);

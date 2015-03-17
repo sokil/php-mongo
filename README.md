@@ -334,6 +334,7 @@ Predefined options are:
 | index            | null                     | Index definition                                           |
 | expressionClass  | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
 | behaviors        | null                     | List of behaviors, attached to every document              |
+| relations        | null                     | Definition of relations to documents in other collection   |
 | batchSize        | null                     | Number of documents to return in each batch of response    |
 
 If `class` omitted, then used standart `\Sokil\Mongo\Collection` class.
