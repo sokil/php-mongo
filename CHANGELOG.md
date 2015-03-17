@@ -1,5 +1,5 @@
 ## 1.13@DEV
-  * Refactoring of mapping configs. 
+  * Refactoring of mapping configs.
   * Default argument removed from `Collection::getOption()`.
   * Removed deprecated method `Collection::saveDocument()`
   * Removed deprecated method `Client::setConnection()`. Use Client::setMongoClient().
@@ -8,6 +8,7 @@
   * Removed `Paginator::setQueryBuilder()’. Use `Paginator::setCursor()`.
   * Removed `Document::fromArray()`. Use `Document::merge()` instead.
   * Removed `Structure::load()`. Use `merge` or `mergeUnmidified` instead.
+  * Revision methods moved to `RevisionManager`. Call them from `Document` instance directly is deprecated. Use `Document::getRevisionManager()` instead.
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final

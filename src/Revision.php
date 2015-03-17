@@ -11,6 +11,8 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Document\RevisionManager;
+
 class Revision extends \Sokil\Mongo\Document
 {
     protected $_data = array(
@@ -30,7 +32,7 @@ class Revision extends \Sokil\Mongo\Document
         $baseCollectionName = substr(
             $revisionsCollection->getName(),
             0,
-            -1 * strlen(Document::REVISION_COLLECTION_SUFFIX)
+            -1 * strlen(RevisionManager::REVISION_COLLECTION_SUFFIX)
         );
 
         $this->baseCollection = $revisionsCollection

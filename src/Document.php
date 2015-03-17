@@ -12,6 +12,7 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\RelationManager;
+use Sokil\Mongo\Document\RevisionManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use GeoJson\Geometry\Geometry;
@@ -79,10 +80,10 @@ class Document extends Structure
     const RELATION_MANY_MANY = 'MANY_MANY';
 
     /**
-     * Suffix added to collection name to get name of revisions collection
-     * @var string
+     *
+     * @var \Sokil\Mongo\Document\RevisionManager
      */
-    const REVISION_COLLECTION_SUFFIX = '.revisions';
+    private $revisionManager;
 
     /**
      *
@@ -171,20 +172,7 @@ class Document extends Structure
 
         // use versioning
         if($this->getOption('versioning')) {
-            $self = $this;
-            $createRevisionCallback = function() use($self) {
-                // create new revision
-                /* @var $revision \Sokil\Mongo\Revision */
-                $revision = $self
-                    ->getRevisionsCollection()
-                    ->createDocument();
-
-                $revision
-                    ->setDocumentData($self->getOriginalData())
-                    ->save();
-            };
-            $this->onBeforeUpdate($createRevisionCallback, PHP_INT_MAX);
-            $this->onBeforeDelete($createRevisionCallback, PHP_INT_MAX);
+            $this->getRevisionManager()->listen();
         }
 
         // execure after construct event handlers
@@ -1273,79 +1261,48 @@ class Document extends Structure
     }
 
     /**
-     * !INTERNAL
      *
-     * This method is public only for support of php 5.3, which not supports
-     * $this in anonymous functions and can't access private methods.
-     *
-     * @return \Sokil\Mongo\Collection
+     * @return \Sokil\Mongo\RevisionManager
      */
-    public function getRevisionsCollection()
+    public function getRevisionManager()
     {
-        $revisionsCollectionName = $this->collection->getName() . self::REVISION_COLLECTION_SUFFIX;
-
-        return $this
-            ->collection
-            ->getDatabase()
-            ->map($revisionsCollectionName, array(
-                'documentClass' => '\Sokil\Mongo\Revision',
-            ))
-            ->getCollection($revisionsCollectionName);
-    }
-
-    public function getRevisions($limit = null, $offset = null)
-    {
-        $cursor = $this
-            ->getRevisionsCollection()
-            ->find()
-            ->where('__documentId__', $this->getId());
-
-        if($limit) {
-            $cursor->limit($limit);
+        if(!$this->revisionManager) {
+            $this->revisionManager = new RevisionManager($this);
         }
 
-        if($offset) {
-            $cursor->skip($offset);
-        }
-
-        return $cursor->findAll();
+        return $this->revisionManager;
     }
 
     /**
-     * Get revision by id
-     *
-     * @param int|string|\MongoId $id
-     * @return \Sokil\Mongo\Revision
+     * @deprecated since 1.13.0 use self::getRevisionManager()->getRevisions()
+     */
+    public function getRevisions($limit = null, $offset = null)
+    {
+        return $this->getRevisionManager()->getRevisions($limit, $offset);
+    }
+
+    /**
+     * @deprecated since 1.13.0 use self::getRevisionManager()->getRevision()
      */
     public function getRevision($id)
     {
-        return $this
-            ->getRevisionsCollection()
-            ->find()
-            ->byId($id)
-            ->findOne();
+        return $this->getRevisionManager()->getRevision($id);
     }
 
+    /**
+     * @deprecated since 1.13.0 use self::getRevisionManager()->getRevisionsCount()
+     */
     public function getRevisionsCount()
     {
-        return $this
-            ->getRevisionsCollection()
-            ->find()
-            ->where('__documentId__', $this->getId())
-            ->count();
+        return $this->getRevisionManager()->getRevisionsCount();
     }
 
+    /**
+     * @deprecated since 1.13.0 use self::getRevisionManager()->clearRevisions()
+     */
     public function clearRevisions()
     {
-        $self = $this;
-
-        $this
-            ->getRevisionsCollection()
-            ->deleteDocuments(function(Expression $expression) use($self) {
-                /* @var $expression \Sokil\Mongo\Expression */
-                return $expression->where('__documentId__', $self->getId());
-            });
-
+        $this->getRevisionManager()->clearRevisions();
         return $this;
     }
 
