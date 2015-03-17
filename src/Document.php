@@ -95,7 +95,7 @@ class Document extends Structure
      * Name of scenario, used for validating fields
      * @var string
      */
-    protected $_scenario;
+    private $scenario;
 
     /**
      * @var array validator errors
@@ -673,26 +673,24 @@ class Document extends Structure
 
     public function setScenario($scenario)
     {
-        $this->_scenario = $scenario;
-
+        $this->scenario = $scenario;
         return $this;
     }
 
     public function getScenario()
     {
-        return $this->_scenario;
+        return $this->scenario;
     }
 
     public function setNoScenario()
     {
-        $this->_scenario = null;
-
+        $this->scenario = null;
         return $this;
     }
 
     public function isScenario($scenario)
     {
-        return $scenario === $this->_scenario;
+        return $scenario === $this->scenario;
     }
 
     public function rules()
