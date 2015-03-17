@@ -10,6 +10,7 @@
   * Removed `Structure::load()`. Use `merge` or `mergeUnmidified` instead.
   * Revision methods moved to `RevisionManager`. Call them from `Document` instance directly is deprecated. Use `Document::getRevisionManager()` instead.
   * Mark Document::_scenario as private
+  * Define relations in mapping
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final
