@@ -11,7 +11,9 @@
 
 namespace Sokil\Mongo;
 
-class Structure
+use Sokil\Mongo\Structure\Arrayable;
+
+class Structure implements Arrayable
 {
     protected $_data = array();
 

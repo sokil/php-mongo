@@ -11,6 +11,7 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Structure\Arrayable;
 use GeoJson\Geometry\Geometry;
 use GeoJson\Geometry\Point;
 
@@ -20,7 +21,7 @@ use GeoJson\Geometry\Point;
  * @link http://docs.mongodb.org/manual/reference/operator/query/
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
-class Expression
+class Expression implements Arrayable
 {
     protected $_expression = array();
 

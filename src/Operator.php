@@ -11,7 +11,9 @@
 
 namespace Sokil\Mongo;
 
-class Operator
+use \Sokil\Mongo\Structure\Arrayable;
+
+class Operator implements Arrayable
 {
         /**
      *
@@ -308,6 +310,11 @@ class Operator
     }
     
     public function getAll()
+    {
+        return $this->_operators;
+    }
+
+    public function toArray()
     {
         return $this->_operators;
     }
