@@ -308,7 +308,11 @@ class Operator implements Arrayable
             ? $this->_operators[$operation]
             : null;
     }
-    
+
+    /**
+     * @deprecated since v.1.13 use Operator::toArray()
+     * @return array
+     */
     public function getAll()
     {
         return $this->_operators;

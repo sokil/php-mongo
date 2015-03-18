@@ -72,7 +72,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         // now data is fresh
         $this->assertEquals('updatedValue', $document2->param);
-        $this->assertEquals(array(), $document2->getOperator()->getAll());
+        $this->assertEquals(array(), $document2->getOperator()->toArray());
         $this->assertNull($document2->newField);
     }
 

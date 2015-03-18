@@ -1210,7 +1210,7 @@ class Document extends Structure
                 return $this;
             }
 
-            $updateOperations = $this->getOperator()->getAll();
+            $updateOperations = $this->getOperator()->toArray();
 
             $status = $this->getCollection()->getMongoCollection()->update(
                 array('_id' => $this->getId()), $updateOperations
