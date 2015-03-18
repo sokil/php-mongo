@@ -603,7 +603,7 @@ abstract class Cursor implements \Iterator, \Countable
             ->getMongoCollection()
             ->findAndModify(
                 $this->expression->toArray(),
-                $operator ? $operator->getAll() : null,
+                $operator ? $operator->toArray() : null,
                 $this->fields,
                 array(
                     'new'       => $returnUpdated,
