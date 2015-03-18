@@ -12,7 +12,6 @@
   * Mark Document::_scenario as private.
   * Define relations in mapping.
   * `Operator::getAll()` is deprecated. Use `Operator::toArray()`.
-  * Remove unused field type constants from `Document`.
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final
