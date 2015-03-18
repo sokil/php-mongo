@@ -360,9 +360,9 @@ class Collection implements \Countable
     {
         // get expression from callable
         if(is_callable($mixed)) {
-            $expressionConfigurator = $mixed;
+            $callable = $mixed;
             $mixed = new $class();
-            call_user_func($expressionConfigurator, $mixed);
+            call_user_func($callable, $mixed);
         }
 
         // get expression array
