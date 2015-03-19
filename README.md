@@ -1774,9 +1774,26 @@ echo $document->return42();
 Relations
 -------------
 
-You can define relations between different documents, which helps you to load related doluments. Library supports relations one-to-one and one-to-many
+You can define relations between different documents, which helps you to load related documents.
 
-To define relation to other document you need to override `Document::relations()` method and returl array of relations in format `[relationName => [relationType, targetCollection, reference], ...]`
+To define relation to other document you need to override `Document::relations()` method and return array of relations in format `[relationName => [relationType, targetCollection, reference], ...]`. 
+
+Also you can define relations in mapping:
+```php
+<?php
+
+$collection->map([
+    'someDb' => [
+        'someCollection', array(
+            'relations'     => array(
+                'someRelation'   => array(self::RELATION_HAS_ONE, 'profile', 'user_id'),
+            ),
+        ),
+    ],
+]);
+```
+
+If relation specified both in mapping and document class, then mapping relation merged into document's relations, so mapping relations has more priority.
 
 ### One-to-one relation
 
