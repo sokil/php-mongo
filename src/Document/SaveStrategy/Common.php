@@ -22,7 +22,7 @@ class Common extends \Sokil\Mongo\Document\SaveStrategy
 
         if ($this->document->getOperator()->isReloadRequired()) {
             $data = $this->document->getCollection()->getMongoCollection()->findOne(array('_id' => $this->document->getId()));
-            $this->document->mergeUnmodified($data);
+            $this->document->merge($data);
         }
 
         $this->document->getOperator()->reset();
