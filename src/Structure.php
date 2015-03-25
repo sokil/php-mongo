@@ -21,14 +21,6 @@ class Structure implements Arrayable
 
     protected $_modifiedFields = array();
 
-    public function reset()
-    {
-        $this->_data = $this->_originalData;
-        $this->_modifiedFields = array();
-
-        return $this;
-    }
-
     public function __get($name)
     {
         return isset($this->_data[$name]) ? $this->_data[$name] : null;
@@ -446,10 +438,26 @@ class Structure implements Arrayable
      */
     public function replace(array $data)
     {
-        $this->_originalData = $this->_data = $data;
+        $this->_data = $data;
+        $this->apply();
 
+        return $this;
+    }
+    
+    public function reset()
+    {
+        $this->_data = $this->_originalData;
         $this->_modifiedFields = array();
 
         return $this;
     }
+    
+    public function apply()
+    {
+        $this->_originalData = $this->_data;
+        $this->_modifiedFields = array();
+
+        return $this;
+    }
+    
 }

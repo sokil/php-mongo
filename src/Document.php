@@ -83,6 +83,14 @@ class Document extends Structure
      * @var \Sokil\Mongo\Document\RevisionManager
      */
     private $revisionManager;
+    
+    private $saveStrategyName = 'Common';
+    
+    /**
+     *
+     * @var \Sokil\Mongo\Document\SaveStrategy
+     */
+    private $saveStrategy;
 
     /**
      *
@@ -1185,81 +1193,21 @@ class Document extends Structure
 
         return $this;
     }
-
+    
     public function save($validate = true)
     {
-        // if document already in db and not modified - skip this method
-        if (!$this->isSaveRequired()) {
-            return $this;
-        }
-
-        if ($validate) {
-            $this->validate();
-        }
-
-        // handle beforeSave event
-        if($this->triggerEvent('beforeSave')->isCancelled()) {
-            return $this;
-        }
-
-        // update
-        if ($this->isStored()) {
-
-            if($this->triggerEvent('beforeUpdate')->isCancelled()) {
-                return $this;
+        // create save strategy
+        if(!$this->saveStrategy) {
+            $strategyClassName = '\Sokil\Mongo\Document\SaveStrategy\\' . $this->saveStrategyName;
+            if(!class_exists($strategyClassName)) {
+                throw new Exception('Wrong strategy specified');
             }
-
-            $updateOperations = $this->getOperator()->toArray();
-
-            $status = $this->getCollection()->getMongoCollection()->update(
-                array('_id' => $this->getId()), $updateOperations
-            );
-
-            if ($status['ok'] != 1) {
-                throw new Exception(sprintf(
-                    'Update error: %s: %s',
-                    $status['err'],
-                    $status['errmsg']
-                ));
-            }
-
-            if ($this->getOperator()->isReloadRequired()) {
-                $data = $this->getCollection()->getMongoCollection()->findOne(array('_id' => $this->getId()));
-                $this->merge($data);
-            }
-
-            $this->getOperator()->reset();
-
-
-            $this->triggerEvent('afterUpdate');
-        } // insert
-        else {
-
-            if($this->triggerEvent('beforeInsert')->isCancelled()) {
-                return $this;
-            }
-
-            $data = $this->toArray();
-
-            // save data
-            $this->getCollection()->insert($data);
-
-            // set id
-            $this->defineId($data['_id']);
-
-            // event
-            $this->triggerEvent('afterInsert');
+            $this->saveStrategy = new $strategyClassName($this);
         }
-
-        // handle afterSave event
-        $this->triggerEvent('afterSave');
-
-        // set document as not modified
-        $this->_modifiedFields = array();
-
-        // set new original data
-        $this->_originalData = $this->_data;
-
+        
+        // save document
+        $this->saveStrategy->save($validate);
+        
         return $this;
     }
 
