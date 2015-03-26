@@ -17,8 +17,18 @@ class Structure implements Arrayable
 {
     protected $_data = array();
 
+    /**
+     *
+     * @var original data.
+     * @deprecated protected access is deprecated since 1.13. Use self::getOriginalData().
+     */
     protected $_originalData = array();
 
+    /**
+     *
+     * @var modified fields.
+     * @deprecated protected access is deprecated since 1.13. Use self::getModifiedFields().
+     */
     protected $_modifiedFields = array();
 
     public function __get($name)

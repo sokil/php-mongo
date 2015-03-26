@@ -166,7 +166,7 @@ class Document extends Structure
         if ($data) {
             if ($this->getOption('stored')) {
                 // load stored
-                $this->_data = $this->_originalData = $data;
+                $this->replace($data);
             } else {
                 // create unstored
                 $this->merge($data);
@@ -264,11 +264,7 @@ class Document extends Structure
                 '_id' => $this->getId(),
             ));
 
-        $this->_data = $data;
-
-        $this->_originalData = $data;
-
-        $this->_modifiedFields = array();
+        $this->replace($data);
 
         $this->operator = $this->getCollection()->operator();
 
