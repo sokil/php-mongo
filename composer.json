@@ -20,7 +20,8 @@
     "autoload": {
         "psr-4": {
             "Sokil\\Mongo\\": "src/"
-        }
+        },
+        "classmap": [ "stubs/" ]
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",

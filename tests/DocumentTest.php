@@ -1665,6 +1665,18 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         // update document with error
         $document->set('p', 'v1')->save();
     }
+
+    public function testJsonSerializable()
+    {
+        $document = $this->collection->createDocument(array(
+            'k1' => 'v1'
+        ));
+
+        $this->assertEquals(
+            '{"k1":"v1"}',
+            json_encode($document)
+        );
+    }
 }
 
 class DocumentMock extends \Sokil\Mongo\Document

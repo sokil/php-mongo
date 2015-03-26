@@ -13,7 +13,7 @@ namespace Sokil\Mongo;
 
 use Sokil\Mongo\Structure\Arrayable;
 
-class Structure implements Arrayable
+class Structure implements Arrayable, \JsonSerializable
 {
     protected $_data = array();
 
@@ -365,6 +365,10 @@ class Structure implements Arrayable
         return $this->_data;
     }
 
+    public function jsonSerialize()
+    {
+        return $this->_data;
+    }
 
     /**
      * Recursive function to merge data for Structure::mergeUnmodified()
