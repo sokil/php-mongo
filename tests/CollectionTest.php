@@ -168,7 +168,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetStoredDocumentInstanceFromArray()
     {
-        $document = $this->collection->getStoredDocumentInstanceFromArray(array(
+        $document = $this->collection->hydrate(array(
             '_id' => new \MongoId(),
         ));
 
@@ -181,7 +181,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetStoredDocumentInstanceFromArray_DocumentNotStored()
     {
-        $document = $this->collection->getStoredDocumentInstanceFromArray(array(
+        $document = $this->collection->hydrate(array(
             'param' => 'value',
         ));
 

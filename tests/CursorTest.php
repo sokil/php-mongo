@@ -448,7 +448,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $logger
             ->expects($this->once())
             ->method('debug')
-            ->with('Sokil\Mongo\QueryBuilder: {"collection":"phpmongo_test_collection","query":{"param":2},"project":[],"sort":[]}');
+            ->with('Sokil\Mongo\Cursor: {"collection":"phpmongo_test_collection","query":{"param":2},"project":[],"sort":[]}');
 
         // set logger to client
         $this->collection

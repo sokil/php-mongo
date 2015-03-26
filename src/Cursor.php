@@ -11,7 +11,7 @@
 
 namespace Sokil\Mongo;
 
-abstract class Cursor implements \Iterator, \Countable
+class Cursor implements \Iterator, \Countable
 {
     /**
      *
@@ -452,7 +452,7 @@ abstract class Cursor implements \Iterator, \Countable
             return $mongoDocument;
         }
 
-        return $this->toObject($mongoDocument);
+        return $this->_collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
     /**
@@ -585,7 +585,7 @@ abstract class Cursor implements \Iterator, \Countable
             return null;
         }
 
-        return $this->toObject($mongoDocument);
+        return $this->_collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
     /**
@@ -616,7 +616,7 @@ abstract class Cursor implements \Iterator, \Countable
             return null;
         }
 
-        return $this->toObject($mongoDocument);
+        return $this->_collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
     public function map($handler)
@@ -672,14 +672,6 @@ abstract class Cursor implements \Iterator, \Countable
 
     }
 
-    /**
-     * Convert find result to object
-     *
-     * @param array $mongoFindResult array of key-values, received from mongo driver
-     * @return \Sokil\Mongo\Document
-     */
-    abstract protected function toObject($mongoFindResult);
-
     public function current()
     {
         $mongoDocument = $this->getCursor()->current();
@@ -691,7 +683,7 @@ abstract class Cursor implements \Iterator, \Countable
             return $mongoDocument;
         }
 
-        return $this->toObject($mongoDocument);
+        return $this->_collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
     public function key()

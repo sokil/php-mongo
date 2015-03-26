@@ -19,8 +19,6 @@ namespace Sokil\Mongo;
  */
 class GridFS extends Collection
 {
-    protected $_queryBuilderClass = '\Sokil\Mongo\GridFSQueryBuilder';
-
     protected function initCollection($collection)
     {
         if($collection instanceof \MongoGridFS) {
@@ -35,8 +33,12 @@ class GridFS extends Collection
      * @param \MongoGridFSFile $data
      * @return \Sokil\Mongo\GridFsFile
      */
-    public function getStoredGridFsFileInstanceFromMongoGridFSFile(\MongoGridFSFile $data, $useDocumentPool = true)
-    {        
+    public function hydrate($data, $useDocumentPool = true)
+    {
+        if(($data instanceof \MongoGridFSFile) === false) {
+            throw new Exception('Must be \MongoGridFSFile');
+        }
+        
         $className = $this->getFileClassName($data);
         
         return new $className($this, $data);

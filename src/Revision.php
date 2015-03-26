@@ -76,7 +76,7 @@ class Revision extends \Sokil\Mongo\Document
         
         return $this
             ->baseCollection
-            ->getStoredDocumentInstanceFromArray($data);
+            ->hydrate($data);
     }
     
     /**

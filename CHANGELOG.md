@@ -12,8 +12,9 @@
   * Mark Document::_scenario as private.
   * Define relations in mapping.
   * `Operator::getAll()` is deprecated. Use `Operator::toArray()`.
-  * protected access of property Structure::_modifiedFields is deprecated. Use self::getModifiedFields().
-  * protected access of property Structure::_originalData is deprecated. Use self::getOriginalData().
+  * Protected access of property Structure::_modifiedFields is deprecated. Use self::getModifiedFields().
+  * Protected access of property Structure::_originalData is deprecated. Use self::getOriginalData().
+  * Removed classes QueryBuilder and GridFSQueryBuilder. Hydration logic improved
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final

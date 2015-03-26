@@ -29,15 +29,6 @@ use Sokil\Mongo\Structure\Arrayable;
 class Collection implements \Countable
 {
     /**
-     * @deprecated Overloading of query builder is deprecated.
-     * In future releases this property will be removed.
-     * Overload _queryExpressionClass instead
-     *
-     * @var string query builder class
-     */
-    protected $_queryBuilderClass = '\Sokil\Mongo\QueryBuilder';
-
-    /**
      * @var string expression class. This class may be overloaded to define
      *  own query methods (whereUserAgeGreatedThan(), etc.)
      */
@@ -280,9 +271,9 @@ class Collection implements \Countable
      * @param array $data
      * @return \Sokil\Mongo\Document
      */
-    public function getStoredDocumentInstanceFromArray(array $data, $useDocumentPool = true)
+    public function hydrate($data, $useDocumentPool = true)
     {
-        if(!isset($data['_id'])) {
+        if(!is_array($data) || !isset($data['_id'])) {
             throw new Exception('Document must be stored and has _id key');
         }
 
@@ -394,7 +385,7 @@ class Collection implements \Countable
     public function find($callable = null)
     {
         /** @var \Sokil\Mongo\Cursor $queryBuilder */
-        $queryBuilder = new $this->_queryBuilderClass($this, array(
+        $queryBuilder = new Cursor($this, array(
             'expressionClass'   => $this->definition->getExpressionClass(),
             'batchSize'         => $this->definition->getOption('batchSize'),
         ));
