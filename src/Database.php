@@ -562,7 +562,7 @@ class Database
 
     /**
      *
-     * @return \Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\Cursor
      */
     public function findProfilerRows()
     {

@@ -380,27 +380,27 @@ class Collection implements \Countable
      * Create document query builder
      *
      * @param $callable callable|null Function to configure query builder&
-     * @return \Sokil\Mongo\QueryBuilder|\Sokil\Mongo\Expression
+     * @return \Sokil\Mongo\Cursor|\Sokil\Mongo\Expression
      */
     public function find($callable = null)
     {
-        /** @var \Sokil\Mongo\Cursor $queryBuilder */
-        $queryBuilder = new Cursor($this, array(
+        /** @var \Sokil\Mongo\Cursor $cursor */
+        $cursor = new Cursor($this, array(
             'expressionClass'   => $this->definition->getExpressionClass(),
             'batchSize'         => $this->definition->getOption('batchSize'),
         ));
 
         if(is_callable($callable)) {
-            $callable($queryBuilder->getExpression());
+            $callable($cursor->getExpression());
         }
 
-        return $queryBuilder;
+        return $cursor;
     }
 
     /**
      * Create document query builder
      *
-     * @return \Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\Cursor
      */
     public function findAsArray($callable = null)
     {

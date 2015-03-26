@@ -141,7 +141,7 @@ class Cursor implements \Iterator, \Countable
      * Return only specified fields
      *
      * @param array $fields
-     * @return \Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\Cursor
      */
     public function fields(array $fields)
     {
@@ -156,7 +156,7 @@ class Cursor implements \Iterator, \Countable
      * Return all fields except specified
      *
      * @param array $fields
-     * @return \Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\Cursor
      */
     public function skipFields(array $fields)
     {
@@ -171,7 +171,7 @@ class Cursor implements \Iterator, \Countable
      * Append field to accept list
      *
      * @param string $field field name
-     * @return \Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\Cursor
      */
     public function field($field)
     {
@@ -186,7 +186,7 @@ class Cursor implements \Iterator, \Countable
      * Append field to skip list
      *
      * @param string $field field name
-     * @return \Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\Cursor
      */
     public function skipField($field)
     {
@@ -203,7 +203,7 @@ class Cursor implements \Iterator, \Countable
      * @param string $field
      * @param integer $limit
      * @param integer $skip
-     * @return \Sokil\Mongo\QueryBuilder
+     * @return \Sokil\Mongo\Cursor
      * @throws Exception
      */
     public function slice($field, $limit, $skip = null)
@@ -528,9 +528,9 @@ class Cursor implements \Iterator, \Countable
             if($this->isResultAsArray()) {
                 $result = $this->findAll();
             } else {
-                $queryBuilder = clone $this;
-                $result = $queryBuilder->asArray()->findAll();
-                unset($queryBuilder);
+                $cursor = clone $this;
+                $result = $cursor->asArray()->findAll();
+                unset($cursor);
             }
 
             return array_column($result, $fieldName, '_id');
@@ -549,9 +549,9 @@ class Cursor implements \Iterator, \Countable
     private function pluckDotNoteted($fieldName)
     {
         if($this->isResultAsArray()) {
-            $queryBuilder = clone $this;
-            $result = $queryBuilder->asObject()->findAll();
-            unset($queryBuilder);
+            $cursor = clone $this;
+            $result = $cursor->asObject()->findAll();
+            unset($cursor);
         } else {
             $result = $this->findAll();
         }
