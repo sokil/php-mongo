@@ -982,7 +982,7 @@ $cursor = $collection
     );
 ```
 
-Result of the query is iterator `\Sokil\Mongo\QueryBuilder`, which you can then iterate:
+Result of the query is iterator `\Sokil\Mongo\Cursor`, which you can then iterate:
 ```php
 <?php
 foreach($cursor as $documentId => $document) {
