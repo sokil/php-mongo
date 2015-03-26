@@ -461,7 +461,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Sokil\Mongo\QueryBuilder::map
+     * @covers \Sokil\Mongo\Cursor::map
      */
     public function testMap()
     {
@@ -482,7 +482,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Sokil\Mongo\QueryBuilder::filter
+     * @covers \Sokil\Mongo\Cursor::filter
      */
     public function testFilter()
     {
