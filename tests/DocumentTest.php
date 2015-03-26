@@ -1673,8 +1673,8 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ));
 
         $this->assertEquals(
-            '{"k1":"v1"}',
-            json_encode($document)
+            array('k1' => 'v1'),
+            $document->jsonSerialize()
         );
     }
 }
