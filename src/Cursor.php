@@ -23,8 +23,12 @@ class Cursor implements \Iterator, \Countable
      *
      * @var \Sokil\Mongo\Collection
      */
-    protected $_collection;
+    private $collection;
 
+    /**
+     *
+     * @var array
+     */
     private $fields = array();
 
     /**
@@ -48,16 +52,10 @@ class Cursor implements \Iterator, \Countable
     private $readPreference = array();
 
     /**
-     * If specified in child class - overload config from collection class
-     * @var string
-     */
-    protected $_queryExpressionClass;
-
-    /**
      * Return result as array or as Document instance
      * @var boolean 
      */
-    protected $_resultAsArray = false;
+    private $resultAsArray = false;
 
     /**
      * Cursor options
@@ -87,11 +85,11 @@ class Cursor implements \Iterator, \Countable
 
     public function __construct(Collection $collection, array $options = null)
     {
-        $this->_collection = $collection;
+        $this->collection = $collection;
 
-        $this->client = $this->_collection->getDatabase()->getClient();
+        $this->client = $this->collection->getDatabase()->getClient();
 
-        if($options) {
+        if ($options) {
             $this->options = $options + $this->options;
         }
 
@@ -99,7 +97,8 @@ class Cursor implements \Iterator, \Countable
         $this->expression = $this->expression();
     }
 
-    public function __call($name, $arguments) {
+    public function __call($name, $arguments)
+    {
         call_user_func_array(array($this->expression, $name), $arguments);
         return $this;
     }
@@ -117,13 +116,13 @@ class Cursor implements \Iterator, \Countable
 
     public function asArray()
     {
-        $this->_resultAsArray = true;
+        $this->resultAsArray = true;
         return $this;
     }
 
     public function asObject()
     {
-        $this->_resultAsArray = false;
+        $this->resultAsArray = false;
         return $this;
     }
 
@@ -134,7 +133,7 @@ class Cursor implements \Iterator, \Countable
      */
     public function isResultAsArray()
     {
-        return $this->_resultAsArray;
+        return $this->resultAsArray;
     }
 
     /**
@@ -241,11 +240,7 @@ class Cursor implements \Iterator, \Countable
      */
     public function expression()
     {
-        $expressionClass = $this->_queryExpressionClass
-            ? $this->_queryExpressionClass
-            : $this->options['expressionClass'];
-
-        return new $expressionClass;
+        return new $this->options['expressionClass'];
     }
 
     /**
@@ -349,7 +344,7 @@ class Cursor implements \Iterator, \Countable
             return $this->cursor;
         }
 
-        $this->cursor = $this->_collection
+        $this->cursor = $this->collection
             ->getMongoCollection()
             ->find($this->expression->toArray(), $this->fields);
 
@@ -376,7 +371,7 @@ class Cursor implements \Iterator, \Countable
         // log request
         if($this->client->hasLogger()) {
             $this->client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
-                'collection'    => $this->_collection->getName(),
+                'collection'    => $this->collection->getName(),
                 'query'         => $this->expression->toArray(),
                 'project'       => $this->fields,
                 'sort'          => $this->sort,
@@ -402,7 +397,7 @@ class Cursor implements \Iterator, \Countable
      */
     public function count()
     {
-        return (int) $this->_collection
+        return (int) $this->collection
             ->getMongoCollection()
             ->count($this->expression->toArray());
     }
@@ -418,7 +413,7 @@ class Cursor implements \Iterator, \Countable
      */
     public function limitedCount()
     {
-        return (int) $this->_collection
+        return (int) $this->collection
             ->getMongoCollection()
             ->count($this->expression->toArray(), $this->limit, $this->skip);
     }
@@ -440,7 +435,7 @@ class Cursor implements \Iterator, \Countable
      */
     public function findOne()
     {
-        $mongoDocument = $this->_collection
+        $mongoDocument = $this->collection
             ->getMongoCollection()
             ->findOne($this->expression->toArray(), $this->fields);
 
@@ -448,11 +443,11 @@ class Cursor implements \Iterator, \Countable
             return null;
         }
 
-        if($this->_resultAsArray) {
+        if($this->resultAsArray) {
             return $mongoDocument;
         }
 
-        return $this->_collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
+        return $this->collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
     /**
@@ -571,7 +566,7 @@ class Cursor implements \Iterator, \Countable
      */
     public function findAndRemove()
     {
-        $mongoDocument = $this->_collection->getMongoCollection()->findAndModify(
+        $mongoDocument = $this->collection->getMongoCollection()->findAndModify(
             $this->expression->toArray(),
             null,
             $this->fields,
@@ -585,7 +580,7 @@ class Cursor implements \Iterator, \Countable
             return null;
         }
 
-        return $this->_collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
+        return $this->collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
     /**
@@ -599,7 +594,7 @@ class Cursor implements \Iterator, \Countable
      */
     public function findAndUpdate(Operator $operator, $upsert = false, $returnUpdated = true)
     {
-        $mongoDocument = $this->_collection
+        $mongoDocument = $this->collection
             ->getMongoCollection()
             ->findAndModify(
                 $this->expression->toArray(),
@@ -616,7 +611,7 @@ class Cursor implements \Iterator, \Countable
             return null;
         }
 
-        return $this->_collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
+        return $this->collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
     public function map($handler)
@@ -679,11 +674,11 @@ class Cursor implements \Iterator, \Countable
             return null;
         }
 
-        if($this->_resultAsArray) {
+        if($this->resultAsArray) {
             return $mongoDocument;
         }
 
-        return $this->_collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
+        return $this->collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
     public function key()
@@ -807,7 +802,7 @@ class Cursor implements \Iterator, \Countable
     {
         // target database
         if(!$targetDatabaseName) {
-            $database = $this->_collection->getDatabase();
+            $database = $this->collection->getDatabase();
         } else {
             $database = $this->client->getDatabase($targetDatabaseName);
         }
@@ -874,7 +869,7 @@ class Cursor implements \Iterator, \Countable
         $this->copyToCollection($targetCollectionName, $targetDatabaseName);
 
         // remove from source
-        $this->_collection->deleteDocuments($this->expression);
+        $this->collection->deleteDocuments($this->expression);
     }
 
     /**
