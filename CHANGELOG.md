@@ -16,6 +16,7 @@
   * Protected access of property Structure::_originalData is deprecated. Use self::getOriginalData().
   * Removed classes QueryBuilder and GridFSQueryBuilder. Hydration logic improved
   * Refactor document saving
+  * Collection::deleteDocument() is deprecated. Use Document::delete()
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final

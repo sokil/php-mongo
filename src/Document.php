@@ -251,14 +251,12 @@ class Document extends Structure
         // get data omitting cache
         $data = $this
             ->getCollection()
-            ->getMongoCollection()
-            ->findOne(array(
-                '_id' => $this->getId(),
-            ));
+            ->getCrudStrategy()
+            ->findOne(array('_id' => $this->getId()));
 
         $this->replace($data);
 
-        $this->operator = $this->getCollection()->operator();
+        $this->operator->reset();
 
         return $this;
     }
@@ -274,7 +272,7 @@ class Document extends Structure
         // create operator
         $this->operator = $this->getCollection()->operator();
 
-        // attacj behaviors
+        // attach behaviors
         $this->attachBehaviors($this->behaviors());
         if($this->hasOption('behaviors')) {
             $this->attachBehaviors($this->getOption('behaviors'));
@@ -1184,7 +1182,6 @@ class Document extends Structure
 
     public function save($validate = true)
     {
-        
         // save document
         // if document already in db and not modified - skip this method
         if (!$this->isSaveRequired()) {
@@ -1205,13 +1202,36 @@ class Document extends Structure
             if($this->triggerEvent('beforeUpdate')->isCancelled()) {
                 return $this;
             }
-            $this->getCollection()->getCrudStrategy()->update($this);
+
+            $this
+                ->getCollection()
+                ->getCrudStrategy()
+                ->update(
+                    array('_id' => $this->getId()),
+                    $this->getOperator()->toArray()
+                );
+
+            if ($this->getOperator()->isReloadRequired()) {
+                $this->refresh();
+            } else {
+                $this->getOperator()->reset();
+            }
+
             $this->triggerEvent('afterUpdate');
         } else {
             if($this->triggerEvent('beforeInsert')->isCancelled()) {
                 return $this;
             }
-            $this->getCollection()->getCrudStrategy()->insert($this);
+
+            $id = $this
+                ->getCollection()
+                ->getCrudStrategy()
+                ->insert($this->toArray());
+            
+            // set id
+            $this->defineId($id);
+
+            // after insert event
             $this->triggerEvent('afterInsert');
         }
 
@@ -1230,7 +1250,20 @@ class Document extends Structure
 
     public function delete()
     {
-        $this->collection->deleteDocument($this);
+        if ($this->triggerEvent('beforeDelete')->isCancelled()) {
+            return $this;
+        }
+
+        $this->getCollection()->getCrudStrategy()->delete(array(
+            '_id'   => $this->getId(),
+        ));
+
+        $this->triggerEvent('afterDelete');
+
+        // drop from document's pool
+        $this->getCollection()->removeDocumentFromDocumentPool($this);
+
+        return $this;
     }
 
     /**

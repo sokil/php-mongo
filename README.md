@@ -886,6 +886,13 @@ $collection->update(
 To insert many documents at once with validation of inserted document:
 ```php
 <?php
+
+$collection->batchInsert(array(
+    array('i' => 1),
+    array('i' => 2),
+));
+
+// deprecated since 1.13
 $collection->insertMultiple(array(
     array('i' => 1),
     array('i' => 2),
@@ -899,14 +906,23 @@ Making changes in few documents:
 ```php
 <?php
 
+$collection->batchUpdate(function(\Sokil\Mongo\Expression $expression) {
+    return $expression->where('field', 'value');
+}, array('field' => 'new value'));
+
+// deprecated since 1.13
 $collection->updateMultiple(function(\Sokil\Mongo\Expression $expression) {
     return $expression->where('field', 'value');
 }, array('field' => 'new value'));
 ```
 
-To update all documents:
+Method `Collection::updateAll` since 1.13 is deprecated. 
+To update all documents use:
 ```php
 <?php
+
+$collection->batchUpdate([], array('field' => 'new value'));
+// deprecated since 1.13
 $collection->updateAll(array('field' => 'new value'));
 ```
 
@@ -1517,15 +1533,15 @@ $collection->delete();
 Deleting of document:
 ```php
 <?php
-$document = $collection->getDocument($documentId);
-$collection->deleteDocument($document);
-// or simply
 $document->delete();
 ```
 
 Deleting of few documents:
 ```php
 <?php
+
+$collection->batchDelete($collection->expression()->where('param', 'value'));
+// deprecated since 1.13
 $collection->deleteDocuments($collection->expression()->where('param', 'value'));
 ```
 

@@ -2,12 +2,25 @@
 
 namespace Sokil\Mongo\Collection;
 
-use Sokil\Mongo\Document;
-
-interface CrudStrategy
+abstract class CrudStrategy
 {
-    public function insert(Document $document);
+    /**
+     *
+     * @var \MongoCollection
+     */
+    protected $collection;
+    
+    public function __construct(\MongoCollection $collection)
+    {
+        $this->collection = $collection;
+    }
 
-    public function update(Document $document);
+    abstract public function findOne(array $query);
+    
+    abstract public function insert(array $document);
+
+    abstract public function update(array $query, array $operators);
+
+    abstract public function delete(array $query);
 }
 

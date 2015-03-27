@@ -2,27 +2,24 @@
 
 namespace Sokil\Mongo\Collection\CrudStrategy;
 
-use Sokil\Mongo\Document;
-
-class Common implements \Sokil\Mongo\Collection\CrudStrategy
+class Common extends \Sokil\Mongo\Collection\CrudStrategy
 {
-    public function insert(Document $document)
+    public function findOne(array $query)
     {
-        $data = $document->toArray();
-
-        // save data
-        $document->getCollection()->insert($data);
-
-        // set id
-        $document->defineId($data['_id']);
+        return $this->collection->findOne($query);
     }
     
-    public function update(Document $document)
+    public function insert(array $document)
     {
-        $updateOperations = $document->getOperator()->toArray();
-
-        $status = $document->getCollection()->getMongoCollection()->update(
-            array('_id' => $document->getId()), $updateOperations
+        $this->collection->insert($document);
+        return $document['_id'];
+    }
+    
+    public function update(array $query, array $operations)
+    {
+        $status = $this->collection->update(
+            $query,
+            $operations
         );
 
         if ($status['ok'] != 1) {
@@ -32,13 +29,15 @@ class Common implements \Sokil\Mongo\Collection\CrudStrategy
                 $status['errmsg']
             ));
         }
+    }
 
-        if ($document->getOperator()->isReloadRequired()) {
-            $data = $document->getCollection()->getMongoCollection()->findOne(array('_id' => $document->getId()));
-            $document->replace($data);
+    public function delete(array $query)
+    {
+        $status = $this->collection->remove($query);
+
+        if(true !== $status && $status['ok'] != 1) {
+            throw new \Sokil\Mongo\Exception(sprintf('Delete document error: %s', $status['err']));
         }
-
-        $document->getOperator()->reset();
     }
 }
 

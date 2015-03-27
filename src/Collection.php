@@ -99,7 +99,7 @@ class Collection implements \Countable
      *
      * @var \Sokil\Mongo\Document\SaveStrategy
      */
-    private static $crudStrategy;
+    private $crudStrategy;
 
     public function __construct(Database $database, $collection, Definition $definition = null)
     {
@@ -159,19 +159,19 @@ class Collection implements \Countable
     public function setCrudStrategy($name)
     {
         $this->crudStrategyName = $name;
-        unset(self::$crudStrategy[$this->crudStrategyName]);
+        unset($this->crudStrategy);
         return $this;
     }
 
     /**
      *
-     * @return \Sokil
+     * @return \Sokil\Mongo\Collection\CrudStrategy
      * @throws \Sokil\Mongo\Exception
      */
     public function getCrudStrategy()
     {
-        if(isset(self::$crudStrategy[$this->crudStrategyName])) {
-            return self::$crudStrategy[$this->crudStrategyName];
+        if($this->crudStrategy) {
+            return $this->crudStrategy;
         }
 
         $strategyClassName = '\Sokil\Mongo\Collection\CrudStrategy\\' . $this->crudStrategyName;
@@ -179,9 +179,9 @@ class Collection implements \Countable
             throw new Exception('Wrong crud strategy "' . $this->crudStrategyName . '" specified');
         }
 
-        self::$crudStrategy[$this->crudStrategyName] = new $strategyClassName($this);
+        $this->crudStrategy = new $strategyClassName($this->getMongoCollection());
 
-        return self::$crudStrategy[$this->crudStrategyName];
+        return $this->crudStrategy;
     }
 
     /**
@@ -702,25 +702,14 @@ class Collection implements \Countable
         return $documents;
     }
 
+    /**
+     * @deprecated since 1.13. Use Document::delete()
+     * @param \Sokil\Mongo\Document $document
+     * @return \Sokil\Mongo\Collection
+     */
     public function deleteDocument(Document $document)
     {
-        if($document->triggerEvent('beforeDelete')->isCancelled()) {
-            return $this;
-        }
-
-        $status = $this->_mongoCollection->remove(array(
-            '_id'   => $document->getId()
-        ));
-
-        $document->triggerEvent('afterDelete');
-
-        if(true !== $status && $status['ok'] != 1) {
-            throw new Exception(sprintf('Delete document error: %s', $status['err']));
-        }
-
-        // drop from document's pool
-        $this->removeDocumentFromDocumentPool($document);
-
+        $document->delete();
         return $this;
     }
 
@@ -731,7 +720,7 @@ class Collection implements \Countable
      * @return \Sokil\Mongo\Collection
      * @throws Exception
      */
-    public function deleteDocuments($expression = array())
+    public function batchDelete($expression = array())
     {
         // remove
         $result = $this->_mongoCollection->remove(
@@ -747,6 +736,14 @@ class Collection implements \Countable
     }
 
     /**
+     * @deprecated since 1.13. Use Collection::batchDelete();
+     */
+    public function deleteDocuments($expression = array())
+    {
+        return $this->batchDelete($expression);
+    }
+
+    /**
      * Insert bultiple documents defined as arrays
      *
      * @param array $rows list of documents to insert, defined as arrays
@@ -754,7 +751,7 @@ class Collection implements \Countable
      * @throws \Sokil\Mongo\Document\InvalidDocumentException
      * @throws \Sokil\Mongo\Exception
      */
-    public function insertMultiple($rows, $validate = true)
+    public function batchInsert($rows, $validate = true)
     {
         if($validate) {
             $document = $this->createDocument();
@@ -789,6 +786,14 @@ class Collection implements \Countable
         }
 
         return $this;
+    }
+
+    /**
+     * @deprecated since 1.13 Use Collection::batchInsert()
+     */
+    public function insertMultiple($rows, $validate = true)
+    {
+        return $this->batchInsert($rows, $validate);
     }
 
     /**
@@ -865,7 +870,7 @@ class Collection implements \Countable
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      */
-    public function updateMultiple($expression, $updateData)
+    public function batchUpdate($expression, $updateData)
     {
         return $this->update($expression, $updateData, array(
             'multiple'  => true,
@@ -873,8 +878,17 @@ class Collection implements \Countable
     }
 
     /**
+     * @deprecated since 1.13 Use Collection::batchUpdate()
+     */
+    public function updateMultiple($expression, $updateData)
+    {
+        return $this->batchUpdate($expression, $updateData);
+    }
+
+    /**
      * Update all documents
-     * 
+     *
+     * @deprecated since 1.13. Use Collection::batchUpdate([])
      * @param \Sokil\Mongo\Operator|array|callable $updateData new data or operators
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
