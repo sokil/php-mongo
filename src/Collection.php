@@ -93,6 +93,14 @@ class Collection implements \Countable
      */
     private $definition;
 
+    protected $crudStrategyName = 'Common';
+
+    /**
+     *
+     * @var \Sokil\Mongo\Document\SaveStrategy
+     */
+    private static $crudStrategy;
+
     public function __construct(Database $database, $collection, Definition $definition = null)
     {
         // define db
@@ -146,6 +154,34 @@ class Collection implements \Countable
     public function isVersioningEnabled()
     {
         return $this->definition->getOption('versioning');
+    }
+
+    public function setCrudStrategy($name)
+    {
+        $this->crudStrategyName = $name;
+        unset(self::$crudStrategy[$this->crudStrategyName]);
+        return $this;
+    }
+
+    /**
+     *
+     * @return \Sokil
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function getCrudStrategy()
+    {
+        if(isset(self::$crudStrategy[$this->crudStrategyName])) {
+            return self::$crudStrategy[$this->crudStrategyName];
+        }
+
+        $strategyClassName = '\Sokil\Mongo\Collection\CrudStrategy\\' . $this->crudStrategyName;
+        if(!class_exists($strategyClassName)) {
+            throw new Exception('Wrong crud strategy "' . $this->crudStrategyName . '" specified');
+        }
+
+        self::$crudStrategy[$this->crudStrategyName] = new $strategyClassName($this);
+
+        return self::$crudStrategy[$this->crudStrategyName];
     }
 
     /**

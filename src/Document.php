@@ -83,14 +83,6 @@ class Document extends Structure
      * @var \Sokil\Mongo\Document\RevisionManager
      */
     private $revisionManager;
-    
-    private $saveStrategyName = 'Common';
-    
-    /**
-     *
-     * @var \Sokil\Mongo\Document\SaveStrategy
-     */
-    private $saveStrategy;
 
     /**
      *
@@ -1189,20 +1181,44 @@ class Document extends Structure
 
         return $this;
     }
-    
+
     public function save($validate = true)
     {
-        // create save strategy
-        if(!$this->saveStrategy) {
-            $strategyClassName = '\Sokil\Mongo\Document\SaveStrategy\\' . $this->saveStrategyName;
-            if(!class_exists($strategyClassName)) {
-                throw new Exception('Wrong strategy specified');
-            }
-            $this->saveStrategy = new $strategyClassName($this);
-        }
         
         // save document
-        $this->saveStrategy->save($validate);
+        // if document already in db and not modified - skip this method
+        if (!$this->isSaveRequired()) {
+            return $this;
+        }
+
+        if ($validate) {
+            $this->validate();
+        }
+
+        // handle beforeSave event
+        if($this->triggerEvent('beforeSave')->isCancelled()) {
+            return $this;
+        }
+
+        // create crud strategy
+        if ($this->isStored()) {
+            if($this->triggerEvent('beforeUpdate')->isCancelled()) {
+                return $this;
+            }
+            $this->getCollection()->getCrudStrategy()->update($this);
+            $this->triggerEvent('afterUpdate');
+        } else {
+            if($this->triggerEvent('beforeInsert')->isCancelled()) {
+                return $this;
+            }
+            $this->getCollection()->getCrudStrategy()->insert($this);
+            $this->triggerEvent('afterInsert');
+        }
+
+        // handle afterSave event
+        $this->triggerEvent('afterSave');
+
+        $this->apply();
         
         return $this;
     }
