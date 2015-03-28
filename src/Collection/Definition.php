@@ -7,6 +7,10 @@ class Definition
     const DEFAULT_COLLECTION_CLASS  = '\Sokil\Mongo\Collection';
     const DEFAULT_GRIDFS_CLASS      = '\Sokil\Mongo\GridFS';
 
+    const LOCK_NONE         = 'NONE';
+    const LOCK_OPTIMISTIC   = 'OPTIMISTIC';
+    const LOCK_PESSIMISTIC  = 'PESSIMISTIC';
+
     /**
      * Fully qualified collectin class
      */
@@ -61,6 +65,8 @@ class Definition
     private $size;
 
     private $max;
+
+    private $lock = self::LOCK_NONE;
 
     private $options = array();
 
@@ -163,6 +169,7 @@ class Definition
             'capped'            => $this->capped,
             'size'              => $this->size,
             'max'               => $this->max,
+            'lock'              => $this->lock,
         ) + $this->options;
     }
 }
