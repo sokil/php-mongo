@@ -248,11 +248,11 @@ class Document extends Structure
      */
     public function refresh()
     {
-        // get data omitting cache
-        $data = $this
-            ->getCollection()
-            ->getCrudStrategy()
-            ->findOne(array('_id' => $this->getId()));
+        $data = $this->collection
+            ->getMongoCollection()
+            ->findOne(array(
+                '_id' => $this->getId()
+            ));
 
         $this->replace($data);
 
@@ -1196,20 +1196,25 @@ class Document extends Structure
         if($this->triggerEvent('beforeSave')->isCancelled()) {
             return $this;
         }
-
-        // create crud strategy
         if ($this->isStored()) {
             if($this->triggerEvent('beforeUpdate')->isCancelled()) {
                 return $this;
             }
 
-            $this
-                ->getCollection()
-                ->getCrudStrategy()
+            $status = $this->collection
+                ->getMongoCollection()
                 ->update(
                     array('_id' => $this->getId()),
                     $this->getOperator()->toArray()
                 );
+
+            if ($status['ok'] != 1) {
+                throw new \Sokil\Mongo\Exception(sprintf(
+                    'Update error: %s: %s',
+                    $status['err'],
+                    $status['errmsg']
+                ));
+            }
 
             if ($this->getOperator()->isReloadRequired()) {
                 $this->refresh();
@@ -1223,13 +1228,14 @@ class Document extends Structure
                 return $this;
             }
 
-            $id = $this
-                ->getCollection()
-                ->getCrudStrategy()
-                ->insert($this->toArray());
+            $document = $this->toArray();
+            $this
+                ->collection
+                ->getMongoCollection()
+                ->insert($document);
             
             // set id
-            $this->defineId($id);
+            $this->defineId($document['_id']);
 
             // after insert event
             $this->triggerEvent('afterInsert');
@@ -1254,9 +1260,13 @@ class Document extends Structure
             return $this;
         }
 
-        $this->getCollection()->getCrudStrategy()->delete(array(
+        $status = $this->collection->getMongoCollection()->remove(array(
             '_id'   => $this->getId(),
         ));
+
+        if(true !== $status && $status['ok'] != 1) {
+            throw new \Sokil\Mongo\Exception(sprintf('Delete document error: %s', $status['err']));
+        }
 
         $this->triggerEvent('afterDelete');
 
