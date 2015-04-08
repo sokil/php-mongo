@@ -23,17 +23,17 @@ class Client
 {
     const DEFAULT_DSN = 'mongodb://127.0.0.1';
     
-    private $_dsn = self::DEFAULT_DSN;
+    private $dsn = self::DEFAULT_DSN;
     
-    private $_connectOptions = array();
+    private $connectOptions = array();
     
     /**
      *
      * @var \MongoClient
      */
-    private $_mongoClient;
+    private $mongoClient;
     
-    private $_databasePool = array();
+    private $databasePool = array();
     
     /**
      * @var array Database to class mapping
@@ -41,9 +41,9 @@ class Client
     protected $_mapping = array();
     
         
-    private $_logger;
+    private $logger;
     
-    private $_currentDatabaseName;
+    private $currentDatabaseName;
     
     /**
      * 
@@ -70,8 +70,8 @@ class Client
      */
     public function setCredentials($username, $password)
     {
-        $this->_connectOptions['username'] = $username;
-        $this->_connectOptions['password'] = $password;
+        $this->connectOptions['username'] = $username;
+        $this->connectOptions['password'] = $password;
         
         return $this;
     }
@@ -97,13 +97,13 @@ class Client
     
     public function setDsn($dsn)
     {
-        $this->_dsn = $dsn;
+        $this->dsn = $dsn;
         return $this;
     }
     
     public function getDsn()
     {
-        return $this->_dsn;
+        return $this->dsn;
     }
     
     /**
@@ -115,13 +115,13 @@ class Client
      */
     public function setConnectOptions(array $options)
     {
-        $this->_connectOptions = $options;
+        $this->connectOptions = $options;
         return $this;
     }
 
     public function getConnectOptions()
     {
-        return $this->_connectOptions;
+        return $this->connectOptions;
     }
     
     /**
@@ -132,7 +132,7 @@ class Client
      */
     public function setMongoClient(\MongoClient $client)
     {
-        $this->_mongoClient = $client;
+        $this->mongoClient = $client;
         return $this;
     }
     
@@ -144,13 +144,13 @@ class Client
      */
     public function getMongoClient()
     {
-        if($this->_mongoClient) {
-            return $this->_mongoClient;
+        if($this->mongoClient) {
+            return $this->mongoClient;
         }
 
-        $this->_mongoClient = new \MongoClient($this->_dsn, $this->_connectOptions);
+        $this->mongoClient = new \MongoClient($this->dsn, $this->connectOptions);
         
-        return $this->_mongoClient;
+        return $this->mongoClient;
     }
     
     /**
@@ -160,7 +160,7 @@ class Client
      */
     public function getConnections()
     {
-        return $this->_mongoClient->getConnections();
+        return $this->mongoClient->getConnections();
     }
     
     /**
@@ -191,7 +191,7 @@ class Client
             $name = $this->getCurrentDatabaseName();
         }
 
-        if(!isset($this->_databasePool[$name])) {
+        if(!isset($this->databasePool[$name])) {
             // init db
             $database = new Database($this, $name);
             if(isset($this->_mapping[$name])) {
@@ -199,10 +199,10 @@ class Client
             }
 
             // configure db
-            $this->_databasePool[$name] = $database;
+            $this->databasePool[$name] = $database;
         }
         
-        return $this->_databasePool[$name];
+        return $this->databasePool[$name];
     }
     
     /**
@@ -213,17 +213,17 @@ class Client
      */
     public function useDatabase($name)
     {
-        $this->_currentDatabaseName = $name;
+        $this->currentDatabaseName = $name;
         return $this;
     }
     
     public function getCurrentDatabaseName()
     {
-        if(!$this->_currentDatabaseName) {
+        if(!$this->currentDatabaseName) {
             throw new Exception('Database not selected');
         }
 
-        return $this->_currentDatabaseName;
+        return $this->currentDatabaseName;
     }
     
     /**
@@ -277,7 +277,7 @@ class Client
     
     public function setLogger(LoggerInterface $logger)
     {
-        $this->_logger = $logger;
+        $this->logger = $logger;
         return $this;
     }
     
@@ -287,7 +287,7 @@ class Client
      */
     public function getLogger()
     {
-        return $this->_logger;
+        return $this->logger;
     }
 
     /**
@@ -297,7 +297,7 @@ class Client
      */
     public function hasLogger()
     {
-        return (bool) $this->_logger;
+        return (bool) $this->logger;
     }
 
     /**
@@ -307,7 +307,7 @@ class Client
      */
     public function removeLogger()
     {
-        $this->_logger = null;
+        $this->logger = null;
         return $this;
     }
     
