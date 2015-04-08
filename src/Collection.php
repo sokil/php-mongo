@@ -31,11 +31,12 @@ class Collection implements \Countable
     /**
      * @var string expression class. This class may be overloaded to define
      *  own query methods (whereUserAgeGreatedThan(), etc.)
+     * @deprecated since 1.13 Use 'expressionClass' declaration in mapping
      */
     protected $_queryExpressionClass;
 
     /**
-     *
+     * @deprecated since 1.13 Use 'documentClass' declaration in mapping
      * @var string Default class for document
      */
     private $documentClass;
@@ -54,6 +55,7 @@ class Collection implements \Countable
      *     ...
      * )
      * @var array list of indexes
+     * @deprecated since 1.13 Use 'index' declaration in mapping
      */
     protected $_index;
 
@@ -83,7 +85,7 @@ class Collection implements \Countable
     private $isDocumentPoolEnabled = true;
 
     /**
-     *
+     * @deprecated since 1.13 Use 'versioning' declaration in mapping
      * @var bool default value of versioning
      */
     protected $versioning;
