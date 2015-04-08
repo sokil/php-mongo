@@ -186,7 +186,7 @@ class Database
      * @param string $prefix Namespace prefix
      * @return \Sokil\Mongo\Database
      */
-    public function defineCollectionNamespace($prefix)
+    private function defineCollectionNamespace($prefix)
     {
         $this->collectionNamespace = rtrim($prefix, '\\');
         
@@ -194,12 +194,13 @@ class Database
     }
 
     /**
-     *
+     * Define collection through array or Definition instance
+     * 
      * @param string $name collection name
      * @param \Sokil\Mongo\Collection\Definition|array $definition collection definition
      * @return \Sokil\Mongo\Database
      */
-    public function defineCollection($name, $definition)
+    private function defineCollection($name, $definition)
     {
         // prepate definition object
         if(($definition instanceof Definition) === false) {
@@ -343,7 +344,7 @@ class Database
     /**
      * Get instance of GridFS
      *
-     * @param string $prefix prefix of files and chunks collection
+     * @param string $name prefix of files and chunks collection
      * @return \Sokil\Mongo\GridFS
      * @throws \Sokil\Mongo\Exception
      */

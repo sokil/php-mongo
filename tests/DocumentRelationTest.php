@@ -538,11 +538,13 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
 
     public function testRelationDefinitionInMapping()
     {
-        $this->database->defineCollection('someCollection', array(
-            'documentClass' => 'Sokil\Mongo\DocumentRelationTest\CarDocument',
-            'relations'     => array(
-                'someRelation'   => array(Document::RELATION_MANY_MANY, 'drivers', 'driver_id', true),
-            ),
+        $this->database->map(array(
+            'someCollection' => array(
+                'documentClass' => 'Sokil\Mongo\DocumentRelationTest\CarDocument',
+                'relations'     => array(
+                    'someRelation'   => array(Document::RELATION_MANY_MANY, 'drivers', 'driver_id', true),
+                ),
+            )
         ));
 
         $relationDefinition = $this->database
