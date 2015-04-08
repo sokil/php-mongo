@@ -129,7 +129,8 @@ class Collection implements \Countable
 
     /**
      * Start versioning documents on modify
-     * 
+     *
+     * @deprecated since 1.13 Use 'versioning' declaration in mapping
      * @return \Sokil\Mongo\Collection
      */
     public function enableVersioning()
@@ -140,7 +141,8 @@ class Collection implements \Countable
 
     /**
      * Check if versioning enabled
-     * 
+     *
+     * @deprecated since 1.13 Use 'versioning' declaration in mapping
      * @return bool
      */
     public function isVersioningEnabled()

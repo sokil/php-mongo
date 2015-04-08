@@ -17,6 +17,7 @@
   * Removed classes QueryBuilder and GridFSQueryBuilder. Hydration logic improved
   * Refactor document saving
   * Collection::deleteDocument() is deprecated. Use Document::delete()
+  * Collection::isVersioningEnabled() and Collection::enableVersioning() are deprecated. Use 'vrsioning' in mapping.
 
 ## 1.12.8 (2015-03-03)
   * Method 'Validator::validate()' marked as final
