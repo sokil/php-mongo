@@ -14,6 +14,7 @@ namespace Sokil\Mongo;
 use Sokil\Mongo\Document\RelationManager;
 use Sokil\Mongo\Document\RevisionManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
+use Sokil\Mongo\Collection\Definition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use GeoJson\Geometry\Geometry;
 
@@ -1229,6 +1230,7 @@ class Document extends Structure
             }
 
             $document = $this->toArray();
+
             $this
                 ->collection
                 ->getMongoCollection()

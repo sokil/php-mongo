@@ -712,7 +712,7 @@ class Collection implements \Countable
     }
 
     /**
-     * Insert bultiple documents defined as arrays
+     * Insert multiple documents defined as arrays
      *
      * @param array $rows list of documents to insert, defined as arrays
      * @return \Sokil\Mongo\Collection

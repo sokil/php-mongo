@@ -68,6 +68,8 @@ class Definition
 
     private $lock = self::LOCK_NONE;
 
+    private $documentPool = true;
+
     private $options = array();
 
     public function __construct(array $definition = null)
@@ -170,6 +172,7 @@ class Definition
             'size'              => $this->size,
             'max'               => $this->max,
             'lock'              => $this->lock,
+            'documentPool'      => $this->documentClass,
         ) + $this->options;
     }
 }
