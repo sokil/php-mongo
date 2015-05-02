@@ -1229,7 +1229,7 @@ class Document extends Structure
 
             // check if document modified due to specified lock
             if ($this->getOption('lock') === Definition::LOCK_OPTIMISTIC) {
-                if($status['nModified'] === 0) {
+                if($status['n'] === 0) {
                     throw new OptimisticLockFailureException;
                 }
             }
