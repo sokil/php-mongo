@@ -55,7 +55,7 @@ class CollectionLockTest extends \PHPUnit_Framework_TestCase
             ->save();
 
         // check version field set
-        $this->assertEquals(1, $document->get('__version__'));
+        $this->assertEquals(null, $document->get('__version__'));
 
         // first read of document
         $doc1 = $collection->getDocumentDirectly($document->getId());
@@ -65,10 +65,10 @@ class CollectionLockTest extends \PHPUnit_Framework_TestCase
 
         // update first document
         $doc1->set('param', 'valueOfDoc1')->save();
-        $this->assertEquals(2, $doc1->get('__version__'));
-        $this->assertEquals(1, $doc2->get('__version__'));
+        $this->assertEquals(1, $doc1->get('__version__'));
+        $this->assertEquals(null, $doc2->get('__version__'));
 
         // try to update second document
-        $doc1->set('param', 'valueOfDoc2')->save();
+        $doc2->set('param', 'valueOfDoc2')->save();
     }
 }

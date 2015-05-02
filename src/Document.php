@@ -15,6 +15,7 @@ use Sokil\Mongo\Document\RelationManager;
 use Sokil\Mongo\Document\RevisionManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Sokil\Mongo\Collection\Definition;
+use Sokil\Mongo\Document\OptimisticLockFailureException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use GeoJson\Geometry\Geometry;
 
@@ -1202,19 +1203,35 @@ class Document extends Structure
                 return $this;
             }
 
+            // locking
+            $query = array('_id' => $this->getId());
+            if ($this->getOption('lock') === Definition::LOCK_OPTIMISTIC) {
+                $query['__version__'] = $this->get('__version__');
+                $this->getOperator()->increment('__version__');
+            }
+
+            // update
             $status = $this->collection
                 ->getMongoCollection()
                 ->update(
-                    array('_id' => $this->getId()),
+                    $query,
                     $this->getOperator()->toArray()
                 );
 
+            // check update status
             if ($status['ok'] != 1) {
                 throw new \Sokil\Mongo\Exception(sprintf(
                     'Update error: %s: %s',
                     $status['err'],
                     $status['errmsg']
                 ));
+            }
+
+            // check if document modified due to specified lock
+            if ($this->getOption('lock') === Definition::LOCK_OPTIMISTIC) {
+                if($status['nModified'] === 0) {
+                    throw new OptimisticLockFailureException;
+                }
             }
 
             if ($this->getOperator()->isReloadRequired()) {

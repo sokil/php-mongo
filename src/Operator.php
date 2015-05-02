@@ -186,7 +186,7 @@ class Operator implements Arrayable
         return $this;
     }
     
-    public function increment($fieldName, $value)
+    public function increment($fieldName, $value = 1)
     {
         // check if update operations already added
         $oldIncrementValue = $this->get('$inc', $fieldName);
