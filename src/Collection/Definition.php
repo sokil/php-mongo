@@ -172,7 +172,7 @@ class Definition
             'size'              => $this->size,
             'max'               => $this->max,
             'lock'              => $this->lock,
-            'documentPool'      => $this->documentClass,
+            'documentPool'      => $this->documentPool,
         ) + $this->options;
     }
 }
