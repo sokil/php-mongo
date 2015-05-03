@@ -1,4 +1,5 @@
-## 1.13@DEV
+## 1.13 (2015-05-03)
+  * Optimistic locking
   * Refactoring of mapping configs.
   * Default argument removed from `Collection::getOption()`.
   * Removed deprecated method `Collection::saveDocument()`.
