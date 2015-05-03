@@ -2005,7 +2005,7 @@ $client->map([
 ```
 
 Now when some process try to update already updated document, exception
-`\Sokil\Mongo\Document\OptimisticLockFailureException' will be thrown.
+`\Sokil\Mongo\Document\OptimisticLockFailureException` will be thrown.
 
 Read preferences
 ----------------
