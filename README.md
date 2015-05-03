@@ -65,6 +65,7 @@ Why to use this ODM? You can easily work with document data through comfortable 
   * [Many-to-many relation](#many-to-many-relation)
   * [Add relation](#add-relation)
   * [Remove relation](#remove-relation)
+* [Concurency](#concurency)
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
 * [Capped collections](#capped-collections)
@@ -1984,6 +1985,27 @@ This helper automatically resolves collection and field
 where to remove relation data. If relation type is `HAS_MANY` or `BELONS_TO`,
 second parameter wich defined related object may be omitted.
 
+Concurency
+----------
+
+### Optimistic locking
+
+To enable optimistic locking, specify lock mode in mapping:
+```php
+use Sokil\Mongo\Collection\Definition;
+use Sokil\Mongo\Document\OptimisticLockFailureException;
+
+$client->map([
+    'db' => [
+        'col' => [
+            'lock' => Definition::LOCK_OPTIMISTIC,
+        ],
+    ]
+]);
+```
+
+Now when some process try to update already updated document, exception
+`\Sokil\Mongo\Document\OptimisticLockFailureException' will be thrown.
 
 Read preferences
 ----------------
