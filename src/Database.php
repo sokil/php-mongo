@@ -514,6 +514,11 @@ class Database
         ));
     }
 
+    public function getLastError()
+    {
+        return $this->getMongoDB()->lastError();
+    }
+
     public function getProfilerParams()
     {
         return $this->executeCommand(array(

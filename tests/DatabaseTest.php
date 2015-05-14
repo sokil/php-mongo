@@ -169,6 +169,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->database->executeJS('gversion()');
     }
 
+    public function testGetLastError()
+    {
+        $error = $this->database->getLastError();
+        $this->assertNull($error['err']);
+    }
+
     public function testMapCollectionsToClasses()
     {
         $this->database->map(array(
