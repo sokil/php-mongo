@@ -172,7 +172,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     public function testGetLastError()
     {
         $error = $this->database->getLastError();
-        $this->assertNull($error['err']);
+        $this->assertArrayHasKey('connectionId', $error);
     }
 
     public function testMapCollectionsToClasses()
