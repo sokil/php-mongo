@@ -445,7 +445,12 @@ $client->map([
         ],
         'collectionName2' => function(array $documentData = null) {
             return '\Custom' . ucfirst(strtolower($documentData['type'])) . 'Document';
-        }
+        },
+        'collectionName3' => [
+            'documentClass' => function(array $documentData = null) {
+                return '\Custom' . ucfirst(strtolower($documentData['type'])) . 'Document';
+            },
+        ],
     ],
 ]);
 ```
