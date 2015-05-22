@@ -6,6 +6,12 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 {
     /**
      *
+     * @var \Sokil\Mongo\Database
+     */
+    private $database;
+
+    /**
+     *
      * @var \Sokil\Mongo\Collection
      */
     private $collection;
@@ -16,10 +22,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $client = new Client();
 
         // select database
-        $database = $client->getDatabase('test');
+        $this->database = $client->getDatabase('test');
 
         // select collection
-        $this->collection = $database->getCollection('phpmongo_test_collection');
+        $this->collection = $this->database->getCollection('phpmongo_test_collection');
     }
 
     public function tearDown()
@@ -918,5 +924,61 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             $queryBuilder1->getHash(),
             $queryBuilder3->getHash()
         );
+    }
+
+    public function testSetClientTimeoutInConstructor()
+    {
+        $cursor = new Cursor($this->collection, array(
+            'clientTimeout' => 42,
+        ));
+
+        $this->assertEquals(42, $cursor->getOption('clientTimeout'));
+    }
+
+    public function testSetClientTimeoutInSetter()
+    {
+        $cursor = new Cursor($this->collection);
+        $cursor->setClientTimeout(42);
+
+        $this->assertEquals(42, $cursor->getOption('clientTimeout'));
+    }
+
+    public function testSetClientTimeoutInMapping()
+    {
+        $this->database->map('col', array(
+            'cursorClientTimeout' => 42,
+        ));
+
+        $cursor = $this->database->getCollection('col')->find();
+
+        $this->assertEquals(42, $cursor->getOption('clientTimeout'));
+    }
+
+    public function testSetServerTimeoutInConstructor()
+    {
+        $cursor = new Cursor($this->collection, array(
+            'serverTimeout' => 42,
+        ));
+
+        $this->assertEquals(42, $cursor->getOption('serverTimeout'));
+    }
+
+    public function testSetServerTimeoutInSetter()
+    {
+        $cursor = new Cursor($this->collection);
+        $cursor->setServerTimeout(42);
+
+        $this->assertEquals(42, $cursor->getOption('serverTimeout'));
+    }
+
+    public function testSetServerTimeoutInMapping()
+    {
+        $this->database->map('col', array(
+            'cursorServerTimeout' => 42,
+        ));
+
+        $cursor = $this->database->getCollection('col')->find();
+
+        $this->assertEquals(42, $cursor->getOption('serverTimeout'));
     }
 }

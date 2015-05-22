@@ -392,6 +392,8 @@ class Collection implements \Countable
         $cursor = new Cursor($this, array(
             'expressionClass'   => $this->definition->getExpressionClass(),
             'batchSize'         => $this->definition->getOption('batchSize'),
+            'clientTimeout'     => $this->definition->getOption('cursorClientTimeout'),
+            'serverTimeout'     => $this->definition->getOption('cursorServerTimeout'),
         ));
 
         if(is_callable($callable)) {

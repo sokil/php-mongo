@@ -327,16 +327,18 @@ $client
 
 Predefined options are:
 
-| Option           | Default value            | Description                                                |
-| ---------------- | ------------------------ | ---------------------------------------------------------- |
-| class            | \Sokil\Mongo\Collection  | Fully qualified collectin class                            |
-| documentClass    | \Sokil\Mongo\Document    | Fully qualified document class                             |
-| versioning       | false                    | Using document versioning                                  |
-| index            | null                     | Index definition                                           |
-| expressionClass  | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
-| behaviors        | null                     | List of behaviors, attached to every document              |
-| relations        | null                     | Definition of relations to documents in other collection   |
-| batchSize        | null                     | Number of documents to return in each batch of response    |
+| Option              | Default value            | Description                                                |
+| ------------------- | ------------------------ | ---------------------------------------------------------- |
+| class               | \Sokil\Mongo\Collection  | Fully qualified collectin class                            |
+| documentClass       | \Sokil\Mongo\Document    | Fully qualified document class                             |
+| versioning          | false                    | Using document versioning                                  |
+| index               | null                     | Index definition                                           |
+| expressionClass     | \Sokil\Mongo\Expression  | Fully qualified expression class for custom query builder  |
+| behaviors           | null                     | List of behaviors, attached to every document              |
+| relations           | null                     | Definition of relations to documents in other collection   |
+| batchSize           | null                     | Number of documents to return in each batch of response    |
+| clientCursorTimeout | null                     | A timeout can be set at any time and will affect subsequent queries on the cursor, including fetching more results from the database    |
+| serverCursorTimeout | null                     | A cumulative time limit in milliseconds to be allowed by the server for processing operations on the cursor |
 
 If `class` omitted, then used standart `\Sokil\Mongo\Collection` class.
 
@@ -1074,6 +1076,21 @@ To define this numner of documents:
 <?php
 
 $cursor->setBatchSize(20);
+```
+
+#### Query timeouts
+
+Client timeout defined to stop waiting for a response and throw a \MongoCursorTimeoutException after a set time.
+A timeout can be set at any time and will affect subsequent queries on the cursor, including fetching more results from the database.
+
+```php 
+$collection->find()->where('name', 'Michael')->setClientTimeout(4200);
+```
+
+Server-side timeout for a query specifies a cumulative time limit in milliseconds to be allowed by the server for processing operations on the cursor.
+
+```php
+$collection->find()->where('name', 'Michael')->setServerTimeout(4200);
 ```
 
 ### Distinct values

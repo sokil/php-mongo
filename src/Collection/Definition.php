@@ -58,6 +58,25 @@ class Definition
      */
     private $batchSize;
 
+    /**
+     * Instructs the driver to stop waiting for a response and throw a 
+     * MongoCursorTimeoutException after a set time
+     * A timeout can be set at any time and will affect subsequent queries on
+     * the cursor, including fetching more results from the database.
+     * @link http://php.net/manual/en/mongocursor.timeout.php
+     * @var int time in milliseconds
+     */
+    private $cursorClientTimeout;
+
+    /**
+     * Server-side timeout for a query
+     * Specifies a cumulative time limit in milliseconds to be allowed
+     * by the server for processing operations on the cursor.
+     * @link http://php.net/manual/en/mongocursor.maxtimems.php
+     * @var int time in milliseconds
+     */
+    private $cursorServerTimeout;
+
     private $regexp;
 
     private $capped;
@@ -158,21 +177,23 @@ class Definition
     public function getOptions()
     {
         return array(
-            'class'             => $this->class,
-            'gridfs'            => $this->gridfs,
-            'documentClass'     => $this->documentClass,
-            'versioning'        => $this->versioning,
-            'index'             => $this->index,
-            'relations'         => $this->relations,
-            'expressionClass'   => $this->expressionClass,
-            'behaviors'         => $this->behaviors,
-            'batchSize'         => $this->batchSize,
-            'regexp'            => $this->regexp,
-            'capped'            => $this->capped,
-            'size'              => $this->size,
-            'max'               => $this->max,
-            'lock'              => $this->lock,
-            'documentPool'      => $this->documentPool,
+            'class'                 => $this->class,
+            'gridfs'                => $this->gridfs,
+            'documentClass'         => $this->documentClass,
+            'versioning'            => $this->versioning,
+            'index'                 => $this->index,
+            'relations'             => $this->relations,
+            'expressionClass'       => $this->expressionClass,
+            'behaviors'             => $this->behaviors,
+            'batchSize'             => $this->batchSize,
+            'regexp'                => $this->regexp,
+            'capped'                => $this->capped,
+            'size'                  => $this->size,
+            'max'                   => $this->max,
+            'lock'                  => $this->lock,
+            'documentPool'          => $this->documentPool,
+            'cursorClientTimeout'   => $this->cursorClientTimeout,
+            'cursorServerTimeout'   => $this->cursorServerTimeout,
         ) + $this->options;
     }
 }

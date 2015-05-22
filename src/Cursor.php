@@ -62,12 +62,16 @@ class Cursor implements \Iterator, \Countable
      * @var array
      */
     private $options = array(
-        'expressionClass'   => '\Sokil\Mongo\Expression',
+        'expressionClass' => '\Sokil\Mongo\Expression',
         /**
          * @link http://docs.mongodb.org/manual/reference/method/cursor.batchSize/
          * @var int number of documents to return in each batch of the response from the MongoDB instance
          */
         'batchSize' => null,
+        // client timeout
+        'clientTimeout' => null,
+        // Specifies a cumulative time limit in milliseconds to be allowed by the server for processing operations on the cursor.
+        'serverTimeout' => null,
     );
 
     /**
@@ -322,6 +326,35 @@ class Cursor implements \Iterator, \Countable
     }
 
     /**
+     * Instructs the driver to stop waiting for a response and throw a
+     * MongoCursorTimeoutException after a set time,
+     * A timeout can be set at any time and will affect subsequent queries on
+     * the cursor, including fetching more results from the database.
+     * @param type $ms
+     * @return \Sokil\Mongo\Cursor
+     */
+    public function setClientTimeout($ms)
+    {
+        $this->options['clientTimeout'] = (int) $ms;
+
+        return $this;
+    }
+
+    /**
+     * Server-side timeout for a query,
+     * Specifies a cumulative time limit in milliseconds to be allowed
+     * by the server for processing operations on the cursor.
+     * @param type $ms
+     * @return \Sokil\Mongo\Cursor
+     */
+    public function setServerTimeout($ms)
+    {
+        $this->options['serverTimeout'] = (int) $ms;
+
+        return $this;
+    }
+
+    /**
      * Sort result by specified keys and directions
      *
      * @param array $sort
@@ -358,6 +391,14 @@ class Cursor implements \Iterator, \Countable
 
         if($this->options['batchSize']) {
             $this->cursor->batchSize($this->options['batchSize']);
+        }
+
+        if($this->options['clientTimeout']) {
+            $this->cursor->timeout($this->options['clientTimeout']);
+        }
+
+        if($this->options['serverTimeout']) {
+            $this->cursor->maxTimeMS($this->options['clientTimeout']);
         }
 
         if($this->sort) {
