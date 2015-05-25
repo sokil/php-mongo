@@ -66,6 +66,7 @@ Why to use this ODM? You can easily work with document data through comfortable 
   * [Add relation](#add-relation)
   * [Remove relation](#remove-relation)
 * [Concurency](#concurency)
+  * [Optimistic locking](#optimistic-locking)
 * [Read preferences](#read-preferences)
 * [Write concern](#write-concern)
 * [Capped collections](#capped-collections)
