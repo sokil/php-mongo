@@ -1,3 +1,9 @@
+## 1.13.2 (2015-05-22)
+  * Added support of cursor timeouts
+
+## 1.13.1 (2015-05-14)
+  * Added `Database::getLastError()`
+
 ## 1.13 (2015-05-03)
   * Optimistic locking
   * Refactoring of mapping configs.
