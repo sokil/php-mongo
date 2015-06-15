@@ -36,7 +36,8 @@ Why to use this ODM? You can easily work with document data through comfortable 
 * [Mapping](#mapping)
   * [Selecting database and collection](#selecting-database-and-collection)
   * [Custom collections](#custom-collections)
-  * [Document schema and validating](#document-schema-and-validating)
+  * [Document schema](#document-schema)
+* [Document validation](#document-validation)
 * [Getting documents by id](#getting-documents-by-id)
 * [Create new document](#create-new-document)
 * [Get and set data in document](#get-and-set-data-in-document)
@@ -476,7 +477,7 @@ class CustomDocument extends \Sokil\Mongo\Document
 }
 ```
 
-#### Document validation
+# Document validation
 
 Document can be validated before save. To set validation rules method `\Sokil\Mongo\Document::rules()` must be override with validation rules. Supported rules are:
 ```php
