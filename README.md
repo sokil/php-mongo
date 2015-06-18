@@ -2219,7 +2219,7 @@ Deleting files by id:
 $imagesFS->deleteFileById('6b5a4f53...42ha54e');
 ```
 
-#### Reading files
+##### Reading of file content
 
 ```php
 <?php
