@@ -2219,6 +2219,20 @@ Deleting files by id:
 $imagesFS->deleteFileById('6b5a4f53...42ha54e');
 ```
 
+#### Reading files
+
+```php
+<?php
+// dump binary data to file
+$file->dump($filename);
+
+// get binary data
+$file->getBytes();
+
+// get resource
+$file->getResource();
+```
+
 If you want to use your own `GridFSFile` classes, you need to define mapping, as it does with collections:
 ```php
 <?php
