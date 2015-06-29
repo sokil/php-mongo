@@ -25,7 +25,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
     {
         $this->client = new Client();
         
-        $this->persistence = new Persistence();
+        $this->persistence = new PersistenceLegacy();
         
         $this->collection = $this->client
             ->getDatabase('test')
@@ -53,7 +53,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->persistence->contains($document));
     }
 
-    public function testDelete()
+    public function testRemove()
     {
         $document = $this->collection
             ->createDocument(array(
@@ -77,7 +77,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($this->collection->find()->findOne());
     }
 
-    public function testInsert()
+    public function testFlush()
     {
         $document = $this->collection
             ->createDocument(array(
@@ -90,24 +90,6 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
             ->flush();
 
         $this->assertEquals('value', $this->collection->find()->findOne()->param);
-    }
-
-    public function testUpdate()
-    {
-        $document = $this->collection
-            ->createDocument(array(
-                'param' => 'value',
-            ))
-            ->save();
-
-        $document->param = 'new';
-
-        // add document
-        $this->persistence
-            ->persist($document)
-            ->flush();
-
-        $this->assertEquals('new', $this->collection->find()->findOne()->param);
     }
 
     public function testClear()

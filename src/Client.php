@@ -369,6 +369,10 @@ class Client
      */
     public function createPersistence()
     {
-        return new Persistence();
+        if (version_compare($this->getVersion(), '1.5', '>=')) {
+            return new Persistence();
+        }
+
+        return new PersistenceLegacy();
     }
 }
