@@ -3,18 +3,13 @@
 namespace Sokil\Mongo;
 
 class PersistenceTest extends \PHPUnit_Framework_TestCase
-{
-    /**
-     * @var \Sokil\Mongo\Persistence
-     */
-    private $persistence;
-    
+{    
     /**
      *
      * @var \Sokil\Mongo\Client
      */
     private $client;
-    
+
     /**
      *
      * @var \Sokil\Mongo\Collection
@@ -24,36 +19,47 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->client = new Client();
-        
-        $this->persistence = new Persistence();
-        
         $this->collection = $this->client
             ->getDatabase('test')
             ->getCollection('phpmongo_test_collection');
     }
-    
+
     public function tearDown()
     {
         $this->collection->delete();
     }
 
-    public function testPersist()
+    public function persistanceInstanceProvider()
+    {
+        return array(
+            array(new Persistence()),
+            //array(new PersistenceLegacy()),
+        );
+    }
+
+    /**
+     * @dataProvider persistanceInstanceProvider
+     */
+    public function testPersist(Persistence $persistence)
     {
         $document = $this->collection
             ->createDocument(array(
                 'param' => 'value',
             ));
 
-        $this->assertFalse($this->persistence->contains($document));
+        $this->assertFalse($persistence->contains($document));
 
         // add document
-        $this->persistence->persist($document);
+        $persistence->persist($document);
 
         // check if document in persistence
-        $this->assertTrue($this->persistence->contains($document));
+        $this->assertTrue($persistence->contains($document));
     }
 
-    public function testDelete()
+    /**
+     * @dataProvider persistanceInstanceProvider
+     */
+    public function testRemove(Persistence $persistence)
     {
         $document = $this->collection
             ->createDocument(array(
@@ -62,37 +68,62 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
             ->save();
 
         // add document
-        $this->persistence->remove($document);
+        $persistence->remove($document);
 
         // check if document in persistence
-        $this->assertTrue($this->persistence->contains($document));
+        $this->assertTrue($persistence->contains($document));
 
         // store to disk
-        $this->persistence->flush();
+        $persistence->flush();
 
         // check if document in persistence
-        $this->assertFalse($this->persistence->contains($document));
+        $this->assertFalse($persistence->contains($document));
 
         // check if document removed
         $this->assertEmpty($this->collection->find()->findOne());
     }
 
-    public function testInsert()
+    /**
+     * @dataProvider persistanceInstanceProvider
+     */
+    public function testPersistInsert(Persistence $persistence)
     {
-        $document = $this->collection
+        $document1 = $this->collection
             ->createDocument(array(
-                'param' => 'value',
+                'param' => 'value1',
             ));
 
-        // add document
-        $this->persistence
-            ->persist($document)
+        $document2 = $this->collection
+            ->createDocument(array(
+                'param' => 'value2',
+            ));
+
+        // add documents
+        $persistence
+            ->persist($document1)
+            ->persist($document2)
             ->flush();
 
-        $this->assertEquals('value', $this->collection->find()->findOne()->param);
+        // check results
+        $result = $this->collection->find()->asArray()->findAll();
+
+        $this->assertEquals(2, count($result));
+
+        $document1data = current($result);
+        unset($document1data['_id']);
+        $this->assertEquals(array('param' => 'value1'), $document1data);
+
+        next($result);
+
+        $document2data = current($result);
+        unset($document2data['_id']);
+        $this->assertEquals(array('param' => 'value2'), $document2data);
     }
 
-    public function testUpdate()
+    /**
+     * @dataProvider persistanceInstanceProvider
+     */
+    public function testPersistUpdate(Persistence $persistence)
     {
         $document = $this->collection
             ->createDocument(array(
@@ -103,14 +134,17 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
         $document->param = 'new';
 
         // add document
-        $this->persistence
+        $persistence
             ->persist($document)
             ->flush();
 
         $this->assertEquals('new', $this->collection->find()->findOne()->param);
     }
 
-    public function testClear()
+    /**
+     * @dataProvider persistanceInstanceProvider
+     */
+    public function testClear(Persistence $persistence)
     {
         $document = $this->collection
             ->createDocument(array(
@@ -118,33 +152,36 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
             ));
 
         // add document
-        $this->persistence->persist($document);
+        $persistence->persist($document);
 
         // clear documents
-        $this->persistence->clear();
+        $persistence->clear();
 
-        $this->assertEquals(0, count($this->persistence));
+        $this->assertEquals(0, count($persistence));
     }
 
-    public function testDetach()
+    /**
+     * @dataProvider persistanceInstanceProvider
+     */
+    public function testDetach(Persistence $persistence)
     {
         $document = $this->collection
             ->createDocument(array(
                 'param' => 'value',
             ));
 
-        $this->assertFalse($this->persistence->contains($document));
+        $this->assertFalse($persistence->contains($document));
 
         // attach document
-        $this->persistence->persist($document);
+        $persistence->persist($document);
 
         // check if document in persistence
-        $this->assertTrue($this->persistence->contains($document));
+        $this->assertTrue($persistence->contains($document));
 
         // detach document
-        $this->persistence->detach($document);
+        $persistence->detach($document);
 
         // check if document in persistence
-        $this->assertFalse($this->persistence->contains($document));
+        $this->assertFalse($persistence->contains($document));
     }
 }

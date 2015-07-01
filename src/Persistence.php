@@ -89,9 +89,8 @@ class Persistence implements \Countable
 
         // fill batch objects
         foreach($this->pool as $document) {
-
             /* @var $document \Sokil\Mongo\Document */
-            
+
             // collection
             $collection = $document->getCollection();
             $collectionName = $collection->getName();
