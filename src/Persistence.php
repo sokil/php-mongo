@@ -154,7 +154,7 @@ class Persistence implements \Countable
 
         // execute batch delete operations
         if ($delete) {
-            foreach ($insert as $collectionName => $collectionDelete) {
+            foreach ($delete as $collectionName => $collectionDelete) {
                 $collectionDelete->execute($writeOptions);
             }
         }
