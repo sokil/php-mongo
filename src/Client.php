@@ -89,10 +89,18 @@ class Client
     {
         return \MongoClient::VERSION;
     }
-    
+
+    /**
+     *
+     * @return string verion of mongo database
+     */
     public function getDbVersion()
     {
-        return $this->getDatabase('test')->executeJS('version();');
+        $buildInfo = $this
+            ->getDatabase('admin')
+            ->executeCommand(array('buildinfo' => 1));
+        
+        return $buildInfo['version'];
     }
     
     public function setDsn($dsn)

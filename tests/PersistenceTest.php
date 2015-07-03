@@ -31,10 +31,18 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
 
     public function persistanceInstanceProvider()
     {
-        return array(
-            array(new Persistence()),
-            //array(new PersistenceLegacy()),
-        );
+        $providers = array();
+
+        // legacy batch for MongoDb before 2.6
+        $providers[] = array(new PersistenceLegacy());
+
+        // batch for MongoDb after 2.6
+        $client = new Client();
+        if (version_compare($client->getDbVersion(), '2.6', '>=')) {
+            $providers[] = array(new Persistence());
+        }
+
+        return $providers;
     }
 
     /**

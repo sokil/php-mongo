@@ -172,7 +172,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function testGetDbVersion()
     {
         $version = $this->client->getDbVersion();
-
         $this->assertEquals(1, preg_match('#^[0-9]+(\.[0-9]+(\.[0-9]+(-[0-9A-Za-z\-]+(\+[0-9A-Za-z\-]+)?)?)?)?$#', $version));
     }
 
