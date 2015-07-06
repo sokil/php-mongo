@@ -1505,7 +1505,7 @@ foreach($paginator as $document) {
 Persistence (Unit of Work)
 --------------------------
 
-Instead of saving and removing objects right now, we can queue this job and execute all changes at once. This may be done through well-known pattern Unit of Work.
+Instead of saving and removing objects right now, we can queue this job and execute all changes at once. This may be done through well-known pattern Unit of Work. If installed PHP driver above v. 1.5.0 and version of MongoDB above, persistence will use `MongoWriteBatch` classes, which can execute all operations of same type and in same collection at once.
 
 Lets create persistance manager
 ```php
