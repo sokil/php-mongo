@@ -1,3 +1,6 @@
+## 1.13.3 (2015-07-06)
+  * Use `MongoWriteBatch` classes when using unit of work
+
 ## 1.13.2 (2015-05-22)
   * Added support of cursor timeouts
 
