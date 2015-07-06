@@ -44,6 +44,12 @@ class Client
     private $logger;
     
     private $currentDatabaseName;
+
+    /**
+     *
+     * @var string version of MongoDb
+     */
+    private $dbVersion;
     
     /**
      * 
@@ -96,11 +102,16 @@ class Client
      */
     public function getDbVersion()
     {
+        if ($this->dbVersion) {
+            return $this->dbVersion;
+        }
+
         $buildInfo = $this
             ->getDatabase('admin')
             ->executeCommand(array('buildinfo' => 1));
         
-        return $buildInfo['version'];
+        $this->dbVersion = $buildInfo['version'];
+        return $this->dbVersion;
     }
     
     public function setDsn($dsn)
