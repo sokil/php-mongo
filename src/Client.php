@@ -377,10 +377,12 @@ class Client
      */
     public function createPersistence()
     {
-        if (version_compare($this->getVersion(), '1.5', '>=')) {
+        // operations of same type and in same collection executed at once 
+        if (version_compare($this->getVersion(), '1.5', '>=') && version_compare($this->getDbVersion(), '2.6', '>=')) {
             return new Persistence();
         }
 
+        // all operations executed separately
         return new PersistenceLegacy();
     }
 }
