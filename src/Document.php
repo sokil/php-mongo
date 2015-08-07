@@ -659,6 +659,10 @@ class Document extends Structure
         return $this;
     }
 
+    public function setUpsert() {
+        $this->options['upsert'] = 1;
+    }
+    
     /*
      * Used to define id of unstored document. This db is manual
      */
