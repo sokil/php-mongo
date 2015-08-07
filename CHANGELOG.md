@@ -1,3 +1,10 @@
+## 1.13.5 (2015-08-07)
+  * Fix getting HAS_ONE and BELONGS relation when related object not found;
+
+## 1.13.4 (2015-07-27)
+  * Cache detected db version
+  * Cursor autocomplete improves
+
 ## 1.13.3 (2015-07-06)
   * Use `MongoWriteBatch` classes when using unit of work
 
