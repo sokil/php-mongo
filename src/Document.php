@@ -1198,7 +1198,7 @@ class Document extends Structure
         if($this->triggerEvent('beforeSave')->isCancelled()) {
             return $this;
         }
-        if ($this->isStored()) {
+        if ($this->isStored()  || $this->getOption('upsert')) {
             if($this->triggerEvent('beforeUpdate')->isCancelled()) {
                 return $this;
             }
