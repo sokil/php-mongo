@@ -105,6 +105,7 @@ class Persistence implements \Countable
                         }else {
                             $data = $document->getOperator()->toArray();
                         }
+                        $data = array ('$set' => $data );
                         
                         if (!isset($update[$collectionName])) {
                             $update[$collectionName] = new \MongoUpdateBatch($collection->getMongoCollection());
