@@ -133,12 +133,16 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
      */
     public function testPersistUpdate(Persistence $persistence)
     {
-        $document = $this->collection
+        // store document
+        $documentId = $this->collection
             ->createDocument(array(
                 'param' => 'value',
             ))
-            ->save();
+            ->save()
+            ->getId();
 
+        // get document directly and change
+        $document = $this->collection->getDocumentDirectly($documentId);
         $document->param = 'new';
 
         // add document
@@ -146,6 +150,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
             ->persist($document)
             ->flush();
 
+        // get document directly and check
         $this->assertEquals('new', $this->collection->find()->findOne()->param);
     }
 

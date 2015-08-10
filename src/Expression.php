@@ -33,7 +33,10 @@ class Expression implements Arrayable
     {
         return new self;
     }
-
+    /**
+     * Return a expression
+     * @return \Sokil\Mongo\Cursor|\Sokil\Mongo\Expression
+     */
     public function where($field, $value)
     {
         if(!isset($this->_expression[$field]) || !is_array($value) || !is_array($this->_expression[$field])) {

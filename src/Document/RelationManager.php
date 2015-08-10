@@ -77,7 +77,9 @@ class RelationManager
                     ->where($externalField, $this->document->get($internalField))
                     ->findOne();
 
-                $this->resolvedRelationIds[$relationName] = (string) $document->getId();
+                if ($document) {
+                    $this->resolvedRelationIds[$relationName] = (string) $document->getId();
+                }
 
                 return $document;
 
@@ -86,7 +88,9 @@ class RelationManager
 
                 $document = $targetCollection->getDocument($this->document->get($internalField));
 
-                $this->resolvedRelationIds[$relationName] = (string) $document->getId();
+                if ($document) {
+                    $this->resolvedRelationIds[$relationName] = (string) $document->getId();
+                }
 
                 return $document;
 

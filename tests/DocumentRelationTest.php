@@ -58,10 +58,23 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Sokil\Mongo\DocumentRelationTest\EngineDocument', $carDocument->engine);
         
         $this->assertEquals($engineDocument->getId(), $carDocument->engine->getId());
-        
-        // clear test
-        $carsCollection->delete();
-        $enginesCollection->delete();
+    }
+
+    /**
+     * A -> HAS_ONE -> B
+     */
+    public function testGetRelated_HasOne_EmptyRelation()
+    {
+        // collections
+        $carsCollection = $this->database->getCollection('cars');
+
+        // add documents
+        $carDocument = $carsCollection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        // test
+        $this->assertEquals(null, $carDocument->engine);
     }
     
     /**
@@ -89,12 +102,25 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Sokil\Mongo\DocumentRelationTest\CarDocument', $engineDocument->car);
         
         $this->assertEquals($carDocument->getId(), $engineDocument->car->getId());
-        
-        // clear test
-        $carsCollection->delete();
-        $enginesCollection->delete();
     }
-    
+
+    /**
+     * B -> BELONGS -> A
+     */
+    public function testGetRelated_Belongs_EmptyRelation()
+    {
+        // collections
+        $enginesCollection = $this->database->getCollection('engines');
+
+        // add target document
+        $engineDocument = $enginesCollection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        // test
+        $this->assertEquals(null, $engineDocument->car);
+    }
+
     /**
      * A -> HAS_MANY -> B
      */
@@ -126,12 +152,25 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         // test        
         $this->assertArrayHasKey((string) $wheelDocument1->getId(), $carDocument->wheels);
         $this->assertArrayHasKey((string) $wheelDocument2->getId(), $carDocument->wheels);
-        
-        // clear test
-        $carsCollection->delete();
-        $wheelsCollection->delete();
     }
-    
+
+    /**
+     * A -> HAS_MANY -> B
+     */
+    public function testGetRelated_HasMany_EmptyRelation()
+    {
+        // collections
+        $carsCollection = $this->database->getCollection('cars');
+
+        // add documents
+        $carDocument = $carsCollection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        // test
+        $this->assertEquals(array(), $carDocument->wheels);
+    }
+
     public function testGetRelated_ManyMany_RequestFromCollectionWithLocalyStoredRelationData()
     {
         $carsCollection = $this->database->getCollection('cars');
@@ -233,17 +272,13 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
         
         // test if same object        
         $this->assertEquals('red', $wheelDocument2->car->color);
-        
-        // clear test
-        $carsCollection->delete();
-        $wheelsCollection->delete();
     }
 
     /**
      * @expectedException Sokil\Mongo\Exception
      * @expectedExceptionMessage Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"
      */
-    public function testGetRelated_WronkRelationType()
+    public function testGetRelated_WrongRelationType()
     {
         $wrongRelCollection = $this->database->getCollection('wrongRel');
 
