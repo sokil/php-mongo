@@ -1209,13 +1209,16 @@ class Document extends Structure
                 $query['__version__'] = $this->get('__version__');
                 $this->getOperator()->increment('__version__');
             }
+            
+             $data = ! $this->isStored() ?  $this->toArray() : $this->getOperator()->toArray();
 
             // update
             $status = $this->collection
                 ->getMongoCollection()
                 ->update(
                     $query,
-                    $this->getOperator()->toArray()
+                    $data,
+                    ['upsert'=>$this->getOption('upsert') ]
                 );
 
             // check update status
