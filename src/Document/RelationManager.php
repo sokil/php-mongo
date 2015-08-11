@@ -49,12 +49,17 @@ class RelationManager
         $relationType = $relation[0];
         $targetCollectionName = $relation[1];
 
+        if (false !== stripos($targetCollectionName,'\\')) {
+            $targetCollection = new $targetCollectionName();
+        }
+        else { 
         // get target collection
         $targetCollection = $this->document
             ->getCollection()
             ->getDatabase()
             ->getCollection($targetCollectionName);
-
+        }
+            
         // check if relation already resolved
         if (isset($this->resolvedRelationIds[$relationName])) {
             if(is_array($this->resolvedRelationIds[$relationName])) {
@@ -69,14 +74,18 @@ class RelationManager
         switch ($relationType) {
 
             case Document::RELATION_HAS_ONE:
-                $internalField = '_id';
+                if (isset($relation[3])) {
+                   $internalField =  $relation[3];
+                }
+                else {
+                   $internalField = '_id';
+                }
+                
                 $externalField = $relation[2];
-
                 $document = $targetCollection
                     ->find()
                     ->where($externalField, $this->document->get($internalField))
                     ->findOne();
-
                 if ($document) {
                     $this->resolvedRelationIds[$relationName] = (string) $document->getId();
                 }
