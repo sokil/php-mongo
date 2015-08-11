@@ -1030,6 +1030,10 @@ class Document extends Structure
         return $this;
     }
 
+    public function setUpsert() {
+        $this->options['upsert'] = 1;
+    }
+    
     /**
      * Push argument as single element to field value
      *
