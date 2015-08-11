@@ -98,7 +98,15 @@ class Persistence implements \Countable
             // persisting
             switch($this->pool->offsetGet($document)) {
                 case self::STATE_SAVE:
-                    if ($document->isStored()) {
+                    if ($document->isStored() || $document->getOptions('upsert',0)) {
+                        
+                        if ($document->getOption('upsert',0)) {
+                            $data = $document->toArray();
+                        }else {
+                            $data = $document->getOperator()->toArray();
+                        }
+                        $data = array ('$set' => $data );
+                        
                         if (!isset($update[$collectionName])) {
                             $update[$collectionName] = new \MongoUpdateBatch($collection->getMongoCollection());
                         }
@@ -106,7 +114,8 @@ class Persistence implements \Countable
                             'q' => array(
                                 '_id' => $document->getId(),
                             ),
-                            'u' => $document->getOperator()->toArray(),
+                            'u' => $data,
+                            'upsert'=>$document->getOptions('upsert',0),
                         ));
                     } else {
                         if (!isset($insert[$collectionName])) {
