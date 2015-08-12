@@ -1,3 +1,6 @@
+## master (2015-08-12)
+  * Persistance now fire's document's events (beforeSave/beforeInsert/beforeUpdate)
+
 ## 1.13.5 (2015-08-07)
   * Fix getting HAS_ONE and BELONGS relation when related object not found;
 
