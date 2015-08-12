@@ -184,6 +184,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
             ->setNeverExpired('c', 'C', array('language', 'compileable'));
 
         $this->assertEquals(2, count($this->cache));
+        
+        
 
         $this->cache->deleteNotMatchingAnyTag(array('compileable', 'elephant'));
 
