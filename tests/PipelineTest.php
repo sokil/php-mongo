@@ -117,6 +117,34 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             ), $pipeline->toArray());
     }
 
+    public function testUnwind()
+    {
+        // add documents
+        $this->collection->batchInsert(array(
+            array('subdoc' => array('key' => array(1, 2))),
+            array('subdoc' => array('key' => array(4, 8))),
+        ));
+
+        // create pipeline
+        $pipeline = new Pipeline($this->collection);
+        $pipeline->unwind('$subdoc.key');
+
+        // get result
+        $result = $pipeline->aggregate();
+
+        $this->assertEquals(4, count($result));
+
+        $this->assertEquals(1, $result[0]['subdoc']['key']);
+        $this->assertEquals(2, $result[1]['subdoc']['key']);
+        $this->assertEquals(4, $result[2]['subdoc']['key']);
+        $this->assertEquals(8, $result[3]['subdoc']['key']);
+
+        $this->assertTrue((string) $result[0]['_id'] === (string) $result[1]['_id']);
+        $this->assertTrue((string) $result[2]['_id'] === (string) $result[3]['_id']);
+
+        $this->assertTrue((string) $result[0]['_id'] !== (string) $result[2]['_id']);
+    }
+
     /**
      * Check if pipeline added as new or appended to previouse on same operator
      */

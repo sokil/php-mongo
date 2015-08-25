@@ -32,7 +32,10 @@ class Pipeline
     {
         $lastIndex = count($this->stages) - 1;
 
-        if (!$this->stages || !isset($this->stages[$lastIndex][$operator]) || $operator == '$group') {
+        if (!$this->stages ||
+            !isset($this->stages[$lastIndex][$operator]) ||
+            in_array($operator, array('$group', '$unwind'))
+        ) {
             $this->stages[] = array($operator => $stage);
         } else {
             $this->stages[$lastIndex][$operator] = array_merge($this->stages[$lastIndex][$operator], $stage);
@@ -110,6 +113,20 @@ class Pipeline
         }
 
         $this->addStage('$group', $stage);
+        return $this;
+    }
+
+    /**
+     * Deconstructs an array field from the input documents to output a document for each element.
+     * Each output document is the input document with the value of the array field replaced by the element.
+     * @link http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
+     *
+     * @param string $path path to field
+     * @return \Sokil\Mongo\Pipeline
+     */
+    public function unwind($path)
+    {
+        $this->addStage('$unwind', $path);
         return $this;
     }
 
