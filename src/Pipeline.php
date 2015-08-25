@@ -76,18 +76,6 @@ class Pipeline
     }
 
     /**
-     * Unwinds multi-valued fields into individual documents.
-     *
-     * @param string $fieldname(s)
-     * @return \Sokil\Mongo\Pipeline
-     */
-    public function unwind( $pipeline)
-    {
-    	$this->stages[]['$unwind'] = $pipeline;
-    	return $this;
-    }
-    
-    /**
      * Groups documents by some specified expression and outputs to the next 
      * stage a document for each distinct grouping. The output documents 
      * contain an _id field which contains the distinct group by key. The 
