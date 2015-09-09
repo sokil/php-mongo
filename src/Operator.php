@@ -262,6 +262,14 @@ class Operator implements Arrayable
      */
     public function unsetField($fieldName)
     {
+     
+        /* Prevents mongo error: could not set and unset field at the same time 
+           if Document have Set and Unset fields at the samae time 
+        */       
+        if (isset($this->_operators['$set'][$fieldName])) {
+            unset($this->_operators['$set'][$fieldName]);
+        }
+        
         $this->_operators['$unset'][$fieldName] = '';
         return $this;
     }
