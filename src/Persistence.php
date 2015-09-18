@@ -45,7 +45,7 @@ class Persistence implements \Countable {
 
     /**
      * Get count of documents in pool
-     * 
+     *
      * @return int
      */
     public function count() {
@@ -178,25 +178,39 @@ class Persistence implements \Countable {
         // execute batch insert operations
         if ($insert) {
             foreach ($insert as $collectionName => $collectionInsert) {
-                $collectionInsert->execute($writeOptions);
+                $aStat['insert'] = $collectionInsert->execute($writeOptions);
             }
         }
         
         // execute batch update operations
         if ($update) {
             foreach ($update as $collectionName => $collectionUpdate) {
-                $collectionUpdate->execute($writeOptions);
+                $aStat['update'] = $collectionUpdate->execute($writeOptions);
             }
         }
         
         // execute batch delete operations
         if ($delete) {
             foreach ($delete as $collectionName => $collectionDelete) {
-                $collectionDelete->execute($writeOptions);
+                $aStat['delete'] = $collectionDelete->execute($writeOptions);
             }
         }
         
-        return $this;
+        $aDetailed = [];
+        
+        foreach ($aStat as $aRow) {
+            foreach ($aRow as $sKey => $mValue) {
+                if (! isset($aData[$sKey])) $aDetailed[$sKey] = 0;
+                if (is_numeric($mValue)) {
+                    $aDetailed[$sKey] += $mValue;
+                }
+                elseif (is_array($mValue)) {
+                    $aDetailed[$sKey] += count($mValue);
+                }
+            }
+        }
+        
+        return $aDetailed;
     }
 
     /**
@@ -214,7 +228,7 @@ class Persistence implements \Countable {
 
     /**
      * Detach all documents from pool
-     * 
+     *
      * @return \Sokil\Mongo\Persistence
      */
     public function clear() {
