@@ -175,6 +175,8 @@ class Persistence implements \Countable {
             'w' => 1
         );
         
+        $aStat = [];
+           
         // execute batch insert operations
         if ($insert) {
             foreach ($insert as $collectionName => $collectionInsert) {
