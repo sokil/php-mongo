@@ -8,26 +8,28 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Sokil\Mongo;
 
 /**
- * Class use MongoWriteBatch classes from PECL driver above v. 1.5.0.
+ * Class use MongoWriteBatch classes from PECL driver above v.
+ * 1.5.0.
  * Before this version legacy persistencee must be used
  */
-class Persistence implements \Countable
-{
+class Persistence implements \Countable {
+
     const STATE_SAVE = 0;
+
     const STATE_REMOVE = 1;
 
     /**
+     *
      * @var \SplObjectStorage
      */
     protected $pool;
 
-    public function __construct()
-    {
-        $this->pool = new \SplObjectStorage;
+    public function __construct() {
+
+        $this->pool = new \SplObjectStorage();
     }
 
     /**
@@ -36,17 +38,18 @@ class Persistence implements \Countable
      * @param Document $document
      * @return bool
      */
-    public function contains(Document $document)
-    {
+    public function contains(Document $document) {
+
         return $this->pool->contains($document);
     }
 
     /**
      * Get count of documents in pool
+     *
      * @return int
      */
-    public function count()
-    {
+    public function count() {
+
         return $this->pool->count();
     }
 
@@ -56,10 +59,10 @@ class Persistence implements \Countable
      * @param Document $document
      * @return \Sokil\Mongo\Persistence
      */
-    public function persist(Document $document)
-    {
-        $this->pool->attach($document, self::STATE_SAVE);
+    public function persist(Document $document) {
 
+        $this->pool->attach($document, self::STATE_SAVE);
+        
         return $this;
     }
 
@@ -69,10 +72,10 @@ class Persistence implements \Countable
      * @param Document $document
      * @return \Sokil\Mongo\Persistence
      */
-    public function remove(Document $document)
-    {
-        $this->pool->attach($document, self::STATE_REMOVE);
+    public function remove(Document $document) {
 
+        $this->pool->attach($document, self::STATE_REMOVE);
+        
         return $this;
     }
 
@@ -81,52 +84,84 @@ class Persistence implements \Countable
      *
      * @return \Sokil\Mongo\Persistence
      */
-    public function flush()
-    {
+    public function flush() {
+
         $insert = array();
         $update = array();
         $delete = array();
-
+        
         // fill batch objects
-        foreach($this->pool as $document) {
+        foreach ($this->pool as $document) {
             /* @var $document \Sokil\Mongo\Document */
-
+            
             // collection
             $collection = $document->getCollection();
             $collectionName = $collection->getName();
-
+            
+            if ($document->triggerEvent('beforeSave')->isCancelled()) {
+                continue;
+            }
+            
             // persisting
-            switch($this->pool->offsetGet($document)) {
+            switch ($this->pool->offsetGet($document)) {
                 case self::STATE_SAVE:
-                    if ($document->isStored()) {
-                        if (!isset($update[$collectionName])) {
+                    if ($document->isStored() || $document->getOptions('upsert', 0)) {
+                        
+                        if ($document->getOptions('upsert', 0)) {
+                            if ($document->triggerEvent('beforeInsert')->isCancelled()) {
+                                continue;
+                            }
+                        }
+                        
+                        if ($document->triggerEvent('beforeUpdate')->isCancelled()) {
+                            continue;
+                        }
+                        
+                        if ($document->getOption('upsert', 0)) {
+                            $data = $document->toArray();
+                        }
+                        else {
+                            $data = $document->getOperator()->toArray();
+                        }
+                        $data = array(
+                            '$set' => $data
+                        );
+                        
+                        if (! isset($update[$collectionName])) {
                             $update[$collectionName] = new \MongoUpdateBatch($collection->getMongoCollection());
                         }
                         $update[$collectionName]->add(array(
                             'q' => array(
-                                '_id' => $document->getId(),
+                                '_id' => $document->getId()
                             ),
-                            'u' => $document->getOperator()->toArray(),
+                            'u' => $data,
+                            'upsert' => $document->getOptions('upsert', 0)
                         ));
-                    } else {
-                        if (!isset($insert[$collectionName])) {
+                    }
+                    else {
+                        
+                        if ($document->triggerEvent('beforeInsert')->isCancelled()) {
+                            continue;
+                        }
+                        
+                        if (! isset($insert[$collectionName])) {
                             $insert[$collectionName] = new \MongoInsertBatch($collection->getMongoCollection());
                         }
                         $insert[$collectionName]->add($document->toArray());
                     }
                     break;
-
+                
                 case self::STATE_REMOVE:
                     // delete document form db
                     if ($document->isStored()) {
-                        if (!isset($delete[$collectionName])) {
+                        if (! isset($delete[$collectionName])) {
                             $delete[$collectionName] = new \MongoDeleteBatch($collection->getMongoCollection());
                         }
                         $delete[$collectionName]->add(array(
                             'q' => array(
-                                '_id' => $document->getId(),
+                                '_id' => $document->getId()
                             ),
-                            'limit' => 1,
+                            'limit' => 1
                         ));
                     }
                     // remove link form pool
@@ -134,32 +169,50 @@ class Persistence implements \Countable
                     break;
             }
         }
-
-        // write operations
-        $writeOptions = array('w' => 1);
         
+        // write operations
+        $writeOptions = array(
+            'w' => 1
+        );
+        
+        $aStat = [];
+           
         // execute batch insert operations
         if ($insert) {
             foreach ($insert as $collectionName => $collectionInsert) {
-                $collectionInsert->execute($writeOptions);
+                $aStat['insert'] = $collectionInsert->execute($writeOptions);
             }
         }
-
+        
         // execute batch update operations
         if ($update) {
             foreach ($update as $collectionName => $collectionUpdate) {
-                $collectionUpdate->execute($writeOptions);
+                $aStat['update'] = $collectionUpdate->execute($writeOptions);
             }
         }
-
+        
         // execute batch delete operations
         if ($delete) {
             foreach ($delete as $collectionName => $collectionDelete) {
-                $collectionDelete->execute($writeOptions);
+                $aStat['delete'] = $collectionDelete->execute($writeOptions);
             }
         }
-
-        return $this;
+        
+        $aDetailed = [];
+        
+        foreach ($aStat as $aRow) {
+            foreach ($aRow as $sKey => $mValue) {
+                if (! isset($aData[$sKey])) $aDetailed[$sKey] = 0;
+                if (is_numeric($mValue)) {
+                    $aDetailed[$sKey] += $mValue;
+                }
+                elseif (is_array($mValue)) {
+                    $aDetailed[$sKey] += count($mValue);
+                }
+            }
+        }
+        
+        return $aDetailed;
     }
 
     /**
@@ -168,21 +221,23 @@ class Persistence implements \Countable
      * @param Document $document
      * @return \Sokil\Mongo\Persistence
      */
-    public function detach(Document $document)
-    {
-        $this->pool->detach($document);
+    public function detach(Document $document) {
 
+        $this->pool->detach($document);
+        
         return $this;
     }
 
     /**
      * Detach all documents from pool
+     *
      * @return \Sokil\Mongo\Persistence
      */
-    public function clear()
-    {
-        $this->pool->removeAll($this->pool);
+    public function clear() {
 
+        $this->pool->removeAll($this->pool);
+        
         return $this;
     }
+
 }
