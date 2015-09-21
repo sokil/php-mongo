@@ -2437,7 +2437,7 @@ $collection->ensureTTLIndex('createDate', 1000);
 ```
 
 You can do this also in migration script, using [Mongo Migrator](https://github.com/sokil/php-mongo-migrator).
-For details see readme on than pakage's page.
+For details see related documentation.
 
 Or you can use `\Sokil\Mongo\Cache` class, which already implement this functionality.
 
