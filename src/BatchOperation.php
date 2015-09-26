@@ -26,8 +26,12 @@ abstract class BatchOperation implements \Countable
      *
      * @limk http://php.net/manual/ru/mongo.writeconcerns.php
      */
-    public function __construct(Collection $collection, $writeConcern = null, $timeout = null, $ordered = null)
-    {
+    public function __construct(
+        Collection $collection,
+        $writeConcern = null,
+        $timeout = null,
+        $ordered = null
+    ) {
         $this->collection = $collection;
 
         $writeOptions = array();
