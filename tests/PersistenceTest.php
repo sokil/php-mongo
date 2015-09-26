@@ -67,33 +67,6 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider persistanceInstanceProvider
      */
-    public function testRemove(Persistence $persistence)
-    {
-        $document = $this->collection
-            ->createDocument(array(
-                'param' => 'value',
-            ))
-            ->save();
-
-        // add document
-        $persistence->remove($document);
-
-        // check if document in persistence
-        $this->assertTrue($persistence->contains($document));
-
-        // store to disk
-        $persistence->flush();
-
-        // check if document in persistence
-        $this->assertFalse($persistence->contains($document));
-
-        // check if document removed
-        $this->assertEmpty($this->collection->find()->findOne());
-    }
-
-    /**
-     * @dataProvider persistanceInstanceProvider
-     */
     public function testPersistInsert(Persistence $persistence)
     {
         $document1 = $this->collection
@@ -152,6 +125,33 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
 
         // get document directly and check
         $this->assertEquals('new', $this->collection->find()->findOne()->param);
+    }
+
+    /**
+     * @dataProvider persistanceInstanceProvider
+     */
+    public function testRemove(Persistence $persistence)
+    {
+        $document = $this->collection
+            ->createDocument(array(
+                'param' => 'value',
+            ))
+            ->save();
+
+        // add document
+        $persistence->remove($document);
+
+        // check if document in persistence
+        $this->assertTrue($persistence->contains($document));
+
+        // store to disk
+        $persistence->flush();
+
+        // check if document in persistence
+        $this->assertFalse($persistence->contains($document));
+
+        // check if document removed
+        $this->assertEmpty($this->collection->find()->findOne());
     }
 
     /**
