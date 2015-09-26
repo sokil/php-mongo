@@ -15,6 +15,13 @@ class BatchTest extends \PHPUnit_Framework_TestCase
         // connect to mongo
         $client = new Client();
 
+        if (version_compare($client->getDbVersion(), '2.6.0', '<')) {
+            $this->markTestSkipped(
+                'Current primary does not have a Write API support.'
+            );
+        }
+
+
         // select database
         $database = $client->getDatabase('test');
         $this->collection = $database->getCollection('phpmongo_test_collection');

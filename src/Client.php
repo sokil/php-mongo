@@ -98,7 +98,7 @@ class Client
 
     /**
      *
-     * @return string verion of mongo database
+     * @return string version of mongo database
      */
     public function getDbVersion()
     {
