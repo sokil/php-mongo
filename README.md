@@ -1593,7 +1593,7 @@ $collection->deleteDocuments($collection->expression()->where('param', 'value'))
 ```
 Also supported `\MongoDeleteBatch` through interface:
 
-$batch = new BatchDelete($this->collection);
+$batch = $collection->createBatchDelete();
 $batch
     ->delete(array('a' => 2))
     ->delete($collection->expression()->where('a', 4))
