@@ -50,7 +50,7 @@ class RelationManager
         $targetCollectionName = $relation[1];
 
         // get target collection
-        $targetCollection = $this->document
+        $foreignCollection = $this->document
             ->getCollection()
             ->getDatabase()
             ->getCollection($targetCollectionName);
@@ -59,22 +59,23 @@ class RelationManager
         if (isset($this->resolvedRelationIds[$relationName])) {
             if(is_array($this->resolvedRelationIds[$relationName])) {
                 // has_many, many_many
-                return $targetCollection->getDocumentsFromDocumentPool($this->resolvedRelationIds[$relationName]);
+                return $foreignCollection->getDocumentsFromDocumentPool($this->resolvedRelationIds[$relationName]);
             } else {
                 //has_one, belongs
-                return $targetCollection->getDocumentFromDocumentPool($this->resolvedRelationIds[$relationName]);
+                return $foreignCollection->getDocumentFromDocumentPool($this->resolvedRelationIds[$relationName]);
             }
         }
 
         switch ($relationType) {
 
             case Document::RELATION_HAS_ONE:
-                $internalField = '_id';
-                $externalField = $relation[2];
 
-                $document = $targetCollection
+                $localKey = isset($relation['localKey']) ? $relation['localKey'] : '_id';
+                $foreignKey = $relation[2];
+
+                $document = $foreignCollection
                     ->find()
-                    ->where($externalField, $this->document->get($internalField))
+                    ->where($foreignKey, $this->document->get($localKey))
                     ->findOne();
 
                 if ($document) {
@@ -84,9 +85,17 @@ class RelationManager
                 return $document;
 
             case Document::RELATION_BELONGS:
-                $internalField = $relation[2];
+                $localKey = $relation[2];
+                $foreignKey = isset($relation['foreignKey']) ? $relation['foreignKey'] : '_id';
 
-                $document = $targetCollection->getDocument($this->document->get($internalField));
+                if ($foreignKey === '_id') {
+                    $document = $foreignCollection->getDocument($this->document->get($localKey));
+                } else {
+                    $document = $foreignCollection
+                        ->find()
+                        ->where($foreignKey, $this->document->get($localKey))
+                        ->findOne();
+                }
 
                 if ($document) {
                     $this->resolvedRelationIds[$relationName] = (string) $document->getId();
@@ -95,12 +104,12 @@ class RelationManager
                 return $document;
 
             case Document::RELATION_HAS_MANY:
-                $internalField = '_id';
-                $externalField = $relation[2];
+                $localKey = isset($relation['localKey']) ? $relation['localKey'] : '_id';
+                $foreignKey = $relation[2];
 
-                $documents = $targetCollection
+                $documents = $foreignCollection
                     ->find()
-                    ->where($externalField, $this->document->get($internalField))
+                    ->where($foreignKey, $this->document->get($localKey))
                     ->findAll();
 
                 foreach($documents as $document) {
@@ -113,27 +122,27 @@ class RelationManager
                 $isRelationListStoredInternally = isset($relation[3]) && $relation[3];
                 if ($isRelationListStoredInternally) {
                     // relation list stored in this document
-                    $internalField = $relation[2];
-                    $relatedIdList = $this->document->get($internalField);
+                    $localKey = $relation[2];
+                    $foreignKey = isset($relation['foreignKey']) ? $relation['foreignKey'] : '_id';;
+
+                    $relatedIdList = $this->document->get($localKey);
                     if (!$relatedIdList) {
                         return array();
                     }
 
-                    $externalField = '_id';
-
-                    $documents = $targetCollection
+                    $documents = $foreignCollection
                         ->find()
-                        ->whereIn($externalField, $relatedIdList)
+                        ->whereIn($foreignKey, $relatedIdList)
                         ->findAll();
 
                 } else {
                     // relation list stored in external document
-                    $internalField = '_id';
-                    $externalField = $relation[2];
+                    $localKey = isset($relation['localKey']) ? $relation['localKey'] : '_id';;
+                    $foreignKey = $relation[2];
 
-                    $documents = $targetCollection
+                    $documents = $foreignCollection
                         ->find()
-                        ->where($externalField, $this->document->get($internalField))
+                        ->where($foreignKey, $this->document->get($localKey))
                         ->findAll();
                 }
 
