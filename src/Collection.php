@@ -13,7 +13,6 @@ namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Sokil\Mongo\Collection\Definition;
-use Sokil\Mongo\Structure\Arrayable;
 
 /**
  * Instance of this class is a representation of mongo collection.

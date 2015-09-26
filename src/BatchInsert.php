@@ -2,6 +2,8 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Document\InvalidDocumentException;
+
 class BatchInsert extends BatchOperation
 {
     protected $batchClass = '\MongoInsertBatch';
