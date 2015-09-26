@@ -896,17 +896,20 @@ $collection->update(
 To insert many documents at once with validation of inserted document:
 ```php
 <?php
-
 $collection->batchInsert(array(
     array('i' => 1),
     array('i' => 2),
 ));
+```
 
-// deprecated since 1.13
-$collection->insertMultiple(array(
-    array('i' => 1),
-    array('i' => 2),
-));
+Also supported `\MongoInsertBatch` through interface:
+```php
+<?php
+$collection
+    ->createBatchInsert()
+    ->insert(array('i' => 1))
+    ->insert(array('i' => 2))
+    ->execute('majority');
 ```
 
 ### Batch update
@@ -934,6 +937,25 @@ To update all documents use:
 $collection->batchUpdate([], array('field' => 'new value'));
 // deprecated since 1.13
 $collection->updateAll(array('field' => 'new value'));
+```
+Also supported `\MongoUpdateBatch` through interface:
+```php
+<?php
+$collection
+    ->createBatchUpdate()
+    ->update(
+        array('a' => 1),
+        array('$set' => array('b' => 'updated1'))
+    )
+    ->update(
+        $collection->expression()->where('a', 2),
+        $collection->operator()->set('b', 'updated2')
+    )
+    ->update(
+        function(Expression $e) { $e->where('a', 3); },
+        function(Operator $o) { $o->set('b', 'updated3'); }
+    )
+    ->execute('majority');
 ```
 
 ### Moving data between collections
@@ -1561,7 +1583,7 @@ Deleting of document:
 $document->delete();
 ```
 
-Deleting of few documents:
+Deleting of few documents by expression:
 ```php
 <?php
 
@@ -1569,6 +1591,14 @@ $collection->batchDelete($collection->expression()->where('param', 'value'));
 // deprecated since 1.13
 $collection->deleteDocuments($collection->expression()->where('param', 'value'));
 ```
+Also supported `\MongoDeleteBatch` through interface:
+
+$batch = new BatchDelete($this->collection);
+$batch
+    ->delete(array('a' => 2))
+    ->delete($collection->expression()->where('a', 4))
+    ->delete(function(Expression $e) { $e->where('a', 6); })
+    ->execute();
 
 Aggregation framework
 --------------------------------

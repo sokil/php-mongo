@@ -357,6 +357,11 @@ class Cursor implements \Iterator, \Countable
     /**
      * Sort result by specified keys and directions
      *
+     *  An array of fields by which to sort. Each element in the array has as key the field name, and as value either
+     * 1 for ascending sort, or -1 for descending sort. Each result is first sorted on the first field in the array,
+     * then (if it exists) on the second field in the array, etc. This means that the order of the fields in the
+     * fields array is important. See also the examples section.
+     *
      * @param array $sort
      * @return \Sokil\Mongo\Cursor
      */

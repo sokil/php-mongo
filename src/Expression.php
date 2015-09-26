@@ -605,4 +605,30 @@ class Expression implements Arrayable
         $this->_expression = array_merge_recursive($this->_expression, $expression->toArray());
         return $this;
     }
+
+    /**
+     * Transform extression in different formats to canonical array form
+     *
+     * @param mixed $mixed
+     * @return array
+     * @throws \Sokil\Mongo\Exception
+     */
+    public static function convertToArray($mixed)
+    {
+        // get expression from callable
+        if(is_callable($mixed)) {
+            $callable = $mixed;
+            $mixed = new self();
+            call_user_func($callable, $mixed);
+        }
+
+        // get expression array
+        if($mixed instanceof Arrayable && $mixed instanceof self) {
+            $mixed = $mixed->toArray();
+        } elseif(!is_array($mixed)) {
+            throw new Exception('Mixed must be instance of Expression');
+        }
+
+        return $mixed;
+    }
 }

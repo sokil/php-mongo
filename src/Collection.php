@@ -326,7 +326,7 @@ class Collection implements \Countable
         if($expression) {
             return $this->_mongoCollection->distinct(
                 $selector,
-                self::mixedToArray($expression, '\Sokil\Mongo\Expression')
+                Expression::convertToArray($expression)
             );
         }
 
@@ -342,32 +342,6 @@ class Collection implements \Countable
     {
         $className = $this->definition->getExpressionClass();
         return new $className;
-    }
-
-    /**
-     * Transform extression in different formats to canonical array form
-     * 
-     * @param mixed $mixed
-     * @return array
-     * @throws \Sokil\Mongo\Exception
-     */
-    private static function mixedToArray($mixed, $class)
-    {
-        // get expression from callable
-        if(is_callable($mixed)) {
-            $callable = $mixed;
-            $mixed = new $class();
-            call_user_func($callable, $mixed);
-        }
-
-        // get expression array
-        if($mixed instanceof Arrayable && $mixed instanceof $class) {
-            $mixed = $mixed->toArray();
-        } elseif(!is_array($mixed)) {
-            throw new Exception('Mixed must be instance of ' . $class);
-        }
-
-        return $mixed;
     }
 
     /**
@@ -673,6 +647,60 @@ class Collection implements \Countable
     }
 
     /**
+     * Creates batch insert operation handler
+     * @param int|string $writeConcern Write concern. Default is 1 (Acknowledged)
+     * @param int $timeout Timeout for write concern. Default is 10000 milliseconds
+     * @param bool $ordered Determins if MongoDB must apply this batch in order (sequentally,
+     *   one item at a time) or can rearrange it. Defaults to TRUE
+     * @return BatchInsert
+     */
+    public function createBatchInsert($writeConcern = null, $timeout = null, $ordered = null)
+    {
+        return new BatchInsert(
+            $this,
+            $writeConcern,
+            $timeout,
+            $ordered
+        );
+    }
+
+    /**
+     * Creates batch update operation handler
+     * @param int|string $writeConcern Write concern. Default is 1 (Acknowledged)
+     * @param int $timeout Timeout for write concern. Default is 10000 milliseconds
+     * @param bool $ordered Determins if MongoDB must apply this batch in order (sequentally,
+     *   one item at a time) or can rearrange it. Defaults to TRUE
+     * @return BatchUpdate
+     */
+    public function createBatchUpdate($writeConcern = null, $timeout = null, $ordered = null)
+    {
+        return new BatchUpdate(
+            $this,
+            $writeConcern,
+            $timeout,
+            $ordered
+        );
+    }
+
+    /**
+     * Creates batch delete operation handler
+     * @param int|string $writeConcern Write concern. Default is 1 (Acknowledged)
+     * @param int $timeout Timeout for write concern. Default is 10000 milliseconds
+     * @param bool $ordered Determins if MongoDB must apply this batch in order (sequentally,
+     *   one item at a time) or can rearrange it. Defaults to TRUE
+     * @return BatchDelete
+     */
+    public function createBatchDelete($writeConcern = null, $timeout = null, $ordered = null)
+    {
+        return new BatchDelete(
+            $this,
+            $writeConcern,
+            $timeout,
+            $ordered
+        );
+    }
+
+    /**
      * @deprecated since 1.13. Use Document::delete()
      * @param \Sokil\Mongo\Document $document
      * @return \Sokil\Mongo\Collection
@@ -694,7 +722,7 @@ class Collection implements \Countable
     {
         // remove
         $result = $this->_mongoCollection->remove(
-            self::mixedToArray($expression, '\Sokil\Mongo\Expression')
+            Expression::convertToArray($expression)
         );
 
         // check result
@@ -715,6 +743,11 @@ class Collection implements \Countable
 
     /**
      * Insert multiple documents defined as arrays
+     *
+     * Prior to version 1.5.0 of the driver it was possible to use MongoCollection::batchInsert(),
+     * however, as of 1.5.0 that method is now discouraged.
+     *
+     * You can use Collection::createBatchInsert()
      *
      * @param array $rows list of documents to insert, defined as arrays
      * @return \Sokil\Mongo\Collection
@@ -799,8 +832,7 @@ class Collection implements \Countable
      *
      * @param \Sokil\Mongo\Expression|array|callable $expression expression to define
      *  which documents will change.
-     * @param \Sokil\Mongo\Operator|array|callable $updateData new data or operators
-     *  to update
+     * @param \Sokil\Mongo\Operator|array|callable $updateData new data or operators to update
      * @param array $options update options, see http://php.net/manual/ru/mongocollection.update.php
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
@@ -809,8 +841,8 @@ class Collection implements \Countable
     {
         // execute update operator
         $result = $this->_mongoCollection->update(
-            self::mixedToArray($expression, '\Sokil\Mongo\Expression'),
-            self::mixedToArray($updateData, '\Sokil\Mongo\Operator'),
+            Expression::convertToArray($expression),
+            Operator::convertToArray($updateData),
             $options
         );
 

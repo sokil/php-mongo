@@ -1,3 +1,9 @@
+## 1.13.7 (2015-09-26)
+  * Add support of batch operations
+
+## 1.13.6 (2015-08-25)
+  * Support of $unwind pipeline in aggregation
+
 ## 1.13.5 (2015-08-07)
   * Fix getting HAS_ONE and BELONGS relation when related object not found;
 

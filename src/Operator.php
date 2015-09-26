@@ -327,4 +327,30 @@ class Operator implements Arrayable
     {
         return isset($this->_operators['$inc']) || isset($this->_operators['$pull']);
     }
+
+    /**
+     * Transform operator in different formats to canonical array form
+     *
+     * @param mixed $mixed
+     * @return array
+     * @throws \Sokil\Mongo\Exception
+     */
+    public static function convertToArray($mixed)
+    {
+        // get operator from callable
+        if(is_callable($mixed)) {
+            $callable = $mixed;
+            $mixed = new self();
+            call_user_func($callable, $mixed);
+        }
+
+        // get operator array
+        if($mixed instanceof Arrayable && $mixed instanceof self) {
+            $mixed = $mixed->toArray();
+        } elseif(!is_array($mixed)) {
+            throw new Exception('Mixed must be instance of Operator');
+        }
+
+        return $mixed;
+    }
 }
