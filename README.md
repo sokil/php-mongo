@@ -945,15 +945,21 @@ $collection
     ->createBatchUpdate()
     ->update(
         array('a' => 1),
-        array('$set' => array('b' => 'updated1'))
+        array('$set' => array('b' => 'updated1')),
+        $multiple,
+        $upsert
     )
     ->update(
         $collection->expression()->where('a', 2),
-        $collection->operator()->set('b', 'updated2')
+        $collection->operator()->set('b', 'updated2'),
+        $multiple,
+        $upsert
     )
     ->update(
         function(Expression $e) { $e->where('a', 3); },
-        function(Operator $o) { $o->set('b', 'updated3'); }
+        function(Operator $o) { $o->set('b', 'updated3'); },
+        $multiple,
+        $upsert
     )
     ->execute('majority');
 ```
