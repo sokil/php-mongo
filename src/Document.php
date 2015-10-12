@@ -1034,6 +1034,55 @@ class Document extends Structure
         $this->options['upsert'] = 1;
     }
     
+    
+      /**
+     * AddToSet 
+     *
+     * @param string $fieldName
+     * @param mixed $value
+     * @return \Sokil\Mongo\Document
+     */
+    public function addToSet($fieldName, $value)
+    {
+        $oldValue = $this->get($fieldName);
+
+        if ($value instanceof Structure) {
+            $value = $value->toArray();
+        }
+
+        // field not exists
+        if (!$oldValue) {
+            if ($this->getId()) {
+                $this->operator->addToSet($fieldName, $value);
+            }
+            $value = array($value);
+        } // field already exist and has single value
+        elseif (!is_array($oldValue)) {
+            $value = array_merge((array) $oldValue, array($value));
+            if ($this->getId()) {
+                $this->operator->set($fieldName, $value);
+            }
+        } // field exists and is array
+        else {
+            if ($this->getId()) {
+                // check if array because previous $set operation on single value was executed
+                $setValue = $this->operator->get('$set', $fieldName);
+                if ($setValue) {
+                    $setValue[] = $value;
+                    $this->operator->set($fieldName, $setValue);
+                } else {
+                    $this->operator->addToSet($fieldName, $value);
+                }
+            }
+            $value = array_merge($oldValue, array($value));
+        }
+
+        // update local data
+        parent::set($fieldName, $value);
+
+        return $this;
+    }
+    
     /**
      * Push argument as single element to field value
      *
