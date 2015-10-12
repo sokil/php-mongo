@@ -32,6 +32,43 @@ class Operator implements Arrayable
         return $this;
     }
     
+    
+    public function addToSet($fieldName, $value)
+    {
+        // value must be list, not dictionary
+        if(is_array($value)) {
+            $value = array_values($value);
+        }
+
+        // prepasre to store
+        $value = Structure::prepareToStore($value);
+        
+        // no $push operator found
+        if(!isset($this->_operators['$addToSet'])) {
+            $this->_operators['$addToSet'] = array();
+        }
+        
+        // no field name found
+        if(!isset($this->_operators['$addToSet'][$fieldName])) {
+            $this->_operators['$addToSet'][$fieldName] = $value;
+        }
+        
+        // field name found and has single value
+        else if(!is_array($this->_operators['$addToSet'][$fieldName]) || !isset($this->_operators['$addToSet'][$fieldName]['$each'])) {
+            $oldValue = $this->_operators['$addToSet'][$fieldName];
+            $this->_operators['$addToSet'][$fieldName] = array(
+                '$each' => array($oldValue, $value)
+            );
+        }
+        
+        // field name found and already $each
+        else {
+            $this->_operators['$addToSet'][$fieldName]['$each'][] = $value;
+        }
+
+        return $this;
+    }
+    
     public function push($fieldName, $value)
     {
         // value must be list, not dictionary
