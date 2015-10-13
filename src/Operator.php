@@ -33,13 +33,9 @@ class Operator implements Arrayable
     }
     
     
-    public function addToSet($fieldName, $value)
+   public function addToSet($fieldName, $value)
     {
         // value must be list, not dictionary
-        if(is_array($value)) {
-            $value = array_values($value);
-        }
-
         // prepasre to store
         $value = Structure::prepareToStore($value);
         
