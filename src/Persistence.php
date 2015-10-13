@@ -112,20 +112,36 @@ class Persistence implements \Countable {
                                 continue;
                             }
                         }
-                        
+
                         if ($document->triggerEvent('beforeUpdate')->isCancelled()) {
                             continue;
                         }
                         
+                        $aData = $aUpdate = [];
+                        $aUpdate['$set'] = [];
+                        
                         if ($document->getOption('upsert', 0)) {
-                            $data = $document->toArray();
+                            $aData = $document->toArray();
                         }
-                        else {
-                            $data = $document->getOperator()->toArray();
+                        
+                        $aOperators = $document->getOperator()->getAll();
+                        
+                        foreach ($aOperators as $sMethod => $aOperator) {
+                            if (in_array($sMethod, [
+                                '$addToSet',
+                                '$push'
+                            ])) {
+                                $aUpdate[$sMethod] = $aOperator;
+                                foreach (array_keys($aOperator) as $sField) {
+                                    unset($aData[$sField]);
+                                }
+                            }
+                            else {
+                                $aUpdate['$set'] = array_merge($aUpdate['$set'], $aOperator);
+                            }
                         }
-                        $data = array(
-                            '$set' => $data
-                        );
+                        
+                        $aUpdate['$set'] = array_merge($aUpdate['$set'], $aData);
                         
                         if (! isset($update[$collectionName])) {
                             $update[$collectionName] = new \MongoUpdateBatch($collection->getMongoCollection());
@@ -134,7 +150,7 @@ class Persistence implements \Countable {
                             'q' => array(
                                 '_id' => $document->getId()
                             ),
-                            'u' => $data,
+                            'u' => $aUpdate,
                             'upsert' => $document->getOptions('upsert', 0)
                         ));
                     }
