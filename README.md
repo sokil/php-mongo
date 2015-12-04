@@ -1,5 +1,6 @@
-![PHPMongoKit](http://phpmongokit.github.io/images/logoCOTO-70x70.png)PHPMongo
-==============================================================================
+<table border="0">
+ <tr><td><img src="http://phpmongokit.github.io/images/logoCOTO-70x70.png"></td><td><h1>PHPMongo</h1></td></tr>
+</table>
 
 [![Latest Stable Version](https://poser.pugx.org/sokil/php-mongo/v/stable.png)](https://packagist.org/packages/sokil/php-mongo)
 [![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
