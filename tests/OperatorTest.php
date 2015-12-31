@@ -413,4 +413,100 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($operator->get('$push', 'key'));
     }
+
+    public function testAddToSet_NoKey()
+    {
+        $operator = new Operator;
+        $operator->addToSet('param', 'value');
+
+        $this->assertEquals(array(
+            '$addToSet' => array(
+                'param' => 'value',
+            )
+        ), $operator->toArray());
+    }
+
+    public function testAddToSet_ScalarKeyExists()
+    {
+        $operator = new Operator;
+        $operator->addToSet('param', 'value1');
+        $operator->addToSet('param', 'value2');
+
+        $this->assertEquals(array(
+            '$addToSet' => array(
+                'param' => array(
+                    '$each' => array(
+                        'value1',
+                        'value2',
+                    )
+                ),
+            )
+        ), $operator->toArray());
+    }
+
+    public function testAddToSet_ArrayKeyExists()
+    {
+        $operator = new Operator;
+        $operator->addToSet('param', array('value1'));
+        $operator->addToSet('param', 'value2');
+
+        $this->assertEquals(array(
+            '$addToSet' => array(
+                'param' => array(
+                    '$each' => array(
+                        array('value1'),
+                        'value2',
+                    )
+                ),
+            )
+        ), $operator->toArray());
+    }
+
+    public function testAddToSetEach_NoKey()
+    {
+        $operator = new Operator;
+        $operator->addToSetEach('param',
+            array('value')
+        );
+
+        $this->assertEquals(array(
+            '$addToSet' => array(
+                'param' => array(
+                    '$each' => array(
+                        'value',
+                    )
+                )
+            )
+        ), $operator->toArray());
+    }
+
+    public function testAddToSetEach_KeyExists()
+    {
+        $operator = new Operator;
+        $operator->addToSetEach('param',
+            array(
+                'value1',
+                'value2'
+            )
+        );
+        $operator->addToSetEach('param',
+            array(
+                'value3',
+                'value4'
+            )
+        );
+
+        $this->assertEquals(array(
+            '$addToSet' => array(
+                'param' => array(
+                    '$each' => array(
+                        'value1',
+                        'value2',
+                        'value3',
+                        'value4',
+                    )
+                )
+            )
+        ), $operator->toArray());
+    }
 }

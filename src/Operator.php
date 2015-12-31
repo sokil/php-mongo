@@ -185,7 +185,62 @@ class Operator implements Arrayable
         
         return $this;
     }
-    
+
+    public function addToSet($field, $value)
+    {
+        // new field
+        if (!isset($this->_operators['$addToSet'][$field])) {
+            $this->_operators['$addToSet'][$field] = $value;
+            return $this;
+        }
+
+        // scalar value or array in existed field
+        if (!is_array($this->_operators['$addToSet'][$field]) || !isset($this->_operators['$addToSet'][$field]['$each'])) {
+            $this->_operators['$addToSet'][$field] = array(
+                '$each' => array(
+                    $this->_operators['$addToSet'][$field],
+                    $value,
+                ),
+            );
+            return $this;
+        }
+
+        // field already $each
+        $this->_operators['$addToSet'][$field]['$each'][] = $value;
+
+        return $this;
+    }
+
+    public function addToSetEach($field, array $values)
+    {
+        // new field
+        if (!isset($this->_operators['$addToSet'][$field])) {
+            $this->_operators['$addToSet'][$field]['$each'] = $values;
+            return $this;
+        }
+
+        // scalar value or array in existed field
+        if (!is_array($this->_operators['$addToSet'][$field]) || !isset($this->_operators['$addToSet'][$field]['$each'])) {
+            $this->_operators['$addToSet'][$field] = array(
+                '$each' => array_merge(
+                    [$this->_operators['$addToSet'][$field]],
+                    $values
+                ),
+            );
+            return $this;
+        }
+
+        // field already $each
+        $this->_operators['$addToSet'][$field] = array(
+            '$each' => array_merge(
+                $this->_operators['$addToSet'][$field]['$each'],
+                $values
+            ),
+        );
+
+        return $this;
+    }
+
     public function increment($fieldName, $value = 1)
     {
         // check if update operations already added
