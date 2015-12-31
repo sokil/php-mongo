@@ -223,7 +223,7 @@ class Operator implements Arrayable
         if (!is_array($this->_operators['$addToSet'][$field]) || !isset($this->_operators['$addToSet'][$field]['$each'])) {
             $this->_operators['$addToSet'][$field] = array(
                 '$each' => array_merge(
-                    [$this->_operators['$addToSet'][$field]],
+                    array($this->_operators['$addToSet'][$field]),
                     $values
                 ),
             );
