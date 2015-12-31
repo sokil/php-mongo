@@ -1,5 +1,6 @@
 PHPMongo
 ========
+
 [![Latest Stable Version](https://poser.pugx.org/sokil/php-mongo/v/stable.png)](https://packagist.org/packages/sokil/php-mongo)
 [![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -945,15 +946,21 @@ $collection
     ->createBatchUpdate()
     ->update(
         array('a' => 1),
-        array('$set' => array('b' => 'updated1'))
+        array('$set' => array('b' => 'updated1')),
+        $multiple,
+        $upsert
     )
     ->update(
         $collection->expression()->where('a', 2),
-        $collection->operator()->set('b', 'updated2')
+        $collection->operator()->set('b', 'updated2'),
+        $multiple,
+        $upsert
     )
     ->update(
         function(Expression $e) { $e->where('a', 3); },
-        function(Operator $o) { $o->set('b', 'updated3'); }
+        function(Operator $o) { $o->set('b', 'updated3'); },
+        $multiple,
+        $upsert
     )
     ->execute('majority');
 ```
