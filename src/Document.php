@@ -1115,7 +1115,7 @@ class Document extends Structure
     {
         $oldValues = $this->get($fieldName);
         if (!$oldValues) {
-            $newValue = [$value];
+            $newValue = array($value);
             $this->operator->addToSet($fieldName, $value);
         } elseif (!is_array($value)) {
             if ($oldValues === $value) {
