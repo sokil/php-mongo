@@ -1116,19 +1116,21 @@ class Document extends Structure
         $oldValues = $this->get($fieldName);
         if (!$oldValues) {
             $newValue = [$value];
+            $this->operator->addToSet($fieldName, $value);
         } elseif (!is_array($value)) {
             if ($oldValues === $value) {
                 return $this;
             }
             $newValue = array($oldValues, $value);
+            $this->operator->set($fieldName, $newValue);
         } else {
             if (in_array($value, $oldValues)) {
                 return $this;
             }
             $newValue = array_merge($oldValues, array($value));
+            $this->operator->addToSet($fieldName, $value);
         }
 
-        $this->operator->addToSet($fieldName, $value);
         parent::set($fieldName, $newValue);
 
         return $this;

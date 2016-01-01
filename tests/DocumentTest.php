@@ -987,17 +987,42 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testAddToSet_NoKey()
     {
         // create document
-        $doc = $this->collection->createDocument(array());
+        $doc = $this->collection->createDocument(array(
+            'some' => 'some',
+        ));
         $doc->save();
 
+        // before save
         $doc->addToSet('param', 42);
-
         $this->assertEquals(array(42), $doc->param);
 
+        // after save
         $doc->save();
         $this->assertEquals(
             array(42),
             $this->collection->getDocumentDirectly($doc->getId())->param
+        );
+    }
+
+    public function testAddToSet_ScalarKey()
+    {
+        // create document
+        $doc = $this->collection->createDocument(array(
+            'param' => 41,
+        ));
+        $doc->save();
+        $docId = $doc->getId();
+
+        // befire save
+        $doc->addToSet('param', 42);
+        $this->assertEquals(array(41, 42), $doc->param);
+
+        // after save
+        $doc->save();
+        $doc = $this->collection->getDocumentDirectly($docId);
+        $this->assertEquals(
+            array(41, 42),
+            $doc->param
         );
     }
 
