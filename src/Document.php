@@ -1036,7 +1036,7 @@ class Document extends Structure
      * @param string $fieldName
      * @param mixed $value
      * @return \Sokil\Mongo\Document
-     */
+      */
     public function push($fieldName, $value)
     {
         $oldValue = $this->get($fieldName);
@@ -1109,6 +1109,34 @@ class Document extends Structure
         parent::set($fieldName, $values);
 
         return $this;
+    }
+
+    public function addToSet($fieldName, $value)
+    {
+        $oldValues = $this->get($fieldName);
+        if (!$oldValues) {
+            $newValue = [$value];
+        } elseif (!is_array($value)) {
+            if ($oldValues === $value) {
+                return $this;
+            }
+            $newValue = array($oldValues, $value);
+        } else {
+            if (in_array($value, $oldValues)) {
+                return $this;
+            }
+            $newValue = array_merge($oldValues, array($value));
+        }
+
+        $this->operator->addToSet($fieldName, $value);
+        parent::set($fieldName, $newValue);
+
+        return $this;
+    }
+
+    public function addToSetEach($fieldName, array $values)
+    {
+
     }
 
     /**

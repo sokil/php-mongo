@@ -984,6 +984,23 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(7, $doc->get('i'));
     }
 
+    public function testAddToSet_NoKey()
+    {
+        // create document
+        $doc = $this->collection->createDocument(array());
+        $doc->save();
+
+        $doc->addToSet('param', 42);
+
+        $this->assertEquals(array(42), $doc->param);
+
+        $doc->save();
+        $this->assertEquals(
+            array(42),
+            $this->collection->getDocumentDirectly($doc->getId())->param
+        );
+    }
+
     public function testPushNumberToEmptyOnExistedDocument()
     {
         // create document
