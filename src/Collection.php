@@ -626,24 +626,7 @@ class Collection implements \Countable
      * @return array|null
      */
     public function getDocuments(array $idList, $callable = null)
-    {
-        $cursor = $this->find();
 
-        if(is_callable($callable)) {
-            call_user_func($callable, $cursor);
-        }
-        
-        $documents = $cursor->byIdList($idList)->findAll();
-        if(!$documents) {
-            return array();
-        }
-
-        if($this->isDocumentPoolEnabled) {
-            $this->addDocumentsToDocumentPool($documents);
-        }
-
-        return $documents;
-    }
 
     /**
      * Creates batch insert operation handler
