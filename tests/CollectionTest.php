@@ -289,28 +289,74 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
 
-    public function testGetDocuments()
+    public function testGetDocuments_OneFromPoolOtherDirectly()
     {
-        // create document1
-        $document1 = $this->collection
-            ->createDocument(array('param' => 'value1'))
-            ->save();
+        $doc1Id = new \MongoId();
+        $doc2Id = new \MongoId();
+        $doc3Id = new \MongoId();
 
-        // create document 2
-        $document2 = $this->collection
-            ->createDocument(array('param' => 'value2'))
-            ->save();
-
-        // get documents
-        $foundDocuments = $this->collection->getDocuments(array(
-            $document1->getId(),
-            $document2->getId()
+        // add documents skipping document pool
+        $this->collection->batchInsert(array(
+            array('_id' => $doc1Id, 'param' => 'value1'),
+            array('_id' => $doc2Id, 'param' => 'value2'),
+            array('_id' => $doc3Id, 'param' => 'value3'),
         ));
 
-        $this->assertEquals(2, count($foundDocuments));
+        // load one document to document pool
+        $doc1 = $this->collection->getDocument($doc1Id);
+        $this->assertNotEmpty($doc1);
+        $this->assertInstanceOf('\Sokil\Mongo\Document', $doc1);
+        $this->assertEquals('value1', $doc1->param);
 
-        $this->assertArrayHasKey((string) $document1->getId(), $foundDocuments);
-        $this->assertArrayHasKey((string) $document2->getId(), $foundDocuments);
+        $this->assertEquals(1, $this->collection->documentPoolCount());
+
+        // load all documents
+        $documents = $this->collection->getDocuments(array(
+            $doc1Id,
+            $doc2Id,
+            $doc3Id,
+        ));
+
+        $this->assertArrayHasKey((string) $doc1Id, $documents);
+        $this->assertArrayHasKey((string) $doc2Id, $documents);
+        $this->assertArrayHasKey((string) $doc3Id, $documents);
+    }
+
+    public function testGetDocuments_AllFromPool()
+    {
+        $doc1Id = new \MongoId();
+        $doc2Id = new \MongoId();
+        $doc3Id = new \MongoId();
+
+        // add documents skipping document pool
+        $this->collection->batchInsert(array(
+            array('_id' => $doc1Id, 'param' => 'value1'),
+            array('_id' => $doc2Id, 'param' => 'value2'),
+            array('_id' => $doc3Id, 'param' => 'value3'),
+        ));
+
+        // load documents to document pool
+        $doc1 = $this->collection->getDocument($doc1Id);
+        $this->assertEquals('value1', $doc1->param);
+
+        $doc2 = $this->collection->getDocument($doc2Id);
+        $this->assertEquals('value2', $doc2->param);
+
+        $doc3 = $this->collection->getDocument($doc3Id);
+        $this->assertEquals('value3', $doc3->param);
+
+        $this->assertEquals(3, $this->collection->documentPoolCount());
+
+        // load all documents
+        $documents = $this->collection->getDocuments(array(
+            $doc1Id,
+            $doc2Id,
+            $doc3Id,
+        ));
+
+        $this->assertArrayHasKey((string) $doc1Id, $documents);
+        $this->assertArrayHasKey((string) $doc2Id, $documents);
+        $this->assertArrayHasKey((string) $doc3Id, $documents);
     }
 
     public function testGetDocuments_UnexistedIdsSpecified()
