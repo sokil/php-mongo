@@ -448,7 +448,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Sokil\Mongo\Exception
+     * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Mixed must be instance of Expression
      */
     public function testDeleteDocuments_WrongExpressionSpecified()
@@ -1629,6 +1629,35 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             $this->assertArrayHasKey('dropDups', $indexes[1]);
             $this->assertEquals(1, $indexes[1]['dropDups']);
         }
+    }
+
+    public function testEnsureFulltextIndex()
+    {
+        $this->collection->ensureFulltextIndex(
+            'fieldname',
+            'spanish'
+        );
+
+        $indexes = $this->collection->getIndexes();
+
+        $this->assertEquals(
+            $indexes[1],
+            array(
+                'v' => 1,
+                'key' => array (
+                    '_fts' => 'text',
+                    '_ftsx' => 1,
+                ),
+                'name' => 'fieldname_text',
+                'ns' => 'test.phpmongo_test_collection',
+                'weights' => array (
+                    'fieldname' => 1,
+                ),
+                'default_language' => 'spanish',
+                'language_override' => 'language',
+                'textIndexVersion' => 2,
+            )
+        );
     }
 
     public function testInitIndexes()

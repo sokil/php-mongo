@@ -55,6 +55,7 @@ Why to use this ODM? You can easily work with document data through comfortable 
   * [Identity Map](#identity-map)
   * [Comparing queries](#comparing-queries)
 * [Geospatial queries](#geospatial-queries)
+* [Fulltext search](#fulltext-search)
 * [Pagination](#pagination)
 * [Persistence (Unit of Work)](#persistence-unit-of-work)
 * [Deleting collections and documents](#deleting-collections-and-documents)
@@ -1512,6 +1513,29 @@ $point = $this->collection
         )
     )
     ->findOne();
+```
+
+Fulltext search
+---------------
+
+Before search field must be previously indexed as fulltext search field:
+
+```php
+<?php
+
+// one field
+$collection->ensureFulltextIndex('somefield');
+
+// couple of fields
+$collection->ensureFulltextIndex(['somefield1', 'somefield2']);
+```
+
+Searching on fulltext field:
+
+```php
+<?php
+
+$collection->find()->fulltextSearch('string searched in all fulltext fields')->findAll();
 ```
 
 Pagination

@@ -4,6 +4,11 @@ namespace Sokil\Mongo;
 
 class ExpressionTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Collection
+     */
+    private $collection;
+
     public function setUp()
     {
         // connect to mongo
@@ -724,5 +729,36 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             ->findAll();
 
         $this->assertEquals(0, count($documents));
+    }
+
+    public function testFulltextSearch()
+    {
+        $this->collection->ensureFulltextIndex(
+            array(
+                'subject',
+                'body'
+            ),
+            null,
+            array(
+                'subject' => 2,
+                'body' => 1,
+            )
+        );
+
+        $this->collection->batchInsert(array(
+            array('subject' => 'big brown dog', 'body' => 'walking on street'),
+            array('subject' => 'little pony', 'body' => 'flying among rainbows'),
+        ));
+
+        $documents = $this->collection
+            ->find()
+            ->fulltextSearch('pony')
+            ->findAll();
+
+        $this->assertEquals(1, count($documents));
+
+        $document = current($documents);
+
+        $this->assertEquals('little pony', $document->subject);
     }
 }

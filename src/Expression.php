@@ -378,6 +378,15 @@ class Expression implements Arrayable
         return $this;
     }
 
+    public function fulltextSearch($search)
+    {
+        $this->_expression['$text'] = array(
+            '$search' => $search,
+        );
+
+        return $this;
+    }
+
     /**
      * Find document near points in flat surface
      *

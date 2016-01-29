@@ -1019,7 +1019,7 @@ class Collection implements \Countable
      * @param array $options see @link http://php.net/manual/en/mongocollection.ensureindex.php
      * @return \Sokil\Mongo\Collection
      */
-    public function ensureIndex($key, array $options = array())
+    public function ensureIndex(array $key, array $options = array())
     {
         $this->_mongoCollection->ensureIndex($key, $options);
         return $this;
@@ -1032,7 +1032,7 @@ class Collection implements \Countable
      * @param boolean $dropDups
      * @return \Sokil\Mongo\Collection
      */
-    public function ensureUniqueIndex($key, $dropDups = false)
+    public function ensureUniqueIndex(array $key, $dropDups = false)
     {
         $this->_mongoCollection->ensureIndex($key, array(
             'unique'    => true,
@@ -1058,7 +1058,7 @@ class Collection implements \Countable
      *
      * @return \Sokil\Mongo\Collection
      */
-    public function ensureSparseIndex($key)
+    public function ensureSparseIndex(array $key)
     {
         $this->_mongoCollection->ensureIndex($key, array(
             'sparse'    => true,
@@ -1079,7 +1079,7 @@ class Collection implements \Countable
      * @param int $seconds
      * @return \Sokil\Mongo\Collection
      */
-    public function ensureTTLIndex($key, $seconds = 0)
+    public function ensureTTLIndex(array $key, $seconds = 0)
     {
         $this->_mongoCollection->ensureIndex($key, array(
             'expireAfterSeconds' => $seconds,
@@ -1098,9 +1098,15 @@ class Collection implements \Countable
      */
     public function ensure2dSphereIndex($field)
     {
-        $this->_mongoCollection->ensureIndex(array(
-            $field => '2dsphere',
-        ));
+        if (is_array($field)) {
+            $keys = array_fill_keys($field, '2dsphere');
+        } else {
+            $keys = array(
+                $field => '2dsphere',
+            );
+        }
+
+        $this->_mongoCollection->ensureIndex($keys);
 
         return $this;
     }
@@ -1115,12 +1121,56 @@ class Collection implements \Countable
      */
     public function ensure2dIndex($field)
     {
-        $this->_mongoCollection->ensureIndex(array(
-            $field => '2d',
-        ));
+        if (is_array($field)) {
+            $keys = array_fill_keys($field, '2d');
+        } else {
+            $keys = array(
+                $field => '2d',
+            );
+        }
+
+        $this->_mongoCollection->ensureIndex($keys);
 
         return $this;
     }
+
+    /**
+     * Create fulltext index
+     * @param array|string $keys
+     * @link https://docs.mongodb.org/manual/core/index-text/
+     */
+    public function ensureFulltextIndex(
+        $field = '$**',
+        $defaultLanguage = null,
+        array $weights = null
+    ) {
+        // keys
+        if (is_array($field)) {
+            $keys = array_fill_keys($field, 'text');
+        } else {
+            $keys = array(
+                $field => 'text',
+            );
+        }
+
+        // options
+        $options = array();
+
+        if ($defaultLanguage) {
+            $options['default_language'] = $defaultLanguage;
+        }
+
+        if (is_array($weights) && $weights) {
+            $options['weights'] = $weights;
+        }
+
+        // create index
+        $this->_mongoCollection->ensureIndex($keys, $options);
+
+        return $this;
+    }
+
+
 
     /**
      * Create indexes based on self::$_index metadata

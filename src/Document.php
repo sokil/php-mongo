@@ -1138,7 +1138,7 @@ class Document extends Structure
 
     public function addToSetEach($fieldName, array $values)
     {
-
+        throw new \RuntimeException('Not implemented');
     }
 
     /**
