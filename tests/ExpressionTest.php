@@ -731,7 +731,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($documents));
     }
 
-    public function testFulltextSearch()
+    public function testWhereText()
     {
         $this->collection->ensureFulltextIndex(
             array(
