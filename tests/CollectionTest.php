@@ -1634,7 +1634,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testEnsureFulltextIndex()
     {
         $this->collection->ensureFulltextIndex(
-            'fieldname',
+            array('fieldname1', 'fieldname2'),
+            array(
+                'fieldname1' => 1,
+                'fieldname2' => 2,
+            ),
             'spanish'
         );
 
@@ -1648,12 +1652,13 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                     '_fts' => 'text',
                     '_ftsx' => 1,
                 ),
-                'name' => 'fieldname_text',
+                'name' => 'fieldname1_text_fieldname2_text',
                 'ns' => 'test.phpmongo_test_collection',
-                'weights' => array (
-                    'fieldname' => 1,
-                ),
                 'default_language' => 'spanish',
+                'weights' => array (
+                    'fieldname1' => 1,
+                    'fieldname2' => 2,
+                ),
                 'language_override' => 'language',
                 'textIndexVersion' => 2,
             )
