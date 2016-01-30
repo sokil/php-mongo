@@ -11,7 +11,7 @@ services: mongodb
 
 before_script:
   - echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - mongo --eval 'db.adminCommand({ setParameter: true, textSearchEnabled : true}).ok === 1'
+  - mongo --eval "db.adminCommand({ setParameter: true, textSearchEnabled : true}).ok === 1"
   - composer update --no-interaction
   
 script:
