@@ -752,7 +752,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
 
         $documents = $this->collection
             ->find()
-            ->fulltextSearch('pony')
+            ->whereText('pony')
             ->findAll();
 
         $this->assertEquals(1, count($documents));

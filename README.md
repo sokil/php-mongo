@@ -1535,7 +1535,7 @@ Searching on fulltext field:
 ```php
 <?php
 
-$collection->find()->fulltextSearch('string searched in all fulltext fields')->findAll();
+$collection->find()->whereText('string searched in all fulltext fields')->findAll();
 ```
 
 Pagination

@@ -13,6 +13,7 @@ namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Sokil\Mongo\Collection\Definition;
+use Sokil\Mongo\Enum\Language;
 
 /**
  * Instance of this class is a representation of mongo collection.
@@ -1136,13 +1137,35 @@ class Collection implements \Countable
 
     /**
      * Create fulltext index
-     * @param array|string $keys
+     *
      * @link https://docs.mongodb.org/manual/core/index-text/
+     * @link https://docs.mongodb.org/manual/tutorial/specify-language-for-text-index/
+     *
+     * If a collection contains documents or embedded documents that are in different languages,
+     * include a field named language in the documents or embedded documents and specify as its value the language
+     * for that document or embedded document.
+     *
+     * The specified language in the document overrides the default language for the text index.
+     * The specified language in an embedded document override the language specified in an enclosing document or
+     * the default language for the index.
+     *
+     * @param array|string $field definition of fields where full text index ensured.
+     *  May be string to ensure index on one field, array of fields to create full text index on few fields, and
+     *   widdcard '$**'  to create index on all fields of collection. Default value is '$**'
+     * @param $weights For a text index, the weight of an indexed field denotes the significance of the field
+     *   relative to the other indexed fields in terms of the text search score.
+     * @param $defaultLanguage The default language associated with the indexed data determines the rules to parse
+     *  word roots (i.e. stemming) and ignore stop words. The default language for the indexed data is english.
+     * @param $languageOverride To use a field with a name other than language, include the
+     *   language_override option when creating the index.
+     *
+     * @return Collection
      */
     public function ensureFulltextIndex(
         $field = '$**',
-        $defaultLanguage = null,
-        array $weights = null
+        array $weights = null,
+        $defaultLanguage = Language::ENGLISH,
+        $languageOverride = null
     ) {
         // keys
         if (is_array($field)) {
@@ -1154,14 +1177,16 @@ class Collection implements \Countable
         }
 
         // options
-        $options = array();
-
-        if ($defaultLanguage) {
-            $options['default_language'] = $defaultLanguage;
-        }
+        $options = array(
+            'default_language' => $defaultLanguage,
+        );
 
         if (is_array($weights) && $weights) {
             $options['weights'] = $weights;
+        }
+
+        if ($languageOverride) {
+            $options['language_override'] = $languageOverride;
         }
 
         // create index

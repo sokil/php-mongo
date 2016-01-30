@@ -378,10 +378,42 @@ class Expression implements Arrayable
         return $this;
     }
 
-    public function fulltextSearch($search)
-    {
+    /**
+     * Perform fulltext search
+     *
+     * @link https://docs.mongodb.org/manual/reference/operator/query/text/
+     * @link https://docs.mongodb.org/manual/tutorial/specify-language-for-text-index/
+     *
+     * If a collection contains documents or embedded documents that are in different languages,
+     * include a field named language in the documents or embedded documents and specify as its value the language
+     * for that document or embedded document.
+     *
+     * The specified language in the document overrides the default language for the text index.
+     * The specified language in an embedded document override the language specified in an enclosing document or
+     * the default language for the index.
+     *
+     *
+     * @param $search A string of terms that MongoDB parses and uses to query the text index. MongoDB performs a
+     *  logical OR search of the terms unless specified as a phrase.
+     * @param $language Optional. The language that determines the list of stop words for the search and the
+     *  rules for the stemmer and tokenizer. If not specified, the search uses the default language of the index.
+     *  If you specify a language value of "none", then the text search uses simple tokenization
+     *  with no list of stop words and no stemming.
+     * @param bool|false $caseSensitive
+     * @param bool|false $diacriticSensitive
+     * @return $this
+     */
+    public function whereText(
+        $search,
+        $language,
+        $caseSensitive = false,
+        $diacriticSensitive = false
+    ) {
         $this->_expression['$text'] = array(
             '$search' => $search,
+            '$language' => $language,
+            '$caseSensitive' => $caseSensitive,
+            '$diacriticSensitive' => $diacriticSensitive,
         );
 
         return $this;
