@@ -392,6 +392,11 @@ class Expression implements Arrayable
      * The specified language in an embedded document override the language specified in an enclosing document or
      * the default language for the index.
      *
+     * Case Insensitivity:
+     * @link https://docs.mongodb.org/manual/reference/operator/query/text/#text-operator-case-sensitivity
+     *
+     * Diacritic Insensitivity:
+     * @link https://docs.mongodb.org/manual/reference/operator/query/text/#text-operator-diacritic-sensitivity
      *
      * @param $search A string of terms that MongoDB parses and uses to query the text index. MongoDB performs a
      *  logical OR search of the terms unless specified as a phrase.
@@ -399,22 +404,38 @@ class Expression implements Arrayable
      *  rules for the stemmer and tokenizer. If not specified, the search uses the default language of the index.
      *  If you specify a language value of "none", then the text search uses simple tokenization
      *  with no list of stop words and no stemming.
-     * @param bool|false $caseSensitive
-     * @param bool|false $diacriticSensitive
+     * @param bool|false $caseSensitive Allowed from v.3.2 A boolean flag to enable or disable case
+     *  sensitive search. Defaults to false; i.e. the search defers to the case insensitivity of the text index.
+     * @param bool|false $diacriticSensitive Allowed from v.3.2 A boolean flag to enable or disable diacritic
+     *  sensitive search against version 3 text indexes. Defaults to false; i.e. the search defers to the diacritic
+     *  insensitivity of the text index. Text searches against earlier versions of the text index are inherently
+     *  diacritic sensitive and cannot be diacritic insensitive. As such, the $diacriticSensitive option has no
+     *  effect with earlier versions of the text index.
      * @return $this
      */
     public function whereText(
         $search,
-        $language,
-        $caseSensitive = false,
-        $diacriticSensitive = false
+        $language = null,
+        $caseSensitive = null,
+        $diacriticSensitive = null
     ) {
         $this->_expression['$text'] = array(
             '$search' => $search,
-            '$language' => $language,
-            '$caseSensitive' => $caseSensitive,
-            '$diacriticSensitive' => $diacriticSensitive,
         );
+
+        if ($language) {
+            $this->_expression['$text']['$language'] = $language;
+        }
+
+        // Version 3.2 feature
+        if ($caseSensitive) {
+            $this->_expression['$text']['$caseSensitive'] = (bool) $caseSensitive;
+        }
+
+        // Version 3.2 feature
+        if ($diacriticSensitive) {
+            $this->_expression['$text']['$diacriticSensitive'] = (bool) $diacriticSensitive;
+        }
 
         return $this;
     }

@@ -738,7 +738,6 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
                 'subject',
                 'body'
             ),
-            null,
             array(
                 'subject' => 2,
                 'body' => 1,
