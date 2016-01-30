@@ -628,22 +628,40 @@ class Collection implements \Countable
      */
     public function getDocuments(array $idList, $callable = null)
     {
+        $idListToFindDirectly = $idList;
+
+        // try to egt document from pool if enabled
+        $documentsInDocumentPool = array();
+        if ($this->isDocumentPoolEnabled && !$callable) {
+            $documentsInDocumentPool = $this->getDocumentsFromDocumentPool($idList);
+            if (count($documentsInDocumentPool) === count($idList)) {
+                return $documentsInDocumentPool;
+            }
+
+            // skip ids already found in pool
+            $idListToFindDirectly = array_diff_key(
+                array_map('strval', $idList),
+                array_keys($documentsInDocumentPool)
+            );
+        }
+
+        // get documents directly
         $cursor = $this->find();
 
-        if(is_callable($callable)) {
+        if (is_callable($callable)) {
             call_user_func($callable, $cursor);
         }
-        
-        $documents = $cursor->byIdList($idList)->findAll();
-        if(!$documents) {
-            return array();
+
+        $documentsGettingDirectly = $cursor->byIdList($idListToFindDirectly)->findAll();
+        if (!$documentsGettingDirectly) {
+            return $documentsInDocumentPool ? $documentsInDocumentPool : array();
         }
 
-        if($this->isDocumentPoolEnabled) {
-            $this->addDocumentsToDocumentPool($documents);
+        if ($this->isDocumentPoolEnabled) {
+            $this->addDocumentsToDocumentPool($documentsGettingDirectly);
         }
 
-        return $documents;
+        return $documentsGettingDirectly + $documentsInDocumentPool;
     }
 
     /**

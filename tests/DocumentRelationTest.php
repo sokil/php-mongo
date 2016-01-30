@@ -63,6 +63,40 @@ class DocumentRelationTest extends \PHPUnit_Framework_TestCase
     /**
      * A -> HAS_ONE -> B
      */
+    public function testGetRelated_HasOne_DisabledDocumentPool()
+    {
+        // collections
+        $carsCollection = $this
+            ->database
+            ->getCollection('cars')
+            ->disableDocumentPool();
+
+        $enginesCollection = $this
+            ->database
+            ->getCollection('engines')
+            ->disableDocumentPool();
+
+        // add documents
+        $carDocument = $carsCollection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        // add target document
+        $engineDocument = $enginesCollection
+            ->createDocument(array(
+                'car_id' => $carDocument->getId()
+            ))
+            ->save();
+
+        // test
+        $this->assertInstanceOf('\Sokil\Mongo\DocumentRelationTest\EngineDocument', $carDocument->engine);
+
+        $this->assertEquals($engineDocument->getId(), $carDocument->engine->getId());
+    }
+
+    /**
+     * A -> HAS_ONE -> B
+     */
     public function testGetRelated_HasOne_EmptyRelation()
     {
         // collections

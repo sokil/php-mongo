@@ -1,3 +1,9 @@
+## 1.13.9 (2016-01-13)
+  * Fixed bug #121 - Getting relation when document pool disabled
+
+## 1.13.8 (2016-01-01)
+  * Added $addToSet operator
+
 ## 1.13.7 (2015-09-26)
   * Add support of batch operations
 

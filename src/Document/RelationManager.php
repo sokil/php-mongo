@@ -59,10 +59,10 @@ class RelationManager
         if (isset($this->resolvedRelationIds[$relationName])) {
             if(is_array($this->resolvedRelationIds[$relationName])) {
                 // has_many, many_many
-                return $foreignCollection->getDocumentsFromDocumentPool($this->resolvedRelationIds[$relationName]);
+                return $foreignCollection->getDocuments($this->resolvedRelationIds[$relationName]);
             } else {
                 //has_one, belongs
-                return $foreignCollection->getDocumentFromDocumentPool($this->resolvedRelationIds[$relationName]);
+                return $foreignCollection->getDocument($this->resolvedRelationIds[$relationName]);
             }
         }
 
