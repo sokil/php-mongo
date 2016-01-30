@@ -11,6 +11,7 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Enum\FieldType;
 use Sokil\Mongo\Structure\Arrayable;
 use GeoJson\Geometry\Geometry;
 use GeoJson\Geometry\Point;
@@ -129,22 +130,22 @@ class Expression implements Arrayable
 
     public function whereDouble($field)
     {
-        return $this->whereHasType($field, Document::FIELD_TYPE_DOUBLE);
+        return $this->whereHasType($field, FieldType::DOUBLE);
     }
 
     public function whereString($field)
     {
-        return $this->whereHasType($field, Document::FIELD_TYPE_STRING);
+        return $this->whereHasType($field, FieldType::STRING);
     }
 
     public function whereObject($field)
     {
-        return $this->whereHasType($field, Document::FIELD_TYPE_OBJECT);
+        return $this->whereHasType($field, FieldType::OBJECT);
     }
 
     public function whereBoolean($field)
     {
-        return $this->whereHasType($field, Document::FIELD_TYPE_BOOLEAN);
+        return $this->whereHasType($field, FieldType::BOOLEAN);
     }
 
     public function whereArray($field)
@@ -154,22 +155,22 @@ class Expression implements Arrayable
 
     public function whereArrayOfArrays($field)
     {
-        return $this->whereHasType($field, Document::FIELD_TYPE_ARRAY);
+        return $this->whereHasType($field, FieldType::ARRAY_TYPE);
     }
 
     public function whereObjectId($field)
     {
-        return $this->whereHasType($field, Document::FIELD_TYPE_OBJECT_ID);
+        return $this->whereHasType($field, FieldType::OBJECT_ID);
     }
 
     public function whereDate($field)
     {
-        return $this->whereHasType($field, Document::FIELD_TYPE_DATE);
+        return $this->whereHasType($field, FieldType::DATE);
     }
 
     public function whereNull($field)
     {
-        return $this->whereHasType($field, Document::FIELD_TYPE_NULL);
+        return $this->whereHasType($field, FieldType::NULL);
     }
 
     public function whereJsCondition($condition)

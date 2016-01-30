@@ -49,6 +49,9 @@ use GeoJson\Geometry\Geometry;
  */
 class Document extends Structure
 {
+    /**
+     * @deprecated Use FileType enum
+     */
     const FIELD_TYPE_DOUBLE = 1;
     const FIELD_TYPE_STRING = 2;
     const FIELD_TYPE_OBJECT = 3;
