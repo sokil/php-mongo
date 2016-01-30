@@ -733,6 +733,12 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
 
     public function testWhereText()
     {
+        $dbVersion = $this->collection->getDatabase()->getClient()->getDbVersion();
+
+        if (version_compare($dbVersion, '2.6', '<=')) {
+            return ;
+        }
+
         $this->collection->ensureFulltextIndex(
             array(
                 'subject',
