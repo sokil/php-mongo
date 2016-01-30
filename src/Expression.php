@@ -12,7 +12,6 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Enum\FieldType;
-use Sokil\Mongo\Structure\Arrayable;
 use GeoJson\Geometry\Geometry;
 use GeoJson\Geometry\Point;
 
@@ -22,7 +21,7 @@ use GeoJson\Geometry\Point;
  * @link http://docs.mongodb.org/manual/reference/operator/query/
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
-class Expression implements Arrayable
+class Expression implements ArrayableInterface
 {
     protected $_expression = array();
 
@@ -686,7 +685,7 @@ class Expression implements Arrayable
         }
 
         // get expression array
-        if($mixed instanceof Arrayable && $mixed instanceof self) {
+        if($mixed instanceof ArrayableInterface && $mixed instanceof self) {
             $mixed = $mixed->toArray();
         } elseif(!is_array($mixed)) {
             throw new Exception('Mixed must be instance of Expression');

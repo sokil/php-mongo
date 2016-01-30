@@ -11,9 +11,7 @@
 
 namespace Sokil\Mongo;
 
-use \Sokil\Mongo\Structure\Arrayable;
-
-class Operator implements Arrayable
+class Operator implements ArrayableInterface
 {
         /**
      *
@@ -400,7 +398,7 @@ class Operator implements Arrayable
         }
 
         // get operator array
-        if($mixed instanceof Arrayable && $mixed instanceof self) {
+        if($mixed instanceof ArrayableInterface && $mixed instanceof self) {
             $mixed = $mixed->toArray();
         } elseif(!is_array($mixed)) {
             throw new Exception('Mixed must be instance of Operator');

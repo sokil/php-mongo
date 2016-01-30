@@ -11,25 +11,21 @@
 
 namespace Sokil\Mongo;
 
-use Sokil\Mongo\Structure\Arrayable;
-
-class Structure implements Arrayable, \JsonSerializable
+class Structure implements ArrayableInterface, \JsonSerializable
 {
     protected $_data = array();
 
     /**
      *
      * @var original data.
-     * @deprecated protected access is deprecated since 1.13. Use self::getOriginalData().
      */
-    protected $_originalData = array();
+    private $originalData = array();
 
     /**
      *
      * @var modified fields.
-     * @deprecated protected access is deprecated since 1.13. Use self::getModifiedFields().
      */
-    protected $_modifiedFields = array();
+    private $modifiedFields = array();
 
     public function __get($name)
     {
@@ -175,7 +171,7 @@ class Structure implements Arrayable, \JsonSerializable
                 // modify
                 $this->_data[$selector] = $value;
                 // mark field as modified
-                $this->_modifiedFields[] = $selector;
+                $this->modifiedFields[] = $selector;
             }
 
             return $this;
@@ -202,7 +198,7 @@ class Structure implements Arrayable, \JsonSerializable
             // modify
             $section[$arraySelector[$chunksNum - 1]] = $value;
             // mark field as modified
-            $this->_modifiedFields[] = $selector;
+            $this->modifiedFields[] = $selector;
         }
 
         return $this;
@@ -276,7 +272,7 @@ class Structure implements Arrayable, \JsonSerializable
                 // unset field
                 unset($this->_data[$selector]);
                 // mark field as modified
-                $this->_modifiedFields[] = $selector;
+                $this->modifiedFields[] = $selector;
             }
 
             return $this;
@@ -301,7 +297,7 @@ class Structure implements Arrayable, \JsonSerializable
             // unset field
             unset($section[$arraySelector[$chunksNum - 1]]);
             // mark field as modified
-            $this->_modifiedFields[] = $selector;
+            $this->modifiedFields[] = $selector;
         }
 
         return $this;
@@ -333,15 +329,15 @@ class Structure implements Arrayable, \JsonSerializable
 
     public function isModified($selector = null)
     {
-        if(!$this->_modifiedFields) {
+        if(!$this->modifiedFields) {
             return false;
         }
 
         if(!$selector) {
-            return (bool) $this->_modifiedFields;
+            return (bool) $this->modifiedFields;
         }
 
-        foreach($this->_modifiedFields as $modifiedField) {
+        foreach($this->modifiedFields as $modifiedField) {
             if(preg_match('/^' . $selector . '($|.)/', $modifiedField)) {
                 return true;
             }
@@ -352,12 +348,12 @@ class Structure implements Arrayable, \JsonSerializable
 
     public function getModifiedFields()
     {
-        return $this->_modifiedFields;
+        return $this->modifiedFields;
     }
 
     public function getOriginalData()
     {
-        return $this->_originalData;
+        return $this->originalData;
     }
 
     public function toArray()
@@ -396,7 +392,7 @@ class Structure implements Arrayable, \JsonSerializable
     public function mergeUnmodified(array $data)
     {
         $this->mergeUnmodifiedPartial($this->_data, $data);
-        $this->mergeUnmodifiedPartial($this->_originalData, $data);
+        $this->mergeUnmodifiedPartial($this->originalData, $data);
 
         return $this;
     }
@@ -427,7 +423,7 @@ class Structure implements Arrayable, \JsonSerializable
             // in other cases just set new value
             else {
                 $document[$key] = $newValue;
-                $this->_modifiedFields[] = $prefix . $key;
+                $this->modifiedFields[] = $prefix . $key;
             }
         }
     }
@@ -460,16 +456,16 @@ class Structure implements Arrayable, \JsonSerializable
     
     public function reset()
     {
-        $this->_data = $this->_originalData;
-        $this->_modifiedFields = array();
+        $this->_data = $this->originalData;
+        $this->modifiedFields = array();
 
         return $this;
     }
     
     public function apply()
     {
-        $this->_originalData = $this->_data;
-        $this->_modifiedFields = array();
+        $this->originalData = $this->_data;
+        $this->modifiedFields = array();
 
         return $this;
     }

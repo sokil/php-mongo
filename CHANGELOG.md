@@ -1,3 +1,10 @@
+## 1.15@DEV
+  * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`
+  * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
+
+## 1.14 (2016-01-30)
+  * Full text indexes
+
 ## 1.13.9 (2016-01-13)
   * Fixed bug #121 - Getting relation when document pool disabled
 
