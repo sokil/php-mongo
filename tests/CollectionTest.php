@@ -1689,9 +1689,25 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
 
         $indexes = $this->collection->getIndexes();
+        $index = $indexes[1];
 
+        // 'textIndexVersion' differ in different versions of mongodb
+        $this->assertArrayHasKey('textIndexVersion', $index);
+
+        $dbVersion = $this->collection->getDatabase()->getClient()->getDbVersion();
+        if (version_compare($dbVersion, '2.6', '<')) {
+            $this->assertEquals(1, $index['textIndexVersion']);
+        } else if (version_compare($dbVersion, '3', '<')) {
+            $this->assertEquals(2, $index['textIndexVersion']);
+        } else {
+            $this->assertEquals(3, $index['textIndexVersion']);
+        }
+
+        unset($index['textIndexVersion']);
+
+        // chech other params
         $this->assertEquals(
-            $indexes[1],
+            $index,
             array(
                 'v' => 1,
                 'key' => array (
@@ -1706,7 +1722,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                     'fieldname2' => 2,
                 ),
                 'language_override' => 'language',
-                'textIndexVersion' => 2,
             )
         );
     }
