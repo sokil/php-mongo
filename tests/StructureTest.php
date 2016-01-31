@@ -592,4 +592,18 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $list[7] = 42;
         $this->assertTrue($method->invoke($structure, $list));
     }
+    public function testAddValidatorNamespace()
+    {
+        $structure = new Structure;
+        $structure->addValidatorNamespace('\Vendor\Mongo\Validator\\');
+
+        $reflectionClass = new \ReflectionClass($structure);
+        $property = $reflectionClass->getProperty('validatorNamespaces');
+        $property->setAccessible(true);
+
+        $namespaces = $property->getValue($structure);
+
+        $this->assertNotEquals(false, array_search('\Vendor\Mongo\Validator', $namespaces));
+    }
+
 }

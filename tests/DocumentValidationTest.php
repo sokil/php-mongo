@@ -950,21 +950,6 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testAddValidatorNamespace()
-    {
-        $document = $this->collection
-            ->createDocument()
-            ->addValidatorNamespace('\Vendor\Mongo\Validator\\');
-
-        $reflectionClass = new \ReflectionClass($document);
-        $property = $reflectionClass->getProperty('validatorNamespaces');
-        $property->setAccessible(true);
-
-        $namespaces = $property->getValue($document);
-
-        $this->assertNotEquals(false, array_search('\Vendor\Mongo\Validator', $namespaces));
-    }
-
     /**
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Validator class must implement \Sokil\Mongo\Validator class

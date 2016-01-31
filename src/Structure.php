@@ -11,7 +11,9 @@
 
 namespace Sokil\Mongo;
 
-class Structure implements ArrayableInterface, \JsonSerializable
+class Structure implements
+    ArrayableInterface,
+    \JsonSerializable
 {
     protected $_data = array();
 
@@ -26,6 +28,31 @@ class Structure implements ArrayableInterface, \JsonSerializable
      * @var modified fields.
      */
     private $modifiedFields = array();
+
+    /**
+     * Name of scenario, used for validating fields
+     * @var string
+     */
+    private $scenario;
+
+    /**
+     *
+     * @var array list of namespaces
+     */
+    private $validatorNamespaces = array(
+        '\Sokil\Mongo\Validator',
+    );
+
+
+    /**
+     * @var array validator errors
+     */
+    private $errors = array();
+
+    /**
+     * @var array manually added validator errors
+     */
+    private $triggeredErrors = array();
 
     public function __get($name)
     {
@@ -469,5 +496,213 @@ class Structure implements ArrayableInterface, \JsonSerializable
 
         return $this;
     }
-    
+
+    /**
+     * Validation rules
+     * @return array
+     */
+    public function rules()
+    {
+        return array();
+    }
+
+    public function setScenario($scenario)
+    {
+        $this->scenario = $scenario;
+        return $this;
+    }
+
+    public function getScenario()
+    {
+        return $this->scenario;
+    }
+
+    public function setNoScenario()
+    {
+        $this->scenario = null;
+        return $this;
+    }
+
+    public function isScenario($scenario)
+    {
+        return $scenario === $this->scenario;
+    }
+
+    public function hasErrors()
+    {
+        return ($this->errors || $this->triggeredErrors);
+    }
+
+    /**
+     * get list of validation errors
+     *
+     * Format: $errors['fieldName']['rule'] = 'message';
+     *
+     * @return array list of validation errors
+     */
+    public function getErrors()
+    {
+        return array_merge_recursive($this->errors, $this->triggeredErrors);
+    }
+
+    /**
+     * Add validator error from validator classes and methods. This error
+     * reset on every revalidation
+     *
+     * @param string $fieldName dot-notated field name
+     * @param string $ruleName name of validation rule
+     * @param string $message error message
+     * @return \Sokil\Mongo\Document
+     */
+    public function addError($fieldName, $ruleName, $message)
+    {
+        $this->errors[$fieldName][$ruleName] = $message;
+
+        // Deprecated. Related to bug when suffix not removed from class.
+        // Added for back compatibility and will be removed in next versions
+        $this->errors[$fieldName][$ruleName . 'validator'] = $message;
+
+        return $this;
+    }
+
+    /**
+     * Add errors
+     *
+     * @param array $errors
+     * @return \Sokil\Mongo\Document
+     */
+    public function addErrors(array $errors)
+    {
+        $this->errors = array_merge_recursive($this->errors, $errors);
+        return $this;
+    }
+
+    /**
+     * Add custom error which not reset after validation
+     *
+     * @param type $fieldName
+     * @param type $ruleName
+     * @param type $message
+     * @return \Sokil\Mongo\Document
+     */
+    public function triggerError($fieldName, $ruleName, $message)
+    {
+        $this->triggeredErrors[$fieldName][$ruleName] = $message;
+        return $this;
+    }
+
+    /**
+     * Add custom errors
+     *
+     * @param array $errors
+     * @return \Sokil\Mongo\Document
+     */
+    public function triggerErrors(array $errors)
+    {
+        $this->triggeredErrors = array_merge_recursive($this->triggeredErrors, $errors);
+        return $this;
+    }
+
+    /**
+     * Clear triggered and validation errors
+     * @return $this
+     */
+    public function clearErrors()
+    {
+        $this->errors = array();
+        $this->triggeredErrors = array();
+        return $this;
+    }
+
+    /**
+     * Remove custom errors
+     *
+     * @return \Sokil\Mongo\Document
+     */
+    public function clearTriggeredErrors()
+    {
+        $this->triggeredErrors = array();
+        return $this;
+    }
+
+    /**
+     * Add own namespace of validators
+     *
+     * @param type $namespace
+     * @return \Sokil\Mongo\Document
+     */
+    public function addValidatorNamespace($namespace)
+    {
+        $this->validatorNamespaces[] = rtrim($namespace, '\\');
+        return $this;
+    }
+
+    private function getValidatorClassNameByRuleName($ruleName)
+    {
+        if(false !== strpos($ruleName, '_')) {
+            $className = implode('', array_map('ucfirst', explode('_', strtolower($ruleName))));
+        } else {
+            $className = ucfirst(strtolower($ruleName));
+        }
+
+        foreach ($this->validatorNamespaces as $namespace) {
+            $fullyQualifiedClassName = $namespace . '\\' . $className . 'Validator';
+            if (class_exists($fullyQualifiedClassName)) {
+                return $fullyQualifiedClassName;
+            }
+        }
+
+        throw new Exception('Validator with name ' . $ruleName . ' not found');
+    }
+
+    /**
+     * check if filled model params is valid
+     * @return boolean
+     */
+    public function isValid()
+    {
+        $this->errors = array();
+
+        foreach ($this->rules() as $rule) {
+            $fields = array_map('trim', explode(',', $rule[0]));
+            $ruleName = $rule[1];
+            $params = array_slice($rule, 2);
+
+            // check scenario
+            if (!empty($rule['on'])) {
+                $onScenarios = explode(',', $rule['on']);
+                if (!in_array($this->getScenario(), $onScenarios)) {
+                    continue;
+                }
+            }
+
+            if (!empty($rule['except'])) {
+                $exceptScenarios = explode(',', $rule['except']);
+                if (in_array($this->getScenario(), $exceptScenarios)) {
+                    continue;
+                }
+            }
+
+            if (method_exists($this, $ruleName)) {
+                // method
+                foreach ($fields as $field) {
+                    $this->{$ruleName}($field, $params);
+                }
+            } else {
+                // validator class
+                $validatorClassName = $this->getValidatorClassNameByRuleName($ruleName);
+
+                /* @var $validator \Sokil\Mongo\Validator */
+                $validator = new $validatorClassName;
+                if (!$validator instanceof \Sokil\Mongo\Validator) {
+                    throw new Exception('Validator class must implement \Sokil\Mongo\Validator class');
+                }
+
+                $validator->validate($this, $fields, $params);
+            }
+        }
+
+        return !$this->hasErrors();
+    }
+
 }
