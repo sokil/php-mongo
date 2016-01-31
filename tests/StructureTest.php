@@ -2,15 +2,6 @@
 
 namespace Sokil\Mongo;
 
-class StructureWrapper extends \Sokil\Mongo\Structure
-{
-    protected $_data = array(
-        'a' => 'def-a',
-        'b' => 'def-b',
-        'c' => 'def-c',
-    );
-}
-
 class StructureTest extends \PHPUnit_Framework_TestCase
 {
     public function testSet()
@@ -606,4 +597,13 @@ class StructureTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals(false, array_search('\Vendor\Mongo\Validator', $namespaces));
     }
 
+}
+
+class StructureWrapper extends \Sokil\Mongo\Structure
+{
+    protected $_data = array(
+        'a' => 'def-a',
+        'b' => 'def-b',
+        'c' => 'def-c',
+    );
 }
