@@ -17,12 +17,12 @@ class GridFSFile extends Structure implements \Countable
      *
      * @var \Sokil\Mongo\GridFS
      */
-    private $_gridFS;
+    private $gridFS;
     
     /**
      * @var \MongoGridFSFile 
      */
-    private $_file;
+    private $file;
         
     /**
      * 
@@ -32,7 +32,7 @@ class GridFSFile extends Structure implements \Countable
      */
     public function __construct(GridFS $gridFS, $file = null)
     {
-        $this->_gridFS = $gridFS;
+        $this->gridFS = $gridFS;
         
         if(!$file) {
             return;
@@ -44,8 +44,8 @@ class GridFSFile extends Structure implements \Countable
             throw new Exception('Wrong file data specified');
         }
 
-        $this->_file = $file;
-        $this->_data = &$file->file;
+        $this->file = $file;
+        $this->setDataReference($file->file);
     }
     
     /**
@@ -55,46 +55,46 @@ class GridFSFile extends Structure implements \Countable
      */
     public function getMongoGridFsFile()
     {
-        return $this->_file;
+        return $this->file;
     }
     
     public function getFilename()
     {
-        return $this->_file->getFilename();
+        return $this->file->getFilename();
     }
     
     public function count()
     {
-        return $this->_file->getSize();
+        return $this->file->getSize();
     }
     
     public function getMd5Checksum()
     {
-        return $this->_file->file['md5'];
+        return $this->file->file['md5'];
     }
     
     public function save()
     {
-        $this->_gridFS->getMongoCollection()->save($this->_file->file);
+        $this->gridFS->getMongoCollection()->save($this->file->file);
     }
     
     public function dump($filename)
     {
-        $this->_file->write($filename);
+        $this->file->write($filename);
     }
     
     public function getBytes()
     {
-        return $this->_file->getBytes();
+        return $this->file->getBytes();
     }
     
     public function getResource()
     {
-        return $this->_file->getResource();
+        return $this->file->getResource();
     }
     
     public function delete()
     {
-        $this->_gridFS->deleteFileById($this->get('_id'));
+        $this->gridFS->deleteFileById($this->get('_id'));
     }
 }

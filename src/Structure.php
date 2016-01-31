@@ -15,7 +15,23 @@ class Structure implements
     ArrayableInterface,
     \JsonSerializable
 {
+    /**
+     * @deprecated use self::$schema to define initial data and getters or setters to get or set field's values.
+     * @var array
+     */
     protected $_data = array();
+
+    /**
+     * Document's data
+     * @var array
+     */
+    private $data = array();
+
+    /**
+     * Initial document's data
+     * @var array
+     */
+    protected $schema = array();
 
     /**
      *
@@ -54,18 +70,67 @@ class Structure implements
      */
     private $triggeredErrors = array();
 
+    public function __construct(array $data = null, $notModified = true)
+    {
+        // self::$data and self::$schema instead of deprecated self::$_data
+        if ($this->_data) {
+            $this->schema = $this->_data;
+        }
+
+        $this->_data = &$this->data;
+
+        // define initial data with schema
+        $this->data = $this->schema;
+        $this->originalData = $this->data;
+
+        // initialize with passed data
+        if ($data) {
+            if ($notModified) {
+                // set as not modified
+                $this->replace($data);
+            } else {
+                // set as modified
+                $this->merge($data);
+            }
+        }
+    }
+
+    public function __clone()
+    {
+        throw new \RuntimeException('Cloning not allowed');
+    }
+
+    /**
+     * IMPORTANT! Do not use this method
+     *
+     * This method allow set data of document in external code.
+     * e.g. link data of document to gridfs file matadata.
+     * Modification of document's data will modity external data too.
+     * Note that also the opposite case alse right - modifiction of external data will
+     * modify document's data directly, so document may be in unconsisted state.
+     *
+     * @param array $data reference to data in external code
+     * @return Structure
+     */
+    protected function setDataReference(array &$data)
+    {
+        $this->data = &$data;
+        return $this;
+    }
+
     public function __get($name)
     {
-        return isset($this->_data[$name]) ? $this->_data[$name] : null;
+        // get first-level value
+        return isset($this->data[$name]) ? $this->data[$name] : null;
     }
 
     public function get($selector)
     {
         if(false === strpos($selector, '.')) {
-            return isset($this->_data[$selector]) ? $this->_data[$selector] : null;
+            return isset($this->data[$selector]) ? $this->data[$selector] : null;
         }
 
-        $value = $this->_data;
+        $value = $this->data;
         foreach(explode('.', $selector) as $field)
         {
             if(!isset($value[$field])) {
@@ -104,7 +169,7 @@ class Structure implements
             throw new Exception('Wrong structure class specified');
         }
 
-        return clone $structure->merge($data);
+        return $structure->merge($data);
     }
 
     /**
@@ -124,39 +189,31 @@ class Structure implements
 
         // class name is string
         if(is_string($className)) {
+            $list = array_map(
+                function($dataItem) use($className) {
+                    $listItemStructure = new $className();
+                    if(!($listItemStructure instanceof Structure)) {
+                        throw new Exception('Wrong structure class specified');
+                    }
+                    $listItemStructure->mergeUnmodified($dataItem);
+                    return $listItemStructure;
+                },
+                $data
+            );
 
-            $structure = new $className();
-            if(!($structure instanceof Structure)) {
-                throw new Exception('Wrong structure class specified');
-            }
-
-            return array_map(function($dataItem) use($structure) {
-                return clone $structure->mergeUnmodified($dataItem);
-            }, $data);
+            return $list;
         }
 
         // class name id callable
         if(is_callable($className)) {
-
-            $structurePrototypePool = array();
-
-            return array_map(function($dataItem) use($structurePrototypePool, $className) {
-
-                // get Structure class name from callable
+            return array_map(function($dataItem) use( $className) {
                 $classNameString = $className($dataItem);
-
-                // create structure prototype
-                if(empty($structurePrototypePool[$classNameString])) {
-                    $structurePrototypePool[$classNameString] = new $classNameString;
-                    if(!($structurePrototypePool[$classNameString] instanceof Structure)) {
-                        throw new Exception('Wrong structure class specified');
-                    }
+                $listItemStructure = new $classNameString;
+                if(!($listItemStructure instanceof Structure)) {
+                    throw new Exception('Wrong structure class specified');
                 }
 
-                // instantiate structure from related prototype
-                $structure = clone $structurePrototypePool[$classNameString];
-
-                return $structure->merge($dataItem);
+                return $listItemStructure->merge($dataItem);
             }, $data);
         }
 
@@ -194,9 +251,9 @@ class Structure implements
         if(1 == $chunksNum) {
 
             // update only if new value different from current
-            if(!isset($this->_data[$selector]) || $this->_data[$selector] !== $value) {
+            if(!isset($this->data[$selector]) || $this->data[$selector] !== $value) {
                 // modify
-                $this->_data[$selector] = $value;
+                $this->data[$selector] = $value;
                 // mark field as modified
                 $this->modifiedFields[] = $selector;
             }
@@ -205,7 +262,7 @@ class Structure implements
         }
 
         // selector is nested
-        $section = &$this->_data;
+        $section = &$this->data;
 
         for($i = 0; $i < $chunksNum - 1; $i++) {
 
@@ -233,7 +290,7 @@ class Structure implements
 
     public function has($selector)
     {
-        $pointer = &$this->_data;
+        $pointer = &$this->data;
 
         foreach(explode('.', $selector) as $field) {
             if(!array_key_exists($field, $pointer)) {
@@ -248,7 +305,7 @@ class Structure implements
 
     public function __isset($name)
     {
-        return isset($this->_data[$name]);
+        return isset($this->data[$name]);
     }
 
     public static function prepareToStore($value)
@@ -295,9 +352,9 @@ class Structure implements
         // optimize one-level selector search
         if(1 == $chunksNum) {
             // check if field exists
-            if(isset($this->_data[$selector])) {
+            if(isset($this->data[$selector])) {
                 // unset field
-                unset($this->_data[$selector]);
+                unset($this->data[$selector]);
                 // mark field as modified
                 $this->modifiedFields[] = $selector;
             }
@@ -306,7 +363,7 @@ class Structure implements
         }
 
         // find section
-        $section = &$this->_data;
+        $section = &$this->data;
 
         for($i = 0; $i < $chunksNum - 1; $i++) {
 
@@ -385,12 +442,12 @@ class Structure implements
 
     public function toArray()
     {
-        return $this->_data;
+        return $this->data;
     }
 
     public function jsonSerialize()
     {
-        return $this->_data;
+        return $this->data;
     }
 
     /**
@@ -418,7 +475,7 @@ class Structure implements
      */
     public function mergeUnmodified(array $data)
     {
-        $this->mergeUnmodifiedPartial($this->_data, $data);
+        $this->mergeUnmodifiedPartial($this->data, $data);
         $this->mergeUnmodifiedPartial($this->originalData, $data);
 
         return $this;
@@ -463,7 +520,7 @@ class Structure implements
      */
     public function merge(array $data)
     {
-        $this->mergePartial($this->_data, $data);
+        $this->mergePartial($this->data, $data);
         return $this;
     }
 
@@ -475,23 +532,31 @@ class Structure implements
      */
     public function replace(array $data)
     {
-        $this->_data = $data;
+        $this->data = $data;
         $this->apply();
 
         return $this;
     }
-    
+
+    /**
+     * Replace modified fields with original
+     * @return $this
+     */
     public function reset()
     {
-        $this->_data = $this->originalData;
+        $this->data = $this->originalData;
         $this->modifiedFields = array();
 
         return $this;
     }
-    
+
+    /**
+     * Apply modified document fields as original
+     * @return $this
+     */
     public function apply()
     {
-        $this->originalData = $this->_data;
+        $this->originalData = $this->data;
         $this->modifiedFields = array();
 
         return $this;

@@ -4,7 +4,7 @@ namespace Sokil\Mongo\DocumentRelationTest;
 
 class EngineDocument extends \Sokil\Mongo\Document
 {
-    protected $_data = array(
+    protected $data = array(
         'car_id' => null,
     );
     

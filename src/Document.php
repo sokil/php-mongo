@@ -124,27 +124,20 @@ class Document extends Structure
      */
     public function __construct(Collection $collection, array $data = null, array $options = array())
     {
+        // lisk to collection
         $this->collection = $collection;
 
         // configure document with options
         $this->options = $options;
 
         // init document
-        $this->initDocument();
+        $this->initDelegates();
 
         // execute before construct callable
         $this->beforeConstruct();
 
-        // set data
-        if ($data) {
-            if ($this->getOption('stored')) {
-                // load stored
-                $this->replace($data);
-            } else {
-                // create unstored
-                $this->merge($data);
-            }
-        }
+        // initialize with data
+        parent::__construct($data, $this->getOption('stored'));
 
         // use versioning
         if($this->getOption('versioning')) {
@@ -206,7 +199,7 @@ class Document extends Structure
         $this->clearBehaviors();
 
         // init delegates
-        $this->initDocument();
+        $this->initDelegates();
 
         return $this;
     }
@@ -232,7 +225,7 @@ class Document extends Structure
     /**
      * Initialise relative classes
      */
-    private function initDocument()
+    private function initDelegates()
     {
         // start event dispatching
         $this->eventDispatcher = new EventDispatcher;
@@ -606,41 +599,36 @@ class Document extends Structure
      * Used to define id of stored document. This id must be already present in db
      *
      * @param \MongoId|string $id id of document
-     * @return \Sokil\Mongo\Document
+     * @return Document
      */
     public function defineId($id)
     {
-
-        if ($id instanceof \MongoId) {
-            $this->_data['_id'] = $id;
-            return $this;
+        if (!($id instanceof \MongoId)) {
+            try {
+                $id = new \MongoId($id);
+            } catch (\MongoException $e) {}
         }
 
-        try {
-            $this->_data['_id'] = new \MongoId($id);
-        } catch (\MongoException $e) {
-            $this->_data['_id'] = $id;
-        }
+        $this->mergeUnmodified(array('_id' => $id));
 
         return $this;
     }
 
-    /*
-     * Used to define id of unstored document. This db is manual
+    /**
+     * Used to define id of not stored document.
+     *
+     * @param \MongoId|string $id id of document
+     * @return Document
      */
-
     public function setId($id)
     {
-
-        if ($id instanceof \MongoId) {
-            return $this->set('_id', $id);
+        if (!($id instanceof \MongoId)) {
+            try {
+                $id = new \MongoId($id);
+            } catch (\MongoException $e) {}
         }
 
-        try {
-            return $this->set('_id', new \MongoId($id));
-        } catch (\MongoException $e) {
-            return $this->set('_id', $id);
-        }
+        return $this->set('_id', $id);
     }
 
     public function isStored()

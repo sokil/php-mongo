@@ -15,7 +15,7 @@ use Sokil\Mongo\Document\RevisionManager;
 
 class Revision extends \Sokil\Mongo\Document
 {
-    protected $_data = array(
+    protected $data = array(
         '__date__' => null,
     );
     

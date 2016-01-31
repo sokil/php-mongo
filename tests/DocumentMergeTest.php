@@ -4,7 +4,7 @@ namespace Sokil\Mongo;
 
 class UserDocumentMock extends \Sokil\Mongo\Document
 {
-    protected $_data = array(
+    protected $schema = array(
         // simple value
         'status' => 'ACTIVE',
         // list value, default value id simple

@@ -1656,7 +1656,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Check of nothing changed on document whan save not required
+     * Check of nothing changed on document when save not required
      */
     public function testSave_SaveNotRequired()
     {
@@ -1666,10 +1666,10 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($document->isSaveRequired());
         $this->assertTrue($document->isStored());
 
-        $savedDocument = clone $document;
+        $data = $document->toArray();
         $document->save();
 
-        $this->assertEquals($savedDocument, $document);
+        $this->assertEquals($data, $document->toArray());
     }
 
     /**
@@ -1719,11 +1719,19 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             $document->jsonSerialize()
         );
     }
+
+    public function testGetOriginalData()
+    {
+        $document = new DocumentMock($this->collection);
+
+        $this->assertArrayHasKey('status', $document->toArray());
+        $this->assertArrayHasKey('status', $document->getOriginalData());
+    }
 }
 
 class DocumentMock extends \Sokil\Mongo\Document
 {
-    protected $_data = array(
+    protected $schema = array(
         'status' => 'ACTIVE',
         'profile' => array(
             'name' => 'USER_NAME',

@@ -232,11 +232,18 @@ class StructureTest extends \PHPUnit_Framework_TestCase
             array('a' => 'a1'),
         ));
 
-        // get unexited key
-        $this->assertEquals(array(), $structure->getObjectList('unexisted-param', '\Sokil\Mongo\StructureWrapper'));
+        // get not exited key
+        $this->assertEquals(
+            array(),
+            $structure->getObjectList('unexisted-param', '\Sokil\Mongo\StructureWrapper')
+        );
 
         // get existed key
-        $list = $structure->getObjectList('param1', '\Sokil\Mongo\StructureWrapper');
+        $list = $structure->getObjectList(
+            'param1',
+            '\Sokil\Mongo\StructureWrapper'
+        );
+
         foreach($list as $i => $item) {
             $this->assertInstanceOf('\Sokil\Mongo\StructureWrapper', $item);
             $this->assertEquals('a' . $i, $item->a);
@@ -601,7 +608,7 @@ class StructureTest extends \PHPUnit_Framework_TestCase
 
 class StructureWrapper extends \Sokil\Mongo\Structure
 {
-    protected $_data = array(
+    protected $schema = array(
         'a' => 'def-a',
         'b' => 'def-b',
         'c' => 'def-c',
