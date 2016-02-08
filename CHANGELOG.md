@@ -1,6 +1,7 @@
 ## 1.15@DEV
   * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`
   * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
+  * Documents not alloved to be cloned
 
 ## 1.14 (2016-01-30)
   * Full text indexes
