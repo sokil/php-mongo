@@ -187,6 +187,12 @@ class Pipeline implements Arrayable, \JsonSerializable
         return $this;
     }
 
+    public function setBatchSize($batchSize)
+    {
+        $this->options['cursor']['batchSize'] = (int) $batchSize;
+        return $this;
+    }
+
     public function getOptions()
     {
         return $this->options;
