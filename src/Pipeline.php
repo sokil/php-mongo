@@ -155,7 +155,7 @@ class Pipeline implements Arrayable, \JsonSerializable
         return $this->collection->aggregate($this, $options, false);
     }
 
-    public function aggregateAsCursor(array $options = array())
+    public function aggregateCursor(array $options = array())
     {
         return $this->collection->aggregate($this, $options, true);
     }
