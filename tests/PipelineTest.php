@@ -303,7 +303,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             ));
     }
 
-    public function testLogger()
+    public function testAggregate_Logger()
     {
         // create documents
         $this->collection->createDocument(array('param' => 1))->save();
@@ -329,7 +329,64 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             ->aggregate();
     }
 
-    public function testExplainAggregate()
+    public function testAggregate_ExplainOption()
+    {
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        $pipeline = $this->collection
+            ->createAggregator()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
+            ->explain();
+
+        try {
+            $explain = $this->collection->aggregate($pipeline);
+            $this->assertArrayHasKey('$cursor', $explain['0']);
+            $this->assertArrayHasKey('$group', $explain['1']);
+        } catch (\Exception $e) {
+            $this->assertEquals('Explain of aggregation implemented only from 2.6.0', $e->getMessage());
+        }
+    }
+
+    public function testAggregate_AllowDiskUseOption()
+    {
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        $pipeline = $this->collection
+            ->createAggregator()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
+            ->allowDiskUse();
+
+        $result = $this->collection->aggregate($pipeline);
+        $this->assertArrayHasKey('sum', $result['0']);
+        $this->assertEquals(9, $result['0']['sum']);
+    }
+
+    public function testAggregate_ResultAsCursor()
+    {
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        $pipeline = $this->collection
+            ->createAggregator()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')));
+
+        $result = $this->collection->aggregate($pipeline, array(), true);
+
+        $this->assertInstanceOf('\MongoCommandCursor', $result);
+    }
+
+    public function testDeprecatedExplainAggregate()
     {
         $this->collection->createDocument(array('param' => 1))->save();
         $this->collection->createDocument(array('param' => 2))->save();
@@ -347,14 +404,13 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         } catch (\Exception $e) {
             $this->assertEquals('Explain of aggregation implemented only from 2.6.0', $e->getMessage());
         }
-
     }
 
     /**
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Explain of aggregation implemented only from 2.6.0
      */
-    public function testExplainAggregate_UnsupportedDbVersion()
+    public function testDeprecatedExplainAggregate_UnsupportedDbVersion()
     {
         // define db version where aggregate explanation supported
         $clientMock = $this->getMock(
@@ -379,7 +435,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Wrong pipeline specified
      */
-    public function testExplainAggregate_WrongArgument()
+    public function testDeprecatedExplainAggregate_WrongArgument()
     {
         // define db version where aggregate explanation supported
         $clientMock = $this->getMock(

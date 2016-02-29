@@ -12,11 +12,14 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Pipeline\GroupStage;
+use Sokil\Mongo\Structure\Arrayable;
 
-class Pipeline
+class Pipeline implements Arrayable, \JsonSerializable
 {
 
     private $stages = array();
+
+    private $options = array();
 
     /**
      * @var \Sokil\Mongo\Collection
@@ -148,12 +151,21 @@ class Pipeline
         return $this;
     }
 
-    public function aggregate()
+    public function aggregate(array $options = array()) {
+        return $this->collection->aggregate($this, $options, false);
+    }
+
+    public function aggregateAsCursor(array $options = array())
     {
-        return $this->collection->aggregate($this);
+        return $this->collection->aggregate($this, $options, true);
     }
 
     public function toArray()
+    {
+        return $this->stages;
+    }
+
+    public function jsonSerialize()
     {
         return $this->stages;
     }
@@ -163,4 +175,20 @@ class Pipeline
         return json_encode($this->stages);
     }
 
+    public function explain($allow = true)
+    {
+        $this->options['explain'] = (bool) $allow;
+        return $this;
+    }
+
+    public function allowDiskUse($allow = true)
+    {
+        $this->options['allowDiskUse'] = (bool) $allow;
+        return $this;
+    }
+
+    public function getOptions()
+    {
+        return $this->options;
+    }
 }

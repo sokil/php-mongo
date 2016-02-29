@@ -944,14 +944,20 @@ class Collection implements \Countable
 
     /**
      * Aggregate using pipeline
-     *
-     * @param callable|array|\Sokil\Mongo\Pipeline $pipeline list of pipeline stages
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/
-     * @return array result of aggregation
+     *
+     * @param callable|array|Pipeline $pipeline list of pipeline stages
+     * @param array aggregate options
+     * @param bool $asCursor return result as cursor
+     *
      * @throws \Sokil\Mongo\Exception
+     * @return array result of aggregation
      */
-    public function aggregate($pipeline)
-    {
+    public function aggregate(
+        $pipeline,
+        array $options = array(),
+        $asCursor = false
+    ) {
         // configure through callable
         if (is_callable($pipeline)) {
             $pipelineConfiguratorCallable = $pipeline;
@@ -961,42 +967,76 @@ class Collection implements \Countable
 
         // get aggregation array
         if ($pipeline instanceof Pipeline) {
+            if ($options && is_array($options)) {
+                $options = array_merge($pipeline->getOptions(), $options);
+            } else {
+                $options = $pipeline->getOptions();
+            }
             $pipeline = $pipeline->toArray();
-        } elseif (!is_array($pipeline)) {
+        } else if (!is_array($pipeline)) {
             throw new Exception('Wrong pipeline specified');
         }
 
         // log
         $client = $this->_database->getClient();
-        if($client->hasLogger()) {
+        if ($client->hasLogger()) {
+            // record pipeline
             $client->getLogger()->debug(
                 get_called_class() . ':<br><b>Pipeline</b>:<br>' .
-                json_encode($pipeline));
+                json_encode($pipeline)
+            );
+        }
+
+        // return result as cursor
+        if ($asCursor) {
+            $cursor = $this->_mongoCollection->aggregateCursor($pipeline, $options);
+            return $cursor;
+        }
+
+        // prepare command
+        $command = array(
+            'aggregate' => $this->getName(),
+            'pipeline'  => $pipeline,
+        );
+
+        // add options
+        if ($options) {
+            $command += $options;
         }
 
         // aggregate
-        $status = $this->_database->executeCommand(array(
-            'aggregate' => $this->getName(),
-            'pipeline'  => $pipeline
-        ));
+        $status = $this->_database->executeCommand($command);
 
         if($status['ok'] != 1) {
             throw new Exception('Aggregate error: ' . $status['errmsg']);
         }
 
+        // explain response
+        if (!empty($command['explain'])) {
+            return $status['stages'];
+        }
+
+        // result response
         return $status['result'];
     }
 
+    /**
+     * Explain aggregation
+     *
+     * @deprecated use pipeline option 'explain' in Collection::aggregate() or method Pipeline::explain()
+     * @param array|Pipeline $pipeline
+     * @return array result
+     * @throws Exception
+     */
     public function explainAggregate($pipeline)
     {
-        if(version_compare($this->getDatabase()->getClient()->getDbVersion(), '2.6.0', '<')) {
+        if (version_compare($this->getDatabase()->getClient()->getDbVersion(), '2.6.0', '<')) {
             throw new Exception('Explain of aggregation implemented only from 2.6.0');
         }
 
-        if($pipeline instanceof Pipeline) {
+        if ($pipeline instanceof Pipeline) {
             $pipeline = $pipeline->toArray();
-        }
-        elseif(!is_array($pipeline)) {
+        } else if (!is_array($pipeline)) {
             throw new Exception('Wrong pipeline specified');
         }
 
