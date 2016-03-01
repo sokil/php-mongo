@@ -995,7 +995,7 @@ class Collection implements \Countable
             
             // check options for db < 2.6
             if (version_compare($dbVersion, '2.6.0', '<')) {
-                if (!empty($options['explain']) {
+                if (!empty($options['explain'])) {
                     throw new FeatureNotSupportedException('Explain of aggregation implemented only from 2.6.0');   
                 }
                 
