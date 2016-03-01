@@ -1679,14 +1679,19 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testEnsureFulltextIndex()
     {
-        $this->collection->ensureFulltextIndex(
-            array('fieldname1', 'fieldname2'),
-            array(
-                'fieldname1' => 1,
-                'fieldname2' => 2,
-            ),
-            'spanish'
-        );
+        try {
+            $this->collection->ensureFulltextIndex(
+                array('fieldname1', 'fieldname2'),
+                array(
+                    'fieldname1' => 1,
+                    'fieldname2' => 2,
+                ),
+                'spanish'
+            );
+        } catch (\MongoWriteConcernException $e) {
+            $this->assertEquals('127.0.0.1:27017: text search not enabled', $e->getMessage());
+            return;
+        }
 
         $indexes = $this->collection->getIndexes();
         $index = $indexes[1];

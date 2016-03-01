@@ -51,6 +51,8 @@ class Client
      */
     private $dbVersion;
     
+    private $debug = false;
+
     /**
      * 
      * @param string $dsn Data Source Name
@@ -329,7 +331,24 @@ class Client
         $this->logger = null;
         return $this;
     }
-    
+
+    /**
+     * Enable or disable debug mode
+     */
+    public function debug($enabled = true)
+    {
+        $this->debug = (bool) $enabled;
+        return $this;
+    }
+
+    /**
+     * Check state of debug mode
+     */
+    public function isDebugEnabled()
+    {
+        return $this->debug;
+    }
+
     /**
      * Define write concern on whole requests
      *

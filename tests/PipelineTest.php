@@ -14,6 +14,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
     {
         // connect to mongo
         $client = new Client();
+        $client->debug();
 
         // select database
         $database = $client->getDatabase('test');
@@ -364,9 +365,13 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
             ->allowDiskUse();
 
-        $result = $this->collection->aggregate($pipeline);
-        $this->assertArrayHasKey('sum', $result['0']);
-        $this->assertEquals(9, $result['0']['sum']);
+        try {
+            $result = $this->collection->aggregate($pipeline);
+            $this->assertArrayHasKey('sum', $result['0']);
+            $this->assertEquals(9, $result['0']['sum']);
+        } catch (\Exception $e) {
+            $this->assertEquals('Option allowDiskUse of aggregation implemented only from 2.6.0', $e->getMessage());
+        }
     }
 
     public function testAggregate_ResultAsCursor()

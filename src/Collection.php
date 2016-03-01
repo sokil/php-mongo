@@ -980,42 +980,44 @@ class Collection implements \Countable
 
         // log
         $client = $this->_database->getClient();
-        if ($client->hasLogger()) {
+        if ($client->isDebugEnabled()) {
             // record pipeline
-            $client->getLogger()->debug(
-                get_called_class() . ':<br><b>Pipeline</b>:<br>' .
-                json_encode($pipeline)
-            );
-        }
-        
-        // check options
-        if ($options) {
-            // get db version
-            $dbVersion = $this->getDatabase()->getClient()->getDbVersion();
-            
-            // check options for db < 2.6
-            if (version_compare($dbVersion, '2.6.0', '<')) {
-                if (!empty($options['explain'])) {
-                    throw new FeatureNotSupportedException('Explain of aggregation implemented only from 2.6.0');   
-                }
-                
-                if (!empty($options['allowDiskUse'])) {
-                    throw new FeatureNotSupportedException('Option allowDiskUse of aggregation implemented only from 2.6.0');   
-                }
-                
-                if (!empty($options['cursor'])) {
-                    throw new FeatureNotSupportedException('Option cursor of aggregation implemented only from 2.6.0');   
-                }
+            if ($client->hasLogger()) {
+                $client->getLogger()->debug(
+                    get_called_class() . ':<br><b>Pipeline</b>:<br>' .
+                    json_encode($pipeline)
+                );
             }
-            
-            // check options for db < 3.2
-            if (version_compare($dbVersion, '3.2.0', '<')) {
-                if (!empty($options['bypassDocumentValidation'])) {
-                    throw new FeatureNotSupportedException('Option bypassDocumentValidation of aggregation implemented only from 3.2.0');   
+
+            // Check options only in debug mode. In production common exception will raised
+            if ($options) {
+                // get db version
+                $dbVersion = $client->getDbVersion();
+
+                // check options for db < 2.6
+                if (version_compare($dbVersion, '2.6.0', '<')) {
+                    if (!empty($options['explain'])) {
+                        throw new FeatureNotSupportedException('Explain of aggregation implemented only from 2.6.0');
+                    }
+
+                    if (!empty($options['allowDiskUse'])) {
+                        throw new FeatureNotSupportedException('Option allowDiskUse of aggregation implemented only from 2.6.0');
+                    }
+
+                    if (!empty($options['cursor'])) {
+                        throw new FeatureNotSupportedException('Option cursor of aggregation implemented only from 2.6.0');
+                    }
                 }
-                
-                if (!empty($options['readConcern'])) {
-                    throw new FeatureNotSupportedException('Option readConcern of aggregation implemented only from 3.2.0');   
+
+                // check options for db < 3.2
+                if (version_compare($dbVersion, '3.2.0', '<')) {
+                    if (!empty($options['bypassDocumentValidation'])) {
+                        throw new FeatureNotSupportedException('Option bypassDocumentValidation of aggregation implemented only from 3.2.0');
+                    }
+
+                    if (!empty($options['readConcern'])) {
+                        throw new FeatureNotSupportedException('Option readConcern of aggregation implemented only from 3.2.0');
+                    }
                 }
             }
         }
