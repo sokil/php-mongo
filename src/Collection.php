@@ -922,17 +922,6 @@ class Collection implements \Countable
     }
 
     /**
-     * Create aggregator pipeline instance
-     *
-     * @return \Sokil\Mongo\Pipeline
-     * @deprecated since 1.10.10, use Collection::createAggregator() or callable in Collection::aggregate()
-     */
-    public function createPipeline()
-    {
-        return $this->createAggregator();
-    }
-
-    /**
      * Start aggregation
      *
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/
