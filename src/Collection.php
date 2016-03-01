@@ -12,6 +12,7 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\InvalidDocumentException;
+use Sokil\Mongo\Exception\FeatureNotSupportedException;
 use Sokil\Mongo\Collection\Definition;
 use Sokil\Mongo\Enum\Language;
 
@@ -986,9 +987,44 @@ class Collection implements \Countable
                 json_encode($pipeline)
             );
         }
+        
+        // check options
+        if ($options) {
+            // get db version
+            $dbVersion = $this->getDatabase()->getClient()->getDbVersion();
+            
+            // check options for db < 2.6
+            if (version_compare($dbVersion, '2.6.0', '<')) {
+                if (!empty($options['explain']) {
+                    throw new FeatureNotSupportedException('Explain of aggregation implemented only from 2.6.0');   
+                }
+                
+                if (!empty($options['allowDiskUse'])) {
+                    throw new FeatureNotSupportedException('Option allowDiskUse of aggregation implemented only from 2.6.0');   
+                }
+                
+                if (!empty($options['cursor'])) {
+                    throw new FeatureNotSupportedException('Option cursor of aggregation implemented only from 2.6.0');   
+                }
+            }
+            
+            // check options for db < 3.2
+            if (version_compare($dbVersion, '3.2.0', '<')) {
+                if (!empty($options['bypassDocumentValidation'])) {
+                    throw new FeatureNotSupportedException('Option bypassDocumentValidation of aggregation implemented only from 3.2.0');   
+                }
+                
+                if (!empty($options['readConcern'])) {
+                    throw new FeatureNotSupportedException('Option readConcern of aggregation implemented only from 3.2.0');   
+                }
+            }
+        }
 
         // return result as cursor
         if ($asCursor) {
+            if (version_compare(\MongoClient::VERSION, '1.5.0', '<') {
+                throw new FeatureNotSupportedException('Aggregate cursor supported from driver version 1.5');
+            }
             $cursor = $this->_mongoCollection->aggregateCursor($pipeline, $options);
             return $cursor;
         }
