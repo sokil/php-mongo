@@ -2577,7 +2577,7 @@ $cache->deleteNotMatchingAnyTag(['php', 'elephant']);
 Debugging
 ---------
 
-In bebug mode cliemt may log some activity to pre-configured logger or show extended errors.
+In debug mode client may log some activity to pre-configured logger or show extended errors.
 ```php
 <?php
 
