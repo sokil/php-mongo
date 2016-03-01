@@ -2577,9 +2577,24 @@ $cache->deleteNotMatchingAnyTag(['php', 'elephant']);
 Debugging
 ---------
 
+In bebug mode cliemt may log some activity to pre-configured logger or show extended errors.
+```php
+<?php
+
+// start debugging
+$client->debug();
+
+// stop debugging
+$client->debug(false);
+
+// check debug state
+$client->isDebugEnabled();
+```
+
 ### Logging
 
-Library suports logging of queries. To configure logging, you need to pass logger object to instance of `\Sokil\Mongo\Client`. Logger must implement `\Psr\Log\LoggerInterface` due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
+Library suports logging of queries. To configure logging, you need to pass logger object to instance of `\Sokil\Mongo\Client` and enable debug of client. 
+Logger must implement `\Psr\Log\LoggerInterface` due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
 
 ```php
 <?php
