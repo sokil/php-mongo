@@ -1119,7 +1119,7 @@ class Collection implements \Countable
      */
     public function deleteIndex(array $key)
     {
-        $this->_mongoCollection->deleteIndex($key, $options);
+        $this->_mongoCollection->deleteIndex($key);
         return $this;
     }
 
