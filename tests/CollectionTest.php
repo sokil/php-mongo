@@ -1571,6 +1571,22 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         ), $indexes[1]['key']);
 
     }
+    
+    public function testDeleteIndex()
+    {
+        $this->collection->ensureIndex(array(
+            'asc'    => 1,
+            'desc'   => -1,
+        ));
+
+        $this->collection->deleteIndex(array(
+            'asc'    => 1,
+            'desc'   => -1,
+        ));
+        
+        $indexes = $this->collection->getIndexes();
+        $this->assertEquals(1, count($indexes));
+    }
 
     public function testEnsureSparseIndex()
     {
