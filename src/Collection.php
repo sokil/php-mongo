@@ -1110,6 +1110,18 @@ class Collection implements \Countable
         $this->_mongoCollection->ensureIndex($key, $options);
         return $this;
     }
+    
+    /**
+     * Delete index
+     *
+     * @param array $key
+     * @return \Sokil\Mongo\Collection
+     */
+    public function deleteIndex(array $key)
+    {
+        $this->_mongoCollection->deleteIndex($key, $options);
+        return $this;
+    }
 
     /**
      * Create unique index
