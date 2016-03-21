@@ -1,3 +1,6 @@
+## 1.15.1 (2016-03-10)
+  * Allow delete indexes
+
 ## 1.15 (2016-03-01)
   * Removed `Collection::createPipeline()`. Use `Collection::createAggregator`;
   * Aggregator options may be passed as arguments of `Collection::aggregate($pipelines, $options)` or configured 
