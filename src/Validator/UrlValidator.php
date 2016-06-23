@@ -45,7 +45,7 @@ class UrlValidator extends \Sokil\Mongo\Validator
 
         // network not allowed
         if ($dnsRecordExists === false) {
-            return;
+            throw new \RuntimeException('Error getting DNS record to validated url');
         }
 
         // empty array - host not found

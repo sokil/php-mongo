@@ -13,7 +13,8 @@ PHPMongo
 
 #### PHP ODM for MongoDB.
 
-Why to use this ODM? You can easily work with document data through comfortable getters and setters instead of array and don't check if key exist in array. Access to subdocument use dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of document's life, and more things which make you life easier.
+Why to use this ODM? You can easily work with document data through comfortable getters and setters instead of array and don't check if key exist in array. 
+Access to sub document uses dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of document's life, and more things which make you life easier.
 
 [![ArmySOS - Help for Ukrainian Army](http://armysos.com.ua/wp-content/uploads/2014/09/728_90.jpg)](http://armysos.com.ua/en/help-the-army)
 
@@ -279,7 +280,7 @@ $client->map([
 $collection = $client->getDatabase('databaseName')->getCollection('collectionName');
 ```
 
-#### Mapping with class preffix
+#### Mapping with class prefix
 
 We can specify collection class prefix so any collection may be mapped to class without enumerating every collection name:
 
@@ -465,7 +466,24 @@ In example above class `\CustomVideoDocument` related to `{"_id": "45..", "type"
 
 #### Document schema
 
-Document's scheme is completely not required. If field is required and has default value, it can be defined in special property of document class:
+Document's scheme is completely not required. 
+If field is required and has default value, it can be defined in special property of document class `Document::schema`:
+
+```php
+<?php
+class CustomDocument extends \Sokil\Mongo\Document
+{
+    protected $schema = [
+        'requiredField' => 'defaultValue',
+        'someField'     => [
+            'subDocumentField' => 'value',
+        ],
+    ];
+}
+```
+
+Also supported deprecated format `Document::_data`:
+
 ```php
 <?php
 class CustomDocument extends \Sokil\Mongo\Document
@@ -482,6 +500,7 @@ class CustomDocument extends \Sokil\Mongo\Document
 # Document validation
 
 Document may be validated before save. To set validation rules, you may override method `\Sokil\Mongo\Document::rules()` and pass validation rules here. Supported rules are:
+
 ```php
 <?php
 class CustomDocument extends \Sokil\Mongo\Document
@@ -501,7 +520,8 @@ class CustomDocument extends \Sokil\Mongo\Document
 }
 ```
 
-Document can have validation state, based on scenario. Scenarion can be specified by method `Document::setScenario($scenario)`.
+Document can have validation state, based on scenario. Scenario can be specified by method `Document::setScenario($scenario)`.
+
 ```php
 <?php
 $document->setScenario('register');
@@ -715,7 +735,7 @@ Embedded documents
 
 ### Get embedded document
 
-Imagine that you have document, whicj represent `User` model:
+Imagine that you have document, which represent `User` model:
 
 ```javascript
 {
@@ -762,6 +782,49 @@ Now you are able to get profile params:
 ```php
 <?php
 $birthday = $user->getProfile()->getBirthday();
+```
+
+### Set embedded document
+
+You can also set embedded document. If embedded document has validation rules, they will be checked before embed it to document:
+
+```php
+/**
+ * Profile class
+ */
+class Profile extends \Sokil\Mongo\Structure
+{
+    public function getBirthday() { return $this->get('birthday'); }
+
+    public function rules()
+    {
+        return array(
+            array('birthday', 'required', 'message' => 'REQUIRED_FIELD_EMPTY_MESSAGE'),
+        );
+    }
+}
+
+/**
+ * User model
+ */
+class User extends \Sokil\Mongo\Document
+{
+    public function setProfile(Profile $profile)
+    {
+        return $this->set('profile', $profile);
+    }
+}
+```
+
+If embedded document is invalid, it will throw `Sokil\Mongo\Document\InvalidDocumentException`. Embedded 
+document may be obtained from exception object:
+
+```php
+try {
+    $user->set('profile', $profile);
+} catch (InvalidDocumentException $e) {
+    $e->getDocument()->getErrors();
+}
 ```
 
 ### Get embedded list of documents
@@ -834,12 +897,21 @@ $document = $collection->getDocument('54ab8585c90b73d6949d4159', function(Cursor
 
 ```
 
+### Set embedded list of documents
+
+You can store embedded document to array, and validate it before pushing:
+```php
+<?php
+$post->push('comments', new Comment(['author' => 'John Doe']));
+$post->push('comments', new Comment(['author' => 'Joan Doe']));
+```
+
 Storing document
 ----------------
 
 ### Storing mapped object
 
-If you have previously loaded and modified instane of `\Sokil\Mongo\Document`, just save it.
+If you have previously loaded and modified instance of `\Sokil\Mongo\Document`, just save it.
 Document will automatically be inserted or updated if it already stored.
 
 ```php
@@ -1955,7 +2027,7 @@ We have to classes User and Profile. User has one profile, and profile belongs t
 <?php
 class User extends \Sokil\Mongo\Document
 {
-    protected $_data = [
+    protected $schema = [
         'email'     => null,
         'password'  => null,
     ];
@@ -1970,7 +2042,7 @@ class User extends \Sokil\Mongo\Document
 
 class Profile extends \Sokil\Mongo\Document
 {
-    protected $_data = [
+    protected $schema = [
         'name' => [
             'last'  => null,
             'first' => null,
@@ -2005,7 +2077,7 @@ One-to-many relation helps you to load all related documents. Class User has few
 <?php
 class User extends \Sokil\Mongo\Document
 {
-    protected $_data = [
+    protected $schema = [
         'email'     => null,
         'password'  => null,
     ];
@@ -2020,7 +2092,7 @@ class User extends \Sokil\Mongo\Document
 
 class Posts extends \Sokil\Mongo\Document
 {
-    protected $_data = [
+    protected $schema = [
         'user_id' => null,
         'message'   => null,
     ];
@@ -2058,7 +2130,7 @@ Many-to-many relation in relational databases uses intermediate table with store
 // this document contains field 'driver_id' where array of ids stored
 class CarDocument extends \Sokil\Mongo\Document
 {
-    protected $_data = [
+    protected $schema = [
         'brand' => null,
     ];
 
@@ -2072,7 +2144,7 @@ class CarDocument extends \Sokil\Mongo\Document
 
 class DriverDocument extends \Sokil\Mongo\Document
 {
-    protected $_data = [
+    protected $schema = [
         'name' => null,
     ];
 

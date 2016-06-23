@@ -814,9 +814,7 @@ class Document extends Structure
     {
         $oldValue = $this->get($fieldName);
 
-        if ($value instanceof Structure) {
-            $value = $value->toArray();
-        }
+        $value = Structure::prepareToStore($value);
 
         // field not exists
         if (!$oldValue) {

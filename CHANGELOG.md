@@ -1,9 +1,10 @@
-## 1.16
+## 1.16 (2016-06-23)
+  * Add validation of structure, set as embedded document
   * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`
   * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
   * Document::_data is not deprecated, and replaced with propected property Document::schema.
   * Documents not allowed to be cloned
-  * Removed 'validator' from names of validation errors in array of validation errors Document::getErrors()
+  * Removed 'validator' suffix  from names of validation errors in array of validation errors Document::getErrors()
 
 ## 1.15.1 (2016-03-10)
   * Allow delete indexes

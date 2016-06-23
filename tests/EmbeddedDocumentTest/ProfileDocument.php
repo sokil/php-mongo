@@ -1,6 +1,6 @@
 <?php
 
-namespace Sokil\Mongo\SubDocumentTest;
+namespace Sokil\Mongo\EmbeddedDocumentTest;
 
 use Sokil\Mongo\Structure;
 

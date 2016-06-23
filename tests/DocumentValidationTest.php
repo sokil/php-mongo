@@ -134,7 +134,6 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'some-field-name' => array(
                 'in' => 'Field "some-field-name" not in range of allowed values in model Sokil\Mongo\Validator\InValidator',
-                'invalidator' => 'Field "some-field-name" not in range of allowed values in model Sokil\Mongo\Validator\InValidator',
             )
         ), $document->getErrors());
     }
@@ -160,7 +159,6 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'some-field-name' => array(
                 'in' => 'not in range',
-                'invalidator' => 'not in range',
             )
         ), $document->getErrors());
     }
@@ -465,7 +463,6 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             array(
                 'some-field-name' => array(
                     'length' => 'Field "some-field-name" length not equal to 5 in model Sokil\\Mongo\\Validator\\LengthValidator',
-                    'lengthvalidator' => 'Field "some-field-name" length not equal to 5 in model Sokil\\Mongo\\Validator\\LengthValidator',
                 ),
             ),
             $document->getErrors()
@@ -673,7 +670,6 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
             array(
                 'some-field-name' => array(
                     'type' => 'Field "some-field-name" must be of type int in Sokil\Mongo\Validator\TypeValidator',
-                    'typevalidator' => 'Field "some-field-name" must be of type int in Sokil\Mongo\Validator\TypeValidator',
                 ),
             ),
             $document->getErrors()
@@ -757,13 +753,19 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $document->set('some-field-name', 'user@example.com');
         $this->assertTrue($document->isValid());
 
-        // additional MX check on wrong email
-        $document->set('some-field-name-mx', 'user@example.com');
-        $this->assertFalse($document->isValid());
+        try {
+            // additional MX check on wrong email
+            $document->set('some-field-name-mx', 'user@example.com');
+            $this->assertFalse($document->isValid());
 
-        // additional MX check on valid email
-        $document->set('some-field-name-mx', 'user@gmail.com');
-        $this->assertTrue($document->isValid());
+            // additional MX check on valid email
+            $document->set('some-field-name-mx', 'user@gmail.com');
+            $this->assertTrue($document->isValid());
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() !== '') {
+                throw $e;
+            }
+        }
     }
 
     public function testIsValid_FieldUrl()
@@ -789,13 +791,20 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $document->set('urlField', 'http://example.com');
         $this->assertTrue($document->isValid());
 
-        // additional ping check on valid but not-existed url
-        $document->set('urlField-ping', 'http://some-unexisted-server424242.com');
-        $this->assertFalse($document->isValid());
 
-        // additional ping check on valid and accesible url
-        $document->set('urlField-ping', 'http://i.ua/');
-        $this->assertTrue($document->isValid());
+        try {
+            // additional ping check on valid but not-existed url
+            $document->set('urlField-ping', 'http://some-unexisted-server424242.com');
+            $this->assertFalse($document->isValid());
+
+            // additional ping check on valid and accesible url
+            $document->set('urlField-ping', 'http://i.ua/');
+            $this->assertTrue($document->isValid());
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() !== 'Error getting DNS record to validated url') {
+                throw $e;
+            }
+        }
     }
 
     public function testIsValid_FieldIp()
@@ -838,7 +847,6 @@ class DocumentValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'field' => array(
                 'validateEquals42' => 'Not equals to 42',
-                'validateEquals42validator' => 'Not equals to 42',
             ),
             ), $document->getErrors());
     }

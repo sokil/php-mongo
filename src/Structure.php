@@ -351,7 +351,7 @@ class Structure implements
         if($value instanceof Structure) {
             // validate structure
             if (!$value->isValid()) {
-                $exception = new InvalidDocumentException('Subdocument not valid');
+                $exception = new InvalidDocumentException('Embedded document not valid');
                 $exception->setDocument($value);
                 throw $exception;
             }

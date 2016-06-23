@@ -3,9 +3,9 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\InvalidDocumentException;
-use Sokil\Mongo\SubDocumentTest\ProfileDocument;
+use Sokil\Mongo\EmbeddedDocumentTest\ProfileDocument;
 
-class SubDocumentTest extends \PHPUnit_Framework_TestCase
+class EmbeddedDocumentTest extends \PHPUnit_Framework_TestCase
 {
     /**
      *
@@ -22,7 +22,7 @@ class SubDocumentTest extends \PHPUnit_Framework_TestCase
             ->delete();
     }
 
-    public function testSetSubDocument()
+    public function testSetEmbeddedDocument()
     {
         $profile = new ProfileDocument(array(
             'name' => 'USER_NAME',
@@ -39,7 +39,7 @@ class SubDocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('USER_NAME', $document->get('profile.name'));
     }
 
-    public function testSetInvalidSubDocument()
+    public function testSetInvalidEmbeddedDocument()
     {
         $profile = new ProfileDocument(array(
             'name' => null,
@@ -49,6 +49,47 @@ class SubDocumentTest extends \PHPUnit_Framework_TestCase
 
         try {
             $document->set('profile', $profile);
+            $this->fail('InvalidDocumentException must be thrown, but method call was successfull');
+        } catch (InvalidDocumentException $e) {
+            $this->assertSame(
+                array(
+                    'name' => array(
+                        'required' => 'REQUIRED_FIELD_EMPTY_MESSAGE'
+                    )
+                ),
+                $e->getDocument()->getErrors()
+            );
+        }
+    }
+
+    public function testPushEmbeddedDocument()
+    {
+        $document = new Document($this->collection);
+
+        $document->push('profiles', new ProfileDocument(array(
+            'name' => 'USER_NAME1',
+        )));
+        $document->push('profiles', new ProfileDocument(array(
+            'name' => 'USER_NAME2',
+        )));
+
+        $this->assertSame(
+            array(
+                array('name' => 'USER_NAME1'),
+                array('name' => 'USER_NAME2'),
+            ),
+            $document->get('profiles')
+        );
+    }
+
+    public function testPushInvalidEmbeddedDocument()
+    {
+        $document = new Document($this->collection);
+
+        try {
+            $document->push('profiles', new ProfileDocument(array(
+                'name' => null,
+            )));
             $this->fail('InvalidDocumentException must be thrown, but method call was successfull');
         } catch (InvalidDocumentException $e) {
             $this->assertSame(
