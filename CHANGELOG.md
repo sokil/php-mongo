@@ -6,6 +6,9 @@
   * Documents not allowed to be cloned
   * Removed 'validator' suffix  from names of validation errors in array of validation errors Document::getErrors()
 
+## 1.15.2 (2016-04-27)
+  * Update version of Event Dispatcher
+
 ## 1.15.1 (2016-03-10)
   * Allow delete indexes
 
