@@ -1,10 +1,21 @@
-## 1.15@DEV
+## 1.15.2
   * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`
   * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
   * Documents not alloved to be cloned
 
+## 1.15.1 (2016-03-10)
+  * Allow delete indexes
+
+## 1.15 (2016-03-01)
+  * Removed `Collection::createPipeline()`. Use `Collection::createAggregator`;
+  * Aggregator options may be passed as arguments of `Collection::aggregate($pipelines, $options)` or configured 
+  through methods of `Pipeline`;
+  * Experimental feature: aggregation returns Cursor, if third parameter passed `Collection::aggregate($pipelines, $options, $asCursor)`;
+  * `Collection::explainAggregate()` is deprecated. Use `Pipeline::explain()`;
+  * Added debug mode to `Client`;
+
 ## 1.14 (2016-01-30)
-  * Full text indexes
+  * Fulltext search
 
 ## 1.13.9 (2016-01-13)
   * Fixed bug #121 - Getting relation when document pool disabled

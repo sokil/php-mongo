@@ -12,6 +12,7 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\InvalidDocumentException;
+use Sokil\Mongo\Exception\FeatureNotSupportedException;
 use Sokil\Mongo\Collection\Definition;
 use Sokil\Mongo\Enum\Language;
 
@@ -921,17 +922,6 @@ class Collection implements \Countable
     }
 
     /**
-     * Create aggregator pipeline instance
-     *
-     * @return \Sokil\Mongo\Pipeline
-     * @deprecated since 1.10.10, use Collection::createAggregator() or callable in Collection::aggregate()
-     */
-    public function createPipeline()
-    {
-        return $this->createAggregator();
-    }
-
-    /**
      * Start aggregation
      *
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/
@@ -944,14 +934,20 @@ class Collection implements \Countable
 
     /**
      * Aggregate using pipeline
-     *
-     * @param callable|array|\Sokil\Mongo\Pipeline $pipeline list of pipeline stages
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/
-     * @return array result of aggregation
+     *
+     * @param callable|array|Pipeline $pipeline list of pipeline stages
+     * @param array aggregate options
+     * @param bool $asCursor return result as cursor
+     *
      * @throws \Sokil\Mongo\Exception
+     * @return array result of aggregation
      */
-    public function aggregate($pipeline)
-    {
+    public function aggregate(
+        $pipeline,
+        array $options = array(),
+        $asCursor = false
+    ) {
         // configure through callable
         if (is_callable($pipeline)) {
             $pipelineConfiguratorCallable = $pipeline;
@@ -961,42 +957,113 @@ class Collection implements \Countable
 
         // get aggregation array
         if ($pipeline instanceof Pipeline) {
+            if ($options && is_array($options)) {
+                $options = array_merge($pipeline->getOptions(), $options);
+            } else {
+                $options = $pipeline->getOptions();
+            }
             $pipeline = $pipeline->toArray();
-        } elseif (!is_array($pipeline)) {
+        } else if (!is_array($pipeline)) {
             throw new Exception('Wrong pipeline specified');
         }
 
         // log
         $client = $this->_database->getClient();
-        if($client->hasLogger()) {
-            $client->getLogger()->debug(
-                get_called_class() . ':<br><b>Pipeline</b>:<br>' .
-                json_encode($pipeline));
+        if ($client->isDebugEnabled()) {
+            // record pipeline
+            if ($client->hasLogger()) {
+                $client->getLogger()->debug(
+                    get_called_class() . ':<br><b>Pipeline</b>:<br>' .
+                    json_encode($pipeline)
+                );
+            }
+
+            // Check options only in debug mode. In production common exception will raised
+            if ($options) {
+                // get db version
+                $dbVersion = $client->getDbVersion();
+
+                // check options for db < 2.6
+                if (version_compare($dbVersion, '2.6.0', '<')) {
+                    if (!empty($options['explain'])) {
+                        throw new FeatureNotSupportedException('Explain of aggregation implemented only from 2.6.0');
+                    }
+
+                    if (!empty($options['allowDiskUse'])) {
+                        throw new FeatureNotSupportedException('Option allowDiskUse of aggregation implemented only from 2.6.0');
+                    }
+
+                    if (!empty($options['cursor'])) {
+                        throw new FeatureNotSupportedException('Option cursor of aggregation implemented only from 2.6.0');
+                    }
+                }
+
+                // check options for db < 3.2
+                if (version_compare($dbVersion, '3.2.0', '<')) {
+                    if (!empty($options['bypassDocumentValidation'])) {
+                        throw new FeatureNotSupportedException('Option bypassDocumentValidation of aggregation implemented only from 3.2.0');
+                    }
+
+                    if (!empty($options['readConcern'])) {
+                        throw new FeatureNotSupportedException('Option readConcern of aggregation implemented only from 3.2.0');
+                    }
+                }
+            }
+        }
+
+        // return result as cursor
+        if ($asCursor) {
+            if (version_compare(\MongoClient::VERSION, '1.5.0', '<')) {
+                throw new FeatureNotSupportedException('Aggregate cursor supported from driver version 1.5');
+            }
+            $cursor = $this->_mongoCollection->aggregateCursor($pipeline, $options);
+            return $cursor;
+        }
+
+        // prepare command
+        $command = array(
+            'aggregate' => $this->getName(),
+            'pipeline'  => $pipeline,
+        );
+
+        // add options
+        if ($options) {
+            $command += $options;
         }
 
         // aggregate
-        $status = $this->_database->executeCommand(array(
-            'aggregate' => $this->getName(),
-            'pipeline'  => $pipeline
-        ));
+        $status = $this->_database->executeCommand($command);
 
         if($status['ok'] != 1) {
             throw new Exception('Aggregate error: ' . $status['errmsg']);
         }
 
+        // explain response
+        if (!empty($command['explain'])) {
+            return $status['stages'];
+        }
+
+        // result response
         return $status['result'];
     }
 
+    /**
+     * Explain aggregation
+     *
+     * @deprecated use pipeline option 'explain' in Collection::aggregate() or method Pipeline::explain()
+     * @param array|Pipeline $pipeline
+     * @return array result
+     * @throws Exception
+     */
     public function explainAggregate($pipeline)
     {
-        if(version_compare($this->getDatabase()->getClient()->getDbVersion(), '2.6.0', '<')) {
+        if (version_compare($this->getDatabase()->getClient()->getDbVersion(), '2.6.0', '<')) {
             throw new Exception('Explain of aggregation implemented only from 2.6.0');
         }
 
-        if($pipeline instanceof Pipeline) {
+        if ($pipeline instanceof Pipeline) {
             $pipeline = $pipeline->toArray();
-        }
-        elseif(!is_array($pipeline)) {
+        } else if (!is_array($pipeline)) {
             throw new Exception('Wrong pipeline specified');
         }
 
@@ -1041,6 +1108,18 @@ class Collection implements \Countable
     public function ensureIndex(array $key, array $options = array())
     {
         $this->_mongoCollection->ensureIndex($key, $options);
+        return $this;
+    }
+    
+    /**
+     * Delete index
+     *
+     * @param array $key
+     * @return \Sokil\Mongo\Collection
+     */
+    public function deleteIndex(array $key)
+    {
+        $this->_mongoCollection->deleteIndex($key);
         return $this;
     }
 

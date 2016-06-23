@@ -1683,9 +1683,59 @@ $collection->aggregate(function($aggregator) {
     });
 });
 ```
+#### Options
 
-Using of Collection::createPipeline() is deprecated since 1.10.10. Use
-Collection::createAggregator(), callable or array in Collection::aggregate().
+Available aggregation options may be found at https://docs.mongodb.org/manual/reference/command/aggregate/#dbcmd.aggregate.
+
+Options may be passed as argument of `aggregate` method:
+
+```php
+<?php
+
+// as argument of Pipeline::aggregate
+$collection->createAggregator()->match()->group()->aggregate($options);
+
+// as argument of Collection::aggregate
+$collection->aggregate($pipelines, $options);
+
+// as calling of Pipeline methods
+$collection
+    ->createAggregator()
+    ->explain()
+    ->allowDiskUse()
+    ->setBatchSize(100);
+```
+
+#### Debug
+
+If client in debug mode and logger configured, pipelines will be logged.
+There is ability to get explanation of aggregation:
+
+```php
+<?php
+
+// set explain option
+$collection->aggregate($pipelines, ['explain' => true]);
+
+// or configure pipeline
+$collection->createAggregator()->match(...)->group(...)->explain()->aggregate();
+```
+
+#### Aggregation cursor
+
+`Collection::aggregate` return array as result, but also iterator may be optained:
+Read more at http://php.net/manual/ru/mongocollection.aggregatecursor.php.
+
+```php
+<?php
+
+// set as argument
+$asCursor = true;
+$collection->aggregate($pipelines, $options, $asCursor);
+
+// or call method
+$cursor = $collection->createAggregator()->match()->group()->aggregateCursor();
+```
 
 Events
 -------
@@ -2577,9 +2627,24 @@ $cache->deleteNotMatchingAnyTag(['php', 'elephant']);
 Debugging
 ---------
 
+In debug mode client may log some activity to pre-configured logger or show extended errors.
+```php
+<?php
+
+// start debugging
+$client->debug();
+
+// stop debugging
+$client->debug(false);
+
+// check debug state
+$client->isDebugEnabled();
+```
+
 ### Logging
 
-Library suports logging of queries. To configure logging, you need to pass logger object to instance of `\Sokil\Mongo\Client`. Logger must implement `\Psr\Log\LoggerInterface` due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
+Library suports logging of queries. To configure logging, you need to pass logger object to instance of `\Sokil\Mongo\Client` and enable debug of client. 
+Logger must implement `\Psr\Log\LoggerInterface` due to [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md):
 
 ```php
 <?php
