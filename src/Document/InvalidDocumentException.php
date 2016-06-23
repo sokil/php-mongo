@@ -11,7 +11,7 @@
 
 namespace Sokil\Mongo\Document;
 
-use Sokil\Mongo\Document;
+use Sokil\Mongo\Structure;
 
 /**
  * Throws on validation process when document is invalid
@@ -22,11 +22,11 @@ class InvalidDocumentException extends \Sokil\Mongo\Exception
 {
     /**
      *
-     * @var \Sokil\Mongo\Document
+     * @var \Sokil\Mongo\Structure
      */
     private $_document;
 
-    public function setDocument(Document $document)
+    public function setDocument(Structure $document)
     {
         $this->_document = $document;
         return $this;

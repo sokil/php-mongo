@@ -11,6 +11,8 @@
 
 namespace Sokil\Mongo\Validator;
 
+use Sokil\Mongo\Structure;
+
 /**
  * Credit card number validator based on Luhn algorithm
  *
@@ -34,7 +36,7 @@ class CardNumberValidator extends \Sokil\Mongo\Validator
         return array_sum($digitList) % 10;
     }
     
-    public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
+    public function validateField(Structure $document, $fieldName, array $params)
     {
         if (!$document->get($fieldName)) {
             return;

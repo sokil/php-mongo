@@ -3,6 +3,7 @@
   * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
   * Document::_data is not deprecated, and replaced with propected property Document::schema.
   * Documents not allowed to be cloned
+  * Removed 'validator' from names of validation errors in array of validation errors Document::getErrors()
 
 ## 1.15.1 (2016-03-10)
   * Allow delete indexes

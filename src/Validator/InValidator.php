@@ -1,7 +1,5 @@
 <?php
 
-namespace Sokil\Mongo\Validator;
-
 /**
  * This file is part of the PHPMongo package.
  *
@@ -11,10 +9,14 @@ namespace Sokil\Mongo\Validator;
  * file that was distributed with this source code.
  */
 
+namespace Sokil\Mongo\Validator;
+
+use Sokil\Mongo\Structure;
+
 class InValidator extends \Sokil\Mongo\Validator
 {
 
-    public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
+    public function validateField(Structure $document, $fieldName, array $params)
     {
         if (!$document->get($fieldName)) {
             return;

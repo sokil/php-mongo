@@ -11,6 +11,9 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Validator;
+use Sokil\Mongo\Document\InvalidDocumentException;
+
 class Structure implements
     ArrayableInterface,
     \JsonSerializable
@@ -70,8 +73,14 @@ class Structure implements
      */
     private $triggeredErrors = array();
 
-    public function __construct(array $data = null, $notModified = true)
-    {
+    /**
+     * @param array|null $data data to initialise structure
+     * @param bool|true $notModified define if data set as modified or not
+     */
+    public function __construct(
+        array $data = null,
+        $notModified = true
+    ) {
         // self::$data and self::$schema instead of deprecated self::$_data
         if ($this->_data) {
             $this->schema = $this->_data;
@@ -95,6 +104,10 @@ class Structure implements
         }
     }
 
+    /**
+     * Cloning not allowed because cloning of object not clone related aggregates of this object, so
+     * cloned object has links to original aggregates. This is difficult to handle.
+     */
     public final function __clone()
     {
         throw new \RuntimeException('Cloning not allowed');
@@ -104,9 +117,9 @@ class Structure implements
      * IMPORTANT! Do not use this method
      *
      * This method allow set data of document in external code.
-     * e.g. link data of document to gridfs file matadata.
-     * Modification of document's data will modity external data too.
-     * Note that also the opposite case alse right - modifiction of external data will
+     * e.g. link data of document to GridFS file matadata.
+     * Modification of document's data will modify external data too.
+     * Note that also the opposite case also right - modification of external data will
      * modify document's data directly, so document may be in unconsisted state.
      *
      * @param array $data reference to data in external code
@@ -151,7 +164,7 @@ class Structure implements
      * @return object representation of document with class, passed as argument
      * @throws \Sokil\Mongo\Exception
      */
-    public function getObject($selector, $className)
+    public function getObject($selector, $className = '\Sokil\Mongo\Structure')
     {
         $data = $this->get($selector);
         if(!$data) {
@@ -180,7 +193,7 @@ class Structure implements
      * @return object representation of document with class, passed as argument
      * @throws \Sokil\Mongo\Exception
      */
-    public function getObjectList($selector, $className)
+    public function getObjectList($selector, $className = '\Sokil\Mongo\Structure')
     {
         $data = $this->get($selector);
         if(!$data || !is_array($data)) {
@@ -336,6 +349,14 @@ class Structure implements
 
         // structure
         if($value instanceof Structure) {
+            // validate structure
+            if (!$value->isValid()) {
+                $exception = new InvalidDocumentException('Subdocument not valid');
+                $exception->setDocument($value);
+                throw $exception;
+            }
+
+            // get array from structure
             return $value->toArray();
         }
 
@@ -612,7 +633,7 @@ class Structure implements
 
     /**
      * Add validator error from validator classes and methods. This error
-     * reset on every revalidation
+     * reset on every re-validation
      *
      * @param string $fieldName dot-notated field name
      * @param string $ruleName name of validation rule
@@ -622,10 +643,6 @@ class Structure implements
     public function addError($fieldName, $ruleName, $message)
     {
         $this->errors[$fieldName][$ruleName] = $message;
-
-        // Deprecated. Related to bug when suffix not removed from class.
-        // Added for back compatibility and will be removed in next versions
-        $this->errors[$fieldName][$ruleName . 'validator'] = $message;
 
         return $this;
     }
@@ -759,7 +776,7 @@ class Structure implements
 
                 /* @var $validator \Sokil\Mongo\Validator */
                 $validator = new $validatorClassName;
-                if (!$validator instanceof \Sokil\Mongo\Validator) {
+                if (!$validator instanceof Validator) {
                     throw new Exception('Validator class must implement \Sokil\Mongo\Validator class');
                 }
 

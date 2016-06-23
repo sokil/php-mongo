@@ -22,10 +22,13 @@ abstract class Validator
         return substr($class, 0, -9);
     }
     
-    abstract public function validateField(Document $document, $fieldName, array $params);
+    abstract public function validateField(Structure $document, $fieldName, array $params);
     
-    final public function validate(Document $document, array $fieldNameList, array $params)
-    {
+    final public function validate(
+        Structure $document,
+        array $fieldNameList,
+        array $params
+    ) {
         foreach($fieldNameList as $fieldName) {           
             $this->validateField($document, $fieldName, $params);
         }

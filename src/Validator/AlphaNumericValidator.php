@@ -11,6 +11,8 @@
 
 namespace Sokil\Mongo\Validator;
 
+use Sokil\Mongo\Structure;
+
 /**
  * Alphanumeric values validator
  * 
@@ -19,7 +21,7 @@ namespace Sokil\Mongo\Validator;
 class AlphaNumericValidator extends \Sokil\Mongo\Validator
 {
 
-    public function validateField(\Sokil\Mongo\Document $document, $fieldName, array $params)
+    public function validateField(Structure $document, $fieldName, array $params)
     {
         if (!$document->get($fieldName)) {
             return;
