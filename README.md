@@ -1757,7 +1757,8 @@ $collection->aggregate(function($aggregator) {
 ```
 #### Options
 
-Available aggregation options may be found at https://docs.mongodb.org/manual/reference/command/aggregate/#dbcmd.aggregate.
+Available aggregation options may be found at 
+https://docs.mongodb.org/manual/reference/command/aggregate/#dbcmd.aggregate.
 
 Options may be passed as argument of `aggregate` method:
 

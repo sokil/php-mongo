@@ -12,9 +12,12 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Pipeline\GroupStage;
+
 use Sokil\Mongo\ArrayableInterface;
 
-class Pipeline implements ArrayableInterface, \JsonSerializable
+class Pipeline implements
+    ArrayableInterface,
+    \JsonSerializable
 {
 
     private $stages = array();
