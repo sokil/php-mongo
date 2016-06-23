@@ -2,6 +2,9 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\DocumentTest\DeprecatedSchemaDocumentStub;
+use Sokil\Mongo\DocumentTest\DocumentStub;
+
 class DocumentTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -1580,14 +1583,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testDefaultFields()
     {
-        $document = new DocumentMock($this->collection);
+        $document = new DocumentStub($this->collection);
 
         $this->assertEquals('ACTIVE', $document->status);
     }
 
     public function testRedefineDefaultFieldsInConstructor()
     {
-        $document = new DocumentMock($this->collection, array(
+        $document = new DocumentStub($this->collection, array(
             'balance' => 123, // not existed key
             'status' => 'DELETED', // update value
             'profile' => array(
@@ -1609,7 +1612,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testFromArray()
     {
-        $document = new DocumentMock($this->collection);
+        $document = new DocumentStub($this->collection);
 
         $document->merge(array(
             'balance' => 123, // not existed key
@@ -1633,7 +1636,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testMerge()
     {
-        $document = new DocumentMock($this->collection);
+        $document = new DocumentStub($this->collection);
 
         $document->merge(array(
             'balance' => 123, // not existed key
@@ -1722,26 +1725,16 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testGetOriginalData()
     {
-        $document = new DocumentMock($this->collection);
+        $document = new DocumentStub($this->collection);
 
         $this->assertArrayHasKey('status', $document->toArray());
         $this->assertArrayHasKey('status', $document->getOriginalData());
     }
-}
 
-class DocumentMock extends \Sokil\Mongo\Document
-{
-    protected $schema = array(
-        'status' => 'ACTIVE',
-        'profile' => array(
-            'name' => 'USER_NAME',
-            'birth' => array(
-                'year' => 1984,
-                'month' => 8,
-                'day' => 10,
-            )
-        ),
-        'interests' => 'none',
-        'languages' => array('php'),
-    );
+    public function testDeprecatedSchema()
+    {
+        $document = new DeprecatedSchemaDocumentStub($this->collection);
+
+        $this->assertSame('ACTIVE', $document->status);
+    }
 }
