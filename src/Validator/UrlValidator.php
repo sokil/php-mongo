@@ -39,8 +39,15 @@ class UrlValidator extends \Sokil\Mongo\Validator
         }
         
         // ping required
-        $dnsRecordExists = dns_get_record(parse_url($value, PHP_URL_HOST));
-        if(!$dnsRecordExists) {
+        $dnsRecordExists = @dns_get_record(parse_url($value, PHP_URL_HOST));
+
+        // network not allowed
+        if ($dnsRecordExists === false) {
+            return;
+        }
+
+        // empty array - host not found
+        if(is_array($dnsRecordExists) && empty($dnsRecordExists)) {
             if (!isset($params['message'])) {
                 $params['message'] = 'Value of field "' . $fieldName . '" is valid url but host is unreachable in model ' . get_called_class();
             }

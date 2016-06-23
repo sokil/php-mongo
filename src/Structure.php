@@ -95,7 +95,7 @@ class Structure implements
         }
     }
 
-    public function __clone()
+    public final function __clone()
     {
         throw new \RuntimeException('Cloning not allowed');
     }

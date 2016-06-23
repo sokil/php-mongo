@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Sokil\\Mongo\\": "src/"
+            "Sokil\\Mongo\\": ["src/", "tests/"]
         },
         "classmap": [ "stubs/" ]
     },

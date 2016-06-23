@@ -1,6 +1,7 @@
-## 1.15.2
+## 1.16
   * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`
   * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
+  * Document::_data is not deprecated, and replaced with propected property Document::schema.
   * Documents not alloved to be cloned
 
 ## 1.15.1 (2016-03-10)
