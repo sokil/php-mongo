@@ -2,7 +2,7 @@
   * Allow set embedded document and validate it
   * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`
   * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
-  * Document::_data is not deprecated, and replaced with propected property Document::schema.
+  * Document::_data is now deprecated, and replaced with propected property Document::schema.
   * Documents not allowed to be cloned
   * Removed 'validator' suffix  from names of validation errors in array of validation errors Document::getErrors()
 
