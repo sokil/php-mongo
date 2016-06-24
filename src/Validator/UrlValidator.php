@@ -41,7 +41,7 @@ class UrlValidator extends \Sokil\Mongo\Validator
         }
         
         // ping required
-        $dnsRecordExists = @dns_get_record(parse_url($value, PHP_URL_HOST));
+        $dnsRecordExists = dns_get_record(parse_url($value, PHP_URL_HOST));
 
         // network not allowed
         if ($dnsRecordExists === false) {
