@@ -1,5 +1,5 @@
 ## 1.16 (2016-06-23)
-  * Add validation of structure, set as embedded document
+  * Allow set embedded document and validate it
   * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`
   * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
   * Document::_data is not deprecated, and replaced with propected property Document::schema.
