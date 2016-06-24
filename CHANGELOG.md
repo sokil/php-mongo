@@ -4,7 +4,7 @@
   * `Structure::$_modifiedFields` and `Structure::$_originalData` set private;
   * Document::_data is now deprecated, and replaced with protected property Document::schema;
   * Documents not allowed to be cloned;
-  * Removed 'validator' suffix  from names of validation errors in array of validation errors Document::getErrors();
+  * Removed 'validator' suffix  from names of validation errors in array of validation errors obtained from Document::getErrors();
 
 ## 1.15.2 (2016-04-27)
   * Update version of Event Dispatcher
