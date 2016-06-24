@@ -1,10 +1,10 @@
 ## 1.16 (2016-06-23)
-  * Allow set embedded document and validate it
-  * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`
-  * `Structure::$_modifiedFields` and `Structure::$_originalData` set private
-  * Document::_data is now deprecated, and replaced with propected property Document::schema.
-  * Documents not allowed to be cloned
-  * Removed 'validator' suffix  from names of validation errors in array of validation errors Document::getErrors()
+  * Allow set embedded document and validate it;
+  * `\Sokil\Mongo\Structure\Arrayable` moves to `\Sokil\Mongo\ArrayableInterface`;
+  * `Structure::$_modifiedFields` and `Structure::$_originalData` set private;
+  * Document::_data is now deprecated, and replaced with protected property Document::schema;
+  * Documents not allowed to be cloned;
+  * Removed 'validator' suffix  from names of validation errors in array of validation errors Document::getErrors();
 
 ## 1.15.2 (2016-04-27)
   * Update version of Event Dispatcher
