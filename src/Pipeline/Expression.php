@@ -11,6 +11,8 @@
 
 namespace Sokil\Mongo\Pipeline;
 
+use Sokil\Mongo\ArrayableInterface;
+
 /**
  * Expressions used in Aggregation Framework
  * 
@@ -18,7 +20,7 @@ namespace Sokil\Mongo\Pipeline;
  *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
-class Expression
+class Expression implements ArrayableInterface
 {
     private $expression = array();
 

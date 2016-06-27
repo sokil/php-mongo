@@ -34,17 +34,21 @@ class Pipeline implements
         $this->collection = $collection;
     }
 
+    /**
+     * @param string $operator aggregate operator like $match, $group ...
+     * @param mixed $stage stage data
+     */
     private function addStage($operator, $stage)
     {
         $lastIndex = count($this->stages) - 1;
 
-        if (!$this->stages ||
-            !isset($this->stages[$lastIndex][$operator]) ||
-            in_array($operator, array('$group', '$unwind'))
+        if (isset($this->stages[$lastIndex][$operator])
+            && !in_array($operator, array('$group', '$unwind'))
+            && is_array($stage)
         ) {
-            $this->stages[] = array($operator => $stage);
-        } else {
             $this->stages[$lastIndex][$operator] = array_merge($this->stages[$lastIndex][$operator], $stage);
+        } else {
+            $this->stages[] = array($operator => $stage);
         }
     }
 
@@ -61,9 +65,12 @@ class Pipeline implements
             $expressionConfigurator = $expression;
             $expression = new Expression();
             call_user_func($expressionConfigurator, $expression);
+        }
+
+        if ($expression instanceof Expression) {
             $expression = $expression->toArray();
         } elseif (!is_array($expression)) {
-            throw new Exception('Must be array or instance of Expression');
+            throw new Exception('Must be array, callable or instance of \Sokil\Mongo\Expression');
         }
 
         $this->addStage('$match', $expression);

@@ -2,6 +2,8 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Expression;
+
 class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -35,6 +37,40 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $pipeline->skip(11)->limit(23);
 
         $this->assertEquals('[{"$skip":11},{"$limit":23}]', (string) $pipeline);
+    }
+
+    public function testSkipReset()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline
+            ->skip(11)
+            ->match(array(
+                'a' => 1,
+                'b' => array(
+                    '$lt' => 12,
+                )
+            ))
+            ->skip(23);
+
+        $this->assertEquals('[{"$skip":11},{"$match":{"a":1,"b":{"$lt":12}}},{"$skip":23}]', (string) $pipeline);
+    }
+
+    public function testLimitReset()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline
+            ->limit(11)
+            ->match(array(
+                'a' => 1,
+                'b' => array(
+                    '$lt' => 12,
+                )
+            ))
+            ->limit(23);
+
+        $this->assertEquals('[{"$limit":11},{"$match":{"a":1,"b":{"$lt":12}}},{"$limit":23}]', (string) $pipeline);
     }
 
     public function testPipeline_AppendFewGroups()
@@ -208,10 +244,44 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             (string) $pipeline
         );
     }
+
+    public function testPipeline_MatchExpression()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $expression = new Expression();
+        $expression
+            ->where('a', 1)
+            ->whereLess('b', 12);
+
+        $pipeline->match($expression);
+
+        $this->assertEquals(
+            '[{"$match":{"a":1,"b":{"$lt":12}}}]',
+            (string) $pipeline
+        );
+    }
+
+    public function testPipeline_MatchArray()
+    {
+        $pipeline = new Pipeline($this->collection);
+
+        $pipeline->match(array(
+            'a' => 1,
+            'b' => array(
+                '$lt' => 12,
+            )
+        ));
+
+        $this->assertEquals(
+            '[{"$match":{"a":1,"b":{"$lt":12}}}]',
+            (string) $pipeline
+        );
+    }
     
     public function testAggregate_Callable()
     {
-        $this->collection->insertMultiple(array(
+        $this->collection->batchInsert(array(
             array('order' => 1, 'item' => 1, 'amount' => 110, 'category' => 1),
             array('order' => 1, 'item' => 2, 'amount' => 120, 'category' => 1),
             array('order' => 1, 'item' => 3, 'amount' => 130, 'category' => 2),

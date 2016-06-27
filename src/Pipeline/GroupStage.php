@@ -11,6 +11,8 @@
 
 namespace Sokil\Mongo\Pipeline;
 
+use Sokil\Mongo\ArrayableInterface;
+
 /**
  * Group stage accumulators
  * 
@@ -18,7 +20,7 @@ namespace Sokil\Mongo\Pipeline;
  *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
-class GroupStage
+class GroupStage implements ArrayableInterface
 {
     private $stage = array();
 
