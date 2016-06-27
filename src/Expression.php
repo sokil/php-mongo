@@ -669,7 +669,7 @@ class Expression implements ArrayableInterface
     }
 
     /**
-     * Transform extression in different formats to canonical array form
+     * Transform expression in different formats to canonical array form
      *
      * @param mixed $mixed
      * @return array
@@ -688,7 +688,7 @@ class Expression implements ArrayableInterface
         if($mixed instanceof ArrayableInterface && $mixed instanceof self) {
             $mixed = $mixed->toArray();
         } elseif(!is_array($mixed)) {
-            throw new Exception('Mixed must be instance of Expression');
+            throw new Exception('Mixed must be instance of \Sokil\Mongo\Expression');
         }
 
         return $mixed;

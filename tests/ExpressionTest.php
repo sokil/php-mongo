@@ -327,6 +327,33 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             $q2->expression()->where('param', '2')
         )->findOne()->getId());
     }
+
+    /**
+     * @link https://docs.mongodb.com/manual/reference/operator/query/and/#and-queries-with-multiple-expressions-specifying-the-same-operator
+     */
+    public function testTwoWhereOr()
+    {
+        $firstExpression = (new \Sokil\Mongo\Expression())->where('field', 1);
+        $secondExpression = (new \Sokil\Mongo\Expression())->where('field', 2);
+        $thirdExpression = (new \Sokil\Mongo\Expression())->where('field2', 3);
+        $fourthExpression = (new \Sokil\Mongo\Expression())->where('field2', 4);
+
+        $expression = (new \Sokil\Mongo\Expression())
+            ->whereAnd(
+                (new \Sokil\Mongo\Expression())->whereOr($firstExpression, $secondExpression),
+                (new \Sokil\Mongo\Expression())->whereOr($thirdExpression, $fourthExpression)
+            );
+
+        $this->assertEquals(
+            array(
+                '$and' => array(
+                    array('$or' => array(array('field' => 1), array('field' => 2))),
+                    array('$or' => array(array('field2' => 3), array('field2' => 4))),
+                ),
+            ),
+            $expression->toArray()
+        );
+    }
     
     public function testWhereNor()
     {

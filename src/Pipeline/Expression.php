@@ -177,8 +177,6 @@ class Expression implements ArrayableInterface
             }
         }
 
-
-
         return $expression;
     }
     
