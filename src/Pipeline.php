@@ -42,10 +42,7 @@ class Pipeline implements
     {
         $lastIndex = count($this->stages) - 1;
 
-        if (isset($this->stages[$lastIndex][$operator])
-            && !in_array($operator, array('$group', '$unwind'))
-            && is_array($stage)
-        ) {
+        if ($operator == '$match' && isset($this->stages[$lastIndex][$operator])) {
             $this->stages[$lastIndex][$operator] = array_merge($this->stages[$lastIndex][$operator], $stage);
         } else {
             $this->stages[] = array($operator => $stage);
@@ -113,12 +110,12 @@ class Pipeline implements
             call_user_func($configurator, $stage);
         }
         
-        if($stage instanceof GroupStage) {
+        if ($stage instanceof GroupStage) {
             $stage = $stage->toArray();
         }
 
-        if(!is_array($stage)) {
-            throw new Exception('Group stage must be array or instance of Sokil\Mongo\Pipeline\GroupStage or callabe');
+        if (!is_array($stage)) {
+            throw new Exception('Group stage must be array or instance of Sokil\Mongo\Pipeline\GroupStage or callable');
         }
         
         if (!isset($stage['_id'])) {
@@ -161,7 +158,8 @@ class Pipeline implements
         return $this;
     }
 
-    public function aggregate(array $options = array()) {
+    public function aggregate(array $options = array())
+    {
         return $this->collection->aggregate($this, $options, false);
     }
 
