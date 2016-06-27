@@ -333,15 +333,15 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testTwoWhereOr()
     {
-        $firstExpression = (new \Sokil\Mongo\Expression())->where('field', 1);
-        $secondExpression = (new \Sokil\Mongo\Expression())->where('field', 2);
-        $thirdExpression = (new \Sokil\Mongo\Expression())->where('field2', 3);
-        $fourthExpression = (new \Sokil\Mongo\Expression())->where('field2', 4);
+        $firstExpression = $this->collection->expression()->where('field', 1);
+        $secondExpression = $this->collection->expression()->where('field', 2);
+        $thirdExpression = $this->collection->expression()->where('field2', 3);
+        $fourthExpression = $this->collection->expression()->where('field2', 4);
 
-        $expression = (new \Sokil\Mongo\Expression())
+        $expression = $this->collection->expression()
             ->whereAnd(
-                (new \Sokil\Mongo\Expression())->whereOr($firstExpression, $secondExpression),
-                (new \Sokil\Mongo\Expression())->whereOr($thirdExpression, $fourthExpression)
+                $this->collection->expression()->whereOr($firstExpression, $secondExpression),
+                $this->collection->expression()->whereOr($thirdExpression, $fourthExpression)
             );
 
         $this->assertEquals(
