@@ -91,12 +91,8 @@ Installation
 #### Common installation
 
 You can install library through Composer:
-```javascript
-{
-    "require": {
-        "sokil/php-mongo": "dev-master"
-    }
-}
+```
+composer require sokil/php-mongo
 ```
 
 Download latest release:
@@ -105,23 +101,15 @@ Download latest release:
 #### Symfony bundle
 If you use Symfony framework, you can use [Symfony MongoDB Bundle](https://github.com/sokil/php-mongo-bundle) which wraps this library
 
-```javascript
-{
-    "require": {
-        "sokil/php-mongo-bundle": "dev-master"
-    }
-}
+```
+composer require sokil/php-mongo-bundle
 ```
 
 #### Yii component
 If you use Yii Framework, you can use [Yii Adapter](https://github.com/sokil/php-mongo-yii) which wraps this library
 
-```javascript
-{
-    "require": {
-        "sokil/php-mongo-yii": "dev-master"
-    }
-}
+```
+composer require sokil/php-mongo-yii
 ```
 
 This package in addition to PHPMongo adapter also has data provider and log router for MongoDb.
@@ -129,12 +117,8 @@ This package in addition to PHPMongo adapter also has data provider and log rout
 #### Support of migrations
 If you require migrations, you can add dependency to "[sokil/php-mongo-migrator](https://github.com/sokil/php-mongo-migrator)", based on this library:
 
-```javascript
-{
-    "require": {
-        "sokil/php-mongo-migrator": "dev-master"
-    }
-}
+```
+composer require sokil/php-mongo-migrator
 ```
 
 Connecting
