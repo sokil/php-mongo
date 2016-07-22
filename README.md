@@ -1254,10 +1254,12 @@ $document1->name = 'Mary';
 echo $document2->name; // Mary
 ```
 
-This two documents referenced same object. Collection by
-default store all requested documents to identity map and return same objects
-for different requests. But if we know that documents never be reused, we
-can disable storing documents to identity map:
+This two documents referenced same object. Collection by default store all requested documents to identity map. 
+If we obtain document directly by id using `Collection::getDocument()` and document was previously loaded to identity map, it will be fetched from identity map without requesing database. Even document present in identity map, it can be fetched direcly from db by using `Collection::getDcocumentDirectly()` with same syntax as `Collection::getDocument()`.
+
+If serial requests fetch same document, this document not replaced in identity mav, but content of this document will be renewed. So different requests works with same document stored in identity map. 
+
+If we know that documents never be reused, we can disable storing documents to identity map:
 
 ```php
 <?php
