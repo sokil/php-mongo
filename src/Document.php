@@ -11,6 +11,7 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Document\DbRefRelationManager;
 use Sokil\Mongo\Document\RelationManager;
 use Sokil\Mongo\Document\RevisionManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
@@ -514,7 +515,7 @@ class Document extends Structure
 
     /**
      *
-     * @return \Sokil\Mongo\Document\RelationManager
+     * @return \Sokil\Mongo\Document\RelationManagerInterface
      */
     private function getRelationManager()
     {
@@ -522,7 +523,8 @@ class Document extends Structure
             return $this->relationManager;
         }
 
-        $this->relationManager = new RelationManager($this);
+        $relationManagerClass = $this->getOption('documentRelationManagerClass');
+        $this->relationManager = new $relationManagerClass($this);
 
         return $this->relationManager;
     }

@@ -4,8 +4,9 @@ namespace Sokil\Mongo\Collection;
 
 class Definition
 {
-    const DEFAULT_COLLECTION_CLASS  = '\Sokil\Mongo\Collection';
-    const DEFAULT_GRIDFS_CLASS      = '\Sokil\Mongo\GridFS';
+    const DEFAULT_COLLECTION_CLASS          = '\Sokil\Mongo\Collection';
+    const DEFAULT_GRIDFS_CLASS              = '\Sokil\Mongo\GridFS';
+    const DEFAULT_RELATION_MANAGER_CLASS    = '\Sokil\Document\RelationManager';
 
     const LOCK_NONE         = 'NONE';
     const LOCK_OPTIMISTIC   = 'OPTIMISTIC';
@@ -27,6 +28,11 @@ class Definition
      * @var string|callable
      */
     private $documentClass = '\Sokil\Mongo\Document';
+
+    /**
+     * @var string
+     */
+    private $documentRelationManagerClass = '\Sokil\Mongo\Document\RelationManager';
 
     /**
      * @var bool Using document versioning
@@ -177,23 +183,24 @@ class Definition
     public function getOptions()
     {
         return array(
-            'class'                 => $this->class,
-            'gridfs'                => $this->gridfs,
-            'documentClass'         => $this->documentClass,
-            'versioning'            => $this->versioning,
-            'index'                 => $this->index,
-            'relations'             => $this->relations,
-            'expressionClass'       => $this->expressionClass,
-            'behaviors'             => $this->behaviors,
-            'batchSize'             => $this->batchSize,
-            'regexp'                => $this->regexp,
-            'capped'                => $this->capped,
-            'size'                  => $this->size,
-            'max'                   => $this->max,
-            'lock'                  => $this->lock,
-            'documentPool'          => $this->documentPool,
-            'cursorClientTimeout'   => $this->cursorClientTimeout,
-            'cursorServerTimeout'   => $this->cursorServerTimeout,
+            'class'                         => $this->class,
+            'gridfs'                        => $this->gridfs,
+            'documentClass'                 => $this->documentClass,
+            'documentRelationManagerClass'  => $this->documentRelationManagerClass,
+            'versioning'                    => $this->versioning,
+            'index'                         => $this->index,
+            'relations'                     => $this->relations,
+            'expressionClass'               => $this->expressionClass,
+            'behaviors'                     => $this->behaviors,
+            'batchSize'                     => $this->batchSize,
+            'regexp'                        => $this->regexp,
+            'capped'                        => $this->capped,
+            'size'                          => $this->size,
+            'max'                           => $this->max,
+            'lock'                          => $this->lock,
+            'documentPool'                  => $this->documentPool,
+            'cursorClientTimeout'           => $this->cursorClientTimeout,
+            'cursorServerTimeout'           => $this->cursorServerTimeout,
         ) + $this->options;
     }
 }
