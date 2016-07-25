@@ -524,6 +524,8 @@ class Document extends Structure
         }
 
         $relationManagerClass = $this->getOption('documentRelationManagerClass');
+
+        $relationManagerClass = $relationManagerClass ? $relationManagerClass : Definition::DEFAULT_RELATION_MANAGER_CLASS;
         $this->relationManager = new $relationManagerClass($this);
 
         return $this->relationManager;

@@ -6,7 +6,7 @@ class Definition
 {
     const DEFAULT_COLLECTION_CLASS          = '\Sokil\Mongo\Collection';
     const DEFAULT_GRIDFS_CLASS              = '\Sokil\Mongo\GridFS';
-    const DEFAULT_RELATION_MANAGER_CLASS    = '\Sokil\Document\RelationManager';
+    const DEFAULT_RELATION_MANAGER_CLASS    = '\Sokil\Mongo\Document\RelationManager';
 
     const LOCK_NONE         = 'NONE';
     const LOCK_OPTIMISTIC   = 'OPTIMISTIC';
