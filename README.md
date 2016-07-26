@@ -2686,7 +2686,7 @@ $cahce->init();
 
 This operation creates index with `expireAfterSecond` key in collection `some_namespace`.
 
-This operation may be done in some console command or migration script, or
+This operation may be done in some console command or migration script, e.g. by using migration tool [sokil/php-mongo-migrator](https://github.com/sokil/php-mongo-migrator), or
 you can create manually in mongo console:
 
 ```javascript
