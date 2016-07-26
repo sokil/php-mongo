@@ -84,6 +84,8 @@ Access to sub document uses dot-syntax. You can validate data passed to document
 * [Debugging](#debugging)
   * [Logging](#logging)
   * [Profiling](#profiling)
+<br/>
+<br/>
 
 Installation
 ------------
@@ -120,6 +122,8 @@ If you require migrations, you can add dependency to "[sokil/php-mongo-migrator]
 ```
 composer require sokil/php-mongo-migrator
 ```
+<br/>
+<br/>
 
 Connecting
 ----------
@@ -188,6 +192,8 @@ $pool = new ClientPool(array(
 $connect1Client = $pool->get('connect1');
 $connect2Client = $pool->get('connect2');
 ```
+<br/>
+<br/>
 
 Mapping
 -------
@@ -480,8 +486,11 @@ class CustomDocument extends \Sokil\Mongo\Document
     ];
 }
 ```
+<br/>
+<br/>
 
-# Document validation
+Document validation
+-------------------
 
 Document may be validated before save. To set validation rules, you may override method `\Sokil\Mongo\Document::rules()` and pass validation rules here. Supported rules are:
 
@@ -640,6 +649,8 @@ class SomeDocument extends \Sokil\Mongo\Document
     }
 }
 ```
+<br/>
+<br/>
 
 Getting documents by id
 -----------------------
@@ -665,6 +676,8 @@ $document = $collection->getDocument(
 ```
 
 Note that if callable specified, document always loaded directly omitting document pool.
+<br/>
+<br/>
 
 Create new document
 -------------------
@@ -685,6 +698,8 @@ $document = $collection->createDocument([
     'param2' => 'value2'
 ]);
 ```
+<br/>
+<br/>
 
 Get and set data in document
 ----------------------------
@@ -713,6 +728,8 @@ $document->set('someField', 'someValue'); // {someField: 'someValue'}
 $document->set('someField.sub.document.field', 'someValue'); // {someField: {sub: {document: {field: {'someValue'}}}}}
 $document->setSomeField('someValue');  // {someField: 'someValue'}
 ```
+<br/>
+<br/>
 
 Embedded documents
 ------------------
@@ -889,6 +906,8 @@ You can store embedded document to array, and validate it before pushing:
 $post->push('comments', new Comment(['author' => 'John Doe']));
 $post->push('comments', new Comment(['author' => 'Joan Doe']));
 ```
+<br/>
+<br/>
 
 Storing document
 ----------------
@@ -1060,6 +1079,8 @@ $collection
 
 Important to note that there is no transactions so if error will occur
 during process, no changes will rollback.
+<br/>
+<br/>
 
 Querying documents
 ------------------
@@ -1335,6 +1356,8 @@ $result = $queryBuilder->findAll();
 
 $cache->set($hash, $result);
 ```
+<br/>
+<br/>
 
 Geospatial queries
 ------------------
@@ -1572,6 +1595,8 @@ $point = $this->collection
     )
     ->findOne();
 ```
+<br/>
+<br/>
 
 Fulltext search
 ---------------
@@ -1595,6 +1620,8 @@ Searching on fulltext field:
 
 $collection->find()->whereText('string searched in all fulltext fields')->findAll();
 ```
+<br/>
+<br/>
 
 Pagination
 ----------
@@ -1611,7 +1638,8 @@ foreach($paginator as $document) {
     echo $document->getId();
 }
 ```
-
+<br/>
+<br/>
 
 Persistence (Unit of Work)
 --------------------------
@@ -1656,6 +1684,8 @@ $persistence->flush();
 ```
 
 Note that persisted documents do not deleted from persistence manager after flush, but removed will be deleted.
+<br/>
+<br/>
 
 Deleting collections and documents
 -----------------------------------
@@ -1682,12 +1712,17 @@ $collection->deleteDocuments($collection->expression()->where('param', 'value'))
 ```
 Also supported `\MongoDeleteBatch` through interface:
 
+```php
+<?php
 $batch = $collection->createBatchDelete();
 $batch
     ->delete(array('a' => 2))
     ->delete($collection->expression()->where('a', 4))
     ->delete(function(Expression $e) { $e->where('a', 6); })
     ->execute();
+```
+<br/>
+<br/>
 
 Aggregation framework
 --------------------------------
@@ -1795,6 +1830,8 @@ $collection->aggregate($pipelines, $options, $asCursor);
 // or call method
 $cursor = $collection->createAggregator()->match()->group()->aggregateCursor();
 ```
+<br/>
+<br/>
 
 Events
 -------
@@ -1897,7 +1934,8 @@ $document->onBeforeSave(function(\Sokil\Mongo\Event $event) {
 })
 ->save();
 ```
-
+<br/>
+<br/>
 
 Behaviors
 ----------
@@ -1981,6 +2019,8 @@ Then you can call any methods of behaviors. This methods searches in order of at
 <?php
 echo $document->return42();
 ```
+<br/>
+<br/>
 
 Relations
 -------------
@@ -2178,6 +2218,8 @@ $car->removeRelation('drivers', $driver);
 This helper automatically resolves collection and field
 where to remove relation data. If relation type is `HAS_MANY` or `BELONS_TO`,
 second parameter wich defined related object may be omitted.
+<br/>
+<br/>
 
 Concurency
 ----------
@@ -2200,6 +2242,8 @@ $client->map([
 
 Now when some process try to update already updated document, exception
 `\Sokil\Mongo\Document\OptimisticLockFailureException` will be thrown.
+<br/>
+<br/>
 
 Read preferences
 ----------------
@@ -2221,6 +2265,8 @@ $database = $client->getDatabase('databaseName')->readPrimaryOnly();
 // by passing to collection
 $collection = $database->getCollection('collectionName')->readSecondaryOnly();
 ```
+<br/>
+<br/>
 
 Write concern
 -------------
@@ -2238,6 +2284,8 @@ $database = $client->getDatabase('databaseName')->setMajorityWriteConcern(10000)
 // by passing to collection
 $collection = $database->getCollection('collectionName')->setWriteConcern(4, 1000);
 ```
+<br/>
+<br/>
 
 Capped collections
 ------------------
@@ -2251,6 +2299,8 @@ $collection = $database->createCappedCollection('capped_col_name', $numOfElement
 ```
 
 Now you can add only 10 documents to collection. All old documents will ve rewritted ny new elements.
+<br/>
+<br/>
 
 Executing commands
 ------------------
@@ -2282,6 +2332,8 @@ array(13) {
   'ok' =>  double(1)
 }
 ```
+<br/>
+<br/>
 
 Queue
 -----
@@ -2317,6 +2369,8 @@ Number of messages in queue
 $queue = $database->getQueue('channel_name');
 echo count($queue);
 ```
+<br/>
+<br/>
 
 Migrations
 ----------
@@ -2329,6 +2383,8 @@ Migrations allows you easily change schema and data versions. This functionality
     }
 }
 ```
+<br/>
+<br/>
 
 GridFS
 ------
@@ -2432,6 +2488,8 @@ class GridFSFileClass extends \Sokil\Mongo\GridFSFile
 // get file as instance of class \GridFSFileClass
 $database->getGridFS('GridFSPrefix')->getFileById($id)->getMetaParam();
 ```
+<br/>
+<br/>
 
 Versioning
 ----------
@@ -2520,6 +2578,8 @@ echo $document->getRevision($revisionKey)->getDate();
 // return formatted date string
 echo $document->getRevision($revisionKey)->getDate('d.m.Y H:i:s');
 ```
+<br/>
+<br/>
 
 Indexes
 -------
@@ -2595,6 +2655,8 @@ to ensure indexes in collections from migration scripts.
 <?php
 $collection->find()->where('field', 1)->hind(array('field' => 1));
 ```
+<br/>
+<br/>
 
 Caching and documents with TTL
 ------------------------------
@@ -2682,6 +2744,8 @@ $cache->deleteMatchingAnyTag(['php', 'elephant']);
 // Document deletes if it contains any of passed tags
 $cache->deleteNotMatchingAnyTag(['php', 'elephant']);
 ```
+<br/>
+<br/>
 
 Debugging
 ---------
@@ -2754,8 +2818,6 @@ echo $params['slowms'];
 $level = $database->getProfilerLevel();
 $slowms = $database->getProfilerSlowMs();
 ```
-
-
 
 <hr/>
 <br/>
