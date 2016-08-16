@@ -131,7 +131,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         );
     }
     
-    public function testMapCollectionToClassPrefix()
+    public function testMap_CollectionToClassPrefix()
     {
         $this->client->map(array(
             'db1'   => array(
@@ -159,7 +159,35 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testMapCollectionToClassPrefixDeprecated()
+    public function testMap_CollectionToClassPrefix_PointCollection()
+    {
+        $this->client->map(array(
+            'db1'   => array(
+                'db1Collection1'  => '\Sokil\Mongo\Db1Collection1Class',
+                'db1Collection2'  => '\Sokil\Mongo\Db1Collection2Class',
+            ),
+            'db2'   => [
+                '*' => [
+                    'class' => '\\Sokil\\',
+                ],
+            ],
+        ));
+
+        $database = $this->client->getDatabase('db2');
+
+        $reflectionClass = new \ReflectionClass($database);
+        $method = $reflectionClass->getMethod('getCollectionDefinition');
+        $method->setAccessible(true);
+
+        $classDefinition = $method->invoke($database, 'mongo.db2Collection1Class');
+
+        $this->assertEquals(
+            '\Sokil\Mongo\Db2Collection1Class',
+            $classDefinition->class
+        );
+    }
+
+    public function testMap_CollectionToClassPrefixDeprecated()
     {
         $this->client->map(array(
             'db1'   => array(
