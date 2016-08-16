@@ -138,11 +138,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'db1Collection1'  => '\Sokil\Mongo\Db1Collection1Class',
                 'db1Collection2'  => '\Sokil\Mongo\Db1Collection2Class',
             ),
-            'db2'   => [
-                '*' => [
+            'db2'   => array(
+                '*' => array(
                     'class' => '\\Sokil\\Mongo\\',
-                ],
-            ],
+                ),
+            ),
         ));
         
         $database = $this->client->getDatabase('db2');
@@ -166,11 +166,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'db1Collection1'  => '\Sokil\Mongo\Db1Collection1Class',
                 'db1Collection2'  => '\Sokil\Mongo\Db1Collection2Class',
             ),
-            'db2'   => [
-                '*' => [
+            'db2'   => array(
+                '*' => array(
                     'class' => '\\Sokil\\',
-                ],
-            ],
+                ),
+            ),
         ));
 
         $database = $this->client->getDatabase('db2');
