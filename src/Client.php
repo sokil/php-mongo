@@ -38,7 +38,7 @@ class Client
     /**
      * @var array Database to class mapping
      */
-    protected $_mapping = array();
+    private $mapping = array();
     
         
     private $logger;
@@ -161,7 +161,7 @@ class Client
      * Get mongo connection instance
      *
      * @return \MongoClient
-     * @throws \Sokil\Mongo\Exception
+     * @throws Exception
      */
     public function getMongoClient()
     {
@@ -177,7 +177,7 @@ class Client
     /**
      * Get list of all active connections through this client
      * 
-     * @return type
+     * @return array
      */
     public function getConnections()
     {
@@ -185,38 +185,41 @@ class Client
     }
     
     /**
-     * Map database and collection name to class
+     * Map database and collection name to class.
      * 
-     * @param array $mapping classpath or class prefix
-     * Classpath:
-     *  [dbname => [collectionName => collectionClass, ...], ...]
+     * Class path:
+     *  ['acmeDatabaseName' => ['acmeCollectionName' => '\Acme\Collection\SomeCollectionClass', ...], ...]
+     * Collection definition:
+     *  ['acmeDatabaseName' => ['acmeCollectionName' => ['class' => '\Acme\Collection\SomeCollectionClass', ...], ...], ...]
      * Class prefix:
-     *  [dbname => classPrefix]
-     * 
-     * @return \Sokil\Mongo\Client
+     *  ['acmeDatabaseName' => '\Acme\Collection']
+     *
+     * @param array $mapping classpath or class prefix
+     * @return Client
      */
     public function map(array $mapping) {
-        $this->_mapping = $mapping;
+        $this->mapping = $mapping;
         
         return $this;
     }
     
     /**
-     * 
-     * @param string $name database name
-     * @return \Sokil\Mongo\Database
+     * Get database instance
+     *
+     * @param string    $name   database name
+     * @return Database
      */
     public function getDatabase($name = null) {
         
-        if(!$name) {
+        if (!$name) {
             $name = $this->getCurrentDatabaseName();
         }
 
-        if(!isset($this->databasePool[$name])) {
+        if (!isset($this->databasePool[$name])) {
             // init db
             $database = new Database($this, $name);
-            if(isset($this->_mapping[$name])) {
-                $database->map($this->_mapping[$name]);
+            if (isset($this->mapping[$name])) {
+                $database->map($this->mapping[$name]);
             }
 
             // configure db
@@ -237,10 +240,16 @@ class Client
         $this->currentDatabaseName = $name;
         return $this;
     }
-    
+
+    /**
+     * Get name of current database
+     *
+     * @return string
+     * @throws Exception
+     */
     public function getCurrentDatabaseName()
     {
-        if(!$this->currentDatabaseName) {
+        if (!$this->currentDatabaseName) {
             throw new Exception('Database not selected');
         }
 

@@ -12,9 +12,18 @@ class Definition
     const LOCK_PESSIMISTIC  = 'PESSIMISTIC';
 
     /**
-     * Fully qualified collectin class
+     * Fully qualified collection class
+     *
+     * @var string
      */
     private $class;
+
+    /**
+     * Namespace of collection's class
+     *
+     * @var string
+     */
+    private $classNamespace;
 
     /**
      *
@@ -93,7 +102,7 @@ class Definition
 
     public function __construct(array $definition = null)
     {
-        if($definition) {
+        if ($definition) {
             $this->merge($definition);
         }
     }
@@ -110,7 +119,7 @@ class Definition
 
     public function merge(array $definition)
     {
-        foreach($definition as $name => $value) {
+        foreach ($definition as $name => $value) {
             $this->setOption($name, $value);
         }
 
@@ -119,7 +128,7 @@ class Definition
 
     public function setOption($name, $value)
     {
-        if(property_exists($this, $name)) {
+        if (property_exists($this, $name)) {
             $this->{$name} = $value;
         }
 
@@ -137,16 +146,21 @@ class Definition
         return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
+    public function setCollectionNamespace($namespace)
+    {
+        $this->classNamespace = $namespace;
+        return $this;
+    }
+
     public function setCollectionClass($class)
     {
         $this->class = $class;
-        
         return $this;
     }
 
     public function getCollectionClass()
     {
-        if(!$this->class) {
+        if (!$this->class) {
             $this->class = $this->gridfs 
                 ? self::DEFAULT_GRIDFS_CLASS
                 : self::DEFAULT_COLLECTION_CLASS;

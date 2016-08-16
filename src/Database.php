@@ -155,20 +155,20 @@ class Database
     /**
      * Map collection name to class
      *
-     * @param string|array $name collection name or array like [collectionName => collectionClass, ...]
-     * @param string|array|null $classDefinition if $name is string, then full class name or array with parameters, else omitted
+     * @param string|array                  $name               collection name or array like [collectionName => collectionClass, ...]
+     * @param string|array|Definition|null  $classDefinition    if $name is string, then full class name or array with parameters, else omitted
      * @return \Sokil\Mongo\Client
      */
     public function map($name, $classDefinition = null)
     {
         // map collection to class
-        if($classDefinition) {
+        if ($classDefinition) {
             return $this->defineCollection($name, $classDefinition);
         }
 
         // map collections to classes
-        if(is_array($name)) {
-            foreach($name as $collectionName => $classDefinition) {
+        if (is_array($name)) {
+            foreach ($name as $collectionName => $classDefinition) {
                 $this->defineCollection($collectionName, $classDefinition);
             }
             return $this;
@@ -196,22 +196,22 @@ class Database
     /**
      * Define collection through array or Definition instance
      * 
-     * @param string $name collection name
-     * @param \Sokil\Mongo\Collection\Definition|array $definition collection definition
-     * @return \Sokil\Mongo\Database
+     * @param string                    $name       collection name
+     * @param Definition|array|string   $definition collection definition
+     * @return Database
      */
     private function defineCollection($name, $definition)
     {
-        // prepate definition object
-        if(($definition instanceof Definition) === false) {
-            if(is_string($definition)) {
+        // prepare definition object
+        if (($definition instanceof Definition) === false) {
+            if (is_string($definition)) {
                 $definition = array('class' => $definition);
             }
             $definition = new Definition($definition);
         }
 
         // set definition
-        if('/' !== substr($name, 0, 1)) {
+        if ('/' !== substr($name, 0, 1)) {
             $this->mapping[$name] = $definition;
         } else {
             $this->regexpMapping[$name] = $definition;
@@ -222,17 +222,19 @@ class Database
 
     /**
      * Get class name mapped to collection
-     * @param string $name name of collection
-     * @param array $defaultDefinition definition used when no definition found for defined class
-     * @return string|array name of class or array of class definition
+     *
+     * @param string        $name               name of collection
+     * @param array         $defaultDefinition  definition used when no definition found for defined class
+     * @throws Exception
+     * @return string|array                     name of class or array of class definition
      */
     private function getCollectionDefinition($name, array $defaultDefinition = null)
     {
-        if(isset($this->mapping[$name])) {
+        if (isset($this->mapping[$name])) {
             $classDefinition = $this->mapping[$name];
-        } elseif($this->regexpMapping) {
-            foreach($this->regexpMapping as $collectionNamePattern => $regexpMappingClassDefinition) {
-                if(preg_match($collectionNamePattern, $name, $matches)) {
+        } elseif ($this->regexpMapping) {
+            foreach ($this->regexpMapping as $collectionNamePattern => $regexpMappingClassDefinition) {
+                if (preg_match($collectionNamePattern, $name, $matches)) {
                     $classDefinition = $regexpMappingClassDefinition;
                     $classDefinition->setOption('regexp', $matches);
                     break;
@@ -241,18 +243,18 @@ class Database
         }
 
         // mapping not configured - use default
-        if(!isset($classDefinition)) {
+        if (!isset($classDefinition)) {
             $classDefinition = new Definition();
-            if($this->collectionNamespace) {
+            if ($this->collectionNamespace) {
                 $class = $this->collectionNamespace . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
                 $classDefinition->setCollectionClass($class);
-            } elseif($defaultDefinition) {
+            } elseif ($defaultDefinition) {
                 $classDefinition->merge($defaultDefinition);
             }
         }
 
         // check if class exists
-        if(!class_exists($classDefinition->getCollectionClass())) {
+        if (!class_exists($classDefinition->getCollectionClass())) {
             throw new Exception('Class ' . $classDefinition->getCollectionClass() . ' not found while map collection name to class');
         }
 
