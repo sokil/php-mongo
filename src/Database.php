@@ -187,11 +187,14 @@ class Database
     private function defineCollection($name, $definition)
     {
         // prepare definition object
-        if (($definition instanceof Definition) === false) {
+        if (false === ($definition instanceof Definition)) {
             if (is_string($definition)) {
-                $definition = array('class' => $definition);
+                $definition = new Definition(array('class' => $definition));
+            } elseif (is_array($definition)) {
+                $definition = new Definition($definition);
+            } else {
+                throw new Exception(sprintf('Wrong definition passed for collection %s', $name));
             }
-            $definition = new Definition($definition);
         }
 
         // set definition

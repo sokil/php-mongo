@@ -259,14 +259,14 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Class \ThisClassIsNotExists not found while map collection name to class
      */
-    public function testGetCollection_UnexistedClassInMapping()
+    public function testMap_UnexistedClassInMapping()
     {
         $this->database->resetMapping();
         $this->database->map(array(
-            'collection'    => '\ThisClassIsNotExists',
+            'acmeCollection'    => '\ThisClassIsNotExists',
         ));
 
-        $this->database->getCollection('collection');
+        $this->database->getCollection('acmeCollection');
     }
 
     public function testMap_ClassNamespace()
@@ -290,6 +290,20 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             '\Sokil\Mongo\CarPhotosGridFS',
             $classDefinition2->class
         );
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Wrong definition passed for collection acmeCollection
+     */
+    public function testMap_InvalidDefinitionVariableType()
+    {
+        $this->database->resetMapping();
+        $this->database->map(array(
+            'acmeCollection'    => 42,
+        ));
+
+        $this->database->getCollection('collection');
     }
 
     /**
