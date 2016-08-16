@@ -37,11 +37,6 @@ class Database
     private $regexpMapping = array();
 
     /**
-     * @var string if mapping not specified, use class prefix to create class path from collection name
-     */
-    private $collectionNamespace;
-
-    /**
      * @var array pool of initialised collections
      */
     private $collectionPool = array();
@@ -147,7 +142,6 @@ class Database
     public function resetMapping()
     {
         $this->mapping = array();
-        $this->collectionNamespace = null;
 
         return $this;
     }
@@ -175,21 +169,11 @@ class Database
         }
 
         // define class prefix
-        $this->defineCollectionNamespace($name);
+        // deprecated: use class definition
+        $this->defineCollection('*', [
+            'class' => $name,
+        ]);
 
-        return $this;
-    }
-
-    /**
-     * Define mapping through class prefix
-     * 
-     * @param string $prefix Namespace prefix
-     * @return \Sokil\Mongo\Database
-     */
-    private function defineCollectionNamespace($prefix)
-    {
-        $this->collectionNamespace = rtrim($prefix, '\\');
-        
         return $this;
     }
 
@@ -235,7 +219,7 @@ class Database
         } elseif ($this->regexpMapping) {
             foreach ($this->regexpMapping as $collectionNamePattern => $regexpMappingClassDefinition) {
                 if (preg_match($collectionNamePattern, $name, $matches)) {
-                    $classDefinition = $regexpMappingClassDefinition;
+                    $classDefinition = clone $regexpMappingClassDefinition;
                     $classDefinition->setOption('regexp', $matches);
                     break;
                 }
@@ -244,18 +228,21 @@ class Database
 
         // mapping not configured - use default
         if (!isset($classDefinition)) {
-            $classDefinition = new Definition();
-            if ($this->collectionNamespace) {
-                $class = $this->collectionNamespace . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
-                $classDefinition->setCollectionClass($class);
-            } elseif ($defaultDefinition) {
-                $classDefinition->merge($defaultDefinition);
+            if (!empty($this->mapping['*'])) {
+                $classDefinition = clone $this->mapping['*'];
+                $collectionClass = $classDefinition->getClass() . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
+                $classDefinition->setClass($collectionClass);
+            } else {
+                $classDefinition = new Definition();
+                if ($defaultDefinition) {
+                    $classDefinition->merge($defaultDefinition);
+                }
             }
         }
 
         // check if class exists
-        if (!class_exists($classDefinition->getCollectionClass())) {
-            throw new Exception('Class ' . $classDefinition->getCollectionClass() . ' not found while map collection name to class');
+        if (!class_exists($classDefinition->getClass())) {
+            throw new Exception('Class ' . $classDefinition->getClass() . ' not found while map collection name to class');
         }
 
         return $classDefinition;
@@ -280,7 +267,7 @@ class Database
         );
 
         // create collection
-        $className = $classDefinition->getCollectionClass();
+        $className = $classDefinition->getClass();
         return new $className(
             $this,
             $mongoCollection,
@@ -326,7 +313,7 @@ class Database
 
         // no object in pool - init new
         $classDefinition = $this->getCollectionDefinition($name);
-        $className = $classDefinition->getCollectionClass();
+        $className = $classDefinition->getClass();
 
         // create collection class
         $collection = new $className($this, $name, $classDefinition);
@@ -359,7 +346,7 @@ class Database
 
         // no object in pool - init new
         $classDefinition = $this->getCollectionDefinition($name, array('gridfs' => true));
-        $className = $classDefinition->getCollectionClass();
+        $className = $classDefinition->getClass();
 
         // create collection class
         $collection = new $className($this, $name, $classDefinition);

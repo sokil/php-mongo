@@ -187,11 +187,11 @@ class Client
     /**
      * Map database and collection name to class.
      * 
-     * Class path:
-     *  ['acmeDatabaseName' => ['acmeCollectionName' => '\Acme\Collection\SomeCollectionClass', ...], ...]
-     * Collection definition:
-     *  ['acmeDatabaseName' => ['acmeCollectionName' => ['class' => '\Acme\Collection\SomeCollectionClass', ...], ...], ...]
-     * Class prefix:
+     * Collection name -> array definition:
+     *  ['acmeDatabaseName' => ['acmeCollectionName' => ['class' => '\Acme\Collection\SomeCollectionClass']]]
+     * Collection name -> collection class name (deprecated: use definition array):
+     *  ['acmeDatabaseName' => ['acmeCollectionName' => '\Acme\Collection\SomeCollectionClass']]
+     * Collection's class namespace (deprecated: use definition array):
      *  ['acmeDatabaseName' => '\Acme\Collection']
      *
      * @param array $mapping classpath or class prefix

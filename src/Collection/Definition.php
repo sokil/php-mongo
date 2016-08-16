@@ -19,13 +19,6 @@ class Definition
     private $class;
 
     /**
-     * Namespace of collection's class
-     *
-     * @var string
-     */
-    private $classNamespace;
-
-    /**
      *
      * @var bool is collection GridFs
      */
@@ -128,7 +121,10 @@ class Definition
 
     public function setOption($name, $value)
     {
-        if (property_exists($this, $name)) {
+        $method = 'set' . $name;
+        if (method_exists($this, $method)) {
+            call_user_func(array($this, $method), $value);
+        } elseif (property_exists($this, $name)) {
             $this->{$name} = $value;
         }
 
@@ -139,26 +135,20 @@ class Definition
 
     public function getOption($name)
     {
-        if(property_exists($this, $name)) {
+        if (property_exists($this, $name)) {
             return $this->{$name};
         }
 
         return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
-    public function setCollectionNamespace($namespace)
+    public function setClass($class)
     {
-        $this->classNamespace = $namespace;
+        $this->class = rtrim($class, '\\');
         return $this;
     }
 
-    public function setCollectionClass($class)
-    {
-        $this->class = $class;
-        return $this;
-    }
-
-    public function getCollectionClass()
+    public function getClass()
     {
         if (!$this->class) {
             $this->class = $this->gridfs 

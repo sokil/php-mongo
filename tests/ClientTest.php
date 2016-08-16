@@ -138,19 +138,47 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'db1Collection1'  => '\Sokil\Mongo\Db1Collection1Class',
                 'db1Collection2'  => '\Sokil\Mongo\Db1Collection2Class',
             ),
-            'db2'   => '\Sokil\Mongo\\',
+            'db2'   => [
+                '*' => [
+                    'class' => '\\Sokil\\Mongo\\',
+                ],
+            ],
         ));
         
         $database = $this->client->getDatabase('db2');
         
-        $reflectionClas = new \ReflectionClass($database);
-        $method = $reflectionClas->getMethod('getCollectionDefinition');
+        $reflectionClass = new \ReflectionClass($database);
+        $method = $reflectionClass->getMethod('getCollectionDefinition');
         $method->setAccessible(true);
         
-        $classDefinition = $method->invoke($database, 'db1Collection2Class');
+        $classDefinition = $method->invoke($database, 'db2Collection1Class');
         
         $this->assertEquals(
-            '\Sokil\Mongo\Db1Collection2Class',
+            '\Sokil\Mongo\Db2Collection1Class',
+            $classDefinition->class
+        );
+    }
+
+    public function testMapCollectionToClassPrefixDeprecated()
+    {
+        $this->client->map(array(
+            'db1'   => array(
+                'db1Collection1'  => '\Sokil\Mongo\Db1Collection1Class',
+                'db1Collection2'  => '\Sokil\Mongo\Db1Collection2Class',
+            ),
+            'db2'   => '\\Sokil\\Mongo\\',
+        ));
+
+        $database = $this->client->getDatabase('db2');
+
+        $reflectionClass = new \ReflectionClass($database);
+        $method = $reflectionClass->getMethod('getCollectionDefinition');
+        $method->setAccessible(true);
+
+        $classDefinition = $method->invoke($database, 'db2Collection1Class');
+
+        $this->assertEquals(
+            '\Sokil\Mongo\Db2Collection1Class',
             $classDefinition->class
         );
     }
@@ -325,3 +353,4 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
 class Db1Collection1Class extends \Sokil\Mongo\Collection {}
 class Db1Collection2Class extends \Sokil\Mongo\Collection {}
+class Db2Collection1Class extends \Sokil\Mongo\Collection {}

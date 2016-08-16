@@ -227,7 +227,8 @@ $collection = $client->getCollection('collectionName');
 
 ### Custom collections
 
-Custom collections used to add some collection-specific fetures in related class. First you need to create class extended from `\Sokil\Mongo\Collection`:
+Custom collections used to add some collection-specific features in related class. 
+First you need to create class extended from `\Sokil\Mongo\Collection`:
 ```php
 <?php
 
@@ -238,7 +239,8 @@ class CustomCollection extends \Sokil\Mongo\Collection
 }
 ```
 
-This class must be then mapped to collection name in order to return object of this class when collection requested. Custom collection referenced in standart way:
+This class must be then mapped to collection name in order to return object of this class when collection requested.
+Custom collection referenced in standard way:
 
 ```php
 <?php
@@ -250,50 +252,10 @@ $collection = $client
     ->getCollection('collectionName');
 ```
 
-#### Mapping of collection name to collection class
+#### Collection definition
 
-Any collection name may be mapped to class name directly:
-
-```php
-<?php
-
-// map class to collection name
-$client->map([
-    'databaseName'  => [
-        'collectionName' => '\CustomCollection'
-    ],
-]);
-
-/**
- * @var \CustomCollection
- */
-$collection = $client->getDatabase('databaseName')->getCollection('collectionName');
-```
-
-#### Mapping with class prefix
-
-We can specify collection class prefix so any collection may be mapped to class without enumerating every collection name:
-
-```php
-<?php
-$client->map([
-    'databaseName'  => '\Class\Prefix',
-]);
-
-/**
- * @var \Class\Prefix\CollectionName
- */
-$collection = $client->getDatabase('databaseName')->getCollection('collectionName');
-
-/**
- * @var \Class\Prefix\CollectionName\SubName
- */
-$collection = $client->getDatabase('databaseName')->getCollection('collectionName.subName');
-```
-
-#### Collection definition options
-
-If you want to pass some options to collection's constructor, you also can
+Collection name must be mapped to collection class. 
+If you want to pass some additional options to collection, you also can
 configure them in mapping definition:
 
 ```php
@@ -353,6 +315,105 @@ $document = $client
     ->getDatabase('databaseName')
     ->getCollection('collectionName')
     ->createDocument();
+```
+
+#### Mapping of collection name to collection class
+
+If only class name of collection defined, you may simply pass it in mapping. 
+
+
+```php
+<?php
+
+// map class to collection name
+$client->map([
+    'databaseName'  => [
+        'collectionName' => [
+            'class' => \Acme\MyCollection',
+        ],
+    ],
+]);
+
+/**
+ * @var \Acme\MyCollection
+ */
+$collection = $client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName');
+```
+
+
+_There is also deprecated method to specify collection's class name. Please, use array definition and option `class`._
+
+```php
+<?php
+
+// map class to collection name
+$client->map([
+    'databaseName'  => [
+        'collectionName' => '\Acme\MyCollection'
+    ],
+]);
+
+/**
+ * @var \Acme\MyCollection
+ */
+$collection = $client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName');
+```
+
+#### Mapping with class prefix
+
+Collections not configured directly, may be mapped automatically by using `*` in mapping keys. 
+Any collection may be mapped to class without enumerating every collection name.
+
+```php
+<?php
+$client->map([
+    'databaseName'  => [
+        '*' => [
+            'class' => '\Acme\Collection\Class\Prefix',
+        ],
+    ],
+]);
+
+/**
+ * @var \Acme\Collection\Class\Prefix\CollectionName
+ */
+$collection = $client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName');
+
+/**
+ * @var \Acme\Collection\Class\Prefix\CollectionName\SubName
+ */
+$collection = $client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName.subName');
+```
+
+_There is also deprecated method to specify class prefix. Please, use `*` as collection name and array definition with option `class`._
+
+```php
+<?php
+$client->map([
+    'databaseName'  => '\Acme\Collection\Class\Prefix',
+]);
+
+/**
+ * @var \Acme\Collection\Class\Prefix\CollectionName
+ */
+$collection = $client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName');
+
+/**
+ * @var \Acme\Collection\Class\Prefix\CollectionName\SubName
+ */
+$collection = $client
+    ->getDatabase('databaseName')
+    ->getCollection('collectionName.subName');
 ```
 
 #### Regexp mapping
