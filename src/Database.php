@@ -170,9 +170,9 @@ class Database
 
         // define class prefix
         // deprecated: use class definition
-        $this->defineCollection('*', [
+        $this->defineCollection('*', array(
             'class' => $name,
-        ]);
+        ));
 
         return $this;
     }
