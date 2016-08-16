@@ -126,9 +126,10 @@ class Definition
             call_user_func(array($this, $method), $value);
         } elseif (property_exists($this, $name)) {
             $this->{$name} = $value;
+        } else {
+            $this->options[$name] = $value;
         }
 
-        $this->options[$name] = $value;
 
         return $this;
     }
