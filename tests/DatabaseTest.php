@@ -66,7 +66,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Sokil\Mongo\Exception
+     * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Size or number of elements must be defined
      */
     public function testCreateCappedCollection()
@@ -79,7 +79,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Sokil\Mongo\Exception
+     * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Class \WrongClass not found while map collection name to class
      */
     public function testCreateCollection()
@@ -178,18 +178,18 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     public function testMapCollectionsToClasses()
     {
         $this->database->map(array(
-            'collection'    => '\Sokil\Mongo\CarsCollection',
-            'gridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
+            'acmeCollection'    => '\Sokil\Mongo\CarsCollection',
+            'acmeGridfs'        => '\Sokil\Mongo\CarPhotosGridFS',
         ));
 
         // create collection
-        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', $this->database->getCollection('collection'));
+        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', $this->database->getCollection('acmeCollection'));
 
         // create document
-        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', $this->database->getCollection('collection')->createDocument());
+        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', $this->database->getCollection('acmeCollection')->createDocument());
 
         // create grid fs
-        $fs = $this->database->getGridFS('gridfs');
+        $fs = $this->database->getGridFS('acmeGridfs');
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotosGridFS', $fs);
 
         // create file
@@ -202,17 +202,17 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     public function testMapCollectionToClass()
     {
-        $this->database->map('collection', '\Sokil\Mongo\CarsCollection');
-        $this->database->map('gridfs', '\Sokil\Mongo\CarPhotosGridFS');
+        $this->database->map('acmeCollection', '\Sokil\Mongo\CarsCollection');
+        $this->database->map('acmeGridfs', '\Sokil\Mongo\CarPhotosGridFS');
 
         // create collection
-        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', $this->database->getCollection('collection'));
+        $this->assertInstanceOf('\Sokil\Mongo\CarsCollection', $this->database->getCollection('acmeCollection'));
 
         // create document
-        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', $this->database->getCollection('collection')->createDocument());
+        $this->assertInstanceOf('\Sokil\Mongo\CarDocument', $this->database->getCollection('acmeCollection')->createDocument());
 
         // create grid fs
-        $fs = $this->database->getGridFS('gridfs');
+        $fs = $this->database->getGridFS('acmeGridfs');
         $this->assertInstanceOf('\Sokil\Mongo\CarPhotosGridFS', $fs);
 
         // create file
@@ -269,7 +269,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->database->getCollection('collection');
     }
 
-    public function testGetGridFSClassName_Classpath()
+    public function testMap_ClassNamespace()
     {
         $this->database->resetMapping();
         $this->database->map('\Sokil\Mongo');
