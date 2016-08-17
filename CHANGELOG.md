@@ -1,6 +1,6 @@
 ## 1.16.2 (2016-08-16)
   * `Client::$_mapping` set private. `Use Client::map()`
-  * Configure document class if collection class also configured by class prefix #128
+  * Configure document class if collection class also configured by class prefix [#128](https://github.com/sokil/php-mongo/issues/128)
 
 ## 1.16.1 (2016-06-27)
   * Fixed aggregation pipeline setter
