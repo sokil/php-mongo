@@ -1308,7 +1308,7 @@ $client->map([
     'myDb' => [
         'user' => [
             'class' => '\UserCollection',
-            'expressionClass' => '\UserCollection',
+            'expressionClass' => '\UserExpression',
         ],
     ],
 ]);
