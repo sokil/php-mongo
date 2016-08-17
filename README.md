@@ -1285,16 +1285,10 @@ $collection->getDistinct('country', function($expression) { return $expression->
 
 ### Extending Query Builder
 
-For extending standart query builder class with custom condition methods you need to override property `Collection::$_queryExpressionClass` with class, which extends `\Sokil\Mongo\Expression`:
+For extending standart query builder class with custom condition methods you need to create expression class which extends `\Sokil\Mongo\Expression`:
 
 ```php
 <?php
-
-// define expression in collection
-class UserCollection extends \Sokil\Mongo\Collection
-{
-    protected $_queryExpressionClass = 'UserExpression';
-}
 
 // define expression
 class UserExpression extends \Sokil\Mongo\Expression
@@ -1304,21 +1298,53 @@ class UserExpression extends \Sokil\Mongo\Expression
         $this->whereGreater('age', (int) $age);
     }
 }
+```
 
+And then specify it in collection mapping:
+```php
+<?php
+
+$client->map([
+    'myDb' => [
+        'user' => [
+            'class' => '\UserCollection',
+            'expressionClass' => '\UserCollection',
+        ],
+    ],
+]);
+```
+
+Also there is _deprecated_ feature to override property `Collection::$_queryExpressionClass`:
+
+```php
+<?php
+
+// define expression in collection
+class UserCollection extends \Sokil\Mongo\Collection
+{
+    protected $_queryExpressionClass = 'UserExpression';
+}
+```
+
+Now new expression methods available in the query buiilder:
+
+```php
+<?php
 // use custom method for searching
 $collection = $db->getCollection('user'); // instance of UserCollection
 $queryBuilder = $collection->find(); // instance of UserExpression
 
+// now methods available in query buider
 $queryBuilder->whereAgeGreaterThan(18)->fetchRandom();
 
-// or since v.1.3.2 configure query builder through callable:
+// since v.1.3.2 also supported query builder configuration through callable:
 $collection
     ->find(function(UserExpression $e) {
         $e->whereAgeGreaterThan(18);
     })
     ->fetchRandom();
-
 ```
+
 ### Identity Map
 
 Imagine that you have two different query builders and they are both
