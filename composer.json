@@ -3,7 +3,7 @@
     "description": "PHP Object Document Mapper for MongoDB",
     "license": "MIT",
     "keywords": ["mongodb", "odm"],
-    "homepage": "https://github.com/sokil/php-mongo",
+    "homepage": "http://phpmongokit.github.io/",
     "authors": [
         {
             "name": "Dmytro Sokil",
