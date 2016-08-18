@@ -246,7 +246,7 @@ class Collection implements \Countable
     /**
      * Factory method to get not stored Document instance from array
      * @param array $data
-     * @return \Sokil\Mongo\Document
+     * @return Document
      */
     public function createDocument(array $data = null)
     {

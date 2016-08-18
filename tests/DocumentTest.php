@@ -1737,4 +1737,46 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('ACTIVE', $document->status);
     }
+
+    public function testGetRelatedDocument()
+    {
+        $this->collection->disableDocumentPool();
+
+        $relatedDocument = $this->collection->createDocument(array('param' => 'value'))->save();
+
+        $document = $this->collection
+            ->createDocument()
+            ->setReference('related', $relatedDocument)
+            ->save();
+
+        $foundRelatedDocument = $document->getReference('related');
+
+        $this->assertEquals(
+            $relatedDocument->getId(),
+            $foundRelatedDocument->getId()
+        );
+    }
+
+    public function testGetRelatedDocumentList()
+    {
+        $this->collection->disableDocumentPool();
+
+        $relatedDocument = $this->collection->createDocument(array('param' => 'value'))->save();
+
+        $document = $this->collection
+            ->createDocument()
+            ->pushReference('related', $relatedDocument)
+            ->save();
+
+        $foundRelatedDocumentList = $document->getReferenceList('related');
+
+        $this->assertSame(1, count($foundRelatedDocumentList));
+
+        $foundRelatedDocument = current($foundRelatedDocumentList);
+
+        $this->assertEquals(
+            $relatedDocument->getId(),
+            $foundRelatedDocument->getId()
+        );
+    }
 }

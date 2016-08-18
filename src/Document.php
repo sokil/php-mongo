@@ -769,6 +769,99 @@ class Document extends Structure
         $this->unsetField($fieldName);
     }
 
+    /**
+     * Store DBRef to specified field
+     *
+     * @param $name
+     * @param Document $document
+     * @return Document
+     */
+    public function setReference($name, Document $document)
+    {
+        return $this->set(
+            $name,
+            $this->collection->createReference($document)
+        );
+    }
+
+    /**
+     * Get document by reference
+     *
+     * @param string    $name   name of field where reference stored
+     * @return null|Document
+     */
+    public function getReference($name)
+    {
+        $reference = $this->get($name);
+        if (null === $reference) {
+            return null;
+        }
+
+        return $this->collection
+            ->getDatabase()
+            ->getDocumentByReference($reference);
+    }
+
+    /**
+     * Push reference to list
+     *
+     * @param string $name
+     * @param Document $document
+     * @return Document
+     */
+    public function pushReference($name, Document $document)
+    {
+        return $this->push(
+            $name,
+            $this->collection->createReference($document)
+        );
+    }
+
+    /**
+     * Get document by reference
+     *
+     * @param string    $name   name of field where reference stored
+     * @return null|Document
+     */
+    public function getReferenceList($name)
+    {
+        $referenceList = $this->get($name);
+        if (null === $referenceList) {
+            return null;
+        }
+
+        if (!isset($referenceList[0])) {
+            throw new Exception('List of references not found');
+        }
+
+        // build list of referenced collections and ids
+        $documentIdList = array();
+        foreach ($referenceList as $reference) {
+            if (empty($reference['$ref']) || empty($reference['$id'])) {
+                throw new Exception(sprintf(
+                    'Iinvalid reference in list for document %s in field %s',
+                    $this->getId(),
+                    $name
+                ));
+            }
+
+            $documentIdList[$reference['$ref']][] = $reference['$id'];
+        }
+
+        // get list
+        $documentList = array();
+        $database = $this->collection->getDatabase();
+        foreach ($documentIdList as $collectionName => $documentIdList) {
+            $documentList += $database->getCollection($collectionName)->find()->byIdList($documentIdList)->findAll();
+        }
+
+        return $documentList;
+    }
+
+    /**
+     * @param array $data
+     * @return Document
+     */
     public function merge(array $data)
     {
         if ($this->isStored()) {
