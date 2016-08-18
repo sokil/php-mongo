@@ -770,24 +770,7 @@ class Document extends Structure
     }
 
     /**
-     * Store DBRef to specified field
-     *
-     * @param $name
-     * @param Document $document
-     * @return Document
-     */
-    public function setReference($name, Document $document)
-    {
-        return $this->set(
-            $name,
-            $document->createReference()
-        );
-    }
-
-    /**
      * Get reference to document
-     *
-     * @param Document  $document   instance to stored document to get DBREf
      *
      * @throws Exception
      * @return array
@@ -803,6 +786,21 @@ class Document extends Structure
             ->getCollection()
             ->getMongoCollection()
             ->createDBRef($documentId);
+    }
+
+    /**
+     * Store DBRef to specified field
+     *
+     * @param $name
+     * @param Document $document
+     * @return Document
+     */
+    public function setReference($name, Document $document)
+    {
+        return $this->set(
+            $name,
+            $document->createReference()
+        );
     }
 
     /**
