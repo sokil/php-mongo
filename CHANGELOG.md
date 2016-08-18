@@ -158,5 +158,5 @@
   * ```Paginator::setQueryBuilder()``` deprecated since 1.2.0 use ```Paginator:::setCursor()```
   * ```Structure::load()``` deprecated since 1.8.1 and will be removed in next versions. Use concrete merge methods
 
-# 1.0 (2013-11-01)
+## 1.0 (2013-11-01)
  * Initial functionality
