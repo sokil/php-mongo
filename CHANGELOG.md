@@ -1,4 +1,7 @@
-## 1.16.2 (2016-08-16)
+## 1.18 (2016-08-18)
+ * Support of DBRefs
+
+## 1.17 (2016-08-16)
   * `Client::$_mapping` set private. `Use Client::map()`
   * Configure document class if collection class also configured by class prefix [#128](https://github.com/sokil/php-mongo/issues/128)
 
