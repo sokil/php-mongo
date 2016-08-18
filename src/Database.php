@@ -50,7 +50,7 @@ class Database
     public function __construct(Client $client, $database) {
         $this->client = $client;
 
-        if($database instanceof \MongoDB) {
+        if ($database instanceof \MongoDB) {
             $this->mongoDB = $database;
         } else {
             $this->mongoDB = $this->client->getMongoClient()->selectDB($database);
@@ -264,7 +264,7 @@ class Database
         $classDefinition = $this->getCollectionDefinition($name);
         $classDefinition->merge($options);
 
-        $mongoCollection = $this->getMongoDB()->createCollection(
+        $mongoCollection = $this->mongoDB->createCollection(
             $name,
             $classDefinition->getMongoCollectionOptions()
         );
@@ -331,6 +331,24 @@ class Database
 
         // return
         return $collection;
+    }
+
+    /**
+     * Get Document instance by it's reference
+     *
+     * @param array $ref reference to document
+     * @param bool  $useDocumentPool try to get document from pool or fetch document from database
+     *
+     * @return Document|null
+     */
+    public function getDocumentByReference(array $ref, $useDocumentPool = true)
+    {
+        $documentArray = $this->mongoDB->getDBRef($ref);
+        if (null === $documentArray) {
+            return null;
+        }
+
+        return $this->getCollection($ref['$ref'])->hydrate($documentArray, $useDocumentPool);
     }
 
     /**
@@ -486,12 +504,12 @@ class Database
      */
     public function executeCommand(array $command, array $options = array())
     {
-        return $this->getMongoDB()->command($command, $options);
+        return $this->mongoDB->command($command, $options);
     }
 
     public function executeJS($code, array $args = array())
     {
-        $response = $this->getMongoDB()->execute($code, $args);
+        $response = $this->mongoDB->execute($code, $args);
         if($response['ok'] == 1.0) {
             return $response['retval'];
         } else {
@@ -508,7 +526,7 @@ class Database
 
     public function getLastError()
     {
-        return $this->getMongoDB()->lastError();
+        return $this->mongoDB->lastError();
     }
 
     public function getProfilerParams()

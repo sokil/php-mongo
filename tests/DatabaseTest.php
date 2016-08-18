@@ -32,6 +32,49 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGetDocumentByReference()
+    {
+        $collection = $this->database->getCollection('phpmongo_test_collection');
+        $collection->delete();
+
+        // create document
+        $document = $collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        // invalid col and db
+        $foundDocument = $this->database->getDocumentByReference(array(
+            '$ref'  => 'some_collection',
+            '$db'   => 'some_db',
+            '$id'   => $document->getId(),
+        ), false);
+
+        $this->assertNull($foundDocument);
+
+        /// invalid db
+        $foundDocument = $this->database->getDocumentByReference(array(
+            '$ref'  => $collection->getName(),
+            '$db'   => 'some_db',
+            '$id'   => $document->getId(),
+        ), false);
+
+        $this->assertNull($foundDocument);
+
+        // all valid
+        $foundDocument = $this->database->getDocumentByReference(array(
+            '$ref'  => $collection->getName(),
+            '$db'   => $collection->getDatabase()->getName(),
+            '$id'   => $document->getId(),
+        ), false);
+
+        $this->assertSame(
+            (string)$document->getId(),
+            (string)$foundDocument->getId()
+        );
+
+        $collection->delete();
+    }
+
     public function testEnableCollectionPool()
     {
         $this->database->clearCollectionPool();

@@ -278,7 +278,7 @@ class Collection implements \Countable
      */
     public function hydrate($data, $useDocumentPool = true)
     {
-        if(!is_array($data) || !isset($data['_id'])) {
+        if (!is_array($data) || !isset($data['_id'])) {
             throw new Exception('Document must be stored and has _id key');
         }
 
@@ -575,6 +575,41 @@ class Collection implements \Countable
         return $document;
     }
 
+    /**
+     * Get reference to document
+     *
+     * @param Document  $document   instance to stored document to get DBREf
+     *
+     * @throws Exception
+     * @return array
+     */
+    public function createReference(Document $document)
+    {
+        $documentId = $document->getId();
+        if (null === $documentId) {
+            throw new Exception('Document must be stored to get DBRef');
+        }
+
+        return $this->_mongoCollection->createDBRef($documentId);
+    }
+
+    /**
+     * Get Document instance by it's reference
+     *
+     * @param array $ref reference to document
+     * @param bool  $useDocumentPool try to get document from pool or fetch document from database
+     *
+     * @return Document|null
+     */
+    public function getDocumentByReference(array $ref, $useDocumentPool = true)
+    {
+        $documentArray = $this->_mongoCollection->getDBRef($ref);
+        if (null === $documentArray) {
+            return null;
+        }
+
+        return $this->hydrate($documentArray, $useDocumentPool);
+    }
 
     /**
      * Get document by id directly omitting cache

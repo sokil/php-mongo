@@ -33,6 +33,58 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testCreateReference()
+    {
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $reference = $this->collection->createReference($document);
+
+        $this->assertSame(array(
+            '$ref' => 'phpmongo_test_collection',
+            '$id' => $document->getId(),
+        ), $reference);
+    }
+
+    public function testGetDocumentByReference()
+    {
+        // create document
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        // invalid col and db
+        $foundDocument = $this->collection->getDocumentByReference(array(
+            '$ref'  => 'some_collection',
+            '$db'   => 'some_db',
+            '$id'   => $document->getId(),
+        ), false);
+
+        $this->assertNull($foundDocument);
+
+        /// invalid db
+        $foundDocument = $this->collection->getDocumentByReference(array(
+            '$ref'  => $this->collection->getName(),
+            '$db'   => 'some_db',
+            '$id'   => $document->getId(),
+        ), false);
+
+        $this->assertNull($foundDocument);
+
+        // all valid
+        $foundDocument = $this->collection->getDocumentByReference(array(
+            '$ref'  => $this->collection->getName(),
+            '$db'   => $this->collection->getDatabase()->getName(),
+            '$id'   => $document->getId(),
+        ), false);
+
+        $this->assertSame(
+            (string)$document->getId(),
+            (string)$foundDocument->getId()
+        );
+    }
+
     public function testGetDocument()
     {
         // create document

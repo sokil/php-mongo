@@ -485,11 +485,11 @@ class Cursor implements \Iterator, \Countable
             ->getMongoCollection()
             ->findOne($this->expression->toArray(), $this->fields);
 
-        if(!$mongoDocument) {
+        if (null === $mongoDocument) {
             return null;
         }
 
-        if($this->resultAsArray) {
+        if (true === $this->resultAsArray) {
             return $mongoDocument;
         }
 
