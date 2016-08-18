@@ -576,24 +576,6 @@ class Collection implements \Countable
     }
 
     /**
-     * Get reference to document
-     *
-     * @param Document  $document   instance to stored document to get DBREf
-     *
-     * @throws Exception
-     * @return array
-     */
-    public function createReference(Document $document)
-    {
-        $documentId = $document->getId();
-        if (null === $documentId) {
-            throw new Exception('Document must be stored to get DBRef');
-        }
-
-        return $this->_mongoCollection->createDBRef($documentId);
-    }
-
-    /**
      * Get Document instance by it's reference
      *
      * @param array $ref reference to document

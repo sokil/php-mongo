@@ -983,6 +983,14 @@ However, if you need to reference documents from multiple collections, or use
 legacy database with DBrefs inside, consider using DBRefs.
 See more info about DBRef at https://docs.mongodb.com/manual/reference/database-references/.
 
+If you have DBRef array, you can get document instance:
+
+```php
+<?php
+$collection->getDocumentByReference(array('$ref' => 'col', '$id' => '23ef12...ff452'));
+$database->getDocumentByReference(array('$ref' => 'col', '$id' => '23ef12...ff452'));
+```
+
 Adding reference to one document in another:
 
 ```php
@@ -999,7 +1007,7 @@ Get document from reference field:
 ```php
 <?php
 
-$relatedDocument = $document->getReference('related');
+$relatedDocument = $document->getReferencedDocument('related');
 
 ```
 
@@ -1020,7 +1028,7 @@ Get list of related documents:
 ```php
 <?php
 
-$foundRelatedDocumentList = $document->getReferenceList('related');
+$foundRelatedDocumentList = $document->getReferencedDocumentList('related');
 
 ```
 

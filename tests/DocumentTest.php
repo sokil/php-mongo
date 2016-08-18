@@ -1738,6 +1738,20 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('ACTIVE', $document->status);
     }
 
+    public function testCreateReference()
+    {
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $reference = $document->createReference();
+
+        $this->assertSame(array(
+            '$ref' => 'phpmongo_test_collection',
+            '$id' => $document->getId(),
+        ), $reference);
+    }
+
     public function testGetRelatedDocument()
     {
         $this->collection->disableDocumentPool();
@@ -1749,7 +1763,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             ->setReference('related', $relatedDocument)
             ->save();
 
-        $foundRelatedDocument = $document->getReference('related');
+        $foundRelatedDocument = $document->getReferencedDocument('related');
 
         $this->assertEquals(
             $relatedDocument->getId(),
@@ -1768,7 +1782,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             ->pushReference('related', $relatedDocument)
             ->save();
 
-        $foundRelatedDocumentList = $document->getReferenceList('related');
+        $foundRelatedDocumentList = $document->getReferencedDocumentList('related');
 
         $this->assertSame(1, count($foundRelatedDocumentList));
 

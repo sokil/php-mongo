@@ -780,8 +780,29 @@ class Document extends Structure
     {
         return $this->set(
             $name,
-            $this->collection->createReference($document)
+            $document->createReference()
         );
+    }
+
+    /**
+     * Get reference to document
+     *
+     * @param Document  $document   instance to stored document to get DBREf
+     *
+     * @throws Exception
+     * @return array
+     */
+    public function createReference()
+    {
+        $documentId = $this->getId();
+        if (null === $documentId) {
+            throw new Exception('Document must be stored to get DBRef');
+        }
+
+        return $this
+            ->getCollection()
+            ->getMongoCollection()
+            ->createDBRef($documentId);
     }
 
     /**
@@ -790,7 +811,7 @@ class Document extends Structure
      * @param string    $name   name of field where reference stored
      * @return null|Document
      */
-    public function getReference($name)
+    public function getReferencedDocument($name)
     {
         $reference = $this->get($name);
         if (null === $reference) {
@@ -813,7 +834,7 @@ class Document extends Structure
     {
         return $this->push(
             $name,
-            $this->collection->createReference($document)
+            $document->createReference()
         );
     }
 
@@ -823,7 +844,7 @@ class Document extends Structure
      * @param string    $name   name of field where reference stored
      * @return null|Document
      */
-    public function getReferenceList($name)
+    public function getReferencedDocumentList($name)
     {
         $referenceList = $this->get($name);
         if (null === $referenceList) {

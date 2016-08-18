@@ -33,20 +33,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testCreateReference()
-    {
-        $document = $this->collection
-            ->createDocument(array('param' => 'value'))
-            ->save();
-
-        $reference = $this->collection->createReference($document);
-
-        $this->assertSame(array(
-            '$ref' => 'phpmongo_test_collection',
-            '$id' => $document->getId(),
-        ), $reference);
-    }
-
     public function testGetDocumentByReference()
     {
         // create document
