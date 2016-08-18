@@ -44,6 +44,7 @@ Access to sub document uses dot-syntax. You can validate data passed to document
 * [Create new document](#create-new-document)
 * [Get and set data in document](#get-and-set-data-in-document)
 * [Embedded documents](#embedded-documents)
+* [DBRefs](#dbrefs)
 * [Storing document](#storing-document)
   * [Storing mapped object](#storing-mapped-object)
   * [Insert and update documents without ODM](#insert-and-update-documents-without-odm)
@@ -969,6 +970,62 @@ $post->push('comments', new Comment(['author' => 'Joan Doe']));
 ```
 <br/>
 <br/>
+
+DBRefs
+------
+
+In most cases you should use the manual reference method for connecting two or more related documents -
+including one document’s _id field in another document.
+The application can then issue a second query to resolve the referenced fields as needed.
+See more info about supporting manual references in section [Relations](#relations)
+
+However, if you need to reference documents from multiple collections, or use
+legacy database with DBrefs inside, consider using DBRefs.
+See more info about DBRef at https://docs.mongodb.com/manual/reference/database-references/.
+
+Adding reference to one document in another:
+
+```php
+<?php
+$relatedDocument = $this->collection->createDocument(array('param' => 'value'))->save();
+$document = $this->collection
+    ->createDocument()
+    ->setReference('related', $relatedDocument)
+    ->save();
+```
+
+Get document from reference field:
+
+```php
+<?php
+
+$relatedDocument = $document->getReference('related');
+
+```
+
+Push relation to list of relations:
+
+```php
+<?php
+
+$relatedDocument = $this->collection->createDocument(array('param' => 'value'))->save();
+$document = $this->collection
+    ->createDocument()
+    ->pushReference('related', $relatedDocument)
+    ->save();
+```
+
+Get list of related documents:
+
+```php
+<?php
+
+$foundRelatedDocumentList = $document->getReferenceList('related');
+
+```
+
+List of references may be from different collections of same database.
+Specifying of database in reference not supported.
 
 Storing document
 ----------------
