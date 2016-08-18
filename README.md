@@ -1026,6 +1026,8 @@ $foundRelatedDocumentList = $document->getReferenceList('related');
 
 List of references may be from different collections of same database.
 Specifying of database in reference not supported.
+<br/>
+<br/>
 
 Storing document
 ----------------
