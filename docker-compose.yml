@@ -1,0 +1,12 @@
+version : '2'
+
+services:
+  mongodb26:
+    image: mongo:2.6
+  mongodb33:
+    image: mongo:3.3
+  php56:
+    image: php:5.6
+    command: bash /phpmongo/docker.sh
+    volumes:
+      - .:/phpmongo

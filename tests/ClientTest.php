@@ -342,7 +342,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             ->method('setWriteConcern')
             ->will($this->returnValue(false));
 
-        $client = new Client();
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $client->setMongoClient($mongoClientMock);
 
         $client->setWriteConcern(1);

@@ -13,7 +13,7 @@ class BatchTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $client = new Client();
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
 
         if (version_compare($client->getDbVersion(), '2.6.0', '<')) {
             $this->markTestSkipped(

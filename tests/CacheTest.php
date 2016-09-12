@@ -12,7 +12,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     
     public function setUp()
     {
-        $client = new Client();
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $this->cache = $client
             ->getDatabase('test')
             ->getCache('cache_namespace')

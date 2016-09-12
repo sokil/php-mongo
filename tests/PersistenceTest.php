@@ -37,7 +37,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
         $providers[] = array(new PersistenceLegacy());
 
         // batch for MongoDb after 2.6
-        $client = new Client();
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         if (version_compare($client->getDbVersion(), '2.6', '>=')) {
             $providers[] = array(new Persistence());
         }

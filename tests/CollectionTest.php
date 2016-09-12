@@ -19,7 +19,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $client = new Client();
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
 
         // select database
         $this->database = $client->getDatabase('test');
@@ -253,7 +253,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         /**
          * Modify document in another thread
          */
-        $client = new Client();
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
 
         $client
             ->getDatabase($document->getCollection()->getDatabase()->getName())

@@ -15,7 +15,7 @@ class EmbeddedDocumentTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $client = new Client();
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $database = $client->getDatabase('test');
         $this->collection = $database
             ->getCollection('phpmongo_test_collection')

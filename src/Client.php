@@ -59,7 +59,7 @@ class Client
      * @param array $options
      */
     public function __construct($dsn = null, array $options = null) {
-        if($dsn) {
+        if ($dsn) {
             $this->setDsn($dsn);
         }
         
