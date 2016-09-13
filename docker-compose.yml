@@ -3,6 +3,10 @@ version : '2'
 services:
   mongodb26:
     image: mongo:2.6
+  mongodb30:
+    image: mongo:3.0
+  mongodb32:
+    image: mongo:3.2
   mongodb33:
     image: mongo:3.3
   php56:
