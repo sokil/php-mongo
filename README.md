@@ -85,6 +85,7 @@ Access to sub document uses dot-syntax. You can validate data passed to document
 * [Debugging](#debugging)
   * [Logging](#logging)
   * [Profiling](#profiling)
+* [Unit tests](#unit-tests)
 <br/>
 <br/>
 
@@ -2972,6 +2973,24 @@ echo $params['slowms'];
 $level = $database->getProfilerLevel();
 $slowms = $database->getProfilerSlowMs();
 ```
+<br/>
+<br/>
+
+
+Unit tests
+---------
+
+To start unit tests, run:
+```
+./vendor/bin/phpunit -c tests/phpunit.xml tests
+```
+
+Also available Docker tests. Start test by:
+```
+docker-compose up
+```
+
+Tests for all supported mongo versions became at `log` dir after finishing tests.
 
 <hr/>
 <br/>
