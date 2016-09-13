@@ -27,6 +27,13 @@ cd /phpmongo/
 composer update
 
 # run tests
-PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests
-PHPMONGO_DSN=mongodb://mongodb33 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests
+if [[ ! -d ./log/docker_tests ]];
+then
+    mkdir -p ./log/docker_tests
+fi
+
+PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./log/docker_tests/mongo26.log
+PHPMONGO_DSN=mongodb://mongodb30 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./log/docker_tests/mongo30.log
+PHPMONGO_DSN=mongodb://mongodb32 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./log/docker_tests/mongo32.log
+PHPMONGO_DSN=mongodb://mongodb33 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./log/docker_tests/mongo33.log
 
