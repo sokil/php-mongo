@@ -4,6 +4,7 @@
  * `Cursor::toArray()` removed, use `Cursor::getMongoQuery()`;
  * `Document::belongsToCollection()` removed, use `Collection::hasDocument()`;
  * `Document::FIELD_TYPE_*` constants removed, use `FieldType` enum
+ * `Collection::_database` removed, use Collection::getDatabase() instead;
 
 ## 1.18.2 (2016-09-12)
  * Docker tests

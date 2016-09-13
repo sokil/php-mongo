@@ -66,7 +66,7 @@ class Collection implements \Countable
      *
      * @var \Sokil\Mongo\Database
      */
-    protected $_database;
+    private $database;
 
     /**
      *
@@ -109,7 +109,7 @@ class Collection implements \Countable
         Definition $definition = null
     ) {
         // define db
-        $this->_database = $database;
+        $this->database = $database;
 
         // init mongo collection
         if ($collection instanceof \MongoCollection) {
@@ -208,7 +208,7 @@ class Collection implements \Countable
         if (empty($this->collection)) {
             $mongoCollectionClassName = $this->mongoCollectionClassName;
             $this->collection = new $mongoCollectionClassName(
-                $this->_database->getMongoDB(),
+                $this->database->getMongoDB(),
                 $this->collectionName
             );
         }
@@ -222,7 +222,7 @@ class Collection implements \Countable
      */
     public function getDatabase()
     {
-        return $this->_database;
+        return $this->database;
     }
 
     /**
@@ -1007,7 +1007,7 @@ class Collection implements \Countable
         }
 
         // log
-        $client = $this->_database->getClient();
+        $client = $this->database->getClient();
         if ($client->isDebugEnabled()) {
             // record pipeline
             if ($client->hasLogger()) {
@@ -1071,7 +1071,7 @@ class Collection implements \Countable
         }
 
         // aggregate
-        $status = $this->_database->executeCommand($command);
+        $status = $this->database->executeCommand($command);
 
         if($status['ok'] != 1) {
             throw new Exception('Aggregate error: ' . $status['errmsg']);
@@ -1107,7 +1107,7 @@ class Collection implements \Countable
         }
 
         // aggregate
-        return $this->_database->executeCommand(array(
+        return $this->database->executeCommand(array(
             'aggregate' => $this->getName(),
             'pipeline'  => $pipeline,
             'explain'   => true
