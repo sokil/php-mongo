@@ -17,11 +17,11 @@ before_script:
 script:
   - mongod --version
   - php -r "echo \MongoClient::VERSION . PHP_EOL;"
-  - mkdir -p build/logs
-  - phpunit -c tests/phpunit.xml --coverage-clover build/logs/clover.xml tests
+  - mkdir -p log
+  - phpunit -c tests/phpunit.xml --coverage-clover log/clover.xml tests
   
 after_script:
-  - php ./vendor/bin/coveralls -v
+  - php ./vendor/bin/coveralls -v ---coverage_clover=log/clover.xml
   
 notifications:
   webhooks:
