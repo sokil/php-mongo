@@ -205,7 +205,6 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Error #16722: exception: ReferenceError: gversion is not defined
      */
     public function testExecuteInvalidJs()
     {
