@@ -14,19 +14,11 @@ namespace Sokil\Mongo;
 /**
  * Representation of GridFS as collection of files
  *
- * @method \MongoGridFS getMongoCollection() Get native mongo GridFS
- * @property \MongoGridFS $_mongoCollection MongoGridFS Instance
+ * @property \MongoGridFS $collection MongoGridFS Instance
  */
 class GridFS extends Collection
 {
-    protected function initCollection($collection)
-    {
-        if($collection instanceof \MongoGridFS) {
-            $this->_mongoCollection = $collection;
-        } else {
-           $this->_mongoCollection = new \MongoGridFS($this->_database->getMongoDB(), $collection);
-        }
-    }
+    protected $mongoCollectionClassName = '\MongoGridFS';
     
     /**
      * Factory method to get document object from array of stored document 
@@ -64,7 +56,7 @@ class GridFS extends Collection
      */
     public function storeFile($filename, $metadata = array())
     {
-        return $this->_mongoCollection->storeFile($filename, $metadata);
+        return $this->getMongoCollection()->storeFile($filename, $metadata);
     }
     
     /**
@@ -76,7 +68,7 @@ class GridFS extends Collection
      */
     public function storeBytes($bytes, $metadata = array())
     {
-        return $this->_mongoCollection->storeBytes($bytes, $metadata);
+        return $this->getMongoCollection()->storeBytes($bytes, $metadata);
     }
 
     /**
@@ -89,12 +81,12 @@ class GridFS extends Collection
     public function getFileById($id)
     {
         if($id instanceof \MongoId) {
-            $file = $this->_mongoCollection->findOne(array('_id' => $id));
+            $file = $this->getMongoCollection()->findOne(array('_id' => $id));
         } else {
             try {
-                $file = $this->_mongoCollection->findOne(array('_id' => new \MongoId($id)));
+                $file = $this->getMongoCollection()->findOne(array('_id' => new \MongoId($id)));
             } catch (\MongoException $e) {
-                $file = $this->_mongoCollection->findOne(array('_id' => $id));
+                $file = $this->getMongoCollection()->findOne(array('_id' => $id));
             }
         }
         
@@ -116,12 +108,12 @@ class GridFS extends Collection
     public function deleteFileById($id)
     {
         if($id instanceof \MongoId) {
-            $result = $this->_mongoCollection->delete($id);
+            $result = $this->getMongoCollection()->delete($id);
         } else {
             try {
-                $result = $this->_mongoCollection->delete(new \MongoId($id));
+                $result = $this->getMongoCollection()->delete(new \MongoId($id));
             } catch (\MongoException $e) {
-                $result = $this->_mongoCollection->delete($id);
+                $result = $this->getMongoCollection()->delete($id);
             }
         }
         if($result['ok'] !== (double) 1) {

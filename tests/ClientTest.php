@@ -13,7 +13,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // connect to mongo
-        $this->client = new Client();
+        $this->client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
     }
 
     public function testConstructClientWithConnectOptions()
@@ -29,9 +29,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testSetMongoClient()
     {
-        $mongoClient = new \MongoClient();
+        $mongoClient = new \MongoClient(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
 
-        $client = new Client;
+        $client = new Client();
         $client->setMongoClient($mongoClient);
 
         $this->assertEquals($mongoClient, $client->getMongoClient());
@@ -39,7 +39,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testSetCredentials()
     {
-        $client = new Client;
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $client->setCredentials('u', 'p');
 
         $connectOptions = $client->getConnectOptions();
@@ -55,7 +55,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testGetConnectionWhenNoDSNSpecified()
     {
-        $client = new Client;
+        $client = new Client();
         $this->assertEquals(Client::DEFAULT_DSN, $client->getDsn());
     }
 
@@ -68,7 +68,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDatabase_NameNotSpecified_DefaultNameSpecified()
     {
-        $client = new Client('mongodb://127.0.0.1/');
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $client->useDatabase('some_name');
 
         $this->assertEquals('some_name', $client->getDatabase()->getName());
@@ -332,17 +332,20 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testErrorOnSetWriteConcern()
     {
-        $mongoClientMock = $this->getMock(
-            '\MongoClient',
-            array('setWriteConcern')
-        );
+        $mongoClientMock = $this
+            ->getMockBuilder(
+                '\MongoClient',
+                array('setWriteConcern')
+            )
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $mongoClientMock
             ->expects($this->any())
             ->method('setWriteConcern')
             ->will($this->returnValue(false));
 
-        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
+        $client = new Client();
         $client->setMongoClient($mongoClientMock);
 
         $client->setWriteConcern(1);

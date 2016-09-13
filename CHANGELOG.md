@@ -1,3 +1,13 @@
+## 1.19 (2016-09-13)
+ * `Collection::_mongoCollection` is deprecated. Use `Collection::getMongoCollection()` instead;
+ * `Collection::ensureIndex()` is deprecated, use `Collection::createIndex()`;
+ * `Cursor::toArray()` removed, use `Cursor::getMongoQuery()`;
+ * `Document::belongsToCollection()` removed, use `Collection::hasDocument()`;
+ * `Document::FIELD_TYPE_*` constants removed, use `FieldType` enum
+
+## 1.18.2 (2016-09-12)
+ * Docker tests
+ 
 ## 1.18.1 (2016-08-18)
  * Support of DBRefs
 

@@ -11,7 +11,7 @@ class CollectionLockTest extends \PHPUnit_Framework_TestCase
 {
     public function testLockConfiguration()
     {
-        $client = new Client('mongodb://127.0.0.1');
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $client->map(array(
             'test' => array(
                 'phpmongo_test_collection' => array(
@@ -35,7 +35,7 @@ class CollectionLockTest extends \PHPUnit_Framework_TestCase
     public function testOptimisticLock()
     {
         // init connection
-        $client = new Client('mongodb://127.0.0.1');
+        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $client->map(array(
             'test' => array(
                 'phpmongo_test_collection' => array(

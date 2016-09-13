@@ -17,15 +17,15 @@ class Operator implements ArrayableInterface
      *
      * @var array list of update operations
      */
-    private $_operators = array();
+    private $operators = array();
     
     public function set($fieldName, $value)
     {        
-        if(!isset($this->_operators['$set'])) {
-            $this->_operators['$set'] = array();
+        if(!isset($this->operators['$set'])) {
+            $this->operators['$set'] = array();
         }
         
-        $this->_operators['$set'][$fieldName] = Structure::prepareToStore($value);
+        $this->operators['$set'][$fieldName] = Structure::prepareToStore($value);
         
         return $this;
     }
@@ -41,26 +41,26 @@ class Operator implements ArrayableInterface
         $value = Structure::prepareToStore($value);
         
         // no $push operator found
-        if(!isset($this->_operators['$push'])) {
-            $this->_operators['$push'] = array();
+        if(!isset($this->operators['$push'])) {
+            $this->operators['$push'] = array();
         }
         
         // no field name found
-        if(!isset($this->_operators['$push'][$fieldName])) {
-            $this->_operators['$push'][$fieldName] = $value;
+        if(!isset($this->operators['$push'][$fieldName])) {
+            $this->operators['$push'][$fieldName] = $value;
         }
         
         // field name found and has single value
-        else if(!is_array($this->_operators['$push'][$fieldName]) || !isset($this->_operators['$push'][$fieldName]['$each'])) {
-            $oldValue = $this->_operators['$push'][$fieldName];
-            $this->_operators['$push'][$fieldName] = array(
+        else if(!is_array($this->operators['$push'][$fieldName]) || !isset($this->operators['$push'][$fieldName]['$each'])) {
+            $oldValue = $this->operators['$push'][$fieldName];
+            $this->operators['$push'][$fieldName] = array(
                 '$each' => array($oldValue, $value)
             );
         }
         
         // field name found and already $each
         else {
-            $this->_operators['$push'][$fieldName]['$each'][] = $value;
+            $this->operators['$push'][$fieldName]['$each'][] = $value;
         }
 
         return $this;
@@ -75,29 +75,29 @@ class Operator implements ArrayableInterface
         $values = Structure::prepareToStore($values);
 
         // no $push operator found
-        if(!isset($this->_operators['$push'])) {
-            $this->_operators['$push'] = array();
+        if(!isset($this->operators['$push'])) {
+            $this->operators['$push'] = array();
         }
         
         // no field name found
-        if(!isset($this->_operators['$push'][$fieldName])) {
-            $this->_operators['$push'][$fieldName] = array(
+        if(!isset($this->operators['$push'][$fieldName])) {
+            $this->operators['$push'][$fieldName] = array(
                 '$each' => $values
             );
         }
         
         // field name found and has single value
-        else if(!is_array($this->_operators['$push'][$fieldName]) || !isset($this->_operators['$push'][$fieldName]['$each'])) {
-            $oldValue = $this->_operators['$push'][$fieldName];
-            $this->_operators['$push'][$fieldName] = array(
+        else if(!is_array($this->operators['$push'][$fieldName]) || !isset($this->operators['$push'][$fieldName]['$each'])) {
+            $oldValue = $this->operators['$push'][$fieldName];
+            $this->operators['$push'][$fieldName] = array(
                 '$each' => array_merge(array($oldValue), $values)
             );
         }
         
         // field name found and already $each
         else {
-            $this->_operators['$push'][$fieldName]['$each'] = array_merge(
-                $this->_operators['$push'][$fieldName]['$each'],
+            $this->operators['$push'][$fieldName]['$each'] = array_merge(
+                $this->operators['$push'][$fieldName]['$each'],
                 $values
             );
         }
@@ -120,11 +120,11 @@ class Operator implements ArrayableInterface
     {
         $slice = (int) $slice;
         
-        if(!isset($this->_operators['$push'][$field]['$each'])) {
+        if(!isset($this->operators['$push'][$field]['$each'])) {
             throw new Exception('Field ' . $field . ' must be pushed wit $each modifier');
         }
         
-        $this->_operators['$push'][$field]['$slice'] = $slice;
+        $this->operators['$push'][$field]['$slice'] = $slice;
         
         return $this;
     }
@@ -145,11 +145,11 @@ class Operator implements ArrayableInterface
             throw new Exception('Sort condition is empty');
         }
         
-        if(!isset($this->_operators['$push'][$field]['$each'])) {
+        if(!isset($this->operators['$push'][$field]['$each'])) {
             throw new Exception('Field ' . $field . ' must be pushed with $each modifier');
         }
         
-        $this->_operators['$push'][$field]['$sort'] = $sort;
+        $this->operators['$push'][$field]['$sort'] = $sort;
         
         return $this;
     }
@@ -175,11 +175,11 @@ class Operator implements ArrayableInterface
             throw new Exception('Position must be greater 0');
         }
         
-        if(!isset($this->_operators['$push'][$field]['$each'])) {
+        if(!isset($this->operators['$push'][$field]['$each'])) {
             throw new Exception('Field ' . $field . ' must be pushed with $each modifier');
         }
         
-        $this->_operators['$push'][$field]['$position'] = $position;
+        $this->operators['$push'][$field]['$position'] = $position;
         
         return $this;
     }
@@ -187,16 +187,16 @@ class Operator implements ArrayableInterface
     public function addToSet($field, $value)
     {
         // new field
-        if (!isset($this->_operators['$addToSet'][$field])) {
-            $this->_operators['$addToSet'][$field] = $value;
+        if (!isset($this->operators['$addToSet'][$field])) {
+            $this->operators['$addToSet'][$field] = $value;
             return $this;
         }
 
         // scalar value or array in existed field
-        if (!is_array($this->_operators['$addToSet'][$field]) || !isset($this->_operators['$addToSet'][$field]['$each'])) {
-            $this->_operators['$addToSet'][$field] = array(
+        if (!is_array($this->operators['$addToSet'][$field]) || !isset($this->operators['$addToSet'][$field]['$each'])) {
+            $this->operators['$addToSet'][$field] = array(
                 '$each' => array(
-                    $this->_operators['$addToSet'][$field],
+                    $this->operators['$addToSet'][$field],
                     $value,
                 ),
             );
@@ -204,7 +204,7 @@ class Operator implements ArrayableInterface
         }
 
         // field already $each
-        $this->_operators['$addToSet'][$field]['$each'][] = $value;
+        $this->operators['$addToSet'][$field]['$each'][] = $value;
 
         return $this;
     }
@@ -212,16 +212,16 @@ class Operator implements ArrayableInterface
     public function addToSetEach($field, array $values)
     {
         // new field
-        if (!isset($this->_operators['$addToSet'][$field])) {
-            $this->_operators['$addToSet'][$field]['$each'] = $values;
+        if (!isset($this->operators['$addToSet'][$field])) {
+            $this->operators['$addToSet'][$field]['$each'] = $values;
             return $this;
         }
 
         // scalar value or array in existed field
-        if (!is_array($this->_operators['$addToSet'][$field]) || !isset($this->_operators['$addToSet'][$field]['$each'])) {
-            $this->_operators['$addToSet'][$field] = array(
+        if (!is_array($this->operators['$addToSet'][$field]) || !isset($this->operators['$addToSet'][$field]['$each'])) {
+            $this->operators['$addToSet'][$field] = array(
                 '$each' => array_merge(
-                    array($this->_operators['$addToSet'][$field]),
+                    array($this->operators['$addToSet'][$field]),
                     $values
                 ),
             );
@@ -229,9 +229,9 @@ class Operator implements ArrayableInterface
         }
 
         // field already $each
-        $this->_operators['$addToSet'][$field] = array(
+        $this->operators['$addToSet'][$field] = array(
             '$each' => array_merge(
-                $this->_operators['$addToSet'][$field]['$each'],
+                $this->operators['$addToSet'][$field]['$each'],
                 $values
             ),
         );
@@ -247,7 +247,7 @@ class Operator implements ArrayableInterface
             $value = $oldIncrementValue + $value;
         }
         
-        $this->_operators['$inc'][$fieldName] = $value;
+        $this->operators['$inc'][$fieldName] = $value;
         
         return $this;
     }
@@ -277,7 +277,7 @@ class Operator implements ArrayableInterface
                 $value = $value->toArray();
             }
             
-            $this->_operators['$pull'][$expression] = $value;
+            $this->operators['$pull'][$expression] = $value;
             
             return $this;
         }
@@ -295,12 +295,12 @@ class Operator implements ArrayableInterface
             throw new \InvalidArgumentException('Expression must be field name, callable or Expression object');
         }
         
-        if(!isset($this->_operators['$pull'])) {
+        if(!isset($this->operators['$pull'])) {
             // no $pull operator found
-            $this->_operators['$pull'] = $expression;
+            $this->operators['$pull'] = $expression;
         } else {
             // $pull operator found
-            $this->_operators['$pull'] = array_merge($this->_operators['$pull'], $expression);
+            $this->operators['$pull'] = array_merge($this->operators['$pull'], $expression);
         }
         
         return $this;
@@ -315,50 +315,50 @@ class Operator implements ArrayableInterface
      */
     public function unsetField($fieldName)
     {
-        $this->_operators['$unset'][$fieldName] = '';
+        $this->operators['$unset'][$fieldName] = '';
         return $this;
     }
     
     public function bitwiceAnd($field, $value)
     {
-        $this->_operators['$bit'][$field]['and'] = (int) $value;
+        $this->operators['$bit'][$field]['and'] = (int) $value;
         return $this;
     }
     
     public function bitwiceOr($field, $value)
     {
-        $this->_operators['$bit'][$field]['or'] = (int) $value;
+        $this->operators['$bit'][$field]['or'] = (int) $value;
         return $this;
     }
     
     public function bitwiceXor($field, $value)
     {
-        $this->_operators['$bit'][$field]['xor'] = (int) $value;
+        $this->operators['$bit'][$field]['xor'] = (int) $value;
         
         return $this;
     }
     
     public function isDefined()
     {
-        return (bool) $this->_operators;
+        return (bool) $this->operators;
     }
     
     public function reset()
     {
-        $this->_operators = array();
+        $this->operators = array();
         return $this;
     }
     
     public function get($operation, $fieldName = null)
     {
         if($fieldName) {
-            return isset($this->_operators[$operation][$fieldName])
-                ? $this->_operators[$operation][$fieldName]
+            return isset($this->operators[$operation][$fieldName])
+                ? $this->operators[$operation][$fieldName]
                 : null;
         }
         
-        return isset($this->_operators[$operation]) 
-            ? $this->_operators[$operation]
+        return isset($this->operators[$operation])
+            ? $this->operators[$operation]
             : null;
     }
 
@@ -368,17 +368,17 @@ class Operator implements ArrayableInterface
      */
     public function getAll()
     {
-        return $this->_operators;
+        return $this->operators;
     }
 
     public function toArray()
     {
-        return $this->_operators;
+        return $this->operators;
     }
     
     public function isReloadRequired()
     {
-        return isset($this->_operators['$inc']) || isset($this->_operators['$pull']);
+        return isset($this->operators['$inc']) || isset($this->operators['$pull']);
     }
 
     /**

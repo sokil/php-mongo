@@ -18,7 +18,7 @@ class PersistenceTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->client = new Client();
+        $this->client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $this->collection = $this->client
             ->getDatabase('test')
             ->getCollection('phpmongo_test_collection');

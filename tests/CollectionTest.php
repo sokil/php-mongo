@@ -1067,6 +1067,85 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->collection->updateAll(new Operator());
     }
 
+    public function hasDocumentDataProvider()
+    {
+        return array(
+            'same dsn, same database, same collection' => array(
+                array('server1', 'test1', 'collection1'),
+                array('server1', 'test1', 'collection1'),
+                true,
+            ),
+            'same dsn, same database, diff collection' => array(
+                array('server1', 'test1', 'collection1'),
+                array('server1', 'test1', 'collection2'),
+                false,
+            ),
+            'same dsn, diff database, same collection' => array(
+                array('server1', 'test1', 'collection1'),
+                array('server1', 'test2', 'collection1'),
+                false,
+            ),
+            'same dsn, diff database, diff collection' => array(
+                array('server1', 'test1', 'collection1'),
+                array('server1', 'test2', 'collection2'),
+                false,
+            ),
+            'diff dsn, same database, same collection' => array(
+                array('server1', 'test1', 'collection1'),
+                array('server2', 'test1', 'collection1'),
+                false,
+            ),
+            'diff dsn, same database, diff collection' => array(
+                array('server1', 'test1', 'collection1'),
+                array('server2', 'test1', 'collection2'),
+                false,
+            ),
+            'diff dsn, diff database, same collection' => array(
+                array('server1', 'test1', 'collection1'),
+                array('server2', 'test2', 'collection1'),
+                false,
+            ),
+            'diff dsn, diff database, diff collection' => array(
+                array('server1', 'test1', 'collection1'),
+                array('server2', 'test2', 'collection2'),
+                false,
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider hasDocumentDataProvider
+     */
+    public function testHasDocument($collection1Data, $collection2Data, $isEquals)
+    {
+        $clientPool = new ClientPool(array(
+            'server1' => array(
+                'dsn' => 'someDsn1',
+            ),
+            'server2' => array(
+                'dsn' => 'someDsn2',
+            ),
+        ));
+
+        $collection1 = $clientPool
+            ->get($collection1Data[0])
+            ->getDatabase($collection1Data[1])
+            ->getCollection($collection1Data[2]);
+
+        $collection2 = $clientPool->get($collection2Data[0])
+            ->getDatabase($collection2Data[1])
+            ->getCollection($collection2Data[2]);
+
+        $document = $collection1->createDocument();
+
+        $this->assertEquals(
+            // marker - is equals or not
+            $isEquals,
+            // check
+            $collection2->hasDocument($document)
+        );
+    }
+
     public function testEnableDocumentPool()
     {
         // disable document pool

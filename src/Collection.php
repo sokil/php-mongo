@@ -29,6 +29,8 @@ use Sokil\Mongo\Enum\Language;
  */
 class Collection implements \Countable
 {
+    protected $mongoCollectionClassName = '\MongoCollection';
+
     /**
      * @var string expression class. This class may be overloaded to define
      *  own query methods (whereUserAgeGreatedThan(), etc.)
@@ -70,7 +72,12 @@ class Collection implements \Countable
      *
      * @var \MongoCollection
      */
-    protected $_mongoCollection;
+    private $collection;
+
+    /**
+     * @var string
+     */
+    private $collectionName;
 
     /**
      * Implementation of identity map pattern
@@ -96,12 +103,21 @@ class Collection implements \Countable
      */
     private $definition;
 
-    public function __construct(Database $database, $collection, Definition $definition = null)
-    {
+    public function __construct(
+        Database $database,
+        $collection,
+        Definition $definition = null
+    ) {
         // define db
         $this->_database = $database;
 
-        $this->initCollection($collection);
+        // init mongo collection
+        if ($collection instanceof \MongoCollection) {
+            $this->collectionName = $collection->getName();
+            $this->collection = $collection;
+        } else {
+            $this->collectionName = $collection;
+        }
 
         // init definition
         $this->definition = $definition ? $definition : new Definition();
@@ -109,24 +125,17 @@ class Collection implements \Countable
         if($this->documentClass) {
             $this->definition->setOption('documentClass', $this->documentClass);
         }
+
         if($this->versioning !== null) {
             $this->definition->setOption('versioning', $this->versioning);
         }
+
         if($this->_index) {
             $this->definition->setOption('index', $this->_index);
         }
+
         if($this->_queryExpressionClass) {
             $this->definition->setOption('expressionClass', $this->_queryExpressionClass);
-        }
-    }
-
-    protected function initCollection($collection)
-    {
-        // init mongo collection
-        if($collection instanceof \MongoCollection) {
-            $this->_mongoCollection = $collection;
-        } else {
-            $this->_mongoCollection = $this->_database->getMongoDB()->selectCollection($collection);
         }
     }
 
@@ -171,6 +180,11 @@ class Collection implements \Countable
 
     public function __get($name)
     {
+        // support of deprecated property, use selg::getMongoCollection instead
+        if ($name === '_mongoCollection') {
+            return $this->getMongoCollection();
+        }
+
         return $this->getDocument($name);
     }
 
@@ -181,7 +195,7 @@ class Collection implements \Countable
      */
     public function getName()
     {
-        return $this->_mongoCollection->getName();
+        return $this->collectionName;
     }
 
     /**
@@ -191,7 +205,15 @@ class Collection implements \Countable
      */
     public function getMongoCollection()
     {
-        return $this->_mongoCollection;
+        if (empty($this->collection)) {
+            $mongoCollectionClassName = $this->mongoCollectionClassName;
+            $this->collection = new $mongoCollectionClassName(
+                $this->_database->getMongoDB(),
+                $this->collectionName
+            );
+        }
+
+        return $this->collection;
     }
 
     /**
@@ -210,7 +232,7 @@ class Collection implements \Countable
      * @throws \Sokil\Mongo\Exception
      */
     public function delete() {
-        $status = $this->_mongoCollection->drop();
+        $status = $this->getMongoCollection()->drop();
         if($status['ok'] != 1) {
             // check if collection exists
             if('ns not found' !== $status['errmsg']) {
@@ -325,13 +347,13 @@ class Collection implements \Countable
     public function getDistinct($selector, $expression = null)
     {
         if($expression) {
-            return $this->_mongoCollection->distinct(
+            return $this->getMongoCollection()->distinct(
                 $selector,
                 Expression::convertToArray($expression)
             );
         }
 
-        return $this->_mongoCollection->distinct($selector);
+        return $this->getMongoCollection()->distinct($selector);
     }
 
     /**
@@ -585,7 +607,7 @@ class Collection implements \Countable
      */
     public function getDocumentByReference(array $ref, $useDocumentPool = true)
     {
-        $documentArray = $this->_mongoCollection->getDBRef($ref);
+        $documentArray = $this->getMongoCollection()->getDBRef($ref);
         if (null === $documentArray) {
             return null;
         }
@@ -757,7 +779,7 @@ class Collection implements \Countable
     public function batchDelete($expression = array())
     {
         // remove
-        $result = $this->_mongoCollection->remove(
+        $result = $this->getMongoCollection()->remove(
             Expression::convertToArray($expression)
         );
 
@@ -805,7 +827,7 @@ class Collection implements \Countable
             }
         }
 
-        $result = $this->_mongoCollection->batchInsert($rows);
+        $result = $this->getMongoCollection()->batchInsert($rows);
 
         // If the w parameter is set to acknowledge the write,
         // returns an associative array with the status of the inserts ("ok")
@@ -844,7 +866,7 @@ class Collection implements \Countable
      */
     public function insert(array $document)
     {
-        $result = $this->_mongoCollection->insert($document);
+        $result = $this->getMongoCollection()->insert($document);
 
         // if write concern acknowledged
         if(is_array($result)) {
@@ -876,7 +898,7 @@ class Collection implements \Countable
     public function update($expression, $updateData, array $options = array())
     {
         // execute update operator
-        $result = $this->_mongoCollection->update(
+        $result = $this->getMongoCollection()->update(
             Expression::convertToArray($expression),
             Operator::convertToArray($updateData),
             $options
@@ -1033,7 +1055,7 @@ class Collection implements \Countable
             if (version_compare(\MongoClient::VERSION, '1.5.0', '<')) {
                 throw new FeatureNotSupportedException('Aggregate cursor supported from driver version 1.5');
             }
-            $cursor = $this->_mongoCollection->aggregateCursor($pipeline, $options);
+            $cursor = $this->getMongoCollection()->aggregateCursor($pipeline, $options);
             return $cursor;
         }
 
@@ -1107,7 +1129,7 @@ class Collection implements \Countable
      */
     public function validate($full = false)
     {
-        $response = $this->_mongoCollection->validate($full);
+        $response = $this->getMongoCollection()->validate($full);
         if(!$response || $response['ok'] != 1) {
             throw new Exception($response['errmsg']);
         }
@@ -1118,13 +1140,26 @@ class Collection implements \Countable
     /**
      * Create index
      *
+     * @deprecated since 1.19 Use self::createIndex()
      * @param array $key
      * @param array $options see @link http://php.net/manual/en/mongocollection.ensureindex.php
      * @return \Sokil\Mongo\Collection
      */
     public function ensureIndex(array $key, array $options = array())
     {
-        $this->_mongoCollection->ensureIndex($key, $options);
+        return $this->createIndex($key, $options);
+    }
+
+    /**
+     * Create index
+     *
+     * @param array $key
+     * @param array $options see @link http://php.net/manual/en/mongocollection.ensureindex.php
+     * @return \Sokil\Mongo\Collection
+     */
+    public function createIndex(array $key, array $options = array())
+    {
+        $this->getMongoCollection()->createIndex($key, $options);
         return $this;
     }
     
@@ -1136,7 +1171,7 @@ class Collection implements \Countable
      */
     public function deleteIndex(array $key)
     {
-        $this->_mongoCollection->deleteIndex($key);
+        $this->getMongoCollection()->deleteIndex($key);
         return $this;
     }
 
@@ -1149,7 +1184,7 @@ class Collection implements \Countable
      */
     public function ensureUniqueIndex(array $key, $dropDups = false)
     {
-        $this->_mongoCollection->ensureIndex($key, array(
+        $this->getMongoCollection()->createIndex($key, array(
             'unique'    => true,
             'dropDups'  => (bool) $dropDups,
         ));
@@ -1175,7 +1210,7 @@ class Collection implements \Countable
      */
     public function ensureSparseIndex(array $key)
     {
-        $this->_mongoCollection->ensureIndex($key, array(
+        $this->getMongoCollection()->createIndex($key, array(
             'sparse'    => true,
         ));
 
@@ -1196,7 +1231,7 @@ class Collection implements \Countable
      */
     public function ensureTTLIndex(array $key, $seconds = 0)
     {
-        $this->_mongoCollection->ensureIndex($key, array(
+        $this->getMongoCollection()->createIndex($key, array(
             'expireAfterSeconds' => $seconds,
         ));
 
@@ -1221,7 +1256,7 @@ class Collection implements \Countable
             );
         }
 
-        $this->_mongoCollection->ensureIndex($keys);
+        $this->getMongoCollection()->createIndex($keys);
 
         return $this;
     }
@@ -1244,7 +1279,7 @@ class Collection implements \Countable
             );
         }
 
-        $this->_mongoCollection->ensureIndex($keys);
+        $this->getMongoCollection()->createIndex($keys);
 
         return $this;
     }
@@ -1304,7 +1339,7 @@ class Collection implements \Countable
         }
 
         // create index
-        $this->_mongoCollection->ensureIndex($keys, $options);
+        $this->getMongoCollection()->createIndex($keys, $options);
 
         return $this;
     }
@@ -1333,7 +1368,11 @@ class Collection implements \Countable
             $keys = $options['keys'];
             unset($options['keys']);
 
-            $this->_mongoCollection->ensureIndex($keys, $options);
+            if (is_string($keys)) {
+                $keys = array($keys => 1);
+            }
+
+            $this->getMongoCollection()->createIndex($keys, $options);
         }
 
         return $this;
@@ -1345,42 +1384,42 @@ class Collection implements \Countable
      */
     public function getIndexes()
     {
-        return $this->_mongoCollection->getIndexInfo();
+        return $this->getMongoCollection()->getIndexInfo();
     }
 
     public function readPrimaryOnly()
     {
-        $this->_mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY);
+        $this->getMongoCollection()->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
 
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->_mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+        $this->getMongoCollection()->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
 
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->_mongoCollection->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+        $this->getMongoCollection()->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
 
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->_mongoCollection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        $this->getMongoCollection()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
 
     public function readNearest(array $tags = null)
     {
-        $this->_mongoCollection->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+        $this->getMongoCollection()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
 
     public function getReadPreference()
     {
-        return $this->_mongoCollection->getReadPreference();
+        return $this->getMongoCollection()->getReadPreference();
     }
 
     /**
@@ -1393,7 +1432,7 @@ class Collection implements \Countable
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
-        if(!$this->_mongoCollection->setWriteConcern($w, (int) $timeout)) {
+        if(!$this->getMongoCollection()->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
         }
 
@@ -1433,7 +1472,7 @@ class Collection implements \Countable
      */
     public function getWriteConcern()
     {
-        return $this->_mongoCollection->getWriteConcern();
+        return $this->getMongoCollection()->getWriteConcern();
     }
 
     /**

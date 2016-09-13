@@ -165,11 +165,14 @@ class Client
      */
     public function getMongoClient()
     {
-        if($this->mongoClient) {
+        if ($this->mongoClient) {
             return $this->mongoClient;
         }
 
-        $this->mongoClient = new \MongoClient($this->dsn, $this->connectOptions);
+        $this->mongoClient = new \MongoClient(
+            $this->dsn,
+            $this->connectOptions
+        );
         
         return $this->mongoClient;
     }
@@ -369,7 +372,7 @@ class Client
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
-        if(!$this->getMongoClient()->setWriteConcern($w, (int) $timeout)) {
+        if (!$this->getMongoClient()->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
         }
         

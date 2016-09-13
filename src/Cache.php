@@ -26,7 +26,7 @@ class Cache implements \Countable
                 'index' => array(
                     // date field
                     array(
-                        'keys' => self::FIELD_NAME_EXPIRED,
+                        'keys' => array(self::FIELD_NAME_EXPIRED => 1),
                         'expireAfterSeconds' => 0
                     ),
                 )
@@ -124,7 +124,7 @@ class Cache implements \Countable
     {
         // Get document
         $document = $this->collection->getDocument($key);
-        if(!$document) {
+        if (!$document) {
             return null;
         }
 

@@ -96,6 +96,7 @@ class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRevisionDate()
     {
+        date_default_timezone_set('Europe/Kiev');
         $timeNow = time();
         
         $document = $this->collection

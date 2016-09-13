@@ -30,7 +30,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        if($this->collection) {
+        if ($this->collection) {
             $this->collection->delete();
         }
     }
@@ -212,7 +212,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 '$gt' => 1,
                 '$lt' => 20,
             ),
-        ), $query->toArray());
+        ), $query->getMongoQuery());
     }
 
     public function testMixedToMongoIdList()

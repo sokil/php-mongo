@@ -526,7 +526,8 @@ class GroupStageTest extends \PHPUnit_Framework_TestCase
 
     public function testPush()
     {
-        $this->collection->insertMultiple(array(
+        date_default_timezone_set('Europe/Kiev');
+        $this->collection->batchInsert(array(
             array("_id" => 1, "item" => "abc", "price" => 10, "quantity" => 2, "date" => new \MongoDate(strtotime("2014-01-01T08:00:00Z")) ),
             array("_id" => 2, "item" => "jkl", "price" => 20, "quantity" => 1, "date" => new \MongoDate(strtotime("2014-02-03T09:00:00Z")) ),
             array("_id" => 3, "item" => "xyz", "price" => 5, "quantity" => 5, "date" => new \MongoDate(strtotime("2014-02-03T09:05:00Z")) ),

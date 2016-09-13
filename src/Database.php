@@ -24,7 +24,12 @@ class Database
     /**
      * @var \MongoDB
      */
-    private $mongoDB;
+    private $database;
+
+    /**
+     * @var string
+     */
+    private $databaseName;
 
     /**
      * @var array map collection name to class
@@ -47,15 +52,19 @@ class Database
      */
     private $collectionPoolEnabled = true;
 
+    /**
+     * @param Client $client
+     * @param \MongoDB|string $database
+     */
     public function __construct(Client $client, $database) {
         $this->client = $client;
 
         if ($database instanceof \MongoDB) {
-            $this->mongoDB = $database;
+            $this->database = $database;
+            $this->databaseName = $database->__toString();
         } else {
-            $this->mongoDB = $this->client->getMongoClient()->selectDB($database);
+            $this->databaseName = $database;
         }
-
     }
 
     /**
@@ -65,7 +74,7 @@ class Database
      */
     public function authenticate($username, $password)
     {
-        $this->mongoDB->authenticate($username, $password);
+        $this->getMongoDB()->authenticate($username, $password);
     }
 
     public function logout()
@@ -85,7 +94,7 @@ class Database
      */
     public function getName()
     {
-        return $this->mongoDB->__toString();
+        return $this->databaseName;
     }
 
     /**
@@ -94,7 +103,14 @@ class Database
      */
     public function getMongoDB()
     {
-        return $this->mongoDB;
+        if (empty($this->database)) {
+            $this->database = $this
+                ->client
+                ->getMongoClient()
+                ->selectDB($this->databaseName);
+        }
+
+        return $this->database;
     }
 
     /**
@@ -264,7 +280,7 @@ class Database
         $classDefinition = $this->getCollectionDefinition($name);
         $classDefinition->merge($options);
 
-        $mongoCollection = $this->mongoDB->createCollection(
+        $mongoCollection = $this->getMongoDB()->createCollection(
             $name,
             $classDefinition->getMongoCollectionOptions()
         );
@@ -320,12 +336,12 @@ class Database
 
         // create collection class
         $collection = new $className($this, $name, $classDefinition);
-        if(!$collection instanceof \Sokil\Mongo\Collection) {
+        if (!$collection instanceof Collection) {
             throw new Exception('Must be instance of \Sokil\Mongo\Collection');
         }
 
         // store to pool
-        if($this->collectionPoolEnabled) {
+        if ($this->collectionPoolEnabled) {
             $this->collectionPool[$name] = $collection;
         }
 
@@ -343,7 +359,7 @@ class Database
      */
     public function getDocumentByReference(array $ref, $useDocumentPool = true)
     {
-        $documentArray = $this->mongoDB->getDBRef($ref);
+        $documentArray = $this->getMongoDB()->getDBRef($ref);
         if (null === $documentArray) {
             return null;
         }
@@ -407,37 +423,37 @@ class Database
 
     public function readPrimaryOnly()
     {
-        $this->mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);
+        $this->getMongoDB()->setReadPreference(\MongoClient::RP_PRIMARY);
         return $this;
     }
 
     public function readPrimaryPreferred(array $tags = null)
     {
-        $this->mongoDB->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+        $this->getMongoDB()->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
         return $this;
     }
 
     public function readSecondaryOnly(array $tags = null)
     {
-        $this->mongoDB->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+        $this->getMongoDB()->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
         return $this;
     }
 
     public function readSecondaryPreferred(array $tags = null)
     {
-        $this->mongoDB->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        $this->getMongoDB()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         return $this;
     }
 
     public function readNearest(array $tags = null)
     {
-        $this->mongoDB->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+        $this->getMongoDB()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
         return $this;
     }
 
     public function getReadPreference()
     {
-        return $this->mongoDB->getReadPreference();
+        return $this->getMongoDB()->getReadPreference();
     }
 
     /**
@@ -451,7 +467,7 @@ class Database
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
-        if(!$this->mongoDB->setWriteConcern($w, (int) $timeout)) {
+        if(!$this->getMongoDB()->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
         }
 
@@ -492,7 +508,7 @@ class Database
      */
     public function getWriteConcern()
     {
-        return $this->mongoDB->getWriteConcern();
+        return $this->getMongoDB()->getWriteConcern();
     }
 
     /**
@@ -504,12 +520,12 @@ class Database
      */
     public function executeCommand(array $command, array $options = array())
     {
-        return $this->mongoDB->command($command, $options);
+        return $this->getMongoDB()->command($command, $options);
     }
 
     public function executeJS($code, array $args = array())
     {
-        $response = $this->mongoDB->execute($code, $args);
+        $response = $this->getMongoDB()->execute($code, $args);
         if($response['ok'] == 1.0) {
             return $response['retval'];
         } else {
@@ -526,7 +542,7 @@ class Database
 
     public function getLastError()
     {
-        return $this->mongoDB->lastError();
+        return $this->getMongoDB()->lastError();
     }
 
     public function getProfilerParams()

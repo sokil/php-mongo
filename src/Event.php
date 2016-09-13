@@ -16,9 +16,9 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     /**
      * @var mixed $target target object, on which event is fired
      */
-    private $_target;
+    private $target;
     
-    private $_cancelled = false;
+    private $cancelled = false;
 
     /**
      * Set target object, on which event is fired
@@ -27,7 +27,7 @@ class Event extends \Symfony\Component\EventDispatcher\Event
      */
     public function setTarget($target)
     {
-        $this->_target = $target;
+        $this->target = $target;
         return $this;
     }
 
@@ -37,7 +37,7 @@ class Event extends \Symfony\Component\EventDispatcher\Event
      */
     public function getTarget()
     {
-        return $this->_target;
+        return $this->target;
     }
     
     /**
@@ -45,7 +45,7 @@ class Event extends \Symfony\Component\EventDispatcher\Event
      */
     public function isCancelled()
     {
-        return $this->_cancelled;
+        return $this->cancelled;
     }
     
     /**
@@ -54,9 +54,9 @@ class Event extends \Symfony\Component\EventDispatcher\Event
      */
     public function cancel()
     {
-        $this->_cancelled = true;
+        $this->cancelled = true;
         
-        // propagation already not need
+        // propagation also not need
         $this->stopPropagation();
         
         return $this;

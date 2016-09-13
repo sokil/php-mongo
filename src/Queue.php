@@ -17,11 +17,11 @@ class Queue implements \Countable
      *
      * @var \Sokil\Mongo\Collection
      */
-    private $_collection;
+    private $collection;
     
     public function __construct(Database $database, $channel)
     {
-        $this->_collection = $database
+        $this->collection = $database
             ->getCollection($channel)
             ->disableDocumentPool();
     }
@@ -35,7 +35,7 @@ class Queue implements \Countable
      */
     public function enqueue($payload, $priority = 0)
     {
-        $this->_collection
+        $this->collection
             ->createDocument(array(
                 'payload'   => $payload,
                 'priority'  => (int) $priority,
@@ -53,7 +53,7 @@ class Queue implements \Countable
      */
     public function dequeuePlain()
     {
-        $document = $this->_collection
+        $document = $this->collection
             ->find()
             ->sort(array(
                 'priority' => -1,
@@ -93,7 +93,7 @@ class Queue implements \Countable
      */
     public function count()
     {
-        return count($this->_collection);
+        return count($this->collection);
     }
     
     /**
@@ -103,7 +103,7 @@ class Queue implements \Countable
      */
     public function clear()
     {
-        $this->_collection->delete();
+        $this->collection->delete();
         return $this;
     }
 }

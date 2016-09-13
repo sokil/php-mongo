@@ -4,11 +4,12 @@ namespace Sokil\Mongo;
 
 class ClientPoolTest extends \PHPUnit_Framework_TestCase
 {
+    
     public function testGet()
     {
         $pool = new ClientPool(array(
             'connect1' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -22,7 +23,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             'connect2' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -61,7 +62,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
     {
         $pool = new ClientPool(array(
             'connect1' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -75,7 +76,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             'connect2' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -97,7 +98,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
     {
         $pool = new ClientPool(array(
             'connect1' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,
                 'defaultDatabase' => 'db2',
                 'mapping' => array(
                     'db1' => array(
@@ -111,7 +112,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             'connect2' => array(
-                'dsn' => 'mongodb://127.0.0.1',
+                'dsn' => getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,
                 'defaultDatabase' => 'db2',
                 'mappign' => array(
                     'db1' => array(
@@ -139,7 +140,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
 
         $pool->addConnection(
             'connect1',
-            null,
+            getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,
             array(
                 'db1' => array(
                     'col1' => '\Sokil\Mongo\Collection1',
@@ -155,7 +156,7 @@ class ClientPoolTest extends \PHPUnit_Framework_TestCase
 
         $pool->addConnection(
             'connect2',
-            null,
+            getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,
             array(
                 'db1' => array(
                     'col1' => '\Sokil\Mongo\Collection5',

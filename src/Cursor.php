@@ -538,15 +538,6 @@ class Cursor implements \Iterator, \Countable
     }
 
     /**
-     * @deprecated since 1.11.8. Use Cursor::getMongoQuery()
-     * @return array expression
-     */
-    public function toArray()
-    {
-        return $this->getMongoQuery();
-    }
-
-    /**
      * Get MongoDB query array
      * 
      * @return array

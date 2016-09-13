@@ -688,11 +688,11 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($documentId, $this->collection->find()->whereNotExists('unexistedFieldName')->findOne()->getId());
     }
     
-    public function testToArray()
+    public function testGetMongoQuery()
     {
         // find
         $query = $this->collection->find()->where('some-field', 'some-value');
-        $queryArray = $query->toArray();
+        $queryArray = $query->getMongoQuery();
         
         $this->assertInternalType('array', $queryArray);
         

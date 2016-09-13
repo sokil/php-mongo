@@ -50,29 +50,6 @@ use GeoJson\Geometry\Geometry;
 class Document extends Structure
 {
     /**
-     * @deprecated Use FileType enum
-     */
-    const FIELD_TYPE_DOUBLE = 1;
-    const FIELD_TYPE_STRING = 2;
-    const FIELD_TYPE_OBJECT = 3;
-    const FIELD_TYPE_ARRAY = 4;
-    const FIELD_TYPE_BINARY_DATA = 5;
-    const FIELD_TYPE_UNDEFINED = 6; // deprecated
-    const FIELD_TYPE_OBJECT_ID = 7;
-    const FIELD_TYPE_BOOLEAN = 8;
-    const FIELD_TYPE_DATE = 9;
-    const FIELD_TYPE_NULL = 10;
-    const FIELD_TYPE_REGULAR_EXPRESSION = 11;
-    const FIELD_TYPE_JAVASCRIPT = 13;
-    const FIELD_TYPE_SYMBOL = 14;
-    const FIELD_TYPE_JAVASCRIPT_WITH_SCOPE = 15;
-    const FIELD_TYPE_INT32 = 16;
-    const FIELD_TYPE_TIMESTAMP = 17;
-    const FIELD_TYPE_INT64 = 18;
-    const FIELD_TYPE_MIN_KEY = 255;
-    const FIELD_TYPE_MAX_KEY = 127;
-
-    /**
      *
      * @var \Sokil\Mongo\Document\RelationManager
      */
@@ -474,18 +451,6 @@ class Document extends Structure
             $field,
             new \GeoJson\Geometry\GeometryCollection($geometryCollection)
         );
-    }
-
-    /**
-     * Check if document belongs to specified collection
-     *
-     * @deprecated since 1.12.8 Use Collection::hasDocument()
-     * @param \Sokil\Mongo\Collection $collection collection instance
-     * @return boolean
-     */
-    public function belongsToCollection(Collection $collection)
-    {
-        return $collection->hasDocument($this);
     }
 
     /**

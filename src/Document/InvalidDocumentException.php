@@ -24,16 +24,16 @@ class InvalidDocumentException extends \Sokil\Mongo\Exception
      *
      * @var \Sokil\Mongo\Structure
      */
-    private $_document;
+    private $document;
 
     public function setDocument(Structure $document)
     {
-        $this->_document = $document;
+        $this->document = $document;
         return $this;
     }
 
     public function getDocument()
     {
-        return $this->_document;
+        return $this->document;
     }
 }
