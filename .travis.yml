@@ -21,7 +21,7 @@ script:
   - phpunit -c tests/phpunit.xml --coverage-clover log/clover.xml tests
   
 after_script:
-  - php ./vendor/bin/coveralls -v --coverage_clover=log/clover.xml
+  - php ./vendor/bin/coveralls -v
   
 notifications:
   webhooks:
