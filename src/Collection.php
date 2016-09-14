@@ -87,12 +87,6 @@ class Collection implements \Countable
     private $documentPool = array();
 
     /**
-     *
-     * @var bool cache or not documents
-     */
-    private $isDocumentPoolEnabled = true;
-
-    /**
      * @deprecated since 1.13 Use 'versioning' declaration in mapping
      * @var bool default value of versioning
      */
@@ -419,7 +413,7 @@ class Collection implements \Countable
      */
     public function disableDocumentPool()
     {
-        $this->isDocumentPoolEnabled = false;
+        $this->definition->setOption('documentPool', false);
         return $this;
     }
 
@@ -430,7 +424,7 @@ class Collection implements \Countable
      */
     public function enableDocumentPool()
     {
-        $this->isDocumentPoolEnabled = true;
+        $this->definition->setOption('documentPool', true);
         return $this;
     }
 
@@ -441,7 +435,7 @@ class Collection implements \Countable
      */
     public function isDocumentPoolEnabled()
     {
-        return $this->isDocumentPoolEnabled;
+        return $this->definition->getOption('documentPool');
     }
 
     public function clearDocumentPool()
@@ -578,11 +572,11 @@ class Collection implements \Countable
      */
     public function getDocument($id, $callable = null)
     {
-        if(!$this->isDocumentPoolEnabled) {
+        if (!$this->isDocumentPoolEnabled()) {
             return $this->getDocumentDirectly($id, $callable);
         }
 
-        if(!$callable && $this->isDocumentInDocumentPool($id)) {
+        if (!$callable && $this->isDocumentInDocumentPool($id)) {
             return $this->getDocumentFromDocumentPool($id);
         }
 
@@ -590,7 +584,7 @@ class Collection implements \Countable
 
         // if callable configure cursor to return document as array,
         // than it can't be stored to document pool
-        if($document instanceof Document) {
+        if ($document instanceof Document) {
             $this->addDocumentToDocumentPool($document);
         }
 
@@ -672,7 +666,7 @@ class Collection implements \Countable
 
         // try to egt document from pool if enabled
         $documentsInDocumentPool = array();
-        if ($this->isDocumentPoolEnabled && !$callable) {
+        if ($this->isDocumentPoolEnabled() && !$callable) {
             $documentsInDocumentPool = $this->getDocumentsFromDocumentPool($idList);
             if (count($documentsInDocumentPool) === count($idList)) {
                 return $documentsInDocumentPool;
@@ -697,7 +691,7 @@ class Collection implements \Countable
             return $documentsInDocumentPool ? $documentsInDocumentPool : array();
         }
 
-        if ($this->isDocumentPoolEnabled) {
+        if ($this->isDocumentPoolEnabled()) {
             $this->addDocumentsToDocumentPool($documentsGettingDirectly);
         }
 

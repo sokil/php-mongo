@@ -1,4 +1,5 @@
-## 1.19 (2016-09-13)
+## 1.19 (2016-09-14)
+ * Configure document pool status in collection's mapping;
  * `Collection::_mongoCollection` is deprecated. Use `Collection::getMongoCollection()` instead;
  * `Collection::ensureIndex()` is deprecated, use `Collection::createIndex()`;
  * `Cursor::toArray()` removed, use `Cursor::getMongoQuery()`;

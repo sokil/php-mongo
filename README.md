@@ -298,6 +298,7 @@ Predefined options are:
 | batchSize           | null                     | Number of documents to return in each batch of response    |
 | clientCursorTimeout | null                     | A timeout can be set at any time and will affect subsequent queries on the cursor, including fetching more results from the database    |
 | serverCursorTimeout | null                     | A cumulative time limit in milliseconds to be allowed by the server for processing operations on the cursor |
+| documentPool        | true                     | Document pool, used to store already fetched documnts in identity map |
 
 If `class` omitted, then used standart `\Sokil\Mongo\Collection` class.
 
@@ -1436,6 +1437,21 @@ If we obtain document directly by id using `Collection::getDocument()` and docum
 If serial requests fetch same document, this document not replaced in identity mav, but content of this document will be renewed. So different requests works with same document stored in identity map. 
 
 If we know that documents never be reused, we can disable storing documents to identity map:
+
+Document pool may be disabled or enabled in mapping. By default it is enabled:
+
+```php
+<?php
+$collection->map([
+    'someDb' => [
+        'someCollection', array(
+            'documentPool' => false,
+        ),
+    ],
+]);
+
+```
+
 
 ```php
 <?php
