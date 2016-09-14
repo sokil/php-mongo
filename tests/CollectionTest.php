@@ -1835,7 +1835,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $dbVersion = $this->collection->getDatabase()->getClient()->getDbVersion();
         if (version_compare($dbVersion, '2.6', '<')) {
             $this->assertEquals(1, $index['textIndexVersion']);
-        } else if (version_compare($dbVersion, '3', '<')) {
+        } else if (version_compare($dbVersion, '3.2', '<')) {
             $this->assertEquals(2, $index['textIndexVersion']);
         } else {
             $this->assertEquals(3, $index['textIndexVersion']);

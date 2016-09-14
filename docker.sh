@@ -30,6 +30,8 @@ composer update
 if [[ ! -d ./log/docker_tests ]];
 then
     mkdir -p ./log/docker_tests
+else
+    rm -rf ./log/docker_tests/*.log
 fi
 
 PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./log/docker_tests/mongo26.log
