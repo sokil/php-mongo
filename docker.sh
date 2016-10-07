@@ -14,6 +14,12 @@ then
 
     # install ext-zip
     docker-php-ext-install zip
+    
+    # xdebug
+    # pecl install xdebug
+    # docker-php-ext-enable mongo.so
+    # echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini
+    # echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
 fi
 
 # install composer
