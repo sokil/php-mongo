@@ -1259,18 +1259,18 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     {
         $expected = array(
             array(
-                "data" : array(),
-                "since" : 1444640066,
-                "until" : 1475744066,
-                "addFilter" : [],
-                "refreshtime" : 1475744066
+                "data" => array(),
+                "since" => 1444640066,
+                "until" => 1475744066,
+                "addFilter" => [],
+                "refreshtime" => 1475744066
             ),
             array(
-                "data" : array(),
-                "since" : 1444640069,
-                "until" : 1475744069,
-                "addFilter" : array(),
-                "refreshtime" : 1475744069
+                "data" => array(),
+                "since" => 1444640069,
+                "until" => 1475744069,
+                "addFilter" => array(),
+                "refreshtime" => 1475744069
             )
         );
 
