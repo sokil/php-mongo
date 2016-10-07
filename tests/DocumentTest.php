@@ -795,6 +795,53 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $document->field);
     }
 
+    public function testPushEach_OnUnsavedDocument()
+    {
+        // create document
+        $doc = $this->collection
+            ->createDocument(array(
+                'some' => 'some',
+            ));
+
+        // push single to empty
+        $doc->pushEach('key', array(1, 2));
+        $doc->push('key', 3);
+        $doc->pushEach('key', array(4, 5));
+
+        $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
+
+        $doc->save();
+
+        $this->assertEquals(
+            array(1, 2, 3, 4, 5),
+            $this->collection->getDocumentDirectly($doc->getId())->key
+        );
+    }
+
+    public function testPushEach_OnSavedDocument()
+    {
+        // create document
+        $doc = $this->collection
+            ->createDocument(array(
+                'some' => 'some',
+            ))
+            ->save();
+
+        // push single to empty
+        $doc->pushEach('key', array(1, 2));
+        $doc->push('key', 3);
+        $doc->pushEach('key', array(4, 5));
+
+        $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
+
+        $doc->save();
+
+        $this->assertEquals(
+            array(1, 2, 3, 4, 5),
+            $this->collection->getDocumentDirectly($doc->getId())->key
+        );
+    }
+
     public function testAppend()
     {
         $document = $this->collection->createDocument(array(
@@ -1026,320 +1073,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             array(41, 42),
             $doc->param
-        );
-    }
-
-    public function testPushNumberToEmptyOnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        $doc->save();
-
-        // push single to empty
-        $doc->push('key', 1);
-        $doc->push('key', 2);
-        $doc->save();
-
-        $this->assertEquals(array(1, 2), $this->collection->getDocument($doc->getId())->key);
-    }
-
-    public function testPushStructure()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        $structure = new Structure();
-        $structure->mergeUnmodified(array('param' => 'value'));
-
-        $doc->push('field', $structure);
-        $doc->push('field', $structure);
-
-        $this->assertEquals(array(
-            array('param' => 'value'),
-            array('param' => 'value'),
-        ), $doc->get('field'));
-    }
-
-    public function testPushObjectToEmptyOnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        $doc->save();
-
-        $object1 = new \stdclass;
-        $object2 = new \stdclass;
-
-        // push single to empty
-        $doc->push('key', $object1);
-        $doc->push('key', $object2);
-        $doc->save();
-
-        $this->assertEquals(
-            array((array)$object1, (array)$object2),
-            $doc->key
-        );
-
-        $this->assertEquals(
-            array((array)$object1, (array)$object2),
-            $this->collection->getDocumentDirectly($doc->getId())->key
-        );
-    }
-
-    public function testPushMongoIdToEmptyOnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection
-            ->createDocument(array(
-                'some' => 'some',
-            ))
-            ->save();
-
-        $id = new \MongoId;
-
-        // push single to empty
-        $doc
-            ->push('key', $id)
-            ->save();
-
-        $this->assertEquals(array($id), $doc->key);
-
-        $this->assertEquals(array($id), $this->collection->getDocumentDirectly($doc->getId())->key);
-    }
-
-    public function testPushArrayToEmptyOnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        $doc->save();
-
-        // push array to empty
-        $doc->push('key', array(1));
-        $doc->push('key', array(2));
-        $doc->save();
-
-        $this->assertEquals(array(array(1),array(2)), $this->collection->getDocument($doc->getId())->key);
-
-    }
-
-    public function testPushArrayToEmptyOnNewDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        // push array to empty
-        $doc->push('key', array(1));
-        $doc->save();
-
-        $this->assertEquals(array(array(1)), $this->collection->getDocument($doc->getId())->key);
-    }
-
-    public function testPushSingleToSingleOnNewDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        // push single to single
-        $doc->push('some', 'another1');
-        $doc->push('some', 'another2');
-        $doc->save();
-
-        $this->assertEquals(array('some', 'another1', 'another2'), $this->collection->getDocument($doc->getId())->some);
-    }
-
-    public function testPushSingleToSingleOnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        $doc->save();
-
-        // push single to single
-        $doc->push('some', 'another1');
-        $doc->push('some', 'another2');
-        $doc->save();
-
-        $this->assertEquals(array('some', 'another1', 'another2'), $this->collection->getDocument($doc->getId())->some);
-    }
-
-    public function testPushArrayToSingleOnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        $doc->save();
-
-        // push array to single
-        $doc->push('some', array('another'));
-        $doc->save();
-
-        $this->assertEquals(array('some', array('another')), $this->collection->getDocument($doc->getId())->some);
-    }
-
-    public function testPushArrayToSingleOnNewDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => 'some',
-        ));
-
-        // push array to single
-        $doc->push('some', array('another'));
-        $doc->save();
-
-        $this->assertEquals(array('some', array('another')), $this->collection->getDocument($doc->getId())->some);
-    }
-
-    public function testPushSingleToArrayOnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => array('some1', 'some2'),
-        ));
-
-        $doc->save();
-
-        // push single to array
-        $doc->push('some', 'some3');
-        $doc->save();
-
-        $this->assertEquals(array('some1', 'some2', 'some3'), $this->collection->getDocument($doc->getId())->some);
-
-    }
-
-    public function testPushArrayToArrayOnExistedDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => array('some1', 'some2'),
-        ));
-
-        $doc->save();
-
-        // push array to array
-        $doc->push('some', array('some3'));
-        $doc->save();
-
-        $this->assertEquals(array('some1', 'some2', array('some3')), $this->collection->getDocument($doc->getId())->some);
-    }
-
-    public function testPushArrayToArrayOnNewDocument()
-    {
-        // create document
-        $doc = $this->collection->createDocument(array(
-            'some' => array('some1', 'some2'),
-        ));
-
-        // push array to array
-        $doc->push('some', array('some3'));
-        $doc->save();
-
-        $this->assertEquals(array('some1', 'some2', array('some3')), $this->collection->getDocument($doc->getId())->some);
-    }
-    
-    public function testPushArrayToExistedListFieldOnExistedDocument()
-    {
-        $expected = array(
-            array(
-                "data" => array(),
-                "since" => 1444640066,
-                "until" => 1475744066,
-                "addFilter" => array(),
-                "refreshtime" => 1475744066
-            ),
-            array(
-                "data" => array(),
-                "since" => 1444640069,
-                "until" => 1475744069,
-                "addFilter" => array(),
-                "refreshtime" => 1475744069
-            )
-        );
-
-        $doc = $this->collection
-            ->createDocument(array(
-                'list' => array(
-                    $expected[0],
-                ),
-            ))
-            ->save();
-
-        $doc = $this->collection
-            ->getDocumentDirectly($doc->getId())
-            ->push(
-                'list',
-                $expected[1]
-            )
-            ->save();
-
-        $this->assertEquals(
-            $expected,
-            $this->collection->getDocumentDirectly($doc->getId())->list
-        );
-    }
-
-    public function testPushEach_OnUnsavedDocument()
-    {
-        // create document
-        $doc = $this->collection
-            ->createDocument(array(
-                'some' => 'some',
-            ));
-
-        // push single to empty
-        $doc->pushEach('key', array(1, 2));
-        $doc->push('key', 3);
-        $doc->pushEach('key', array(4, 5));
-
-        $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
-
-        $doc->save();
-
-        $this->assertEquals(
-            array(1, 2, 3, 4, 5),
-            $this->collection->getDocumentDirectly($doc->getId())->key
-        );
-    }
-
-    public function testPushEach_OnSavedDocument()
-    {
-        // create document
-        $doc = $this->collection
-            ->createDocument(array(
-                'some' => 'some',
-            ))
-        ->save();
-
-        // push single to empty
-        $doc->pushEach('key', array(1, 2));
-        $doc->push('key', 3);
-        $doc->pushEach('key', array(4, 5));
-
-        $this->assertEquals(array(1, 2, 3, 4, 5), $doc->key);
-
-        $doc->save();
-
-        $this->assertEquals(
-            array(1, 2, 3, 4, 5),
-            $this->collection->getDocumentDirectly($doc->getId())->key
         );
     }
 
