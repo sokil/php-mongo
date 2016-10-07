@@ -1262,7 +1262,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                 "data" => array(),
                 "since" => 1444640066,
                 "until" => 1475744066,
-                "addFilter" => [],
+                "addFilter" => array(),
                 "refreshtime" => 1475744066
             ),
             array(
