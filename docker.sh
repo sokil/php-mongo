@@ -22,7 +22,7 @@ then
     # echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
     
     # add env var
-    # idekey=PHPSTORM remote_host={PHPSTORM_HOST_IP} remote_port={PHPSTROM_XDEBUG_PORT}
+    # XDEBUG_CONFIG="idekey=PHPSTORM remote_host={PHPSTORM_HOST_IP} remote_port={PHPSTROM_XDEBUG_PORT}"
 
 fi
 
