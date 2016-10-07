@@ -62,6 +62,9 @@ class DocumentPushTest extends \PHPUnit_Framework_TestCase
             'list' => array(
                 array(1), array(2), array(array(1), array(2)),
             ),
+            'list_of_list' => array(
+                array(array(1)), array(array(2)), array(array(array(1)), array(array(2))),
+            ),
             'subdocument' => array(
                 array(
                     'subdoc' => 1,

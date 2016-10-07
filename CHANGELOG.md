@@ -1,3 +1,6 @@
+## 1.19.1 (2016-10-08)
+ * Fix bug [#132](https://github.com/sokil/php-mongo/issues/132) in Document::push
+
 ## 1.19 (2016-09-14)
  * Configure document pool status in collection's mapping;
  * `Collection::_mongoCollection` is deprecated. Use `Collection::getMongoCollection()` instead;

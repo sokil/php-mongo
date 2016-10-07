@@ -766,6 +766,8 @@ $document = $collection->createDocument([
 Get and set data in document
 ----------------------------
 
+### Get
+
 To get value of document's field you may use one of following ways:
 ```php
 <?php
@@ -782,6 +784,8 @@ $document->get('some.unexisted.subDocumentField'); // null
 ```
 If field not exists, null value returned.
 
+### Set
+
 To set value you may use following ways:
 ```php
 <?php
@@ -790,6 +794,21 @@ $document->set('someField', 'someValue'); // {someField: 'someValue'}
 $document->set('someField.sub.document.field', 'someValue'); // {someField: {sub: {document: {field: {'someValue'}}}}}
 $document->setSomeField('someValue');  // {someField: 'someValue'}
 ```
+
+### Push
+Push will add value to array field:
+```php
+<?php
+
+$document->push('field', 1);
+$document->push('field', 2);
+
+$document->get('field'); // return [1, 2]
+```
+
+If field already exists, and not sequential list of values, then in case of scalar, scalar will be converted to array.
+If values pushed to field with subdocument, then triggered `Sokil\Mongo\Document\InvalidOperationException`.
+
 <br/>
 <br/>
 
