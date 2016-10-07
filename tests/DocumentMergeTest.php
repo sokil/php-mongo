@@ -2,33 +2,6 @@
 
 namespace Sokil\Mongo;
 
-class UserDocumentMock extends \Sokil\Mongo\Document
-{
-    protected $schema = array(
-        // simple value
-        'status' => 'ACTIVE',
-        // list value, default value id simple
-        'comments' => 'none',
-        // list value, default value id list
-        'languages' => array('php', 'js', 'css', 'html', 'sql'),
-        // embedded document
-        'profile' => array(
-            // simple value of embedded document
-            'name' => 'USER_NAME',
-            // embedded document of embedded document
-            'birth' => array(
-                'year' => 1984,
-                'month' => 8,
-                'day' => 10,
-            ),
-            // list of embedded document, default value is simple
-            'interests' => 'none',
-            // list of embedded document, default value is list
-            'roles' => array('writer', 'reader', 'watcher'),
-        ),
-    );
-}
-
 class DocumentMergeTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -156,4 +129,31 @@ class DocumentMergeTest extends \PHPUnit_Framework_TestCase
             ),
         ), $user->toArray());
     }
+}
+
+class UserDocumentMock extends \Sokil\Mongo\Document
+{
+    protected $schema = array(
+        // simple value
+        'status' => 'ACTIVE',
+        // list value, default value id simple
+        'comments' => 'none',
+        // list value, default value id list
+        'languages' => array('php', 'js', 'css', 'html', 'sql'),
+        // embedded document
+        'profile' => array(
+            // simple value of embedded document
+            'name' => 'USER_NAME',
+            // embedded document of embedded document
+            'birth' => array(
+                'year' => 1984,
+                'month' => 8,
+                'day' => 10,
+            ),
+            // list of embedded document, default value is simple
+            'interests' => 'none',
+            // list of embedded document, default value is list
+            'roles' => array('writer', 'reader', 'watcher'),
+        ),
+    );
 }
