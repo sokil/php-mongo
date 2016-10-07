@@ -32,11 +32,6 @@ class Operator implements ArrayableInterface
     
     public function push($fieldName, $value)
     {
-        // value must be list, not dictionary
-        if(is_array($value)) {
-            $value = array_values($value);
-        }
-
         // prepasre to store
         $value = Structure::prepareToStore($value);
         
