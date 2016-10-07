@@ -11,6 +11,7 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Document\InvalidOperationException;
 use Sokil\Mongo\Document\RelationManager;
 use Sokil\Mongo\Document\RevisionManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
@@ -891,6 +892,16 @@ class Document extends Structure
     {
         $oldValue = $this->get($fieldName);
 
+        // check if old value is list or sub document
+        // on sub document throw exception
+        if (is_array($oldValue)) {
+            $isSubDocument = (array_keys($oldValue) !== range(0, count($oldValue) - 1));
+            if ($isSubDocument) {
+                throw new InvalidOperationException(sprintf('The field "%s" must be an array but is of type Object', $fieldName));
+            }
+        }
+
+        // prepare new value
         $value = Structure::prepareToStore($value);
 
         // field not exists

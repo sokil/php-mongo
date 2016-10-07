@@ -2,6 +2,8 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Document\InvalidOperationException;
+
 class DocumentPushTest extends \PHPUnit_Framework_TestCase
 {
     const FIELD_NAME_NEW = 'new';
@@ -127,12 +129,6 @@ class DocumentPushTest extends \PHPUnit_Framework_TestCase
                     $expectedList
                 );
                 break;
-            case self::FIELD_NAME_SUB_DOCUMENT:
-                $expectedList = array_merge(
-                    array($this->initialDocument[$fieldName]),
-                    $expectedList
-                );
-                break;
         }
 
         // push single to empty
@@ -251,20 +247,23 @@ class DocumentPushTest extends \PHPUnit_Framework_TestCase
      * @param mixed $value1 first value to push
      * @param mixed $value2 second value to push
      * @param array $expectedList expected list, stored in db
+     *
+     * @expectedException \Sokil\Mongo\Document\InvalidOperationException
+     * @expectedExceptionMessage The field "sub_document" must be an array but is of type Object
      */
-//    public function testPushToSubDocumentFieldOnNewDocument(
-//        $value1,
-//        $value2,
-//        $expectedList
-//    ) {
-//        $this->doPushTest(
-//            $value1,
-//            $value2,
-//            $expectedList,
-//            self::FIELD_NAME_SUB_DOCUMENT,
-//            false
-//        );
-//    }
+    public function testPushToSubDocumentFieldOnNewDocument(
+        $value1,
+        $value2,
+        $expectedList
+    ) {
+        $this->doPushTest(
+            $value1,
+            $value2,
+            $expectedList,
+            self::FIELD_NAME_SUB_DOCUMENT,
+            false
+        );
+    }
 
     /**
      * @dataProvider fieldValuesDataProvider
@@ -272,20 +271,23 @@ class DocumentPushTest extends \PHPUnit_Framework_TestCase
      * @param mixed $value1 first value to push
      * @param mixed $value2 second value to push
      * @param array $expectedList expected list, stored in db
+     *
+     * @expectedException \Sokil\Mongo\Document\InvalidOperationException
+     * @expectedExceptionMessage The field "sub_document" must be an array but is of type Object
      */
-//    public function testPushToSubDocumentFieldOnExistedDocument(
-//        $value1,
-//        $value2,
-//        $expectedList
-//    ) {
-//        $this->doPushTest(
-//            $value1,
-//            $value2,
-//            $expectedList,
-//            self::FIELD_NAME_SUB_DOCUMENT,
-//            true
-//        );
-//    }
+    public function testPushToSubDocumentFieldOnExistedDocument(
+        $value1,
+        $value2,
+        $expectedList
+    ) {
+        $this->doPushTest(
+            $value1,
+            $value2,
+            $expectedList,
+            self::FIELD_NAME_SUB_DOCUMENT,
+            true
+        );
+    }
 
     /**
      * @dataProvider fieldValuesDataProvider
