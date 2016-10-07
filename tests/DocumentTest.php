@@ -1254,6 +1254,47 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array('some1', 'some2', array('some3')), $this->collection->getDocument($doc->getId())->some);
     }
+    
+    public function testPushArrayToExistedListFieldOnExistedDocument()
+    {
+        $expected = array(
+            array(
+                "data" : array(),
+                "since" : 1444640066,
+                "until" : 1475744066,
+                "addFilter" : [],
+                "refreshtime" : 1475744066
+            ),
+            array(
+                "data" : array(),
+                "since" : 1444640069,
+                "until" : 1475744069,
+                "addFilter" : array(),
+                "refreshtime" : 1475744069
+            )
+        );
+
+        $doc = $this->collection
+            ->createDocument(array(
+                'list' => array(
+                    $expected[0],
+                ),
+            ))
+            ->save();
+
+        $doc = $this->collection
+            ->getDocumentDirectly($doc->getId())
+            ->push(
+                'list',
+                $expected[1]
+            )
+            ->save();
+
+        $this->assertEquals(
+            $expected,
+            $this->collection->getDocumentDirectly($doc->getId())->list
+        );
+    }
 
     public function testPushEach_OnUnsavedDocument()
     {
