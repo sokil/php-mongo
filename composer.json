@@ -2,7 +2,7 @@
     "name": "sokil/php-mongo",
     "description": "PHP Object Document Mapper for MongoDB",
     "license": "MIT",
-    "keywords": ["mongodb", "odm"],
+    "keywords": ["mongodb", "odm", "nosql", "orm"],
     "homepage": "http://phpmongokit.github.io/",
     "authors": [
         {
