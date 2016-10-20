@@ -2,7 +2,7 @@ PHPMongo
 ========
 
 [![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
-[![Daily Downloads](https://poser.pugx.org/phpunit/phpunit/d/daily)](https://packagist.org/packages/phpunit/phpunit)
+[![Daily Downloads](https://poser.pugx.org/sokil/php-mongo/d/daily)](https://packagist.org/packages/sokil/php-mongo)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master&1)](https://travis-ci.org/sokil/php-mongo)
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
