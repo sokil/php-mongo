@@ -17,7 +17,7 @@ then
     
     # xdebug
     # pecl install xdebug
-    # docker-php-ext-enable mongo.so
+    # docker-php-ext-enable xdebug.so
     # echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini
     # echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
     
