@@ -1931,7 +1931,7 @@ $aggregator->match(array(
 ));
 // through callable
 $aggregator->match(function($expression) {
-    $expression->whereLess('date', new \MongpDate);
+    $expression->whereLess('date', new \MongoDate);
 });
 ```
 
@@ -1961,7 +1961,7 @@ $collection->aggregate(array(
 // or callable
 $collection->aggregate(function($aggregator) {
     $aggregator->match(function($expression) {
-        $expression->whereLess('date', new \MongpDate);
+        $expression->whereLess('date', new \MongoDate);
     });
 });
 ```
