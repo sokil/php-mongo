@@ -45,7 +45,7 @@ then
     # download composer
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
     # update composer dependencies
-    composer update
+    composer update --no-interaction
 fi
 
 # run tests
