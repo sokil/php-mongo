@@ -118,28 +118,28 @@ class DocumentAddToTest extends \PHPUnit_Framework_TestCase
             ),
             // set
             'setField_int' => array(
-                [2, 4], 1, 2, array(2, 4, 1)
+                array(2, 4), 1, 2, array(2, 4, 1)
             ),
             'setField_string' => array(
-                ['string2', 'string4'], 'string1', 'string2', array('string2', 'string4', 'string1'),
+                array('string2', 'string4'), 'string1', 'string2', array('string2', 'string4', 'string1'),
             ),
             'setField_emptyStdclass' => array(
-                [2, 4], $stdClass, $stdClass, array(2, 4, array()),
+                array(2, 4), $stdClass, $stdClass, array(2, 4, array()),
             ),
             'setField_MongoId' => array(
-                [2, 4], $mongoId1, $mongoId2, array(2, 4, $mongoId1, $mongoId2),
+                array(2, 4), $mongoId1, $mongoId2, array(2, 4, $mongoId1, $mongoId2),
             ),
             'setField_list' => array(
-                [2, 4], array(1), array(2), array(2, 4, array(1), array(2)),
+                array(2, 4), array(1), array(2), array(2, 4, array(1), array(2)),
             ),
             'setField_list_of_list' => array(
-                [2, 4],
+                array(2, 4),
                 array(array(1)),
                 array(array(2)),
                 array(2, 4, array(array(1)), array(array(2))),
             ),
             'setField_subdocument' => array(
-                [2, 4],
+                array(2, 4),
                 array('subdoc' => 1),
                 array('subdoc' => 2),
                 array(
@@ -150,7 +150,7 @@ class DocumentAddToTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             'setField_structure' => array(
-                [2, array('param' => 'value4')],
+                array(2, array('param' => 'value4')),
                 $structure1,
                 $structure2,
                 array(
@@ -184,7 +184,7 @@ class DocumentAddToTest extends \PHPUnit_Framework_TestCase
         // create document
         $document = $initialValue
             ? array($fieldName => $initialValue)
-            : [];
+            : array();
 
         $doc = $this
             ->collection
