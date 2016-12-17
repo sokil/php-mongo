@@ -18,7 +18,6 @@ then
     # install pecl mongo
     yes '' | pecl install mongo
     docker-php-ext-enable mongo.so
-    php -r "echo \MongoClient::VERSION . PHP_EOL;"
 
     # install ext-zip
     docker-php-ext-install zip
@@ -39,6 +38,9 @@ then
     fi
 fi
 
+# print versions
+php -r "echo \MongoClient::VERSION . PHP_EOL;"
+
 # install composer
 if [[  -z $(which composer) ]];
 then
@@ -56,6 +58,7 @@ else
     rm -rf ./share/phpunit/*.log
 fi
 
+# bootstrap
 if [[ $PHPMONGO_DEBUG ]];
 then
     # debug or run tests manually
