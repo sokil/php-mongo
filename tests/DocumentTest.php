@@ -1076,6 +1076,34 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testAddToSet_AddSecondSubDocumentFromStructure()
+    {
+        // create document with field which contains array of sub documents
+        // with one sub document
+        $doc = $this->collection->createDocument(array(
+            'param' => array(
+                array('sub1' => 1),
+            ),
+        ));
+        $doc->save();
+        $docId = $doc->getId();
+
+        // add second sub document to array of sub documents from Structure
+        $structure = new Structure();
+        $structure->set('sub2', 2);
+        $doc->addToSet('param', $structure);
+
+        $doc->save();
+        $doc = $this->collection->getDocumentDirectly($docId);
+        $this->assertEquals(
+            array(
+                array('sub1' => 1),
+                array('sub2' => 2),
+            ),
+            $doc->param
+        );
+    }
+
     public function testPullFromOneDimensionalArray()
     {
         // create document
