@@ -413,12 +413,12 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     /**
      * @todo now test fails because second set not overwrite first and occured exception:
      * 
-     * MongoWriteConcernException: 127.0.0.1:27017: Cannot update 'driving' and 'driving.license' at the same time
-     * Need implementation of overwritting values
+     * @expectedException MongoWriteConcernException
+     * @expectedExceptionMessageRegExp "Cannot update 'driving' and 'driving.license' at the same time"
+     * Need implementation of overwriting values
      */
     public function testSet_SubkeyOverwrite_StoredDocument()
     {
-        $this->markTestSkipped("Cannot update 'driving' and 'driving.license' at the same time");
         /**
          * Modify existed document
          */
