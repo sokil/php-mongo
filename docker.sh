@@ -16,7 +16,7 @@ then
     apt-get install --no-install-recommends -y libssl-dev
 
     # install pecl mongo
-    yes '' | pecl install mongo
+    yes '' | pecl install mongo-1.6.2
     docker-php-ext-enable mongo.so
 
     # install ext-zip
@@ -39,7 +39,7 @@ then
 fi
 
 # print versions
-php -r "echo \MongoClient::VERSION . PHP_EOL;"
+php -r "echo 'PECL Mongo client: ' . \MongoClient::VERSION . PHP_EOL;"
 
 # install composer
 if [[  -z $(which composer) ]];
@@ -62,8 +62,10 @@ fi
 if [[ $PHPMONGO_DEBUG ]];
 then
     # debug or run tests manually
+    echo "Debugging session initialised"
     php -S 127.0.0.1:9876 .
 else
+    echo "Start Phpunit tests"
     # uncomment to run tests automatically
     PHPMONGO_DSN=mongodb://mongodb24 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo24.log
     PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo26.log
