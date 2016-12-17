@@ -116,8 +116,50 @@ class DocumentAddToTest extends \PHPUnit_Framework_TestCase
                     array('param' => 'value2'),
                 )
             ),
-            // sub document
             // set
+            'setField_int' => array(
+                [2, 4], 1, 2, array(2, 4, 1)
+            ),
+            'setField_string' => array(
+                ['string2', 'string4'], 'string1', 'string2', array('string2', 'string4', 'string1'),
+            ),
+            'setField_emptyStdclass' => array(
+                [2, 4], $stdClass, $stdClass, array(2, 4, array()),
+            ),
+            'setField_MongoId' => array(
+                [2, 4], $mongoId1, $mongoId2, array(2, 4, $mongoId1, $mongoId2),
+            ),
+            'setField_list' => array(
+                [2, 4], array(1), array(2), array(2, 4, array(1), array(2)),
+            ),
+            'setField_list_of_list' => array(
+                [2, 4],
+                array(array(1)),
+                array(array(2)),
+                array(2, 4, array(array(1)), array(array(2))),
+            ),
+            'setField_subdocument' => array(
+                [2, 4],
+                array('subdoc' => 1),
+                array('subdoc' => 2),
+                array(
+                    2,
+                    4,
+                    array('subdoc' => 1),
+                    array('subdoc' => 2),
+                ),
+            ),
+            'setField_structure' => array(
+                [2, array('param' => 'value4')],
+                $structure1,
+                $structure2,
+                array(
+                    2,
+                    array('param' => 'value4'),
+                    array('param' => 'value1'),
+                    array('param' => 'value2'),
+                )
+            ),
         );
     }
 
@@ -225,33 +267,16 @@ class DocumentAddToTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @deprecated
+     * @expectedException \Sokil\Mongo\Document\InvalidOperationException
+     * @expectedExceptionMessage The field "field" must be an array but is of type Object
      */
-    public function testAddToSet_AddSecondSubDocumentFromStructure()
-    {
-        // create document with field which contains array of sub documents
-        // with one sub document
-        $doc = $this->collection->createDocument(array(
-            'param' => array(
-                array('sub1' => 1),
-            ),
-        ));
-        $doc->save();
-        $docId = $doc->getId();
-
-        // add second sub document to array of sub documents from Structure
-        $structure = new Structure();
-        $structure->set('sub2', 2);
-        $doc->addToSet('param', $structure);
-
-        $doc->save();
-        $doc = $this->collection->getDocumentDirectly($docId);
-        $this->assertEquals(
-            array(
-                array('sub1' => 1),
-                array('sub2' => 2),
-            ),
-            $doc->param
+    public function testAddToSetOnSubDocumentField() {
+        $this->doAddToSetTest(
+            array('sub' => 42),
+            1,
+            2,
+            null, // exceprion expected
+            true
         );
     }
 }
