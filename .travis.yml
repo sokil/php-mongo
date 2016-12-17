@@ -18,7 +18,7 @@ script:
   - mongod --version
   - php -r "echo \MongoClient::VERSION . PHP_EOL;"
   - mkdir -p log
-  - phpunit -c tests/phpunit.xml --coverage-clover log/clover.xml tests
+  - ./vendor/bin/phpunit -c tests/phpunit.xml --coverage-clover log/clover.xml tests
   
 after_script:
   - php ./vendor/bin/coveralls -v
