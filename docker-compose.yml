@@ -1,6 +1,11 @@
 version : '2'
 
 services:
+  mongodb24:
+    container_name: phpmongo_mongo24
+    image: mongo:2.4
+    volumes:
+      - ./share/mongo24:/data/db
   mongodb26:
     container_name: phpmongo_mongo26
     image: mongo:2.6
@@ -21,6 +26,11 @@ services:
     image: mongo:3.3
     volumes:
       - ./share/mongo33:/data/db
+  mongodb34:
+    container_name: phpmongo_mongo34
+    image: mongo:3.4
+    volumes:
+      - ./share/mongo34:/data/db
   php56:
     image: php:5.6
     container_name: phpmongo_php56
@@ -30,3 +40,4 @@ services:
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
+      PHPMONGO_DEBUG: ${PHPMONGO_DEBUG}

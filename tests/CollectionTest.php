@@ -1822,7 +1822,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 'spanish'
             );
         } catch (\MongoWriteConcernException $e) {
-            $this->assertEquals('127.0.0.1:27017: text search not enabled', $e->getMessage());
+            $this->assertStringEndsWith('text search not enabled', $e->getMessage());
             return;
         }
 
