@@ -919,7 +919,6 @@ class Document extends Structure
         } // field exists and is array
         else {
             if ($this->getId()) {
-                // check if array because previous $set operation on single value was executed
                 $setValue = $this->operator->get('$set', $fieldName);
                 if ($setValue) {
                     $setValue[] = $value;
@@ -972,25 +971,46 @@ class Document extends Structure
 
     public function addToSet($fieldName, $value)
     {
-        $oldValues = $this->get($fieldName);
-        if (!$oldValues) {
-            $newValue = array($value);
-            $this->operator->addToSet($fieldName, $value);
-        } elseif (!is_array($value)) {
-            if ($oldValues === $value) {
+        $set = $this->get($fieldName);
+
+        // prepare new value
+        $value = Structure::prepareToStore($value);
+
+        // add to set
+        if (empty($set)) {
+            $updatedSet = array($value);
+            if ($this->getId()) {
+                $this->operator->addToSet($fieldName, $value);
+            }
+        } elseif (!is_array($set)) {
+            if ($set === $value) {
                 return $this;
             }
-            $newValue = array($oldValues, $value);
-            $this->operator->set($fieldName, $newValue);
+            $updatedSet = array($set, $value);
+            if ($this->getId()) {
+                $this->operator->set($fieldName, $updatedSet);
+            }
+        } elseif (array_keys($set) !== range(0, count($set) - 1)) {
+            // check if old value is list or sub document
+            // on sub document throw exception
+            throw new InvalidOperationException(sprintf('The field "%s" must be an array but is of type Object', $fieldName));
         } else {
-            if (in_array($value, $oldValues)) {
+            // check if already in set
+            if (in_array($value, $set)) {
                 return $this;
             }
-            $newValue = array_merge($oldValues, array($value));
-            $this->operator->addToSet($fieldName, $value);
+            $updatedSet = array_merge($set, array($value));
+            if ($this->getId()) {
+                $setValue = $this->operator->get('$set', $fieldName);
+                if ($setValue) {
+                    $this->operator->set($fieldName, $updatedSet);
+                } else {
+                    $this->operator->addToSet($fieldName, $value);
+                }
+            }
         }
 
-        parent::set($fieldName, $newValue);
+        parent::set($fieldName, $updatedSet);
 
         return $this;
     }

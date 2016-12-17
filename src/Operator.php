@@ -66,7 +66,7 @@ class Operator implements ArrayableInterface
         // value must be list, not dictionary
         $values = array_values($values);
 
-        // prepasre to store
+        // prepare to store
         $values = Structure::prepareToStore($values);
 
         // no $push operator found

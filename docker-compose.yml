@@ -2,15 +2,31 @@ version : '2'
 
 services:
   mongodb26:
+    container_name: phpmongo_mongo26
     image: mongo:2.6
+    volumes:
+      - ./share/mongo26:/data/db
   mongodb30:
+    container_name: phpmongo_mongo30
     image: mongo:3.0
+    volumes:
+      - ./share/mongo30:/data/db
   mongodb32:
+    container_name: phpmongo_mongo32
     image: mongo:3.2
+    volumes:
+      - ./share/mongo32:/data/db
   mongodb33:
+    container_name: phpmongo_mongo33
     image: mongo:3.3
+    volumes:
+      - ./share/mongo33:/data/db
   php56:
     image: php:5.6
+    container_name: phpmongo_php56
     command: bash /phpmongo/docker.sh
     volumes:
       - .:/phpmongo
+    environment:
+      PHP_IDE_CONFIG: "serverName=phpmongo"
+      XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
