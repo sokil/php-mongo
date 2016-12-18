@@ -1,3 +1,7 @@
+## 1.19.2 (2016-12-18)
+ * Fix bug in Document::addToSet
+ * Docker config improvements
+ 
 ## 1.19.1 (2016-10-08)
  * Fix bug [#132](https://github.com/sokil/php-mongo/issues/132) in Document::push
 
