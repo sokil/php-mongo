@@ -996,7 +996,7 @@ class Document extends Structure
             throw new InvalidOperationException(sprintf('The field "%s" must be an array but is of type Object', $fieldName));
         } else {
             // check if already in set
-            if (in_array($value, $set)) {
+            if (in_array($value, $set, true)) {
                 return $this;
             }
             $updatedSet = array_merge($set, array($value));

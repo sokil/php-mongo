@@ -48,7 +48,7 @@ class TypeValidator extends \Sokil\Mongo\Validator
         );
         
         foreach($requiredTypes as $type) {
-            if(!in_array($type, $allowedTypes)) {
+            if (!in_array($type, $allowedTypes)) {
                 throw new Exception('Type must be one of ' . implode(', ', $allowedTypes));
             }
             if (true === call_user_func('is_' . $type, $value)) {
