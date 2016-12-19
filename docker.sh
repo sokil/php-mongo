@@ -23,19 +23,16 @@ then
     docker-php-ext-install zip
     
     # XDEBUG
-    if [[ $PHPMONGO_DEBUG ]];
-    then
-        pecl install xdebug
-        docker-php-ext-enable xdebug.so
+    pecl install xdebug
+    docker-php-ext-enable xdebug.so
 
-        echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini
-        echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
-        echo "xdebug.remote_connect_back=1" >> /usr/local/etc/php/conf.d/xdebug.ini
-        echo "xdebug.remote_mode=req" >> /usr/local/etc/php/conf.d/xdebug.ini
-        echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/xdebug.ini
-        echo "xdebug.remote_host=dockerhost" >> /usr/local/etc/php/conf.d/xdebug.ini
-        echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini
-    fi
+    echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini
+    echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
+    echo "xdebug.remote_connect_back=1" >> /usr/local/etc/php/conf.d/xdebug.ini
+    echo "xdebug.remote_mode=req" >> /usr/local/etc/php/conf.d/xdebug.ini
+    echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/xdebug.ini
+    echo "xdebug.remote_host=dockerhost" >> /usr/local/etc/php/conf.d/xdebug.ini
+    echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini
 fi
 
 # print versions
