@@ -117,6 +117,13 @@ composer require sokil/php-mongo-yii
 
 This package in addition to PHPMongo adapter also has data provider and log router for MongoDb.
 
+#### Yii2 component
+If you use Yii2 Framework, you can use [Yii2 Adapter](https://github.com/PHPMongoKit/yii2-mongo-odm) which wraps this library
+
+```
+composer phpmongokit/yii2-mongo-odm
+```
+
 #### Support of migrations
 If you require migrations, you can add dependency to "[sokil/php-mongo-migrator](https://github.com/sokil/php-mongo-migrator)", based on this library:
 
