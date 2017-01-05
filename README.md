@@ -32,6 +32,7 @@ Access to sub document uses dot-syntax. You can validate data passed to document
   * [Common installation](#common-installation)
   * [Symfony bundle](#symfony-bundle)
   * [Yii component](#yii-component)
+  * [Yii2 component](#yii2-component)
   * [Support of migrations](#support-of-migrations)
 * [Connecting](#connecting)
 * [Mapping](#mapping)
