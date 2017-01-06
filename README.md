@@ -614,23 +614,45 @@ public function rules()
     }
 ```
 
-If document invalid, `\Sokil\Mongo\Document\InvalidDocumentException` is thrown and errors may
-be accessed through `Document::getErrors()` method of document object.
-This document may be get from exception method:
+There are two equal cases for document validation:
+```php
+try {
+    $document->save();
+} catch (\Sokil\Mongo\Document\InvalidDocumentException $e) {
+    // get validation errors
+    var_dump($document->getErrors());
+    // get document instance from exception
+    var_dump($e->getDocument()->getErrors());
+}
+```
+or
+```php
+if ($document->isValid())
+    $document->save();
+} else {
+    var_dump($document->getErrors());
+}
+```
 
+By default, document validates before save and `\Sokil\Mongo\Document\InvalidDocumentException` is thrown if it invalid. Exception `\Sokil\Mongo\Document\Exception\Validate` was thrown before `v.1.11.6`
+when document was invalid. Since `v.1.11.6` this exception is deprecated. Use `\Sokil\Mongo\Document\InvalidDocumentException` instead.
+
+Errors may be accessed through `Document::getErrors()` method of document object. 
+
+Also instabce of document may be get from exception method:
 ```php
 <?php
 try {
-
+    $document->save();
 } catch(\Sokil\Mongo\Document\InvalidDocumentException $e) {
     $e->getDocument()->getErrors();
 }
 ```
 
-Exception `\Sokil\Mongo\Document\Exception\Validate` was thrown before `v.1.11.6`
-when document was invalid. Since `v.1.11.6` this exception is deprecated. Use
-`\Sokil\Mongo\Document\InvalidDocumentException` instead.
-
+If allowed to save invalid documents, disable validation on save:
+```php
+$document->save(false);
+```
 
 Error may be triggered manually by calling method `triggerError($fieldName, $rule, $message)`
 ```php
