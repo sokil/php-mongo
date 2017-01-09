@@ -1831,7 +1831,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // 'textIndexVersion' differ in different versions of mongodb
         $this->assertArrayHasKey('textIndexVersion', $index);
-
         $dbVersion = $this->collection->getDatabase()->getClient()->getDbVersion();
         if (version_compare($dbVersion, '2.6', '<')) {
             $this->assertEquals(1, $index['textIndexVersion']);
@@ -1840,14 +1839,15 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         } else {
             $this->assertEquals(3, $index['textIndexVersion']);
         }
-
         unset($index['textIndexVersion']);
 
-        // chech other params
+        // v key
+        unset($index['v']);
+
+        // check other params
         $this->assertEquals(
             $index,
             array(
-                'v' => 1,
                 'key' => array (
                     '_fts' => 'text',
                     '_ftsx' => 1,
