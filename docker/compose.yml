@@ -1,0 +1,71 @@
+version : '2'
+
+services:
+  mongodb24:
+    container_name: phpmongo_mongo24
+    image: mongo:2.4
+    volumes:
+      - ./share/db/mongo24:/data/db
+
+  mongodb26:
+    container_name: phpmongo_mongo26
+    image: mongo:2.6
+    volumes:
+      - ./share/db/mongo26:/data/db
+
+  mongodb30:
+    container_name: phpmongo_mongo30
+    image: mongo:3.0
+    volumes:
+      - ./share/db/mongo30:/data/db
+
+  mongodb32:
+    container_name: phpmongo_mongo32
+    image: mongo:3.2
+    volumes:
+      - ./share/db/mongo32:/data/db
+
+  mongodb33:
+    container_name: phpmongo_mongo33
+    image: mongo:3.3
+    volumes:
+      - ./share/db/mongo33:/data/db
+
+  mongodb34:
+    container_name: phpmongo_mongo34
+    image: mongo:3.4
+    volumes:
+      - ./share/db/mongo34:/data/db
+
+  php56:
+    image: php:5.6
+    container_name: phpmongo_php56
+    command: bash /phpmongo/docker/init_php.sh
+    volumes:
+      - ..:/phpmongo
+    environment:
+      PHP_IDE_CONFIG: "serverName=phpmongo"
+      XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
+      PHPMONGO_DEBUG: ${PHPMONGO_DEBUG}
+
+  php70:
+    image: php:7.0
+    container_name: phpmongo_php70
+    command: bash /phpmongo/docker/init_php.sh
+    volumes:
+      - ..:/phpmongo
+    environment:
+      PHP_IDE_CONFIG: "serverName=phpmongo"
+      XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
+      PHPMONGO_DEBUG: ${PHPMONGO_DEBUG}
+
+  php71:
+    image: php:7.1
+    container_name: phpmongo_php71
+    command: bash /phpmongo/docker/init_php.sh
+    volumes:
+      - ..:/phpmongo
+    environment:
+      PHP_IDE_CONFIG: "serverName=phpmongo"
+      XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
+      PHPMONGO_DEBUG: ${PHPMONGO_DEBUG}

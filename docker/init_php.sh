@@ -59,7 +59,10 @@ fi
 if [[ $PHPMONGO_DEBUG ]];
 then
     # debug or run tests manually
-    echo "Debugging session initialised"
+    echo "Debugging session initialised. To enter container's console, type:"
+    echo -e "\033[1;37mPHP 5.6: \033[0m docker exec -it phpmongo_php56 bash"
+    echo -e "\033[1;37mPHP 7.0: \033[0m docker exec -it phpmongo_php70 bash"
+    echo -e "\033[1;37mPHP 7.1: \033[0m docker exec -it phpmongo_php71 bash"
     php -S 127.0.0.1:9876 .
 else
     echo "Start Phpunit tests"
