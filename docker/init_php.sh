@@ -68,13 +68,13 @@ if [[  -z $(which composer) ]];
 then
     # download composer
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-    # update composer dependencies
-    composer update --no-interaction
     # add mongodb compatibility layer
     if [[ $MONGO_EXT = "mongodb" ]];
     then
         composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs
     fi;
+    # update composer dependencies
+    composer update --no-interaction
 fi
 
 #####################################

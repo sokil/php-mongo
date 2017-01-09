@@ -2,6 +2,9 @@ sudo: false
 
 language: php
 php:
+  - hhvm
+  - 7.1
+  - 7.0
   - 5.6
   - 5.5
   - 5.4
@@ -10,10 +13,15 @@ php:
 services: mongodb
 
 before_script:
-  - echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - "mongo --eval 'db.adminCommand({ setParameter: true, textSearchEnabled : true}).ok === 1'"
+  - echo "PHP version " $TRAVIS_PHP_VERSION
+  - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then composer require "alcaeus/mongo-php-adapter=${ADAPTER_VERSION}" --ignore-platform-reqs; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:4} == "hhvm" ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:4} == "hhvm" ]]; then composer require "alcaeus/mongo-php-adapter=${ADAPTER_VERSION}" --ignore-platform-reqs; fi
   - composer update --no-interaction
-  
+  - "mongo --eval 'db.adminCommand({ setParameter: true, textSearchEnabled : true}).ok === 1'"
+
 script:
   - mongod --version
   - php -r "echo \MongoClient::VERSION . PHP_EOL;"
