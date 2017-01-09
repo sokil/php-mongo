@@ -18,7 +18,7 @@ before_script:
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:4} == "hhvm" ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
-  - if [[ ${TRAVIS_PHP_VERSION:0:4} == "hhvm" ]]; then composer require "alcaeus/mongo-php-adapter --ignore-platform-reqs; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:4} == "hhvm" ]]; then composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs; fi
   - composer update --no-interaction
   - "mongo --eval 'db.adminCommand({ setParameter: true, textSearchEnabled : true}).ok === 1'"
 
