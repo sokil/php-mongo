@@ -2,6 +2,8 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Exception\FeatureNotSupportedException;
+
 class CursorTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -100,7 +102,8 @@ class CursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MongoCursorException
+     * @expectedException \Sokil\Mongo\Exception\CursorException
+     * @expectedExceptionMessage Projection cannot have a mix of inclusion and exclusion.
      */
     public function testErrorOnAcceptedAndSkippedFieldsPassed()
     {
@@ -113,10 +116,9 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         ));
 
         $document->save();
-        $documentId = $document->getId();
 
-        // fild some fields of document
-        $document = $this->collection->find()
+        // find some fields of document
+        $this->collection->find()
             ->fields(array(
                 'a', 'c'
             ))
@@ -667,6 +669,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
     public function testExplain()
     {
+        if (version_compare(phpversion(), '7.0', '>=')) {
+            $this->setExpectedException(FeatureNotSupportedException::class, 'Feature not implemented in compatibility layer');
+        }
+
         $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
         $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
 
@@ -784,6 +790,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
     public function testHint()
     {
+        if (version_compare(phpversion(), '7.0', '>=')) {
+            $this->setExpectedException(FeatureNotSupportedException::class, 'Feature not implemented in compatibility layer');
+        }
+
         // create index
         $this->collection->ensureIndex(array('a' => 1));
         $this->collection->ensureIndex(array('a' => 1, 'b' => 1));

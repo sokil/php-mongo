@@ -11,6 +11,9 @@
 
 namespace Sokil\Mongo;
 
+use Sokil\Mongo\Exception\CursorException;
+use Sokil\Mongo\Exception\FeatureNotSupportedException;
+
 class Cursor implements \Iterator, \Countable
 {
     /**
@@ -189,7 +192,7 @@ class Cursor implements \Iterator, \Countable
      * Append field to skip list
      *
      * @param string $field field name
-     * @return \Sokil\Mongo\Cursor
+     * @return Cursor
      */
     public function skipField($field)
     {
@@ -450,6 +453,10 @@ class Cursor implements \Iterator, \Countable
 
     public function explain()
     {
+        if (version_compare(phpversion(), '7.0', '>=')) {
+            throw new FeatureNotSupportedException('Feature not implemented in compatibility layer');
+        }
+
         return $this->getCursor()->explain();
     }
 
@@ -481,9 +488,20 @@ class Cursor implements \Iterator, \Countable
      */
     public function findOne()
     {
-        $mongoDocument = $this->collection
-            ->getMongoCollection()
-            ->findOne($this->expression->toArray(), $this->fields);
+        try {
+            $mongoDocument = $this->collection
+                ->getMongoCollection()
+                ->findOne(
+                    $this->expression->toArray(),
+                    $this->fields
+                );
+        } catch (\Exception $e) {
+            throw new CursorException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
+        }
 
         if (null === $mongoDocument) {
             return null;
