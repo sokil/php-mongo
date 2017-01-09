@@ -27,6 +27,8 @@ Access to sub document uses dot-syntax. You can validate data passed to document
 * [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html);
 * [GeoJson version ~1.0](https://github.com/jmikola/geojson);
 * [PSR-3 logger interface](https://github.com/php-fig/log);
+<br/>
+<br/>
 
 #### Compatibility with PHP 7 and HHVM
 
@@ -34,6 +36,8 @@ PHPMongo currently based on old [ext-mongo](https://pecl.php.net/package/mongo) 
 To use this ODM with PHP 7 or HHVM, you need to add [compatibility layer](https://github.com/alcaeus/mongo-php-adapter).
 which implement API of old extension over new [ext-mongodb](https://pecl.php.net/package/mongodb).
 To start using PHPMongo with PHP7, add requirement [alcaeus/mongo-php-adapter](https://github.com/alcaeus/mongo-php-adapter) to composer.
+<br/>
+<br/>
 
 #### Table of contents
 
