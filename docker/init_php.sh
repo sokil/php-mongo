@@ -4,24 +4,35 @@
 
 cd /phpmongo/
 
-### Register host machine
+#####################################
+#        Environment variables      #
+#####################################
+
+# Register host machine
 export DOCKERHOST_IP="$(/sbin/ip route|awk '/default/ { print $3 }')";
 echo "$DOCKERHOST_IP dockerhost" >> /etc/hosts
 
-# install php extensions
+### Set env vars
+export PHP_VERSION=$(php -r "echo phpversion();");
+
+#####################################
+#        PHP extensions             #
+#####################################
+
 if [[ -z $(dpkg -l | grep libssl-dev) ]];
 then
     # add library requirements
     apt-get update
     apt-get install --no-install-recommends -y libssl-dev
 
-    # install pecl mongo
+    # install extensions
+    docker-php-ext-install zip
+
+    # install pecl mongo extension
     yes '' | pecl install mongo-1.6.2
     docker-php-ext-enable mongo.so
+    php -r "echo 'PECL Mongo client: ' . \MongoClient::VERSION . PHP_EOL;"
 
-    # install ext-zip
-    docker-php-ext-install zip
-    
     # XDEBUG
     pecl install xdebug
     docker-php-ext-enable xdebug.so
@@ -35,10 +46,10 @@ then
     echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini
 fi
 
-# print versions
-php -r "echo 'PECL Mongo client: ' . \MongoClient::VERSION . PHP_EOL;"
+#####################################
+#        Composer                   #
+#####################################
 
-# install composer
 if [[  -z $(which composer) ]];
 then
     # download composer
@@ -47,15 +58,10 @@ then
     composer update --no-interaction
 fi
 
-# run tests
-if [[ ! -d ./share/phpunit ]];
-then
-    mkdir -p ./share/phpunit
-else
-    rm -rf ./share/phpunit/*.log
-fi
+#####################################
+#        Start environment          #
+#####################################
 
-# bootstrap
 if [[ $PHPMONGO_DEBUG ]];
 then
     # debug or run tests manually
@@ -63,9 +69,20 @@ then
     echo -e "\033[1;37mPHP 5.6: \033[0m docker exec -it phpmongo_php56 bash"
     echo -e "\033[1;37mPHP 7.0: \033[0m docker exec -it phpmongo_php70 bash"
     echo -e "\033[1;37mPHP 7.1: \033[0m docker exec -it phpmongo_php71 bash"
+
     php -S 127.0.0.1:9876 .
 else
+    # run test automatically
     echo "Start Phpunit tests"
+
+    # run tests
+    if [[ ! -d ./share/phpunit ]];
+    then
+        mkdir -p ./share/phpunit
+    else
+        rm -rf ./share/phpunit/*.log
+    fi
+
     # uncomment to run tests automatically
     PHPMONGO_DSN=mongodb://mongodb24 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo24.log
     PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo26.log
