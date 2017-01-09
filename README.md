@@ -19,12 +19,21 @@ Access to sub document uses dot-syntax. You can validate data passed to document
 
 #### Requirements
 
-* PHP 5.3 or above
-* PHP MongoDB Extension 0.9 or above (Some features require >= 1.5)
-* Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0 (See [Unit tests](#unit-tests))
-* [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html)
-* [GeoJson version ~1.0](https://github.com/jmikola/geojson)
-* [PSR-3 logger interface](https://github.com/php-fig/log)
+* PHP 5.3 or above;
+* PHP 7 using [compatibility layer](https://github.com/alcaeus/mongo-php-adapter) with some restriontions;
+* [PHP Mongo Extension](https://pecl.php.net/package/mongo) 0.9 or above (Some features require >= 1.5) for PHP < 7.0;
+* [PHP MongoDB Extension](https://pecl.php.net/package/mongodb) 1.0 or above for PHP >= 7.0;
+* Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0 (See [Unit tests](#unit-tests));
+* [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html);
+* [GeoJson version ~1.0](https://github.com/jmikola/geojson);
+* [PSR-3 logger interface](https://github.com/php-fig/log);
+
+#### Compatibility with PHP 7 and HHVM
+
+PHPMongo currently based on old [ext-mongo](https://pecl.php.net/package/mongo) entension.
+To use this ODM with PHP 7 or HHVM, you need to add [compatibility layer](https://github.com/alcaeus/mongo-php-adapter).
+which implement API of old extension over new [ext-mongodb](https://pecl.php.net/package/mongodb).
+To start using PHPMongo with PHP7, add requirement [alcaeus/mongo-php-adapter](https://github.com/alcaeus/mongo-php-adapter) to composer.
 
 #### Table of contents
 
