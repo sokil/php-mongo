@@ -670,7 +670,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
     public function testExplain()
     {
         if (version_compare(phpversion(), '7.0', '>=')) {
-            $this->setExpectedException(FeatureNotSupportedException::class, 'Feature not implemented in compatibility layer');
+            $this->setExpectedException(
+                'Sokil\Mongo\Exception\FeatureNotSupportedException',
+                'Feature not implemented in compatibility layer'
+            );
         }
 
         $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
@@ -791,7 +794,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
     public function testHint()
     {
         if (version_compare(phpversion(), '7.0', '>=')) {
-            $this->setExpectedException(FeatureNotSupportedException::class, 'Feature not implemented in compatibility layer');
+            $this->setExpectedException(
+                'Sokil\Mongo\Exception\FeatureNotSupportedException',
+                'Feature not implemented in compatibility layer'
+            );
         }
 
         // create index
