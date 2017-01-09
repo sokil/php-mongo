@@ -75,7 +75,7 @@ else
     # run test automatically
     echo "Start Phpunit tests"
 
-    # run tests
+    # prepare phpunit log dir
     if [[ ! -d ./share/phpunit ]];
     then
         mkdir -p ./share/phpunit
@@ -83,7 +83,7 @@ else
         rm -rf ./share/phpunit/*.log
     fi
 
-    # uncomment to run tests automatically
+    # start bunch of tests
     PHPMONGO_DSN=mongodb://mongodb24 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo24.log
     PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo26.log
     PHPMONGO_DSN=mongodb://mongodb30 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo30.log
