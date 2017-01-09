@@ -13,7 +13,7 @@ php:
 services: mongodb
 
 before_script:
-  - echo "PHP version " $TRAVIS_PHP_VERSION
+  - echo $TRAVIS_PHP_VERSION
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs; fi
