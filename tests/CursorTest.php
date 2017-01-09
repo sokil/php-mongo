@@ -103,7 +103,6 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Sokil\Mongo\Exception\CursorException
-     * @expectedExceptionMessage Projection cannot have a mix of inclusion and exclusion.
      */
     public function testErrorOnAcceptedAndSkippedFieldsPassed()
     {
