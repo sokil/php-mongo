@@ -5,6 +5,21 @@
 cd /phpmongo/
 
 #####################################
+#        Console arguments          #
+#####################################
+MONGO_EXT=$1
+if [[ -z $MONGO_EXT ]];
+then
+    MONGO_EXT="mongo"
+fi;
+
+MONGO_EXT_VERSION=$2
+if [[ -z $MONGO_EXT_VERSION ]];
+then
+    MONGO_EXT_VERSION="1.6.2"
+fi;
+
+#####################################
 #        Environment variables      #
 #####################################
 
@@ -29,9 +44,8 @@ then
     docker-php-ext-install zip
 
     # install pecl mongo extension
-    yes '' | pecl install mongo-1.6.2
-    docker-php-ext-enable mongo.so
-    php -r "echo 'PECL Mongo client: ' . \MongoClient::VERSION . PHP_EOL;"
+    yes '' | pecl -q install -f ${MONGO_EXT}-${MONGO_EXT_VERSION}
+    docker-php-ext-enable ${MONGO_EXT}.so
 
     # XDEBUG
     pecl install xdebug
@@ -56,6 +70,11 @@ then
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
     # update composer dependencies
     composer update --no-interaction
+    # add mongodb compatibility layer
+    if [[ $MONGO_EXT = "mongodb" ]];
+    then
+        composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs
+    fi;
 fi
 
 #####################################

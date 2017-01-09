@@ -40,7 +40,7 @@ services:
   php56:
     image: php:5.6
     container_name: phpmongo_php56
-    command: bash /phpmongo/docker/init_php.sh
+    command: bash /phpmongo/docker/init_php.sh mongo 1.6.2
     volumes:
       - ..:/phpmongo
     environment:
@@ -51,7 +51,7 @@ services:
   php70:
     image: php:7.0
     container_name: phpmongo_php70
-    command: bash /phpmongo/docker/init_php.sh
+    command: bash /phpmongo/docker/init_php.sh mongodb 1.2.2
     volumes:
       - ..:/phpmongo
     environment:
@@ -62,7 +62,7 @@ services:
   php71:
     image: php:7.1
     container_name: phpmongo_php71
-    command: bash /phpmongo/docker/init_php.sh
+    command: bash /phpmongo/docker/init_php.sh mongodb 1.2.2
     volumes:
       - ..:/phpmongo
     environment:
