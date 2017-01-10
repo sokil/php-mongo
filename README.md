@@ -39,7 +39,7 @@ There are some restrictions of using ODM with compatibility layer:
 
 * Explaining cursor not implemented;
 * Parameter $db of DBRef skipped, so this DBRef allows to find document, if $id and $ref matched some document. See [issue](https://github.com/alcaeus/mongo-php-adapter/issues/147)
-* Collection::getIndexInfo() did not return 'sparse' and 'expireAfterSeconds' parameters if passed. See [issue](https://github.com/alcaeus/mongo-php-adapter/issues/148);
+* Collection::getIndexInfo() did not return 'sparse', 'textIndexVersion' and 'expireAfterSeconds' parameters if passed. See [issue](https://github.com/alcaeus/mongo-php-adapter/issues/148);
 
 <br/>
 <br/>
