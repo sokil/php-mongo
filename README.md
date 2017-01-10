@@ -1,4 +1,4 @@
-PHPMongo
+PHPMongo ODM
 ========
 
 [![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
