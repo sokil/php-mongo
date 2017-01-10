@@ -49,14 +49,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($foundDocument);
 
-        /// invalid db
-        $foundDocument = $this->collection->getDocumentByReference(array(
-            '$ref'  => $this->collection->getName(),
-            '$db'   => 'some_db',
-            '$id'   => $document->getId(),
-        ), false);
-
-        $this->assertNull($foundDocument);
+        // In PHP 7 parameter $db of DBRef omitted on search
+        // See https://github.com/alcaeus/mongo-php-adapter/issues/147
+        if (version_compare(phpversion(), '7.0', '<=')) {
+            // invalid db
+            $foundDocument = $this->collection->getDocumentByReference(array(
+                '$ref'  => $this->collection->getName(),
+                '$db'   => 'some_db',
+                '$id'   => $document->getId(),
+            ), false);
+            $this->assertNull($foundDocument);
+        }
 
         // all valid
         $foundDocument = $this->collection->getDocumentByReference(array(
