@@ -1200,13 +1200,16 @@ class Collection implements \Countable
      *  type. If specifying direction, specify 1 for ascending or -1
      *  for descending.
      *
-     * @return \Sokil\Mongo\Collection
+     * @return Collection
      */
     public function ensureSparseIndex(array $key)
     {
-        $this->getMongoCollection()->createIndex($key, array(
-            'sparse'    => true,
-        ));
+        $this->getMongoCollection()->createIndex(
+            $key,
+            array(
+                'sparse'    => true,
+            )
+        );
 
         return $this;
     }

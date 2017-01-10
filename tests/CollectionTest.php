@@ -41,11 +41,14 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->save();
 
         // invalid col and db
-        $foundDocument = $this->collection->getDocumentByReference(array(
-            '$ref'  => 'some_collection',
-            '$db'   => 'some_db',
-            '$id'   => $document->getId(),
-        ), false);
+        $foundDocument = $this->collection->getDocumentByReference(
+            array(
+                '$ref'  => 'some_collection',
+                '$db'   => 'some_db',
+                '$id'   => $document->getId(),
+            ),
+            false
+        );
 
         $this->assertNull($foundDocument);
 
@@ -53,20 +56,26 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         // See https://github.com/alcaeus/mongo-php-adapter/issues/147
         if (version_compare(phpversion(), '7.0', '<=')) {
             // invalid db
-            $foundDocument = $this->collection->getDocumentByReference(array(
-                '$ref'  => $this->collection->getName(),
-                '$db'   => 'some_db',
-                '$id'   => $document->getId(),
-            ), false);
+            $foundDocument = $this->collection->getDocumentByReference(
+                array(
+                    '$ref'  => $this->collection->getName(),
+                    '$db'   => 'some_db',
+                    '$id'   => $document->getId(),
+                ),
+                false)
+            ;
             $this->assertNull($foundDocument);
         }
 
         // all valid
-        $foundDocument = $this->collection->getDocumentByReference(array(
-            '$ref'  => $this->collection->getName(),
-            '$db'   => $this->collection->getDatabase()->getName(),
-            '$id'   => $document->getId(),
-        ), false);
+        $foundDocument = $this->collection->getDocumentByReference(
+            array(
+                '$ref'  => $this->collection->getName(),
+                '$db'   => $this->collection->getDatabase()->getName(),
+                '$id'   => $document->getId(),
+            ),
+            false
+        );
 
         $this->assertSame(
             (string)$document->getId(),
@@ -96,9 +105,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->createDocument(array('param' => 'value'))
             ->save();
 
-        $this->collection->updateAll(array(
-            '$set' => array('param' => 'updatedValue')
-        ));
+        $this->collection->batchUpdate(
+            array('_id' => $document->getId()),
+            array(
+                '$set' => array('param' => 'updatedValue')
+            )
+        );
 
         // already loaded document
         $this->assertEquals('value', $document->param);
@@ -1722,8 +1734,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             'sparseDesc'    => -1,
         ), $indexes[1]['key']);
 
-        $this->assertArrayHasKey('sparse', $indexes[1]);
 
+        // Currently adapter's getIndexInfo did not return sparse parameter
+        // https://github.com/alcaeus/mongo-php-adapter/issues/148
+        if (version_compare(phpversion(), '7.0', '<')) {
+            $this->assertArrayHasKey('sparse', $indexes[1]);
+        }
     }
 
     public function testEnsureTTLIndex()
