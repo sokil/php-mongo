@@ -1,4 +1,4 @@
-PHPMongo
+PHPMongo ODM
 ========
 
 [![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg)](https://packagist.org/packages/sokil/php-mongo)
@@ -12,8 +12,7 @@ PHPMongo
 
 #### PHP ODM for MongoDB.
 
-Why to use this ODM? You can easily work with document data through comfortable getters and setters instead of array and don't check if key exist in array. 
-Access to sub document uses dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of document's life, and more things which make you life easier.
+Why to use this ODM? You can easily work with document data through comfortable getters and setters instead of array and don't check if key exist in array. Access to sub document uses dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of document's life. You can create relations, build aggregations, create versioned documents, write migrations and do more things which make you life easier.
 
 [![ArmySOS - Help for Ukrainian Army](http://armysos.com.ua/wp-content/uploads/2014/09/728_90.jpg)](http://armysos.com.ua/en/help-the-army)
 
@@ -60,6 +59,11 @@ There are some restrictions of using ODM with compatibility layer:
 * [Create new document](#create-new-document)
 * [Get and set data in document](#get-and-set-data-in-document)
 * [Embedded documents](#embedded-documents)
+  * [Get embedded document](#get-embedded-document)
+  * [Set embedded document](#set-embedded-document)
+  * [Get embedded list of documents](#get-embedded-list-of-documents)
+  * [Set embedded list of documents](#set-embedded-list-of-documents)
+  * [Validation of embedded documents](#validation-of-embedded-documents)
 * [DBRefs](#dbrefs)
 * [Storing document](#storing-document)
   * [Storing mapped object](#storing-mapped-object)
@@ -92,7 +96,7 @@ There are some restrictions of using ODM with compatibility layer:
 * [Write concern](#write-concern)
 * [Capped collections](#capped-collections)
 * [Executing commands](#executing-commands)
-* [Queue](#queue)
+* [Queue](#queue) 
 * [Migrations](#migrations)
 * [GridFS](#gridfs)
 * [Versioning](#versioning)
@@ -1034,6 +1038,34 @@ You can store embedded document to array, and validate it before pushing:
 $post->push('comments', new Comment(['author' => 'John Doe']));
 $post->push('comments', new Comment(['author' => 'Joan Doe']));
 ```
+
+### Validation of embedded documents
+
+As embedded document is `Structure`, it has all validation functionality as `Document`. Currently embedded document validates only just before set to `Document` or manually. If embedded document is invalid, it trowns `Sokil\Mongo\Document\InvalidDocumentException`.
+
+```php
+class EmbeddedDocument extends Structure()
+{
+    public function rules() {}
+}
+
+$embeddedDocument = new EmbeddedDocument();
+// auto validation
+try {
+    $document->set('some', embeddedDocument);
+    $document->addToSet('some', embeddedDocument);
+    $document->push('some', embeddedDocument);
+} catch (InvalidDocumentException $e) {
+    
+}
+
+// manual validation
+if ($embeddedDocument->isValid()) {
+    $document->set('some', embeddedDocument);
+    $document->addToSet('some', embeddedDocument);
+    $document->push('some', embeddedDocument);
+}
+```
 <br/>
 <br/>
 
@@ -1056,7 +1088,7 @@ If you have DBRef array, you can get document instance:
 $collection->getDocumentByReference(array('$ref' => 'col', '$id' => '23ef12...ff452'));
 $database->getDocumentByReference(array('$ref' => 'col', '$id' => '23ef12...ff452'));
 ```
-
+    
 Adding reference to one document in another:
 
 ```php
