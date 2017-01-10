@@ -1021,6 +1021,10 @@ $post->push('comments', new Comment(['author' => 'Joan Doe']));
 <br/>
 <br/>
 
+### Validation of embedded documents
+
+As embedded document is `Structure`, it has all validation functionality as `Document`. Currently embedded document validates only just before set to `Document` or manually.
+
 DBRefs
 ------
 
