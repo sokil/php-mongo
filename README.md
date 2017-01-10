@@ -44,6 +44,11 @@ Access to sub document uses dot-syntax. You can validate data passed to document
 * [Create new document](#create-new-document)
 * [Get and set data in document](#get-and-set-data-in-document)
 * [Embedded documents](#embedded-documents)
+  * [Get embedded document](#get-embedded-document)
+  * [Set embedded document](#set-embedded-document)
+  * [Get embedded list of documents](#get-embedded-list-of-documents)
+  * [Set embedded list of documents](#set-embedded-list-of-documents)
+  * [Validation of embedded documents](#validation-of-embedded-documents)
 * [DBRefs](#dbrefs)
 * [Storing document](#storing-document)
   * [Storing mapped object](#storing-mapped-object)
@@ -76,7 +81,7 @@ Access to sub document uses dot-syntax. You can validate data passed to document
 * [Write concern](#write-concern)
 * [Capped collections](#capped-collections)
 * [Executing commands](#executing-commands)
-* [Queue](#queue)
+* [Queue](#queue) 
 * [Migrations](#migrations)
 * [GridFS](#gridfs)
 * [Versioning](#versioning)
@@ -1018,8 +1023,6 @@ You can store embedded document to array, and validate it before pushing:
 $post->push('comments', new Comment(['author' => 'John Doe']));
 $post->push('comments', new Comment(['author' => 'Joan Doe']));
 ```
-<br/>
-<br/>
 
 ### Validation of embedded documents
 
@@ -1048,8 +1051,8 @@ if ($embeddedDocument->isValid()) {
     $document->push('some', embeddedDocument);
 }
 ```
-
-
+<br/>
+<br/>
 
 DBRefs
 ------
