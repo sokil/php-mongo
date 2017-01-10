@@ -36,8 +36,9 @@ To use this ODM with PHP 7 or HHVM, you need to add [compatibility layer](https:
 which implement API of old extension over new [ext-mongodb](https://pecl.php.net/package/mongodb).
 To start using PHPMongo with PHP7, add requirement [alcaeus/mongo-php-adapter](https://github.com/alcaeus/mongo-php-adapter) to composer.
 There are some restrictions of using ODM with compatibility layer:
+
 * Explaining cursor not implemented;
-*
+
 <br/>
 <br/>
 
