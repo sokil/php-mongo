@@ -1,5 +1,12 @@
 sudo: required
 
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-5
+
 language: php
 php:
   - hhvm
