@@ -1,7 +1,10 @@
 #!/bin/env bash
 
 sudo apt-get update -q
-sudo apt-get install --no-install-recommends -y hhvm-dev g++
+sudo apt-get install --no-install-recommends -y \
+ build-essential \
+ hhvm-dev
+
 
 git clone https://github.com/mongodb/mongo-hhvm-driver.git
 cd mongo-hhvm-driver
