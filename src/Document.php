@@ -17,6 +17,7 @@ use Sokil\Mongo\Document\RevisionManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Sokil\Mongo\Collection\Definition;
 use Sokil\Mongo\Document\OptimisticLockFailureException;
+use Sokil\Mongo\Exception\WriteException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use GeoJson\Geometry\Geometry;
 
@@ -1091,9 +1092,90 @@ class Document extends Structure
         return $this;
     }
 
+    /**
+     * Internal method to insert document
+     */
+    private function internalInsert()
+    {
+        if ($this->triggerEvent('beforeInsert')->isCancelled()) {
+            return;
+        }
+
+        $document = $this->toArray();
+
+        $this
+            ->collection
+            ->getMongoCollection()
+            ->insert($document);
+
+        // set id
+        $this->defineId($document['_id']);
+
+        // after insert event
+        $this->triggerEvent('afterInsert');
+    }
+
+    /**
+     * Internal method to update document
+     *
+     * @throws Exception
+     * @throws OptimisticLockFailureException
+     */
+    private function internalUpdate()
+    {
+        if ($this->triggerEvent('beforeUpdate')->isCancelled()) {
+            return;
+        }
+
+        // locking
+        $query = array('_id' => $this->getId());
+        if ($this->getOption('lock') === Definition::LOCK_OPTIMISTIC) {
+            $query['__version__'] = $this->get('__version__');
+            $this->getOperator()->increment('__version__');
+        }
+
+        // update
+        $status = $this->collection
+            ->getMongoCollection()
+            ->update(
+                $query,
+                $this->getOperator()->toArray()
+            );
+
+        // check update status
+        if ($status['ok'] != 1) {
+            throw new \Sokil\Mongo\Exception(sprintf(
+                'Update error: %s: %s',
+                $status['err'],
+                $status['errmsg']
+            ));
+        }
+
+        // check if document modified due to specified lock
+        if ($this->getOption('lock') === Definition::LOCK_OPTIMISTIC) {
+            if($status['n'] === 0) {
+                throw new OptimisticLockFailureException;
+            }
+        }
+
+        if ($this->getOperator()->isReloadRequired()) {
+            $this->refresh();
+        } else {
+            $this->getOperator()->reset();
+        }
+
+        $this->triggerEvent('afterUpdate');
+    }
+
+    /**
+     * Save document
+     *
+     * @param bool $validate
+     * @return Document
+     * @throws WriteException
+     */
     public function save($validate = true)
     {
-        // save document
         // if document already in db and not modified - skip this method
         if (!$this->isSaveRequired()) {
             return $this;
@@ -1107,81 +1189,47 @@ class Document extends Structure
         if($this->triggerEvent('beforeSave')->isCancelled()) {
             return $this;
         }
-        if ($this->isStored()) {
-            if($this->triggerEvent('beforeUpdate')->isCancelled()) {
-                return $this;
-            }
 
-            // locking
-            $query = array('_id' => $this->getId());
-            if ($this->getOption('lock') === Definition::LOCK_OPTIMISTIC) {
-                $query['__version__'] = $this->get('__version__');
-                $this->getOperator()->increment('__version__');
-            }
-
-            // update
-            $status = $this->collection
-                ->getMongoCollection()
-                ->update(
-                    $query,
-                    $this->getOperator()->toArray()
-                );
-
-            // check update status
-            if ($status['ok'] != 1) {
-                throw new \Sokil\Mongo\Exception(sprintf(
-                    'Update error: %s: %s',
-                    $status['err'],
-                    $status['errmsg']
-                ));
-            }
-
-            // check if document modified due to specified lock
-            if ($this->getOption('lock') === Definition::LOCK_OPTIMISTIC) {
-                if($status['n'] === 0) {
-                    throw new OptimisticLockFailureException;
-                }
-            }
-
-            if ($this->getOperator()->isReloadRequired()) {
-                $this->refresh();
+        // write document
+        try {
+            if ($this->isStored()) {
+                $this->internalUpdate();
             } else {
-                $this->getOperator()->reset();
+                $this->internalInsert();
             }
-
-            $this->triggerEvent('afterUpdate');
-        } else {
-            if($this->triggerEvent('beforeInsert')->isCancelled()) {
-                return $this;
-            }
-
-            $document = $this->toArray();
-
-            $this
-                ->collection
-                ->getMongoCollection()
-                ->insert($document);
-            
-            // set id
-            $this->defineId($document['_id']);
-
-            // after insert event
-            $this->triggerEvent('afterInsert');
+        } catch (\Exception $e) {
+            throw new WriteException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
 
         // handle afterSave event
         $this->triggerEvent('afterSave');
 
+        // set document unmodified
         $this->apply();
         
         return $this;
     }
 
+    /**
+     * Check if document require save
+     *
+     * @return bool
+     */
     public function isSaveRequired()
     {
         return !$this->isStored() || $this->isModified() || $this->isModificationOperatorDefined();
     }
 
+    /**
+     * Delete document
+     *
+     * @return Document
+     * @throws Exception
+     */
     public function delete()
     {
         if ($this->triggerEvent('beforeDelete')->isCancelled()) {
@@ -1205,8 +1253,9 @@ class Document extends Structure
     }
 
     /**
+     * Get revisions manager
      *
-     * @return \Sokil\Mongo\RevisionManager
+     * @return \Sokil\Mongo\Document\RevisionManager
      */
     public function getRevisionManager()
     {

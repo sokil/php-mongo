@@ -411,13 +411,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo now test fails because second set not overwrite first and occured exception:
-     * 
-     * @expectedException MongoWriteConcernException
-     * @expectedExceptionMessageRegExp "Cannot update 'driving' and 'driving.license' at the same time"
-     * Need implementation of overwriting values
+     * Now test fails because second set not overwrite first and exception occurs.
+     * @todo Need implementation of overwriting values.
+     *
+     * @expectedException \Sokil\Mongo\Exception\WriteException
+     * @expectedExceptionMessageRegExp Cannot update 'driving' and 'driving.license' at the same time
      */
-    public function testSet_SubkeyOverwrite_StoredDocument()
+    public function testSet_SubKeyOverwrite_StoredDocument()
     {
         /**
          * Modify existed document
@@ -441,24 +441,8 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             )
         ), $data);
 
-        /**
-         * Save new document
-         */
+        // Save new document
         $document->save();
-
-        $data = $this->collection->getDocumentDirectly($document->getId())->toArray();
-        unset($data['_id']);
-
-        $this->assertEquals(
-            array(
-                'param' => 'value',
-                'driving' => array(
-                    'other' => 'field',
-                    'license' => 2,
-                )
-            ),
-            $data
-        );
     }
 
     public function testSetStructure_NewDocument()

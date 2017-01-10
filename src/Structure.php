@@ -573,9 +573,10 @@ class Structure implements
 
     /**
      * Apply modified document fields as original
+     *
      * @return $this
      */
-    public function apply()
+    protected function apply()
     {
         $this->originalData = $this->data;
         $this->modifiedFields = array();
