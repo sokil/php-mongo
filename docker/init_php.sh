@@ -37,7 +37,7 @@ export PHP_VERSION=$(php -r "echo phpversion();");
 if [[ -z $(dpkg -l | grep libssl-dev) ]];
 then
     # add library requirements
-    apt-get update
+    apt-get update -q
     apt-get install --no-install-recommends -y libssl-dev
 
     # install extensions

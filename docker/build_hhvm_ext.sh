@@ -1,6 +1,7 @@
 #!/bin/env bash
 
-sudo apt-get install hhvm-dev
+apt-get update -q
+sudo apt-get install --no-install-recommends -y hhvm-dev
 
 git clone https://github.com/mongodb/mongo-hhvm-driver.git
 cd mongo-hhvm-driver
