@@ -24,7 +24,6 @@ before_script:
 
 script:
   - mongod --version
-  - php -r "echo \MongoClient::VERSION . PHP_EOL;"
   - mkdir -p log
   - ./vendor/bin/phpunit -c tests/phpunit.xml --coverage-clover log/clover.xml tests
   
