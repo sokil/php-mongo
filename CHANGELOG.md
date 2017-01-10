@@ -1,5 +1,5 @@
 ## 1.20 (2017-01-09)
- * Cursor::findOne() throws internal `CursorException` exception instean of extension related. System exception may be obtained from internal;
+ * Cursor::findOne() throws internal `CursorException` exception instean of extension related to mongo extension. Exception from extension may be obtained from internal extension;
 
 ## 1.19.2 (2016-12-18)
  * Fix bug in Document::addToSet
