@@ -1023,7 +1023,33 @@ $post->push('comments', new Comment(['author' => 'Joan Doe']));
 
 ### Validation of embedded documents
 
-As embedded document is `Structure`, it has all validation functionality as `Document`. Currently embedded document validates only just before set to `Document` or manually.
+As embedded document is `Structure`, it has all validation functionality as `Document`. Currently embedded document validates only just before set to `Document` or manually. If embedded document is invalid, it trowns `Sokil\Mongo\Document\InvalidDocumentException`.
+
+```php
+class EmbeddedDocument extends Structure()
+{
+    public function rules() {}
+}
+
+$embeddedDocument = new EmbeddedDocument();
+// auto validation
+try {
+    $document->set('some', embeddedDocument);
+    $document->addToSet('some', embeddedDocument);
+    $document->push('some', embeddedDocument);
+} catch (InvalidDocumentException $e) {
+    
+}
+
+// manual validation
+if ($embeddedDocument->isValid()) {
+    $document->set('some', embeddedDocument);
+    $document->addToSet('some', embeddedDocument);
+    $document->push('some', embeddedDocument);
+}
+```
+
+
 
 DBRefs
 ------
@@ -1044,7 +1070,7 @@ If you have DBRef array, you can get document instance:
 $collection->getDocumentByReference(array('$ref' => 'col', '$id' => '23ef12...ff452'));
 $database->getDocumentByReference(array('$ref' => 'col', '$id' => '23ef12...ff452'));
 ```
-
+    
 Adding reference to one document in another:
 
 ```php
