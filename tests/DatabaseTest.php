@@ -53,7 +53,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         // In PHP 7 parameter $db of DBRef omitted on search
         // See https://github.com/alcaeus/mongo-php-adapter/issues/147
-        if (version_compare(phpversion(), '7.0', '<=')) {
+        if (!Client::isEmulationMode()) {
             // invalid db
             $foundDocument = $this->database->getDocumentByReference(array(
                 '$ref'  => $collection->getName(),

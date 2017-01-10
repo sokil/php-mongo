@@ -67,6 +67,16 @@ class Client
             $this->setConnectOptions($options);
         }
     }
+
+    /**
+     * Check if client emulates ext-mongo driver by new ext-mongodb extension
+     *
+     * @return bool
+     */
+    public static function isEmulationMode()
+    {
+        return class_exists('\MongoDB\Driver\Manager');
+    }
     
     /**
      * Set credentials to auth on db, specified in connect options or dsn.

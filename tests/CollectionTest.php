@@ -54,7 +54,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // In PHP 7 parameter $db of DBRef omitted on search
         // See https://github.com/alcaeus/mongo-php-adapter/issues/147
-        if (version_compare(phpversion(), '7.0', '<=')) {
+        if (!Client::isEmulationMode()) {
             // invalid db
             $foundDocument = $this->collection->getDocumentByReference(
                 array(
@@ -1737,7 +1737,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // Currently adapter's getIndexInfo did not return sparse parameter
         // https://github.com/alcaeus/mongo-php-adapter/issues/148
-        if (version_compare(phpversion(), '7.0', '<')) {
+        if (!Client::isEmulationMode()) {
             $this->assertArrayHasKey('sparse', $indexes[1]);
         }
     }
@@ -1758,7 +1758,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // Currently adapter's getIndexInfo did not return sparse parameter
         // https://github.com/alcaeus/mongo-php-adapter/issues/148
-        if (version_compare(phpversion(), '7.0', '<')) {
+        if (!Client::isEmulationMode()) {
             $this->assertArrayHasKey('expireAfterSeconds', $indexes[1]);
             $this->assertEquals(12000, $indexes[1]['expireAfterSeconds']);
         }
@@ -1853,7 +1853,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         // Currently adapter's getIndexInfo did not return sparse parameter
         // https://github.com/alcaeus/mongo-php-adapter/issues/148
-        if (version_compare(phpversion(), '7.0', '>=')) {
+        if (Client::isEmulationMode()) {
             $this->assertArrayHasKey(
                 'name',
                 $index

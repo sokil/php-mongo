@@ -453,8 +453,8 @@ class Cursor implements \Iterator, \Countable
 
     public function explain()
     {
-        if (version_compare(phpversion(), '7.0', '>=')) {
-            throw new FeatureNotSupportedException('Feature not implemented in compatibility layer');
+        if (Client::isEmulationMode()) {
+            throw new FeatureNotSupportedException('Feature not implemented in emulation mode');
         }
 
         return $this->getCursor()->explain();

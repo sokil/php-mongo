@@ -668,7 +668,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
     public function testExplain()
     {
-        if (version_compare(phpversion(), '7.0', '>=')) {
+        if (Client::isEmulationMode()) {
             $this->setExpectedException(
                 'Sokil\Mongo\Exception\FeatureNotSupportedException',
                 'Feature not implemented in compatibility layer'
@@ -792,10 +792,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
     public function testHint()
     {
-        if (version_compare(phpversion(), '7.0', '>=')) {
+        if (Client::isEmulationMode()) {
             $this->setExpectedException(
                 'Sokil\Mongo\Exception\FeatureNotSupportedException',
-                'Feature not implemented in compatibility layer'
+                'Feature not implemented in emulation mode'
             );
         }
 
