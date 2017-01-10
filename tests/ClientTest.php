@@ -29,7 +29,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testSetMongoClient()
     {
-        $mongoClient = new \MongoClient(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
+        $mongoClient = new \MongoClient(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : 'localhost');
 
         $client = new Client();
         $client->setMongoClient($mongoClient);
