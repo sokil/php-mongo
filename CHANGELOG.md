@@ -1,6 +1,7 @@
 ## 1.20 (2017-01-09)
  * Implemented support of new ext-mongodb and, as a result, PHP7 and HHVM through compatibility layer "alcaeus/mongo-php-adapter", which implement API from old ext-mongo extension;
  * Cursor::findOne() throws internal `CursorException` exception instean of extension related to mongo extension. Exception from extension may be obtained from internal extension;
+ * Docker tests not check PHP 7 code
 
 ## 1.19.2 (2016-12-18)
  * Fix bug in Document::addToSet
