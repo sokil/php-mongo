@@ -8,7 +8,10 @@ cd mongo-hhvm-driver
 git submodule sync && git submodule update --init --recursive
 
 hphpize
+
+cd build
 cmake .
+cd ..
 
 make configlib
 
