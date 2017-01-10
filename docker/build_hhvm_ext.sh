@@ -1,6 +1,6 @@
 #!/bin/env bash
 
-apt-get update -q
+sudo apt-get update -q
 sudo apt-get install --no-install-recommends -y hhvm-dev
 
 git clone https://github.com/mongodb/mongo-hhvm-driver.git
@@ -8,14 +8,11 @@ cd mongo-hhvm-driver
 git submodule sync && git submodule update --init --recursive
 
 hphpize
-
-cd build
 cmake .
-cd ..
 
 make configlib
 
-make -j 5
+make -j 1
 sudo make install
 
 echo "hhvm.dynamic_extension_path=/usr/local/hhvm/3.9.1/lib/hhvm/extensions/20150212" >> /etc/hhvm/php.ini
