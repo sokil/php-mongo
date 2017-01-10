@@ -671,7 +671,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         if (Client::isEmulationMode()) {
             $this->setExpectedException(
                 'Sokil\Mongo\Exception\FeatureNotSupportedException',
-                'Feature not implemented in compatibility layer'
+                'Feature not implemented in emulation mode'
             );
         }
 
