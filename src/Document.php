@@ -1103,10 +1103,19 @@ class Document extends Structure
 
         $document = $this->toArray();
 
-        $this
-            ->collection
-            ->getMongoCollection()
-            ->insert($document);
+        // try write document
+        try {
+            $this
+                ->collection
+                ->getMongoCollection()
+                ->insert($document);
+        } catch (\Exception $e) {
+            throw new WriteException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
+        }
 
         // set id
         $this->defineId($document['_id']);
@@ -1118,7 +1127,7 @@ class Document extends Structure
     /**
      * Internal method to update document
      *
-     * @throws Exception
+     * @throws WriteException
      * @throws OptimisticLockFailureException
      */
     private function internalUpdate()
@@ -1135,20 +1144,31 @@ class Document extends Structure
         }
 
         // update
-        $status = $this->collection
-            ->getMongoCollection()
-            ->update(
-                $query,
-                $this->getOperator()->toArray()
+        try {
+            $status = $this
+                ->collection
+                ->getMongoCollection()
+                ->update(
+                    $query,
+                    $this->getOperator()->toArray()
+                );
+        } catch (\Exception $e) {
+            throw new WriteException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e
             );
+        }
 
         // check update status
         if ($status['ok'] != 1) {
-            throw new \Sokil\Mongo\Exception(sprintf(
-                'Update error: %s: %s',
-                $status['err'],
-                $status['errmsg']
-            ));
+            throw new WriteException(
+                sprintf(
+                    'Update error: %s: %s',
+                    $status['err'],
+                    $status['errmsg']
+                )
+            );
         }
 
         // check if document modified due to specified lock
@@ -1191,18 +1211,10 @@ class Document extends Structure
         }
 
         // write document
-        try {
-            if ($this->isStored()) {
-                $this->internalUpdate();
-            } else {
-                $this->internalInsert();
-            }
-        } catch (\Exception $e) {
-            throw new WriteException(
-                $e->getMessage(),
-                $e->getCode(),
-                $e
-            );
+        if ($this->isStored()) {
+            $this->internalUpdate();
+        } else {
+            $this->internalInsert();
         }
 
         // handle afterSave event
