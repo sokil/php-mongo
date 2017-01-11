@@ -103,12 +103,12 @@ else
     fi
 
     # start bunch of tests
-    PHPMONGO_DSN=mongodb://mongodb24 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo24.log
-    PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo26.log
-    PHPMONGO_DSN=mongodb://mongodb30 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo30.log
-    PHPMONGO_DSN=mongodb://mongodb32 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo32.log
-    PHPMONGO_DSN=mongodb://mongodb33 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo33.log
-    PHPMONGO_DSN=mongodb://mongodb34 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/mongo34.log
+    PHPMONGO_DSN=mongodb://mongodb24 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/${PHP_VERSION}-mongo24.log
+    PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/${PHP_VERSION}-mongo26.log
+    PHPMONGO_DSN=mongodb://mongodb30 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/${PHP_VERSION}-mongo30.log
+    PHPMONGO_DSN=mongodb://mongodb32 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/${PHP_VERSION}-mongo32.log
+    PHPMONGO_DSN=mongodb://mongodb33 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/${PHP_VERSION}-mongo33.log
+    PHPMONGO_DSN=mongodb://mongodb34 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./share/phpunit/${PHP_VERSION}-mongo34.log
 fi
 
 
