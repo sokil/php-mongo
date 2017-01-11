@@ -35,12 +35,7 @@ PHPMongo currently based on old [ext-mongo](https://pecl.php.net/package/mongo) 
 To use this ODM with PHP 7 or HHVM, you need to add [compatibility layer](https://github.com/alcaeus/mongo-php-adapter),
 which implement API of old extension over new [ext-mongodb](https://pecl.php.net/package/mongodb).
 To start using PHPMongo with PHP7, add requirement [alcaeus/mongo-php-adapter](https://github.com/alcaeus/mongo-php-adapter) to composer.
-There are some restrictions of using ODM with compatibility layer:
-
-* Explaining cursor not implemented;
-* Parameter $db of DBRef skipped, so this DBRef allows to find document, if $id and $ref matched some document. See [issue](https://github.com/alcaeus/mongo-php-adapter/issues/147)
-* Collection::getIndexInfo() did not return 'sparse', 'textIndexVersion' and 'expireAfterSeconds' parameters if passed. See [issue](https://github.com/alcaeus/mongo-php-adapter/issues/148);
-
+Restrictions for using ODM with compatibility layer you can read in [known issues](https://github.com/alcaeus/mongo-php-adapter#known-issues) of original adapter.
 <br/>
 <br/>
 
