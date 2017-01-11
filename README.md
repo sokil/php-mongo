@@ -29,10 +29,10 @@ Why to use this ODM? You can easily work with document data through comfortable 
 <br/>
 <br/>
 
-#### Compatibility with PHP 7 and HHVM
+#### Compatibility with PHP 7
 
 PHPMongo currently based on old [ext-mongo](https://pecl.php.net/package/mongo) entension.
-To use this ODM with PHP 7 or HHVM, you need to add [compatibility layer](https://github.com/alcaeus/mongo-php-adapter),
+To use this ODM with PHP 7, you need to add [compatibility layer](https://github.com/alcaeus/mongo-php-adapter),
 which implement API of old extension over new [ext-mongodb](https://pecl.php.net/package/mongodb).
 To start using PHPMongo with PHP7, add requirement [alcaeus/mongo-php-adapter](https://github.com/alcaeus/mongo-php-adapter) to composer.
 Restrictions for using ODM with compatibility layer you can read in [known issues](https://github.com/alcaeus/mongo-php-adapter#known-issues) of original adapter.
