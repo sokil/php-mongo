@@ -360,6 +360,10 @@ class Structure implements
             return $value->toArray();
         }
 
+        if ($value instanceof \stdClass) {
+            return $value;   
+        }
+
         // other objects convert to array
         return (array) $value;
     }
