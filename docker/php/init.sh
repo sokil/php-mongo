@@ -1,34 +1,32 @@
 #!/bin/bash
 
-# To start XDebug debugging set env variable PHPMONGO_DEBUG
-
-cd /phpmongo/
-
 #####################################
-#        Console arguments          #
+#        Environment                #
 #####################################
+
+# Project dir
+PROJECT_DIR="/phpmongo/"
+
+# Mongo extension
 MONGO_EXT=$1
 if [[ -z $MONGO_EXT ]];
 then
     MONGO_EXT="mongo"
 fi;
 
+# Mongo extension version
 MONGO_EXT_VERSION=$2
 if [[ -z $MONGO_EXT_VERSION ]];
 then
     MONGO_EXT_VERSION="1.6.2"
 fi;
 
-#####################################
-#        Environment variables      #
-#####################################
-
-# Register host machine
-export DOCKERHOST_IP="$(/sbin/ip route|awk '/default/ { print $3 }')";
+# Host machine
+DOCKERHOST_IP="$(/sbin/ip route|awk '/default/ { print $3 }')";
 echo "$DOCKERHOST_IP dockerhost" >> /etc/hosts
 
-### Set env vars
-export PHP_VERSION=$(php -r "echo phpversion();");
+### PHP version
+PHP_VERSION=$(php -r "echo phpversion();");
 
 #####################################
 #        PHP extensions             #
@@ -78,37 +76,10 @@ then
 fi
 
 #####################################
-#        Start environment          #
+#        Start dev environment      #
 #####################################
 
-if [[ $PHPMONGO_DEBUG ]];
-then
-    # debug or run tests manually
-    echo "Debugging session initialised. To enter container's console, type:"
-    echo -e "\033[1;37mPHP 5.6: \033[0m docker exec -it phpmongo_php56 bash"
-    echo -e "\033[1;37mPHP 7.0: \033[0m docker exec -it phpmongo_php70 bash"
-    echo -e "\033[1;37mPHP 7.1: \033[0m docker exec -it phpmongo_php71 bash"
+# debug or run tests manually
+echo "Debugging session for ${PHP_VERSION} initialised."
 
-    php -S 127.0.0.1:9876 .
-else
-    # run test automatically
-    echo "Start Phpunit tests"
-
-    # prepare phpunit log dir
-    if [[ ! -d ./share/phpunit ]];
-    then
-        mkdir -p ./share/phpunit
-    else
-        rm -rf ./share/phpunit/*.log
-    fi
-
-    # start bunch of tests
-    PHPMONGO_DSN=mongodb://mongodb24 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./docker/share/phpunit/${PHP_VERSION}-mongo24.log
-    PHPMONGO_DSN=mongodb://mongodb26 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./docker/share/phpunit/${PHP_VERSION}-mongo26.log
-    PHPMONGO_DSN=mongodb://mongodb30 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./docker/share/phpunit/${PHP_VERSION}-mongo30.log
-    PHPMONGO_DSN=mongodb://mongodb32 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./docker/share/phpunit/${PHP_VERSION}-mongo32.log
-    PHPMONGO_DSN=mongodb://mongodb33 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./docker/share/phpunit/${PHP_VERSION}-mongo33.log
-    PHPMONGO_DSN=mongodb://mongodb34 ./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests > ./docker/share/phpunit/${PHP_VERSION}-mongo34.log
-fi
-
-
+php -S 127.0.0.1:9876 .

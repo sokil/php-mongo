@@ -3101,23 +3101,17 @@ To start unit tests, run:
 ./vendor/bin/phpunit -c tests/phpunit.xml tests
 ```
 
-Also available Docker tests. Start test of full matrix by:
+Also available Docker containers. They starts with xdebug enabled, so you can sign in to eny container and debug code there.
+Start docker container with:
 ```
 docker-compose -f docker/compose.yaml up
 ```
 
-Tests for all supported mongo versions may be found at `log` dir after finishing tests.
-
-Also you can run development environment by passing env variable `PHPMONGO_DEBUG`. 
-No test will be run and xdebug will be enabled for debugging:
+To start tests, run 
 ```
-PHPMONGO_DEBUG=1 docker-compose -f docker/compose.yml up
+./docker_test.sh
 ```
-
-You can start few containers for quick check on concrete version or db or php:
-```
-PHPMONGO_DEBUG=1 docker-compose -f docker/compose.yml up php56 mongodb34
-```
+Tests may be found at `log` dir after finishing tests. 
 
 <hr/>
 <br/>
