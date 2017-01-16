@@ -32,6 +32,7 @@ then
     phpVersions=("56" "70" "71")
 fi
 
+# start bunch of tests
 for phpVersion in ${phpVersions[@]}; do
     docker exec -it phpmongo_php${phpVersion} $dockerCommand
 done

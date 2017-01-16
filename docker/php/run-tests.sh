@@ -50,6 +50,7 @@ do
     PHPMONGO_DSN=mongodb://mongodb${mongoVersion} \
         $projectDir/vendor/bin/phpunit \
         -c $projectDir/tests/phpunit.xml \
+        --colors=never \
         $projectDir/tests \
         > $PHPUnitLogDir/mongo${mongoVersion}.log
 done
