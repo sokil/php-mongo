@@ -1827,7 +1827,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         ), $indexes[1]['key']);
 
         $currentVersion = $this->collection->getDatabase()->getClient()->getDbVersion();
-        if (version_compare($currentVersion, '3', '<') && !Client::isEmulationMode()) {
+        if (version_compare($currentVersion, '3', '<')) {
             $this->assertArrayHasKey('dropDups', $indexes[1]);
             $this->assertEquals(1, $indexes[1]['dropDups']);
         }
