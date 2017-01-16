@@ -386,7 +386,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param' => 4))->save();
 
         // create logger
-        $logger = $this->createMock('\Psr\Log\LoggerInterface');
+        $logger = $this->getMockBuilder('\Psr\Log\LoggerInterface')->getMock();
         $logger
             ->expects($this->once())
             ->method('debug')
