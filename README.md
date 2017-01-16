@@ -3107,10 +3107,21 @@ Start docker container with:
 docker-compose -f docker/compose.yaml up
 ```
 
-To start tests, run 
+To start tests on all supported PHP and MongoDB versions, run 
 ```
-./docker_test.sh
+./run-docker-tests.sh
 ```
+
+To run test on concrete platforms, specify them:
+```
+./run-docker-tests.sh -p 56 -p 70 -m 30 -m 32
+```
+
+To run concrete test , pass i:
+```
+./run-docker-tests.sh -t DocumentTest.php
+```
+
 Tests may be found at `log` dir after finishing tests. 
 
 <hr/>
