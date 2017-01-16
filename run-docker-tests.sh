@@ -1,10 +1,37 @@
 #!/usr/bin/env bash
 
-echo "Test PHP 5.6"
-docker exec -it phpmongo_php56 bash /phpmongo/docker/php/run-tests.sh
+# init php and mongo versions
+phpVersions=()
+phpVersionsCount=0
+dockerCommand="bash /phpmongo/docker/php/run-tests.sh"
 
-echo "Test PHP 7.0"
-docker exec -it phpmongo_php70 bash /phpmongo/docker/php/run-tests.sh
+# get php and mongo versions from input arguments
+while [[ $# -gt 1 ]]
+do
+    key="$1"
+    value="$2"
+    case $key in
+        -p|--php)
+            phpVersions[$phpVersionsCount]=$value
+            phpVersionsCount=$(( $phpVersionsCount + 1 ))
+            shift
+        ;;
+        -m|--mongo)
+            dockerCommand="${dockerCommand} -m ${value}"
+            shift
+        ;;
+        *)
+        ;;
+    esac
+    shift
+done
 
-echo "Test PHP 7.1"
-docker exec -it phpmongo_php71 bash /phpmongo/docker/php/run-tests.sh
+# if php versions not passed, fill default
+if [[ -z $phpVersions ]]
+then
+    phpVersions=("56" "70" "71")
+fi
+
+for phpVersion in ${phpVersions[@]}; do
+    docker exec -it phpmongo_php${phpVersion} $dockerCommand
+done

@@ -1,23 +1,55 @@
 #!/bin/bash
 
-FILE=$(readlink -f $0);
-PROJECT_DIR=$(dirname $FILE)/../..
+file=$(readlink -f $0);
+projectDir=$(dirname $file)/../..
 
-PHP_VERSION=$(php -r "echo phpversion();");
-PHPUNIT_LOG_DIR=$PROJECT_DIR/docker/share/phpunit/${PHP_VERSION}
+PHPVersion=$(php -r "echo phpversion();");
+PHPUnitLogDir=$projectDir/docker/share/phpunit/${PHPVersion}
+
 
 # prepare phpunit log dir
-if [[ ! -d $PHPUNIT_LOG_DIR ]];
+if [[ ! -d $PHPUnitLogDir ]];
 then
-    mkdir -p $PHPUNIT_LOG_DIR
+    mkdir -p $PHPUnitLogDir
 else
-    rm -rf $ PHPUNIT_LOG_DIR/*.log
+    rm -rf $ $PHPUnitLogDir/*.log
+fi
+
+# init mongo versions
+mongoVersions=()
+mongoVersionsCount=0
+
+# get mongo versions from input arguments
+while [[ $# -gt 1 ]]
+do
+    key="$1"
+    value="$2"
+    case $key in
+        -m|--mongo)
+            mongoVersions[$mongoVersionsCount]=$value
+            mongoVersionsCount=$(( $mongoVersionsCount + 1 ))
+            shift
+        ;;
+        *)
+        ;;
+    esac
+    shift
+done
+
+# if versions not passed, fill default
+if [[ -z $mongoVersions ]]
+then
+    mongoVersions=("24" "26" "30" "32" "33" "34")
 fi
 
 # start bunch of tests
-PHPMONGO_DSN=mongodb://mongodb24 $PROJECT_DIR/vendor/bin/phpunit -c $PROJECT_DIR/tests/phpunit.xml $PROJECT_DIR/tests > ${PHPUNIT_LOG_DIR}/mongo24.log
-PHPMONGO_DSN=mongodb://mongodb26 $PROJECT_DIR/vendor/bin/phpunit -c $PROJECT_DIR/tests/phpunit.xml $PROJECT_DIR/tests > ${PHPUNIT_LOG_DIR}/mongo26.log
-PHPMONGO_DSN=mongodb://mongodb30 $PROJECT_DIR/vendor/bin/phpunit -c $PROJECT_DIR/tests/phpunit.xml $PROJECT_DIR/tests > ${PHPUNIT_LOG_DIR}/mongo30.log
-PHPMONGO_DSN=mongodb://mongodb32 $PROJECT_DIR/vendor/bin/phpunit -c $PROJECT_DIR/tests/phpunit.xml $PROJECT_DIR/tests > ${PHPUNIT_LOG_DIR}/mongo32.log
-PHPMONGO_DSN=mongodb://mongodb33 $PROJECT_DIR/vendor/bin/phpunit -c $PROJECT_DIR/tests/phpunit.xml $PROJECT_DIR/tests > ${PHPUNIT_LOG_DIR}/mongo33.log
-PHPMONGO_DSN=mongodb://mongodb34 $PROJECT_DIR/vendor/bin/phpunit -c $PROJECT_DIR/tests/phpunit.xml $PROJECT_DIR/tests > ${PHPUNIT_LOG_DIR}/mongo34.log
+for mongoVersion in ${mongoVersions[@]}
+do
+    echo "Test MongoDB ${mongoVersion} on PHP ${PHPVersion}"
+
+    PHPMONGO_DSN=mongodb://mongodb${mongoVersion} \
+        $projectDir/vendor/bin/phpunit \
+        -c $projectDir/tests/phpunit.xml \
+        $projectDir/tests \
+        > $PHPUnitLogDir/mongo${mongoVersion}.log
+done
