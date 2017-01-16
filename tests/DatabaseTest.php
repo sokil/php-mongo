@@ -470,11 +470,11 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetWriteConcern_Error()
     {
-        $mongoDatabaseMock = $this->getMock(
-            '\MongoDB',
-            array('setWriteConcern'),
-            array($this->database->getClient()->getMongoClient(), 'test')
-        );
+        $mongoDatabaseMock = $this
+            ->getMockBuilder('\MongoDB')
+            ->setMethods(array('setWriteConcern'))
+            ->setConstructorArgs(array($this->database->getClient()->getMongoClient(), 'test'))
+            ->getMock();
 
         $mongoDatabaseMock
             ->expects($this->once())

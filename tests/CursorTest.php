@@ -451,7 +451,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param' => 4))->save();
 
         // create logger
-        $logger = $this->getMock('\Psr\Log\LoggerInterface');
+        $logger = $this->createMock('\Psr\Log\LoggerInterface');
         $logger
             ->expects($this->once())
             ->method('debug')
