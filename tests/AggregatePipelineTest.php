@@ -351,11 +351,14 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
      */
     public function testAggregate_ServerSideError()
     {
-        $mongoDatabaseMock = $this->getMock(
-            '\MongoDB',
-            array('command'),
-            array($this->collection->getDatabase()->getClient()->getMongoClient(), 'test')
-        );
+        $mongoDatabaseMock = $this
+            ->getMockBuilder('\MongoDB')
+            ->setMethods(array('command'))
+            ->setConstructorArgs(array(
+                $this->collection->getDatabase()->getClient()->getMongoClient(),
+                'test'
+            ))
+            ->getMock();
 
         $mongoDatabaseMock
             ->expects($this->once())
@@ -383,7 +386,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param' => 4))->save();
 
         // create logger
-        $logger = $this->getMock('\Psr\Log\LoggerInterface');
+        $logger = $this->createMock('\Psr\Log\LoggerInterface');
         $logger
             ->expects($this->once())
             ->method('debug')
@@ -488,10 +491,10 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
     public function testDeprecatedExplainAggregate_UnsupportedDbVersion()
     {
         // define db version where aggregate explanation supported
-        $clientMock = $this->getMock(
-            '\Sokil\Mongo\Client',
-            array('getDbVersion')
-        );
+        $clientMock = $this
+            ->getMockBuilder('\Sokil\Mongo\Client')
+            ->setMethods(array('getDbVersion'))
+            ->getMock();
 
         $clientMock
             ->expects($this->once())
@@ -513,10 +516,10 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
     public function testDeprecatedExplainAggregate_WrongArgument()
     {
         // define db version where aggregate explanation supported
-        $clientMock = $this->getMock(
-            '\Sokil\Mongo\Client',
-            array('getDbVersion')
-        );
+        $clientMock = $this
+            ->getMockBuilder('\Sokil\Mongo\Client')
+            ->setMethods(array('getDbVersion'))
+            ->getMock();
 
         $clientMock
             ->expects($this->once())

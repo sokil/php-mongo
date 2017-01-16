@@ -164,11 +164,11 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
      */
     public function testDeleteFileById_WithAcknowledgedWriteConcern()
     {
-        $mongoGridFsMock = $this->getMock(
-            '\MongoGridFS',
-            array('delete'),
-            array($this->database->getMongoDB(), 'images')
-        );
+        $mongoGridFsMock = $this
+            ->getMockBuilder('\MongoGridFS')
+            ->setMethods(array('delete'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'images'))
+            ->getMock();
 
         $mongoGridFsMock
             ->expects($this->once())

@@ -1397,14 +1397,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
      */
     public function testSave_UpdateError()
     {
-        $mongoCollectionMock = $this->getMock(
-            '\MongoCollection',
-            array('update'),
-            array(
+        $mongoCollectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('update'))
+            ->setConstructorArgs(array(
                 $this->collection->getDatabase()->getMongoDb(),
                 'phpmongo_test_collection'
-            )
-        );
+            ))
+            ->getMock();
 
         $mongoCollectionMock
             ->expects($this->once())

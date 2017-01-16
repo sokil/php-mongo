@@ -42,11 +42,11 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
 
     public function testOnAfterConstruct()
     {
-        $collectionMock = $this->getMock(
-            '\Sokil\Mongo\Collection',
-            array('getDocumentClassName'),
-            array($this->collection->getDatabase(), 'phpmongo_test_collection')
-        );
+        $collectionMock = $this
+            ->getMockBuilder('\Sokil\Mongo\Collection')
+            ->setMethods(array('getDocumentClassName'))
+            ->setConstructorArgs(array($this->collection->getDatabase(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $collectionMock
             ->expects($this->once())
@@ -61,13 +61,16 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
 
     public function testOnBeforeAfterValidate()
     {
-        $documentMock = $this->getMock(
-            '\Sokil\Mongo\Document',
-            array('rules'),
-            array($this->collection, array(
-                'e' => 'user@gmail.com',
+        $documentMock = $this
+            ->getMockBuilder('\Sokil\Mongo\Document')
+            ->setMethods(array('rules'))
+            ->setConstructorArgs(array(
+                $this->collection,
+                array(
+                    'e' => 'user@gmail.com',
+                )
             ))
-        );
+            ->getMock();
 
         $documentMock
             ->expects($this->once())
@@ -94,13 +97,16 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
 
     public function testOnValidateError()
     {
-        $documentMock = $this->getMock(
-            '\Sokil\Mongo\Document',
-            array('rules'),
-            array($this->collection, array(
-                'e' => 'wrongEmail',
-            ))
-        );
+        $documentMock = $this
+            ->getMockBuilder('\Sokil\Mongo\Document')
+            ->setMethods(array('rules'))
+            ->setConstructorArgs(array(
+                $this->collection,
+                array(
+                    'e' => 'wrongEmail',
+                ))
+            )
+            ->getMock();
 
         $documentMock
             ->expects($this->once())
