@@ -310,7 +310,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($this->client->hasLogger());
 
-        $this->client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
+        $this->client->setLogger($this->createMock('\Psr\Log\LoggerInterface'));
 
         $this->assertTrue($this->client->hasLogger());
     }
@@ -321,7 +321,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($this->client->hasLogger());
 
-        $this->client->setLogger($this->getMock('\Psr\Log\LoggerInterface'));
+        $this->client->setLogger($this->createMock('\Psr\Log\LoggerInterface'));
 
         $this->assertInstanceOf('\Psr\Log\LoggerInterface', $this->client->getLogger());
     }

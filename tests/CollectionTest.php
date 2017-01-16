@@ -425,7 +425,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testSaveValidNewDocument()
     {
         // create document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document = $this
+            ->getMockBuilder('\Sokil\Mongo\Document')
+            ->setMethods(array('rules'))
+            ->setConstructorArgs(array($this->collection))
+            ->getMock();
+
         $document
             ->expects($this->any())
             ->method('rules')
@@ -457,7 +462,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testSaveInvalidNewDocument()
     {
         // create document
-        $document = $this->getMock('\Sokil\Mongo\Document', array('rules'), array($this->collection));
+        $document = $this
+            ->getMockBuilder('\Sokil\Mongo\Document')
+            ->setMethods(array('rules'))
+            ->setConstructorArgs(array($this->collection))
+            ->getMock();
+
         $document
             ->expects($this->any())
             ->method('rules')
@@ -481,11 +491,14 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testDeleteCollection_ExceptionOnCollectionDeleteError()
     {
-        $this->collectionMock = $this->getMock(
-            '\MongoCollection',
-            array('drop'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('drop'))
+            ->setConstructorArgs(array(
+                $this->database->getMongoDB(),
+                'phpmongo_test_collection',
+            ))
+            ->getMock();
 
         $this->collectionMock
             ->expects($this->once())
@@ -568,11 +581,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testDeleteDocuments_ErrorDeletingDocuments()
     {
-        $this->collectionMock = $this->getMock(
-            '\MongoCollection',
-            array('remove'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('remove'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $this->collectionMock
             ->expects($this->once())
@@ -599,11 +612,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testDeleteDocument_ErrorDeletingDocument()
     {
-        $this->collectionMock = $this->getMock(
-            '\MongoCollection',
-            array('remove'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('remove'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $this->collectionMock
             ->expects($this->once())
@@ -961,11 +974,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testUpdateMultiple_ErrorWithWriteConcern()
     {
         // mock mongo's collection
-        $mongoCollectionMock = $this->getMock(
-            '\MongoCollection',
-            array('update'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $mongoCollectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('update'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $mongoCollectionMock
             ->expects($this->once())
@@ -995,11 +1008,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testUpdateMultiple_ErrorWithUnacknowledgedWriteConcern()
     {
         // mock mongo's collection
-        $mongoCollectionMock = $this->getMock(
-            '\MongoCollection',
-            array('update'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $mongoCollectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('update'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $mongoCollectionMock
             ->expects($this->once())
@@ -1025,11 +1038,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testUpdateAll_ErrorWithWriteConcern()
     {
         // mock mongo's collection
-        $mongoCollectionMock = $this->getMock(
-            '\MongoCollection',
-            array('update'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $mongoCollectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('update'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $mongoCollectionMock
             ->expects($this->once())
@@ -1059,11 +1072,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testUpdateAll_ErrorWithUnacknowledgedWriteConcern()
     {
         // mock mongo's collection
-        $mongoCollectionMock = $this->getMock(
-            '\MongoCollection',
-            array('update'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $mongoCollectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('update'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $mongoCollectionMock
             ->expects($this->once())
@@ -1312,18 +1325,18 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testInsertMultiple_ValidateError()
     {
         // mock collection
-        $this->collectionMock = $this->getMock(
-            '\Sokil\Mongo\Collection',
-            array('createDocument'),
-            array($this->database, 'phpmongo_test_collection')
-        );
+        $this->collectionMock = $this
+            ->getMockBuilder('\Sokil\Mongo\Collection')
+            ->setMethods(array('createDocument'))
+            ->setConstructorArgs(array($this->database, 'phpmongo_test_collection'))
+            ->getMock();
 
         // mock document
-        $documentMock = $this->getMock(
-            'Sokil\Mongo\Document',
-            array('rules'),
-            array($this->collectionMock)
-        );
+        $documentMock = $this
+            ->getMockBuilder('Sokil\Mongo\Document')
+            ->setMethods(array('rules'))
+            ->setConstructorArgs(array($this->collectionMock))
+            ->getMock();
 
         // implement validation rules
         $documentMock
@@ -1352,11 +1365,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testInsertMultiple_ErrorInsertingWithAcknowledgeWrite()
     {
-        $this->collectionMock = $this->getMock(
-            '\MongoCollection',
-            array('batchInsert'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('batchInsert'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $this->collectionMock
             ->expects($this->once())
@@ -1381,11 +1394,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testInsertMultiple_ErrorInsertingWithUnacknowledgeWrite()
     {
-        $this->collectionMock = $this->getMock(
-            '\MongoCollection',
-            array('batchInsert'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('batchInsert'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $this->collectionMock
             ->expects($this->once())
@@ -1420,11 +1433,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testInsert_Acknowledged_Error()
     {
-        $this->collectionMock = $this->getMock(
-            '\MongoCollection',
-            array('insert'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('insert'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $this->collectionMock
             ->expects($this->once())
@@ -1460,11 +1473,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testInsert_Unacknowledged_Error()
     {
-        $this->collectionMock = $this->getMock(
-            '\MongoCollection',
-            array('insert'),
-            array($this->database->getMongoDB(), 'phpmongo_test_collection')
-        );
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('insert'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'phpmongo_test_collection'))
+            ->getMock();
 
         $this->collectionMock
             ->expects($this->once())
@@ -1652,11 +1665,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetWriteConcern_Error()
     {
-        $mongoCollectionMock = $this->getMock(
-            '\MongoCollection',
-            array('setWriteConcern'),
-            array($this->database->getMongoDB(), 'test')
-        );
+        $mongoCollectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('setWriteConcern'))
+            ->setConstructorArgs(array($this->database->getMongoDB(), 'test'))
+            ->getMock();
 
         $mongoCollectionMock
             ->expects($this->once())
