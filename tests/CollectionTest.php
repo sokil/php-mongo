@@ -52,20 +52,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($foundDocument);
 
-        // In PHP 7 parameter $db of DBRef omitted on search
-        // See https://github.com/alcaeus/mongo-php-adapter/issues/147
-        if (!Client::isEmulationMode()) {
-            // invalid db
-            $foundDocument = $this->collection->getDocumentByReference(
-                array(
-                    '$ref'  => $this->collection->getName(),
-                    '$db'   => 'some_db',
-                    '$id'   => $document->getId(),
-                ),
-                false)
-            ;
-            $this->assertNull($foundDocument);
-        }
+        // invalid db
+        $foundDocument = $this->collection->getDocumentByReference(
+            array(
+                '$ref'  => $this->collection->getName(),
+                '$db'   => 'some_db',
+                '$id'   => $document->getId(),
+            ),
+            false)
+        ;
+        $this->assertNull($foundDocument);
 
         // all valid
         $foundDocument = $this->collection->getDocumentByReference(
@@ -1748,11 +1744,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         ), $indexes[1]['key']);
 
 
-        // Currently adapter's getIndexInfo did not return sparse parameter
-        // https://github.com/alcaeus/mongo-php-adapter/issues/148
-        if (!Client::isEmulationMode()) {
-            $this->assertArrayHasKey('sparse', $indexes[1]);
-        }
+        $this->assertArrayHasKey('sparse', $indexes[1]);
     }
 
     public function testEnsureTTLIndex()
@@ -1769,12 +1761,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             'ttlDesc'    => -1,
         ), $indexes[1]['key']);
 
-        // Currently adapter's getIndexInfo did not return sparse parameter
-        // https://github.com/alcaeus/mongo-php-adapter/issues/148
-        if (!Client::isEmulationMode()) {
-            $this->assertArrayHasKey('expireAfterSeconds', $indexes[1]);
-            $this->assertEquals(12000, $indexes[1]['expireAfterSeconds']);
-        }
+        $this->assertArrayHasKey('expireAfterSeconds', $indexes[1]);
+        $this->assertEquals(12000, $indexes[1]['expireAfterSeconds']);
     }
 
     public function testEnsureUniqueIndex()
