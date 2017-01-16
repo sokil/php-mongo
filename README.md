@@ -3101,7 +3101,7 @@ To start unit tests, run:
 ./vendor/bin/phpunit -c tests/phpunit.xml tests
 ```
 
-Also available Docker containers. They starts with xdebug enabled, so you can sign in to eny container and debug code there.
+Also available Docker containers. They starts with xdebug enabled, so you can sign in to any container and debug code there.
 Start docker container with:
 ```
 docker-compose -f docker/compose.yaml up
@@ -3117,7 +3117,7 @@ To run test on concrete platforms, specify them:
 ./run-docker-tests.sh -p 56 -p 70 -m 30 -m 32
 ```
 
-To run concrete test , pass i:
+To run concrete test , pass it:
 ```
 ./run-docker-tests.sh -t DocumentTest.php
 ```
