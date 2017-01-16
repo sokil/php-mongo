@@ -412,10 +412,10 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Now test fails because second set not overwrite first and exception occurs.
+     * Cannot update 'driving' and 'driving.license' at the same time
      * @todo Need implementation of overwriting values.
      *
      * @expectedException \Sokil\Mongo\Exception\WriteException
-     * @expectedExceptionMessageRegExp Cannot update 'driving' and 'driving.license' at the same time
      */
     public function testSet_SubKeyOverwrite_StoredDocument()
     {
