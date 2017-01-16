@@ -51,17 +51,13 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($foundDocument);
 
-        // In PHP 7 parameter $db of DBRef omitted on search
-        // See https://github.com/alcaeus/mongo-php-adapter/issues/147
-        if (!Client::isEmulationMode()) {
-            // invalid db
-            $foundDocument = $this->database->getDocumentByReference(array(
-                '$ref'  => $collection->getName(),
-                '$db'   => 'some_db',
-                '$id'   => $document->getId(),
-            ), false);
-            $this->assertNull($foundDocument);
-        }
+        // invalid db
+        $foundDocument = $this->database->getDocumentByReference(array(
+            '$ref'  => $collection->getName(),
+            '$db'   => 'some_db',
+            '$id'   => $document->getId(),
+        ), false);
+        $this->assertNull($foundDocument);
 
         // all valid
         $foundDocument = $this->database->getDocumentByReference(array(
