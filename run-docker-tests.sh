@@ -4,6 +4,7 @@
 phpVersions=()
 phpVersionsCount=0
 dockerCommand="bash /phpmongo/docker/php/run-tests.sh"
+testPath=""
 
 # get php and mongo versions from input arguments
 while [[ $# -gt 1 ]]
@@ -20,6 +21,10 @@ do
             dockerCommand="${dockerCommand} -m ${value}"
             shift
         ;;
+        -t|--test)
+            testPath=$value
+            shift
+        ;;
         *)
         ;;
     esac
@@ -30,6 +35,12 @@ done
 if [[ -z $phpVersions ]]
 then
     phpVersions=("56" "70" "71")
+fi
+
+# add path to test file
+if [[ ! -z $testPath ]]
+then
+    dockerCommand="${dockerCommand} -t ${testPath}"
 fi
 
 # start bunch of tests

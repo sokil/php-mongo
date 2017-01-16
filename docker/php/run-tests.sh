@@ -5,7 +5,7 @@ projectDir=$(dirname $file)/../..
 
 PHPVersion=$(php -r "echo phpversion();");
 PHPUnitLogDir=$projectDir/docker/share/phpunit/${PHPVersion}
-
+testPath=$projectDir/tests
 
 # prepare phpunit log dir
 if [[ ! -d $PHPUnitLogDir ]];
@@ -30,6 +30,10 @@ do
             mongoVersionsCount=$(( $mongoVersionsCount + 1 ))
             shift
         ;;
+        -t|--test)
+            testPath="${testPath}/${value}"
+            shift
+        ;;
         *)
         ;;
     esac
@@ -51,6 +55,6 @@ do
         $projectDir/vendor/bin/phpunit \
         -c $projectDir/tests/phpunit.xml \
         --colors=never \
-        $projectDir/tests \
+        $testPath \
         > $PHPUnitLogDir/mongo${mongoVersion}.log
 done
