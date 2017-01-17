@@ -26,6 +26,7 @@ abstract class BatchOperation implements \Countable
 
     /**
      * Batch operation instance
+     * @var \MongoWriteBatch
      */
     private $batch;
 
