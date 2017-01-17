@@ -20,6 +20,7 @@ Why to use this ODM? You can easily work with document data through comfortable 
 
 * PHP 5.3 or above;
 * PHP 7 using [compatibility layer](https://github.com/alcaeus/mongo-php-adapter) with some restriontions;
+* Currently not tested in HHVM
 * [PHP Mongo Extension](https://pecl.php.net/package/mongo) 0.9 or above (Some features require >= 1.5) for PHP < 7.0;
 * [PHP MongoDB Extension](https://pecl.php.net/package/mongodb) 1.0 or above for PHP >= 7.0;
 * Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0 (See [Unit tests](#unit-tests));
