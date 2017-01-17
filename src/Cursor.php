@@ -45,20 +45,35 @@ class Cursor implements \Iterator, \Countable
      */
     private $expression;
 
+    /**
+     * Offset
+     * @var int
+     */
     private $skip = 0;
 
+    /**
+     * Limit
+     * @var int
+     */
     private $limit = 0;
 
-
+    /**
+     * Definition of sort
+     * @var array
+     */
     private $sort = array();
 
+    /**
+     * Definition of read preference
+     * @var array
+     */
     private $readPreference = array();
 
     /**
      * Return result as array or as Document instance
      * @var boolean 
      */
-    private $resultAsArray = false;
+    private $isResultAsArray = false;
 
     /**
      * Cursor options
@@ -121,26 +136,33 @@ class Cursor implements \Iterator, \Countable
         return isset($this->options[$name]) ? $this->options[$name] : $default;
     }
 
+    /**
+     * Get result as array
+     * @return $this
+     */
     public function asArray()
     {
-        $this->resultAsArray = true;
+        $this->isResultAsArray = true;
         return $this;
     }
 
+    /**
+     * Get result as object
+     * @return $this
+     */
     public function asObject()
     {
-        $this->resultAsArray = false;
+        $this->isResultAsArray = false;
         return $this;
     }
 
     /**
      * Check if result returned as array
-     *
      * @return bool
      */
     public function isResultAsArray()
     {
-        return $this->resultAsArray;
+        return $this->isResultAsArray;
     }
 
     /**
@@ -371,7 +393,6 @@ class Cursor implements \Iterator, \Countable
     public function sort(array $sort)
     {
         $this->sort = $sort;
-
         return $this;
     }
 
@@ -409,7 +430,7 @@ class Cursor implements \Iterator, \Countable
             $this->cursor->maxTimeMS($this->options['clientTimeout']);
         }
 
-        if($this->sort) {
+        if (!empty($this->sort)) {
             $this->cursor->sort($this->sort);
         }
 
@@ -420,17 +441,17 @@ class Cursor implements \Iterator, \Countable
         // log request
         if($this->client->hasLogger()) {
             $this->client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
-                'collection'    => $this->collection->getName(),
-                'query'         => $this->expression->toArray(),
-                'project'       => $this->fields,
-                'sort'          => $this->sort,
+                'collection' => $this->collection->getName(),
+                'query' => $this->expression->toArray(),
+                'project' => $this->fields,
+                'sort' => $this->sort,
             )));
         }
 
         $this->cursor->rewind();
 
         // define read preferences
-        if($this->readPreference) {
+        if (!empty($this->readPreference)) {
             $this->cursor->setReadPreference(
                 $this->readPreference['type'],
                 $this->readPreference['tagsets']
@@ -503,15 +524,18 @@ class Cursor implements \Iterator, \Countable
             );
         }
 
-        if (null === $mongoDocument) {
+        if (empty($mongoDocument)) {
             return null;
         }
 
-        if (true === $this->resultAsArray) {
+        if (true === $this->isResultAsArray) {
             return $mongoDocument;
         }
 
-        return $this->collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
+        return $this->collection->hydrate(
+            $mongoDocument,
+            $this->isDocumentPoolUsed()
+        );
     }
 
     /**
@@ -573,21 +597,22 @@ class Cursor implements \Iterator, \Countable
      */
     public function pluck($fieldName)
     {
-        // use native php function if field without subdocument
-        if(false === strpos($fieldName, '.') && function_exists('array_column')) {
-            if($this->isResultAsArray()) {
-                $result = $this->findAll();
-            } else {
-                $cursor = clone $this;
-                $result = $cursor->asArray()->findAll();
-                unset($cursor);
-            }
-
-            return array_column($result, $fieldName, '_id');
+        // if field with embedded document or native php function not exists
+        if (false !== strpos($fieldName, '.') || !function_exists('array_column')) {
+            return $this->pluckDotNotated($fieldName);
         }
 
-        // if field with subdocument or native php function not exists
-        return $this->pluckDotNoteted($fieldName);
+        // use native php function if field without embedded document
+        if ($this->isResultAsArray) {
+            $result = $this->findAll();
+        } else {
+            $cursor = clone $this;
+            $result = $cursor->asArray()->findAll();
+            unset($cursor);
+        }
+
+        return array_column($result, $fieldName, '_id');
+
     }
 
     /**
@@ -596,9 +621,9 @@ class Cursor implements \Iterator, \Countable
      * @param string $fieldName field name
      * @return array
      */
-    private function pluckDotNoteted($fieldName)
+    private function pluckDotNotated($fieldName)
     {
-        if($this->isResultAsArray()) {
+        if ($this->isResultAsArray) {
             $cursor = clone $this;
             $result = $cursor->asObject()->findAll();
             unset($cursor);
@@ -626,16 +651,19 @@ class Cursor implements \Iterator, \Countable
             null,
             $this->fields,
             array(
-                'remove'    => true,
-                'sort'      => $this->sort,
+                'remove' => true,
+                'sort' => $this->sort,
             )
         );
 
-        if(!$mongoDocument) {
+        if (empty($mongoDocument)) {
             return null;
         }
 
-        return $this->collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
+        return $this->collection->hydrate(
+            $mongoDocument,
+            $this->isDocumentPoolUsed()
+        );
     }
 
     /**
@@ -656,13 +684,13 @@ class Cursor implements \Iterator, \Countable
                 $operator ? $operator->toArray() : null,
                 $this->fields,
                 array(
-                    'new'       => $returnUpdated,
-                    'sort'      => $this->sort,
-                    'upsert'    => $upsert,
+                    'new' => $returnUpdated,
+                    'sort' => $this->sort,
+                    'upsert' => $upsert,
                 )
             );
 
-        if(!$mongoDocument) {
+        if (empty($mongoDocument)) {
             return null;
         }
 
@@ -725,15 +753,18 @@ class Cursor implements \Iterator, \Countable
     public function current()
     {
         $mongoDocument = $this->getCursor()->current();
-        if(!$mongoDocument) {
+        if (empty($mongoDocument)) {
             return null;
         }
 
-        if($this->resultAsArray) {
+        if ($this->isResultAsArray) {
             return $mongoDocument;
         }
 
-        return $this->collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
+        return $this->collection->hydrate(
+            $mongoDocument,
+            $this->isDocumentPoolUsed()
+        );
     }
 
     public function key()
@@ -808,6 +839,9 @@ class Cursor implements \Iterator, \Countable
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getReadPreference()
     {
         if($this->cursor) {
@@ -938,14 +972,14 @@ class Cursor implements \Iterator, \Countable
         $hash[] = json_encode($this->expression->toArray());
 
         // sorts
-        if($this->sort) {
+        if (!empty($this->sort)) {
             $sort = $this->sort;
             ksort($sort);
             $hash[] = implode('', array_merge(array_keys($sort), array_values($sort)));
         }
 
         // fields
-        if($this->fields) {
+        if (!empty($this->fields)) {
             $fields = $this->fields;
             ksort($fields);
             $hash[] = implode('', array_merge(array_keys($fields), array_values($fields)));
