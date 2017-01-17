@@ -14,7 +14,12 @@ namespace Sokil\Mongo;
 use Sokil\Mongo\Exception\CursorException;
 use Sokil\Mongo\Exception\FeatureNotSupportedException;
 
-class Cursor implements \Iterator, \Countable
+/**
+ * @mixin Expression
+ */
+class Cursor implements
+    \Iterator,
+    \Countable
 {
     /**
      *
@@ -41,7 +46,7 @@ class Cursor implements \Iterator, \Countable
     private $cursor;
     /**
      *
-     * @var \Sokil\Mongo\Expression
+     * @var Expression
      */
     private $expression;
 
@@ -121,7 +126,11 @@ class Cursor implements \Iterator, \Countable
 
     public function __call($name, $arguments)
     {
-        call_user_func_array(array($this->expression, $name), $arguments);
+        call_user_func_array(
+            array($this->expression, $name),
+            $arguments
+        );
+
         return $this;
     }
 

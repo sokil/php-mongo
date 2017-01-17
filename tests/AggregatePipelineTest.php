@@ -390,7 +390,7 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
         $logger
             ->expects($this->once())
             ->method('debug')
-            ->with('Sokil\Mongo\Collection:<br><b>Pipeline</b>:<br>[{"$match":{"param":{"$gte":2}}},{"$group":{"_id":0,"sum":{"$sum":"$param"}}}]');
+            ->with('Sokil\Mongo\Collection: [{"$match":{"param":{"$gte":2}}},{"$group":{"_id":0,"sum":{"$sum":"$param"}}}]');
 
         // set logger to client
         $this->collection->getDatabase()->getClient()->setLogger($logger);

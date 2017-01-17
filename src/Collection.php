@@ -116,19 +116,19 @@ class Collection implements \Countable
         // init definition
         $this->definition = $definition ? $definition : new Definition();
 
-        if($this->documentClass) {
+        if (!empty($this->documentClass)) {
             $this->definition->setOption('documentClass', $this->documentClass);
         }
 
-        if($this->versioning !== null) {
+        if ($this->versioning !== null) {
             $this->definition->setOption('versioning', $this->versioning);
         }
 
-        if($this->_index) {
+        if (!empty($this->_index)) {
             $this->definition->setOption('index', $this->_index);
         }
 
-        if($this->_queryExpressionClass) {
+        if (!empty($this->_queryExpressionClass)) {
             $this->definition->setOption('expressionClass', $this->_queryExpressionClass);
         }
     }
@@ -375,11 +375,11 @@ class Collection implements \Countable
      * Create document query builder
      *
      * @param $callable callable|null Function to configure query builder&
-     * @return \Sokil\Mongo\Cursor|\Sokil\Mongo\Expression
+     * @return Cursor
      */
     public function find($callable = null)
     {
-        /** @var \Sokil\Mongo\Cursor $cursor */
+        /** @var Cursor $cursor */
         $cursor = new Cursor($this, array(
             'expressionClass'   => $this->definition->getExpressionClass(),
             'batchSize'         => $this->definition->getOption('batchSize'),
@@ -387,7 +387,7 @@ class Collection implements \Countable
             'serverTimeout'     => $this->definition->getOption('cursorServerTimeout'),
         ));
 
-        if(is_callable($callable)) {
+        if (is_callable($callable)) {
             $callable($cursor->getExpression());
         }
 
@@ -1006,13 +1006,12 @@ class Collection implements \Countable
             // record pipeline
             if ($client->hasLogger()) {
                 $client->getLogger()->debug(
-                    get_called_class() . ':<br><b>Pipeline</b>:<br>' .
-                    json_encode($pipeline)
+                    get_called_class() . ': ' . json_encode($pipeline)
                 );
             }
 
             // Check options only in debug mode. In production common exception will raised
-            if ($options) {
+            if (!empty($options)) {
                 // get db version
                 $dbVersion = $client->getDbVersion();
 
@@ -1049,8 +1048,8 @@ class Collection implements \Countable
             if (version_compare(\MongoClient::VERSION, '1.5.0', '<')) {
                 throw new FeatureNotSupportedException('Aggregate cursor supported from driver version 1.5');
             }
-            $cursor = $this->getMongoCollection()->aggregateCursor($pipeline, $options);
-            return $cursor;
+
+            return $this->getMongoCollection()->aggregateCursor($pipeline, $options);
         }
 
         // prepare command
@@ -1060,14 +1059,14 @@ class Collection implements \Countable
         );
 
         // add options
-        if ($options) {
+        if (!empty($options)) {
             $command += $options;
         }
 
         // aggregate
         $status = $this->database->executeCommand($command);
 
-        if($status['ok'] != 1) {
+        if ($status['ok'] != 1) {
             throw new Exception('Aggregate error: ' . $status['errmsg']);
         }
 
@@ -1124,7 +1123,7 @@ class Collection implements \Countable
     public function validate($full = false)
     {
         $response = $this->getMongoCollection()->validate($full);
-        if(!$response || $response['ok'] != 1) {
+        if (empty($response) || $response['ok'] != 1) {
             throw new Exception($response['errmsg']);
         }
 
@@ -1295,15 +1294,21 @@ class Collection implements \Countable
      * The specified language in an embedded document override the language specified in an enclosing document or
      * the default language for the index.
      *
-     * @param array|string $field definition of fields where full text index ensured.
-     *  May be string to ensure index on one field, array of fields to create full text index on few fields, and
-     *   widdcard '$**'  to create index on all fields of collection. Default value is '$**'
-     * @param $weights For a text index, the weight of an indexed field denotes the significance of the field
-     *   relative to the other indexed fields in terms of the text search score.
-     * @param $defaultLanguage The default language associated with the indexed data determines the rules to parse
-     *  word roots (i.e. stemming) and ignore stop words. The default language for the indexed data is english.
-     * @param $languageOverride To use a field with a name other than language, include the
-     *   language_override option when creating the index.
+     * @param   array|string    $field              definition of fields where full text index ensured. May be string to
+     *                                              ensure index on one field, array of fields  to create full text index on few
+     *                                              fields, and * widdcard '$**'  to create index on all fields of collection.
+     *                                              Default value is '$**'
+     *
+     * @param   array           $weights            For a text index, the weight of an indexed field denotes the significance
+     *                                              of the field relative to the other indexed fields in terms of the text
+     *                                              search score.
+     *
+     * @param   string          $defaultLanguage    Default language associated with the indexed data determines the rules to parse
+     *                                              word roots (i.e. stemming) and ignore stop words. The default
+     *                                              language for the indexed data is english.
+     *
+     * @param   string          $languageOverride   To use a field with a name other than language, include the
+     *                                              language_override option when creating the index.
      *
      * @return Collection
      */
@@ -1327,7 +1332,7 @@ class Collection implements \Countable
             'default_language' => $defaultLanguage,
         );
 
-        if (is_array($weights) && $weights) {
+        if (!empty($weights)) {
             $options['weights'] = $weights;
         }
 
