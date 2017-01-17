@@ -142,7 +142,7 @@ class Cache implements \Countable
     
     public function delete($key)
     {
-        $this->collection->deleteDocuments(array(
+        $this->collection->batchDelete(array(
             '_id' => $key,
         ));
         
@@ -154,7 +154,7 @@ class Cache implements \Countable
      */
     public function deleteMatchingTag($tag)
     {
-        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tag) {
+        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tag) {
             return $e->where(Cache::FIELD_NAME_TAGS, $tag);
         });
         
@@ -166,7 +166,7 @@ class Cache implements \Countable
      */
     public function deleteNotMatchingTag($tag)
     {
-        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tag) {
+        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tag) {
             return $e->whereNotEqual(Cache::FIELD_NAME_TAGS, $tag);
         });
         
@@ -179,7 +179,7 @@ class Cache implements \Countable
      */
     public function deleteMatchingAllTags(array $tags)
     {
-        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
+        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tags) {
             return $e->whereAll(Cache::FIELD_NAME_TAGS, $tags);
         });
         
@@ -192,7 +192,7 @@ class Cache implements \Countable
      */
     public function deleteMatchingNoneOfTags(array $tags)
     {
-        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
+        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tags) {
             return $e->whereNoneOf(Cache::FIELD_NAME_TAGS, $tags);
         });
         
@@ -205,7 +205,7 @@ class Cache implements \Countable
      */
     public function deleteMatchingAnyTag(array $tags)
     {
-        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
+        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tags) {
             return $e->whereIn(Cache::FIELD_NAME_TAGS, $tags);
         });
         
@@ -218,7 +218,7 @@ class Cache implements \Countable
      */
     public function deleteNotMatchingAnyTag(array $tags)
     {
-        $this->collection->deleteDocuments(function(\Sokil\Mongo\Expression $e) use($tags) {
+        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tags) {
             return $e->whereNotIn(Cache::FIELD_NAME_TAGS, $tags);
         });
         

@@ -766,11 +766,11 @@ class Collection implements \Countable
     /**
      * Delete documents by expression
      * 
-     * @param callable|array|\Sokil\Mongo\Expression $expression
+     * @param callable|array|Expression $expression
      * @return \Sokil\Mongo\Collection
      * @throws Exception
      */
-    public function batchDelete($expression = array())
+    public function batchDelete($expression)
     {
         // remove
         $result = $this->getMongoCollection()->remove(

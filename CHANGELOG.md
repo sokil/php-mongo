@@ -1,3 +1,6 @@
+## 1.21 (2017-01-17)
+ * Collection::batchDelete() now has required argument
+ 
 ## 1.20 (2017-01-09)
  * Implemented support of new ext-mongodb and, as a result, PHP7 and HHVM through compatibility layer "alcaeus/mongo-php-adapter", which implement API from old ext-mongo extension;
  * Cursor::findOne() throws internal `CursorException` exception instead of related to mongo extension. Exception from extension may be obtained from internal exception;

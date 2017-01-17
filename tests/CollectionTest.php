@@ -517,7 +517,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param' => 4))->save();
 
         // delete
-        $this->collection->deleteDocuments(array('param' => array('$gt' => 2)));
+        $this->collection->batchDelete(array('param' => array('$gt' => 2)));
 
         // test
         $this->assertEquals(2, count($this->collection));
@@ -532,7 +532,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param' => 4))->save();
 
         // delete
-        $this->collection->deleteDocuments(function($expression) {
+        $this->collection->batchDelete(function($expression) {
             $expression->whereGreater('param', 2);
         });
 
@@ -549,7 +549,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param' => 4))->save();
 
         // delete
-        $this->collection->deleteDocuments($this->collection->expression()->whereGreater('param', 2));
+        $this->collection->batchDelete($this->collection->expression()->whereGreater('param', 2));
 
         // test
         $this->assertEquals(2, count($this->collection));
@@ -559,7 +559,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Mixed must be instance of \Sokil\Mongo\Expression
      */
-    public function testDeleteDocuments_WrongExpressionSpecified()
+    public function testBatchDelete_WrongExpressionSpecified()
     {
         // add
         $this->collection->createDocument(array('param' => 1))->save();
@@ -568,14 +568,14 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('param' => 4))->save();
 
         // delete
-        $this->collection->deleteDocuments('hello');
+        $this->collection->batchDelete('hello');
     }
 
     /**
      * @expectedException \Sokil\Mongo\Exception
      * @expectedExceptionMessage Error removing documents from collection: Some strange error
      */
-    public function testDeleteDocuments_ErrorDeletingDocuments()
+    public function testBatchDelete_ErrorDeletingDocuments()
     {
         $this->collectionMock = $this
             ->getMockBuilder('\MongoCollection')
@@ -597,7 +597,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->createDocument(array('param' => 'value'))
             ->save();
 
-        $this->collection->deleteDocuments(
+        $this->collection->batchDelete(
             $this->collection->expression()->where('param', 'value')
         );
     }

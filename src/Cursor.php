@@ -967,7 +967,7 @@ class Cursor implements
         $this->copyToCollection($targetCollectionName, $targetDatabaseName);
 
         // remove from source
-        $this->collection->deleteDocuments($this->expression);
+        $this->collection->batchDelete($this->expression);
     }
 
     /**

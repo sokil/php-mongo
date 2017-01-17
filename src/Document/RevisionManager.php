@@ -116,7 +116,7 @@ class RevisionManager
         $documentId = $this->document->getId();
         $this
             ->getRevisionsCollection()
-            ->deleteDocuments(function(Expression $expression) use($documentId) {
+            ->batchDelete(function(Expression $expression) use($documentId) {
                 /* @var $expression \Sokil\Mongo\Expression */
                 return $expression->where('__documentId__', $documentId);
             });
