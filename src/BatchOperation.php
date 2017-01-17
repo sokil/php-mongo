@@ -13,17 +13,32 @@ namespace Sokil\Mongo;
 
 abstract class BatchOperation implements \Countable
 {
+    /**
+     * Batch operation class name. Must be override in child classes
+     * @var string
+     */
     protected $batchClass;
 
     /**
-     * @var \Collection
+     * @var Collection
      */
     private $collection;
 
+    /**
+     * Batch operation instance
+     */
     private $batch;
 
+    /**
+     * Amount of operations in batch operation
+     * @var int
+     */
     private $counter = 0;
 
+    /**
+     * Result of executed batch operation
+     * @var array
+     */
     protected $result;
 
     /**
