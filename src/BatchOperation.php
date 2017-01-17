@@ -65,8 +65,8 @@ abstract class BatchOperation implements \Countable
             $writeOptions['w'] = $writeConcern;
         }
 
-        if ($timeout && is_numeric($timeout)) {
-            $writeOptions['wtimeout '] = (int) $timeout;
+        if (null !== $timeout && is_numeric($timeout)) {
+            $writeOptions['wtimeout'] = (int) $timeout;
         }
 
         if ($ordered) {
