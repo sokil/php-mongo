@@ -40,7 +40,6 @@ Why to use this ODM? You can easily work with document data through comfortable 
 > Restrictions for using ODM with compatibility layer you can read in [known issues](https://github.com/alcaeus/mongo-php-adapter#known-issues) of original adapter.
 
 <br/>
-<br/>
 
 #### Table of contents
 
