@@ -146,7 +146,7 @@ composer phpmongokit/yii2-mongo-odm
 ```
 
 #### Support of migrations
-If you require migrations, you can add dependency to "[sokil/php-mongo-migrator](https://github.com/sokil/php-mongo-migrator)", based on this library:
+If you require migrations, you can add dependency to [Migrator](https://github.com/sokil/php-mongo-migrator), based on this library:
 
 ```
 composer require sokil/php-mongo-migrator
