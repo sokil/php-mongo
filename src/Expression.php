@@ -39,10 +39,9 @@ class Expression implements ArrayableInterface
      */
     public function where($field, $value)
     {
-        if(!isset($this->_expression[$field]) || !is_array($value) || !is_array($this->_expression[$field])) {
+        if (!isset($this->_expression[$field]) || !is_array($value) || !is_array($this->_expression[$field])) {
             $this->_expression[$field] = $value;
-        }
-        else {
+        } else {
             $this->_expression[$field] = array_merge_recursive($this->_expression[$field], $value);
         }
 
@@ -187,7 +186,7 @@ class Expression implements ArrayableInterface
         // options
         $options = '';
 
-        if($caseInsensitive) {
+        if ($caseInsensitive) {
             $options .= 'i';
         }
 
@@ -257,13 +256,13 @@ class Expression implements ArrayableInterface
      */
     public function whereElemMatch($field, $expression)
     {
-        if(is_callable($expression)) {
+        if (is_callable($expression)) {
             $expression = call_user_func($expression, $this->expression());
         }
 
-        if($expression instanceof Expression) {
+        if ($expression instanceof Expression) {
             $expression = $expression->toArray();
-        } elseif(!is_array($expression)) {
+        } elseif (!is_array($expression)) {
             throw new Exception('Wrong expression passed');
         }
 
@@ -303,11 +302,11 @@ class Expression implements ArrayableInterface
      */
     public function whereOr($expressions = null /**, ...**/)
     {
-        if($expressions instanceof Expression) {
+        if ($expressions instanceof Expression) {
             $expressions = func_get_args();
         }
 
-        return $this->where('$or', array_map(function(Expression $expression) {
+        return $this->where('$or', array_map(function (Expression $expression) {
             return $expression->toArray();
         }, $expressions));
     }
@@ -320,11 +319,11 @@ class Expression implements ArrayableInterface
      */
     public function whereAnd($expressions = null /**, ...**/)
     {
-        if($expressions instanceof Expression) {
+        if ($expressions instanceof Expression) {
             $expressions = func_get_args();
         }
 
-        return $this->where('$and', array_map(function(Expression $expression) {
+        return $this->where('$and', array_map(function (Expression $expression) {
             return $expression->toArray();
         }, $expressions));
     }
@@ -337,23 +336,22 @@ class Expression implements ArrayableInterface
      */
     public function whereNor($expressions = null /**, ...**/)
     {
-        if($expressions instanceof Expression) {
+        if ($expressions instanceof Expression) {
             $expressions = func_get_args();
         }
 
-        return $this->where('$nor', array_map(function(Expression $expression) {
+        return $this->where('$nor', array_map(function (Expression $expression) {
             return $expression->toArray();
         }, $expressions));
     }
 
     public function whereNot(Expression $expression)
     {
-        foreach($expression->toArray() as $field => $value) {
+        foreach ($expression->toArray() as $field => $value) {
             // $not acceptable only for operators-expressions
-            if(is_array($value) && is_string(key($value))) {
+            if (is_array($value) && is_string(key($value))) {
                 $this->where($field, array('$not' => $value));
-            }
-            // for single values use $ne
+            } // for single values use $ne
             else {
                 $this->whereNotEqual($field, $value);
             }
@@ -461,11 +459,11 @@ class Expression implements ArrayableInterface
             '$geometry' => $point->jsonSerialize(),
         );
 
-        if(is_array($distance)) {
-            if(!empty($distance[0])) {
+        if (is_array($distance)) {
+            if (!empty($distance[0])) {
                 $near['$minDistance'] = (int) $distance[0];
             }
-            if(!empty($distance[1])) {
+            if (!empty($distance[1])) {
                 $near['$maxDistance'] = (int) $distance[1];
             }
         } else {
@@ -498,11 +496,11 @@ class Expression implements ArrayableInterface
             '$geometry' => $point->jsonSerialize(),
         );
 
-        if(is_array($distance)) {
-            if(!empty($distance[0])) {
+        if (is_array($distance)) {
+            if (!empty($distance[0])) {
                 $near['$minDistance'] = (int) $distance[0];
             }
-            if(!empty($distance[1])) {
+            if (!empty($distance[1])) {
                 $near['$maxDistance'] = (int) $distance[1];
             }
         } else {
@@ -678,16 +676,16 @@ class Expression implements ArrayableInterface
     public static function convertToArray($mixed)
     {
         // get expression from callable
-        if(is_callable($mixed)) {
+        if (is_callable($mixed)) {
             $callable = $mixed;
             $mixed = new self();
             call_user_func($callable, $mixed);
         }
 
         // get expression array
-        if($mixed instanceof ArrayableInterface && $mixed instanceof self) {
+        if ($mixed instanceof ArrayableInterface && $mixed instanceof self) {
             $mixed = $mixed->toArray();
-        } elseif(!is_array($mixed)) {
+        } elseif (!is_array($mixed)) {
             throw new Exception('Mixed must be instance of \Sokil\Mongo\Expression');
         }
 

@@ -36,20 +36,18 @@ class BetweenValidator extends \Sokil\Mongo\Validator
             throw new Exception('Maximum value of range not specified');
         }
         
-        if($value < $params['min']) {
-            if(empty($params['minMessage'])) {
+        if ($value < $params['min']) {
+            if (empty($params['minMessage'])) {
                 $params['minMessage'] = 'Field "' . $fieldName . '" less than minimal value of range in ' . get_called_class();
             }
             $document->addError($fieldName, $this->getName(), $params['minMessage']);
         }
         
-        if($value > $params['max']) {
-            if(empty($params['maxMessage'])) {
+        if ($value > $params['max']) {
+            if (empty($params['maxMessage'])) {
                 $params['maxMessage'] = 'Field "' . $fieldName . '" less than minimal value of range in ' . get_called_class();
             }
             $document->addError($fieldName, $this->getName(), $params['maxMessage']);
         }
-
     }
-
 }

@@ -57,7 +57,7 @@ class RelationManager
 
         // check if relation already resolved
         if (isset($this->resolvedRelationIds[$relationName])) {
-            if(is_array($this->resolvedRelationIds[$relationName])) {
+            if (is_array($this->resolvedRelationIds[$relationName])) {
                 // has_many, many_many
                 return $foreignCollection->getDocuments($this->resolvedRelationIds[$relationName]);
             } else {
@@ -67,9 +67,7 @@ class RelationManager
         }
 
         switch ($relationType) {
-
             case Document::RELATION_HAS_ONE:
-
                 $localKey = isset($relation['localKey']) ? $relation['localKey'] : '_id';
                 $foreignKey = $relation[2];
 
@@ -112,7 +110,7 @@ class RelationManager
                     ->where($foreignKey, $this->document->get($localKey))
                     ->findAll();
 
-                foreach($documents as $document) {
+                foreach ($documents as $document) {
                     $this->resolvedRelationIds[$relationName][] = (string) $document->getId();
                 }
 
@@ -123,7 +121,8 @@ class RelationManager
                 if ($isRelationListStoredInternally) {
                     // relation list stored in this document
                     $localKey = $relation[2];
-                    $foreignKey = isset($relation['foreignKey']) ? $relation['foreignKey'] : '_id';;
+                    $foreignKey = isset($relation['foreignKey']) ? $relation['foreignKey'] : '_id';
+                    ;
 
                     $relatedIdList = $this->document->get($localKey);
                     if (!$relatedIdList) {
@@ -134,10 +133,10 @@ class RelationManager
                         ->find()
                         ->whereIn($foreignKey, $relatedIdList)
                         ->findAll();
-
                 } else {
                     // relation list stored in external document
-                    $localKey = isset($relation['localKey']) ? $relation['localKey'] : '_id';;
+                    $localKey = isset($relation['localKey']) ? $relation['localKey'] : '_id';
+                    ;
                     $foreignKey = $relation[2];
 
                     $documents = $foreignCollection
@@ -146,7 +145,7 @@ class RelationManager
                         ->findAll();
                 }
 
-                foreach($documents as $document) {
+                foreach ($documents as $document) {
                     $this->resolvedRelationIds[$relationName][] = (string) $document->getId();
                 }
 
@@ -177,7 +176,6 @@ class RelationManager
         }
 
         switch ($relationType) {
-
             case Document::RELATION_BELONGS:
                 if (!$document->isStored()) {
                     throw new \Sokil\Mongo\Exception('Document ' . get_class($document) . ' must be saved before adding relation');
@@ -235,7 +233,6 @@ class RelationManager
         }
 
         switch ($relationType) {
-
             case Document::RELATION_BELONGS:
                 $this->document->unsetField($field)->save();
                 break;

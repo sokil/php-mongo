@@ -76,7 +76,7 @@ class Cursor implements
 
     /**
      * Return result as array or as Document instance
-     * @var boolean 
+     * @var boolean
      */
     private $isResultAsArray = false;
 
@@ -248,10 +248,9 @@ class Cursor implements
         $limit  = (int) $limit;
         $skip   = (int) $skip;
 
-        if($skip) {
+        if ($skip) {
             $this->fields[$field] = array('$slice' => array($skip, $limit));
-        }
-        else {
+        } else {
             $this->fields[$field] = array('$slice' => $limit);
         }
 
@@ -301,7 +300,7 @@ class Cursor implements
      */
     public function byId($id)
     {
-        if($id instanceof \MongoId) {
+        if ($id instanceof \MongoId) {
             $this->expression->where('_id', $id);
         } else {
             try {
@@ -338,7 +337,7 @@ class Cursor implements
     {
         $this->limit = (int) $limit;
 
-        if(null !== $offset) {
+        if (null !== $offset) {
             $this->skip($offset);
         }
 
@@ -411,7 +410,7 @@ class Cursor implements
      */
     private function getCursor()
     {
-        if($this->cursor) {
+        if ($this->cursor) {
             return $this->cursor;
         }
 
@@ -419,23 +418,23 @@ class Cursor implements
             ->getMongoCollection()
             ->find($this->expression->toArray(), $this->fields);
 
-        if($this->skip) {
+        if ($this->skip) {
             $this->cursor->skip($this->skip);
         }
 
-        if($this->limit) {
+        if ($this->limit) {
             $this->cursor->limit($this->limit);
         }
 
-        if($this->options['batchSize']) {
+        if ($this->options['batchSize']) {
             $this->cursor->batchSize($this->options['batchSize']);
         }
 
-        if($this->options['clientTimeout']) {
+        if ($this->options['clientTimeout']) {
             $this->cursor->timeout($this->options['clientTimeout']);
         }
 
-        if($this->options['serverTimeout']) {
+        if ($this->options['serverTimeout']) {
             $this->cursor->maxTimeMS($this->options['clientTimeout']);
         }
 
@@ -443,12 +442,12 @@ class Cursor implements
             $this->cursor->sort($this->sort);
         }
 
-        if($this->hint) {
+        if ($this->hint) {
             $this->cursor->hint($this->hint);
         }
 
         // log request
-        if($this->client->hasLogger()) {
+        if ($this->client->hasLogger()) {
             $this->client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
                 'collection' => $this->collection->getName(),
                 'query' => $this->expression->toArray(),
@@ -513,7 +512,7 @@ class Cursor implements
 
     /**
      * Find one document which correspond to expression
-     * 
+     *
      * @return \Sokil\Mongo\Document|array|null
      */
     public function findOne()
@@ -564,11 +563,11 @@ class Cursor implements
     {
         $count = $this->count();
 
-        if(!$count) {
+        if (!$count) {
             return null;
         }
 
-        if(1 === $count) {
+        if (1 === $count) {
             return $this->findOne();
         }
 
@@ -590,7 +589,7 @@ class Cursor implements
 
     /**
      * Get MongoDB query array
-     * 
+     *
      * @return array
      */
     public function getMongoQuery()
@@ -621,12 +620,11 @@ class Cursor implements
         }
 
         return array_column($result, $fieldName, '_id');
-
     }
 
     /**
      * Pluck by dot-notated field name
-     * 
+     *
      * @param string $fieldName field name
      * @return array
      */
@@ -641,7 +639,7 @@ class Cursor implements
         }
 
         $list = array();
-        foreach($result as $key => $document) {
+        foreach ($result as $key => $document) {
             $list[$key] = $document->get($fieldName);
         }
 
@@ -710,7 +708,7 @@ class Cursor implements
     {
         $result = array();
 
-        foreach($this as $id => $document) {
+        foreach ($this as $id => $document) {
             $result[$id] = $handler($document);
         }
 
@@ -721,8 +719,8 @@ class Cursor implements
     {
         $result = array();
 
-        foreach($this as $id => $document) {
-            if(!$handler($document)) {
+        foreach ($this as $id => $document) {
+            if (!$handler($document)) {
                 continue;
             }
 
@@ -734,7 +732,7 @@ class Cursor implements
 
     /**
      * Get result set of documents.
-     * 
+     *
      * @return \Sokil\Mongo\ResultSet
      */
     public function getResultSet()
@@ -756,7 +754,6 @@ class Cursor implements
         return $paginator
             ->setCurrentPage($page)
             ->setItemsOnPage($itemsOnPage);
-
     }
 
     public function current()
@@ -853,7 +850,7 @@ class Cursor implements
      */
     public function getReadPreference()
     {
-        if($this->cursor) {
+        if ($this->cursor) {
             return $this->cursor->getReadPreference();
         }
 
@@ -899,7 +896,7 @@ class Cursor implements
     public function copyToCollection($targetCollectionName, $targetDatabaseName = null)
     {
         // target database
-        if(!$targetDatabaseName) {
+        if (!$targetDatabaseName) {
             $database = $this->collection->getDatabase();
         } else {
             $database = $this->client->getDatabase($targetDatabaseName);
@@ -917,14 +914,14 @@ class Cursor implements
         $inProgress = true;
 
         // copy data
-        while($inProgress) {
+        while ($inProgress) {
             // get next pack of documents
             $documentList = array();
-            for($i = 0; $i < $batchLimit; $i++) {
-                if(!$cursor->valid()) {
+            for ($i = 0; $i < $batchLimit; $i++) {
+                if (!$cursor->valid()) {
                     $inProgress = false;
 
-                    if($documentList) {
+                    if ($documentList) {
                         // still need batch insert
                         break;
                     } else {
@@ -941,11 +938,11 @@ class Cursor implements
             $result = $targetMongoCollection->batchInsert($documentList);
 
             // check result
-            if(is_array($result)) {
-                if($result['ok'] != 1) {
+            if (is_array($result)) {
+                if ($result['ok'] != 1) {
                     throw new Exception('Batch insert error: ' . $result['err']);
                 }
-            } elseif(!$result) {
+            } elseif (!$result) {
                 throw new Exception('Batch insert error');
             }
         }
@@ -1010,27 +1007,27 @@ class Cursor implements
      */
     public static function mixedToMongoIdList(array $list)
     {
-        return array_map(function($element) {
+        return array_map(function ($element) {
             // MongoId
-            if($element instanceof \MongoId) {
+            if ($element instanceof \MongoId) {
                 return $element;
             }
 
             // \Sokil\Mongo\Document
-            if($element instanceof Document) {
+            if ($element instanceof Document) {
                 return $element->getId();
             }
 
             // array with id key
-            if(is_array($element)) {
-                if(!isset($element['_id'])) {
+            if (is_array($element)) {
+                if (!isset($element['_id'])) {
                     throw new \InvalidArgumentException('Array must have _id key');
                 }
                 return $element['_id'];
             }
 
             // string
-            if(is_string($element)) {
+            if (is_string($element)) {
                 try {
                     return new \MongoId($element);
                 } catch (\MongoException $e) {
@@ -1039,12 +1036,11 @@ class Cursor implements
             }
 
             // int
-            if(is_int($element)) {
+            if (is_int($element)) {
                 return $element;
             }
 
             throw new \InvalidArgumentException('Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer');
-
         }, array_values($list));
     }
 }

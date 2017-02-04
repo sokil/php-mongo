@@ -17,13 +17,13 @@ class TypeValidator extends \Sokil\Mongo\Validator
 {
 
     public function validateField(Structure $document, $fieldName, array $params)
-    {        
+    {
         $value = $document->get($fieldName);
         if (!$value) {
             return;
         }
 
-        if(empty($params[0])) {
+        if (empty($params[0])) {
             throw new Exception('Type not specified');
         }
         
@@ -47,7 +47,7 @@ class TypeValidator extends \Sokil\Mongo\Validator
             'string',
         );
         
-        foreach($requiredTypes as $type) {
+        foreach ($requiredTypes as $type) {
             if (!in_array($type, $allowedTypes)) {
                 throw new Exception('Type must be one of ' . implode(', ', $allowedTypes));
             }
@@ -57,7 +57,7 @@ class TypeValidator extends \Sokil\Mongo\Validator
         }
         
         if (!isset($params['message'])) {
-            if(count($requiredTypes) === 1) {
+            if (count($requiredTypes) === 1) {
                 $params['message'] = 'Field "' . $fieldName . '" must be of type ' . $requiredTypes[0] . ' in ' . get_called_class();
             } else {
                 $params['message'] = 'Field "' . $fieldName . '" must be one of types ' . implode(', ', $requiredTypes) . ' in ' . get_called_class();
@@ -66,5 +66,4 @@ class TypeValidator extends \Sokil\Mongo\Validator
 
         $document->addError($fieldName, $this->getName(), $params['message']);
     }
-
 }

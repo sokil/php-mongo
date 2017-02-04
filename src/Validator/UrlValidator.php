@@ -14,7 +14,8 @@ namespace Sokil\Mongo\Validator;
 use Sokil\Mongo\Structure;
 
 class UrlValidator extends \Sokil\Mongo\Validator
-{    
+{
+
     public function validateField(Structure $document, $fieldName, array $params)
     {
         $value = $document->get($fieldName);
@@ -26,7 +27,7 @@ class UrlValidator extends \Sokil\Mongo\Validator
 
         // check if url valid
         $isValidUrl = (bool) filter_var($value, FILTER_VALIDATE_URL);
-        if(!$isValidUrl) {
+        if (!$isValidUrl) {
             if (!isset($params['message'])) {
                 $params['message'] = 'Value of field "' . $fieldName . '" is not valid url in model ' . get_called_class();
             }
@@ -49,7 +50,7 @@ class UrlValidator extends \Sokil\Mongo\Validator
         }
 
         // empty array - host not found
-        if(is_array($dnsRecordExists) && empty($dnsRecordExists)) {
+        if (is_array($dnsRecordExists) && empty($dnsRecordExists)) {
             if (!isset($params['message'])) {
                 $params['message'] = 'Value of field "' . $fieldName . '" is valid url but host is unreachable in model ' . get_called_class();
             }
@@ -58,7 +59,7 @@ class UrlValidator extends \Sokil\Mongo\Validator
             return;
         }
 
-        if($this->isUrlAccessible($value)) {
+        if ($this->isUrlAccessible($value)) {
             return;
         }
         
@@ -75,14 +76,14 @@ class UrlValidator extends \Sokil\Mongo\Validator
 
         $isAccessible = false;
         $i = 0;
-        while(true) {
-            if(false !== strpos($headers[$i], '200')) {
+        while (true) {
+            if (false !== strpos($headers[$i], '200')) {
                 $isAccessible = true;
                 break;
             }
 
             $i++;
-            if(!isset($headers[$i])) {
+            if (!isset($headers[$i])) {
                 break;
             }
         }

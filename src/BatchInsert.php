@@ -56,7 +56,7 @@ class BatchInsert extends BatchOperation
             $isValid = self::$validator->isValid();
             self::$validator->reset();
 
-            if(!$isValid) {
+            if (!$isValid) {
                 throw new InvalidDocumentException('Document is invalid on batch insert');
             }
         }

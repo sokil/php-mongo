@@ -13,7 +13,7 @@ namespace Sokil\Mongo;
 
 /**
  * Pool of mongo connections. May be used if required few connections to different databases
- * 
+ *
  * @link https://github.com/sokil/php-mongo/blob/master/README.md#pool-of-connections
  */
 class ClientPool
@@ -56,7 +56,7 @@ class ClientPool
     
     /**
      * Get instance of connection
-     * 
+     *
      * @param string $name connection identifier
      * @return \Sokil\Mongo\Client
      * @throws \Sokil\Mongo\Exception
@@ -64,22 +64,22 @@ class ClientPool
     public function get($name)
     {
         // get from cache
-        if(isset($this->pool[$name])) {
+        if (isset($this->pool[$name])) {
             return $this->pool[$name];
         }
         
         // check if connection exists
-        if(!isset($this->configuration[$name])) {
+        if (!isset($this->configuration[$name])) {
             throw new Exception('Connection with name ' . $name . ' not found');
         }
         
         // check if dsn exists
-        if(!isset($this->configuration[$name]['dsn'])) {
+        if (!isset($this->configuration[$name]['dsn'])) {
             $this->configuration[$name]['dsn'] = null;
         }
         
         // check if connect options exists
-        if(empty($this->configuration[$name]['connectOptions'])) {
+        if (empty($this->configuration[$name]['connectOptions'])) {
             $this->configuration[$name]['connectOptions'] = null;
         }
         
@@ -89,11 +89,11 @@ class ClientPool
             $this->configuration[$name]['connectOptions']
         );
         
-        if(isset($this->configuration[$name]['mapping'])) {
+        if (isset($this->configuration[$name]['mapping'])) {
             $client->map($this->configuration[$name]['mapping']);
         }
         
-        if(isset($this->configuration[$name]['defaultDatabase'])) {
+        if (isset($this->configuration[$name]['defaultDatabase'])) {
             $client->useDatabase($this->configuration[$name]['defaultDatabase']);
         }
         

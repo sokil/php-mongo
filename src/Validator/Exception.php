@@ -16,4 +16,6 @@ namespace Sokil\Mongo\Validator;
  *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
-class Exception extends \Sokil\Mongo\Exception {}
+class Exception extends \Sokil\Mongo\Exception
+{
+}

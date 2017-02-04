@@ -61,7 +61,7 @@ class Definition
     private $batchSize;
 
     /**
-     * Instructs the driver to stop waiting for a response and throw a 
+     * Instructs the driver to stop waiting for a response and throw a
      * MongoCursorTimeoutException after a set time
      * A timeout can be set at any time and will affect subsequent queries on
      * the cursor, including fetching more results from the database.
@@ -152,7 +152,7 @@ class Definition
     public function getClass()
     {
         if (!$this->class) {
-            $this->class = $this->gridfs 
+            $this->class = $this->gridfs
                 ? self::DEFAULT_GRIDFS_CLASS
                 : self::DEFAULT_COLLECTION_CLASS;
         }

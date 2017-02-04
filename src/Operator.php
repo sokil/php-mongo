@@ -20,8 +20,8 @@ class Operator implements ArrayableInterface
     private $operators = array();
     
     public function set($fieldName, $value)
-    {        
-        if(!isset($this->operators['$set'])) {
+    {
+        if (!isset($this->operators['$set'])) {
             $this->operators['$set'] = array();
         }
         
@@ -36,24 +36,20 @@ class Operator implements ArrayableInterface
         $value = Structure::prepareToStore($value);
         
         // no $push operator found
-        if(!isset($this->operators['$push'])) {
+        if (!isset($this->operators['$push'])) {
             $this->operators['$push'] = array();
         }
         
         // no field name found
-        if(!isset($this->operators['$push'][$fieldName])) {
+        if (!isset($this->operators['$push'][$fieldName])) {
             $this->operators['$push'][$fieldName] = $value;
-        }
-        
-        // field name found and has single value
-        else if(!is_array($this->operators['$push'][$fieldName]) || !isset($this->operators['$push'][$fieldName]['$each'])) {
+        } // field name found and has single value
+        elseif (!is_array($this->operators['$push'][$fieldName]) || !isset($this->operators['$push'][$fieldName]['$each'])) {
             $oldValue = $this->operators['$push'][$fieldName];
             $this->operators['$push'][$fieldName] = array(
                 '$each' => array($oldValue, $value)
             );
-        }
-        
-        // field name found and already $each
+        } // field name found and already $each
         else {
             $this->operators['$push'][$fieldName]['$each'][] = $value;
         }
@@ -70,26 +66,22 @@ class Operator implements ArrayableInterface
         $values = Structure::prepareToStore($values);
 
         // no $push operator found
-        if(!isset($this->operators['$push'])) {
+        if (!isset($this->operators['$push'])) {
             $this->operators['$push'] = array();
         }
         
         // no field name found
-        if(!isset($this->operators['$push'][$fieldName])) {
+        if (!isset($this->operators['$push'][$fieldName])) {
             $this->operators['$push'][$fieldName] = array(
                 '$each' => $values
             );
-        }
-        
-        // field name found and has single value
-        else if(!is_array($this->operators['$push'][$fieldName]) || !isset($this->operators['$push'][$fieldName]['$each'])) {
+        } // field name found and has single value
+        elseif (!is_array($this->operators['$push'][$fieldName]) || !isset($this->operators['$push'][$fieldName]['$each'])) {
             $oldValue = $this->operators['$push'][$fieldName];
             $this->operators['$push'][$fieldName] = array(
                 '$each' => array_merge(array($oldValue), $values)
             );
-        }
-        
-        // field name found and already $each
+        } // field name found and already $each
         else {
             $this->operators['$push'][$fieldName]['$each'] = array_merge(
                 $this->operators['$push'][$fieldName]['$each'],
@@ -104,7 +96,7 @@ class Operator implements ArrayableInterface
      * The $slice modifier limits the number of array elements during a
      * $push operation. To project, or return, a specified number of array
      * elements from a read operation, see the $slice projection operator instead.
-     * 
+     *
      * @link http://docs.mongodb.org/manual/reference/operator/update/slice
      * @param string $field
      * @param int $slice
@@ -115,7 +107,7 @@ class Operator implements ArrayableInterface
     {
         $slice = (int) $slice;
         
-        if(!isset($this->operators['$push'][$field]['$each'])) {
+        if (!isset($this->operators['$push'][$field]['$each'])) {
             throw new Exception('Field ' . $field . ' must be pushed wit $each modifier');
         }
         
@@ -134,13 +126,13 @@ class Operator implements ArrayableInterface
      * @throws \Sokil\Mongo\Exception
      */
     public function pushEachSort($field, array $sort)
-    {        
+    {
         // add modifiers
-        if(!$sort) {
+        if (!$sort) {
             throw new Exception('Sort condition is empty');
         }
         
-        if(!isset($this->operators['$push'][$field]['$each'])) {
+        if (!isset($this->operators['$push'][$field]['$each'])) {
             throw new Exception('Field ' . $field . ' must be pushed with $each modifier');
         }
         
@@ -154,7 +146,7 @@ class Operator implements ArrayableInterface
      * the $push operator insert elements. Without the $position modifier,
      * the $push operator inserts elements to the end of the array. See
      * $push modifiers for more information.
-     * 
+     *
      * @link http://docs.mongodb.org/manual/reference/operator/update/position
      * @param string $field
      * @param int $position non-negative number that corresponds to the position in the array, based on a zero-based index
@@ -166,11 +158,11 @@ class Operator implements ArrayableInterface
         $position = (int) $position;
         
         // add modifiers
-        if($position <= 0) {
+        if ($position <= 0) {
             throw new Exception('Position must be greater 0');
         }
         
-        if(!isset($this->operators['$push'][$field]['$each'])) {
+        if (!isset($this->operators['$push'][$field]['$each'])) {
             throw new Exception('Field ' . $field . ' must be pushed with $each modifier');
         }
         
@@ -238,7 +230,7 @@ class Operator implements ArrayableInterface
     {
         // check if update operations already added
         $oldIncrementValue = $this->get('$inc', $fieldName);
-        if($oldIncrementValue) {
+        if ($oldIncrementValue) {
             $value = $oldIncrementValue + $value;
         }
         
@@ -259,16 +251,15 @@ class Operator implements ArrayableInterface
     public function pull($expression, $value = null)
     {
         // field-value pulling
-        if($value) {
-
+        if ($value) {
             // expression
-            if(is_callable($value)) {
+            if (is_callable($value)) {
                 $configurator = $value;
                 $value = new Expression();
                 call_user_func($configurator, $value);
             }
 
-            if($value instanceof Expression) {
+            if ($value instanceof Expression) {
                 $value = $value->toArray();
             }
             
@@ -278,19 +269,19 @@ class Operator implements ArrayableInterface
         }
 
         // expression
-        if(is_callable($expression)) {
+        if (is_callable($expression)) {
             $configurator = $expression;
             $expression = new Expression();
             call_user_func($configurator, $expression);
         }
 
-        if($expression instanceof Expression) {
+        if ($expression instanceof Expression) {
             $expression = $expression->toArray();
-        } elseif(!is_array($expression)) {
+        } elseif (!is_array($expression)) {
             throw new \InvalidArgumentException('Expression must be field name, callable or Expression object');
         }
         
-        if(!isset($this->operators['$pull'])) {
+        if (!isset($this->operators['$pull'])) {
             // no $pull operator found
             $this->operators['$pull'] = $expression;
         } else {
@@ -303,7 +294,7 @@ class Operator implements ArrayableInterface
 
     /**
      * The $unset operator deletes a particular field
-     * 
+     *
      * @link http://docs.mongodb.org/manual/reference/operator/update/unset
      * @param string $fieldName
      * @return \Sokil\Mongo\Operator
@@ -346,7 +337,7 @@ class Operator implements ArrayableInterface
     
     public function get($operation, $fieldName = null)
     {
-        if($fieldName) {
+        if ($fieldName) {
             return isset($this->operators[$operation][$fieldName])
                 ? $this->operators[$operation][$fieldName]
                 : null;
@@ -386,16 +377,16 @@ class Operator implements ArrayableInterface
     public static function convertToArray($mixed)
     {
         // get operator from callable
-        if(is_callable($mixed)) {
+        if (is_callable($mixed)) {
             $callable = $mixed;
             $mixed = new self();
             call_user_func($callable, $mixed);
         }
 
         // get operator array
-        if($mixed instanceof ArrayableInterface && $mixed instanceof self) {
+        if ($mixed instanceof ArrayableInterface && $mixed instanceof self) {
             $mixed = $mixed->toArray();
-        } elseif(!is_array($mixed)) {
+        } elseif (!is_array($mixed)) {
             throw new Exception('Mixed must be instance of Operator');
         }
 

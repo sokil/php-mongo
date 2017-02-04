@@ -89,15 +89,15 @@ class Pipeline implements
     }
 
     /**
-     * Groups documents by some specified expression and outputs to the next 
-     * stage a document for each distinct grouping. The output documents 
-     * contain an _id field which contains the distinct group by key. The 
-     * output documents can also contain computed fields that hold the values 
-     * of some accumulator expression grouped by the $group‘s _id field. $group 
+     * Groups documents by some specified expression and outputs to the next
+     * stage a document for each distinct grouping. The output documents
+     * contain an _id field which contains the distinct group by key. The
+     * output documents can also contain computed fields that hold the values
+     * of some accumulator expression grouped by the $group‘s _id field. $group
      * does not order its output documents.
      *
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/group/
-     * 
+     *
      * @param array|callable $stage
      * @return \Sokil\Mongo\Pipeline
      * @throws \Sokil\Mongo\Exception

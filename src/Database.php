@@ -56,7 +56,8 @@ class Database
      * @param Client $client
      * @param \MongoDB|string $database
      */
-    public function __construct(Client $client, $database) {
+    public function __construct(Client $client, $database)
+    {
         $this->client = $client;
 
         if ($database instanceof \MongoDB) {
@@ -195,7 +196,7 @@ class Database
 
     /**
      * Define collection through array or Definition instance
-     * 
+     *
      * @param string                    $name       collection name
      * @param Definition|array|string   $definition collection definition
      * @return Database
@@ -310,7 +311,7 @@ class Database
             'max'       => (int) $maxElements,
         );
 
-        if(!$options['size'] && !$options['max']) {
+        if (!$options['size'] && !$options['max']) {
             throw new Exception('Size or number of elements must be defined');
         }
 
@@ -326,7 +327,7 @@ class Database
     public function getCollection($name)
     {
         // return from pool
-        if($this->collectionPoolEnabled && isset($this->collectionPool[$name])) {
+        if ($this->collectionPoolEnabled && isset($this->collectionPool[$name])) {
             return $this->collectionPool[$name];
         }
 
@@ -377,7 +378,7 @@ class Database
     public function getGridFS($name = 'fs')
     {
         // return from pool
-        if($this->collectionPoolEnabled && isset($this->collectionPool[$name])) {
+        if ($this->collectionPoolEnabled && isset($this->collectionPool[$name])) {
             return $this->collectionPool[$name];
         }
 
@@ -387,12 +388,12 @@ class Database
 
         // create collection class
         $collection = new $className($this, $name, $classDefinition);
-        if(!$collection instanceof \Sokil\Mongo\GridFS) {
+        if (!$collection instanceof \Sokil\Mongo\GridFS) {
             throw new Exception('Must be instance of \Sokil\Mongo\GridFS');
         }
 
         // store to pool
-        if($this->collectionPoolEnabled) {
+        if ($this->collectionPoolEnabled) {
             $this->collectionPool[$name] = $collection;
         }
 
@@ -467,7 +468,7 @@ class Database
      */
     public function setWriteConcern($w, $timeout = 10000)
     {
-        if(!$this->getMongoDB()->setWriteConcern($w, (int) $timeout)) {
+        if (!$this->getMongoDB()->setWriteConcern($w, (int) $timeout)) {
             throw new Exception('Error setting write concern');
         }
 
@@ -526,7 +527,7 @@ class Database
     public function executeJS($code, array $args = array())
     {
         $response = $this->getMongoDB()->execute($code, $args);
-        if($response['ok'] == 1.0) {
+        if ($response['ok'] == 1.0) {
             return $response['retval'];
         } else {
             throw new Exception('Error #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
@@ -585,7 +586,7 @@ class Database
             'profile'   => 2,
         );
 
-        if($slowms) {
+        if ($slowms) {
             $command['slowms'] = (int) $slowms;
         }
 

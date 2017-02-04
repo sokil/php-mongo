@@ -119,7 +119,7 @@ class Document extends Structure
         parent::__construct($data, $this->getOption('stored'));
 
         // use versioning
-        if($this->getOption('versioning')) {
+        if ($this->getOption('versioning')) {
             $this->getRevisionManager()->listen();
         }
 
@@ -148,7 +148,6 @@ class Document extends Structure
      */
     public function beforeConstruct()
     {
-
     }
 
     /**
@@ -214,7 +213,7 @@ class Document extends Structure
 
         // attach behaviors
         $this->attachBehaviors($this->behaviors());
-        if($this->hasOption('behaviors')) {
+        if ($this->hasOption('behaviors')) {
             $this->attachBehaviors($this->getOption('behaviors'));
         }
     }
@@ -236,7 +235,7 @@ class Document extends Structure
         }
 
         // adding event
-        if('on' === substr($name, 0, 2)) {
+        if ('on' === substr($name, 0, 2)) {
             // prepend event name to function args
             $addListenerArguments = $arguments;
             array_unshift($addListenerArguments, lcfirst(substr($name, 2)));
@@ -472,7 +471,7 @@ class Document extends Structure
     public function getRelationDefinition()
     {
         $relations = $this->getOption('relations');
-        if(!is_array($relations)) {
+        if (!is_array($relations)) {
             return $this->relations();
         }
 
@@ -485,7 +484,7 @@ class Document extends Structure
      */
     private function getRelationManager()
     {
-        if($this->relationManager) {
+        if ($this->relationManager) {
             return $this->relationManager;
         }
 
@@ -525,7 +524,7 @@ class Document extends Structure
      */
     public function triggerEvent($eventName, Event $event = null)
     {
-        if(!$event) {
+        if (!$event) {
             $event = new Event;
         }
 
@@ -573,7 +572,8 @@ class Document extends Structure
         if (!($id instanceof \MongoId)) {
             try {
                 $id = new \MongoId($id);
-            } catch (\MongoException $e) {}
+            } catch (\MongoException $e) {
+            }
         }
 
         $this->mergeUnmodified(array('_id' => $id));
@@ -592,7 +592,8 @@ class Document extends Structure
         if (!($id instanceof \MongoId)) {
             try {
                 $id = new \MongoId($id);
-            } catch (\MongoException $e) {}
+            } catch (\MongoException $e) {
+            }
         }
 
         return $this->set('_id', $id);
@@ -610,7 +611,7 @@ class Document extends Structure
      */
     public function validate()
     {
-        if($this->triggerEvent('beforeValidate')->isCancelled()) {
+        if ($this->triggerEvent('beforeValidate')->isCancelled()) {
             return $this;
         }
 
@@ -651,11 +652,11 @@ class Document extends Structure
      */
     public function attachBehavior($name, $behavior)
     {
-        if(is_string($behavior)) {
+        if (is_string($behavior)) {
             // behavior defined as string
             $className = $behavior;
             $behavior = new $className();
-        } elseif(is_array($behavior)) {
+        } elseif (is_array($behavior)) {
             // behavior defined as array
             if (empty($behavior['class'])) {
                 throw new Exception('Behavior class not specified');
@@ -712,7 +713,7 @@ class Document extends Structure
 
     /**
      * Remove field
-     * 
+     *
      * @param string $fieldName field name
      * @return \Sokil\Mongo\Document
      */
@@ -1082,7 +1083,7 @@ class Document extends Structure
         parent::set($field, $newValue);
 
         if ($this->getId()) {
-            if(version_compare($this->getCollection()->getDatabase()->getClient()->getDbVersion(), '2.6', '>=')) {
+            if (version_compare($this->getCollection()->getDatabase()->getClient()->getDbVersion(), '2.6', '>=')) {
                 $this->operator->bitwiceXor($field, $value);
             } else {
                 $this->operator->set($field, $newValue);
@@ -1173,7 +1174,7 @@ class Document extends Structure
 
         // check if document modified due to specified lock
         if ($this->getOption('lock') === Definition::LOCK_OPTIMISTIC) {
-            if($status['n'] === 0) {
+            if ($status['n'] === 0) {
                 throw new OptimisticLockFailureException;
             }
         }
@@ -1206,7 +1207,7 @@ class Document extends Structure
         }
 
         // handle beforeSave event
-        if($this->triggerEvent('beforeSave')->isCancelled()) {
+        if ($this->triggerEvent('beforeSave')->isCancelled()) {
             return $this;
         }
 
@@ -1252,7 +1253,7 @@ class Document extends Structure
             '_id'   => $this->getId(),
         ));
 
-        if(true !== $status && $status['ok'] != 1) {
+        if (true !== $status && $status['ok'] != 1) {
             throw new \Sokil\Mongo\Exception(sprintf('Delete document error: %s', $status['err']));
         }
 
@@ -1271,7 +1272,7 @@ class Document extends Structure
      */
     public function getRevisionManager()
     {
-        if(!$this->revisionManager) {
+        if (!$this->revisionManager) {
             $this->revisionManager = new RevisionManager($this);
         }
 
@@ -1310,5 +1311,4 @@ class Document extends Structure
         $this->getRevisionManager()->clearRevisions();
         return $this;
     }
-
 }

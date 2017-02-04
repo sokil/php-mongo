@@ -80,6 +80,6 @@ fi
 #####################################
 
 # debug or run tests manually
-echo "Debugging session for ${PHP_VERSION} initialised."
+echo "Container for PHP ${PHP_VERSION} initialised."
 
 php -S 127.0.0.1:9876 .

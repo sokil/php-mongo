@@ -28,7 +28,7 @@ class Queue implements \Countable
     
     /**
      * Add item to queue
-     * 
+     *
      * @param mixed $payload data to send
      * @param int $priority more priority num give quicker getting from queue
      * @return \Sokil\Mongo\Queue
@@ -48,7 +48,7 @@ class Queue implements \Countable
     
     /**
      * Get item from queue as is
-     * 
+     *
      * @return mixed
      */
     public function dequeuePlain()
@@ -61,7 +61,7 @@ class Queue implements \Countable
             ))
             ->findAndRemove();
         
-        if(!$document) {
+        if (!$document) {
             return null;
         }
         
@@ -70,13 +70,13 @@ class Queue implements \Countable
     
     /**
      * Get item from queue as Structure if array put into queue
-     * 
+     *
      * @return mixed|\Sokil\Mongo\Structure
      */
     public function dequeue()
     {
         $value = $this->dequeuePlain();
-        if(!is_array($value)) {
+        if (!is_array($value)) {
             return $value;
         }
 
@@ -88,7 +88,7 @@ class Queue implements \Countable
     
     /**
      * Get number of elements in queue
-     * 
+     *
      * @return int
      */
     public function count()
@@ -98,7 +98,7 @@ class Queue implements \Countable
     
     /**
      * Clear queue
-     * 
+     *
      * @return \Sokil\Mongo\Queue
      */
     public function clear()

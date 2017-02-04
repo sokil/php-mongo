@@ -49,7 +49,7 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     }
     
     /**
-     * Cancel related operation execution. If called as beforeInsert 
+     * Cancel related operation execution. If called as beforeInsert
      * handler, than insert will be cancelled.
      */
     public function cancel()

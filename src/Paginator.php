@@ -27,7 +27,7 @@ class Paginator implements \Iterator
     
     public function __construct(Cursor $cursor = null)
     {
-        if($cursor) {
+        if ($cursor) {
             $this->setCursor($cursor);
         }
     }
@@ -38,7 +38,7 @@ class Paginator implements \Iterator
     }
     
     /**
-     * 
+     *
      * @param int $itemsOnPage
      * @return \Sokil\Mongo\Paginator
      */
@@ -53,12 +53,12 @@ class Paginator implements \Iterator
     }
     
     /**
-     * 
+     *
      * @param int $currentPage
      * @return \Sokil\Mongo\Paginator
      */
     public function setCurrentPage($currentPage)
-    {        
+    {
         $this->currentPage = (int) $currentPage;
         
         // define offset
@@ -73,11 +73,11 @@ class Paginator implements \Iterator
         $totalPageCount = $this->getTotalPagesCount();
         
         // no document found - page is 1
-        if(!$totalPageCount) {
+        if (!$totalPageCount) {
             return 1;
         }
         
-        if($this->currentPage <= $totalPageCount) {
+        if ($this->currentPage <= $totalPageCount) {
             $currentPage = $this->currentPage;
         } else {
             $currentPage = $totalPageCount;
@@ -88,7 +88,7 @@ class Paginator implements \Iterator
     
     /**
      * Define cursor for paginator
-     * 
+     *
      * @param \Sokil\Mongo\Cursor $cursor
      * @return \Sokil\Mongo\Paginator
      */
@@ -103,7 +103,7 @@ class Paginator implements \Iterator
     
     public function getTotalRowsCount()
     {
-        if($this->totalRowsCount) {
+        if ($this->totalRowsCount) {
             return $this->totalRowsCount;
         }
         
@@ -119,7 +119,7 @@ class Paginator implements \Iterator
     
     private function applyLimits()
     {
-        if(!$this->cursor) {
+        if (!$this->cursor) {
             return;
         }
         

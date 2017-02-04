@@ -20,12 +20,12 @@ class GridFSFile extends Structure implements \Countable
     private $gridFS;
     
     /**
-     * @var \MongoGridFSFile 
+     * @var \MongoGridFSFile
      */
     private $file;
         
     /**
-     * 
+     *
      * @param \Sokil\Mongo\GridFS $gridFS instance of GridFS
      * @param array|\MongoGridFSFile $file instance of File or metadata array
      * @throws \Sokil\Mongo\Exception
@@ -34,13 +34,13 @@ class GridFSFile extends Structure implements \Countable
     {
         $this->gridFS = $gridFS;
         
-        if(!$file) {
+        if (!$file) {
             return;
         }
 
-        if(is_array($file)) {
+        if (is_array($file)) {
             $file = new \MongoGridFSFile($gridFS->getMongoCollection(), $file);
-        } elseif(!($file instanceof \MongoGridFSFile)) {
+        } elseif (!($file instanceof \MongoGridFSFile)) {
             throw new Exception('Wrong file data specified');
         }
 
@@ -50,8 +50,8 @@ class GridFSFile extends Structure implements \Countable
     
     /**
      * Get instance of native mongo file
-     * 
-     * @return \MongoGridFSFile 
+     *
+     * @return \MongoGridFSFile
      */
     public function getMongoGridFsFile()
     {

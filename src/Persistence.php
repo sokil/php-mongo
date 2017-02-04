@@ -88,7 +88,7 @@ class Persistence implements \Countable
         $delete = array();
 
         // fill batch objects
-        foreach($this->pool as $document) {
+        foreach ($this->pool as $document) {
             /* @var $document \Sokil\Mongo\Document */
 
             // collection
@@ -96,7 +96,7 @@ class Persistence implements \Countable
             $collectionName = $collection->getName();
 
             // persisting
-            switch($this->pool->offsetGet($document)) {
+            switch ($this->pool->offsetGet($document)) {
                 case self::STATE_SAVE:
                     if ($document->isStored()) {
                         if (!isset($update[$collectionName])) {

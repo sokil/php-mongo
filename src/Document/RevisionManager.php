@@ -35,7 +35,7 @@ class RevisionManager
         $revisionsCollection = $this->getRevisionsCollection();
         $document = $this->document;
 
-        $createRevisionCallback = function() use($revisionsCollection, $document) {
+        $createRevisionCallback = function () use ($revisionsCollection, $document) {
             // create new revision
             $revisionsCollection
                 ->createDocument()
@@ -52,7 +52,7 @@ class RevisionManager
      */
     private function getRevisionsCollection()
     {
-        if($this->revisionsCollection) {
+        if ($this->revisionsCollection) {
             return $this->revisionsCollection;
         }
 
@@ -76,11 +76,11 @@ class RevisionManager
             ->find()
             ->where('__documentId__', $this->document->getId());
 
-        if($limit) {
+        if ($limit) {
             $cursor->limit($limit);
         }
 
-        if($offset) {
+        if ($offset) {
             $cursor->skip($offset);
         }
 
@@ -116,7 +116,7 @@ class RevisionManager
         $documentId = $this->document->getId();
         $this
             ->getRevisionsCollection()
-            ->batchDelete(function(Expression $expression) use($documentId) {
+            ->batchDelete(function (Expression $expression) use ($documentId) {
                 /* @var $expression \Sokil\Mongo\Expression */
                 return $expression->where('__documentId__', $documentId);
             });

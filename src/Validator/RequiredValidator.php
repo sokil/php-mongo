@@ -26,8 +26,8 @@ class RequiredValidator extends \Sokil\Mongo\Validator
             : 'Field "' . $fieldName . '" required in model ' . get_class($document);
 
         $document->addError(
-            $fieldName, 
-            $this->getName(), 
+            $fieldName,
+            $this->getName(),
             $errorMessage
         );
     }

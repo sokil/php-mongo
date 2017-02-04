@@ -15,7 +15,7 @@ use Sokil\Mongo\ArrayableInterface;
 
 /**
  * Group stage accumulators
- * 
+ *
  * @link http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#accumulators
  *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
@@ -32,14 +32,14 @@ class GroupStage implements ArrayableInterface
 
     /**
      * Sum accumulator
-     * 
+     *
      * Calculates and returns the sum of all the numeric values that result
      * from applying a specified expression to each document in a group of
      * documents that share the same group by key. $sum ignores
      * non-numeric values.
      *
      * @link http://docs.mongodb.org/manual/reference/operator/aggregation/sum
-     * 
+     *
      * @param string $field
      * @param literal|callable|\Sokil\Mongo\Pipeline\Expression $expression Expression
      * @return \Sokil\Mongo\Pipeline\GroupStage

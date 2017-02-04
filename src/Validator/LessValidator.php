@@ -27,12 +27,11 @@ class LessValidator extends \Sokil\Mongo\Validator
             throw new Exception('Maximum value not specified');
         }
 
-        if($value >= $params['than']) {
-            if(empty($params['message'])) {
+        if ($value >= $params['than']) {
+            if (empty($params['message'])) {
                 $params['message'] = 'Field "' . $fieldName . '" must be less than specified value in ' . get_called_class();
             }
             $document->addError($fieldName, $this->getName(), $params['message']);
         }
-
     }
 }

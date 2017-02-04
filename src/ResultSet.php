@@ -17,7 +17,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     public function __construct(array $documents = null)
     {
-        if($documents) {
+        if ($documents) {
             $this->documents = $documents;
         }
     }
@@ -34,7 +34,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     public function each($callable)
     {
-        foreach($this->documents as $id => $document) {
+        foreach ($this->documents as $id => $document) {
             call_user_func($callable, $document, $id, $this);
         }
 
@@ -119,7 +119,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Whether a offset exists
-     * @param mixed $offset 
+     * @param mixed $offset
      * An offset to check for.
      * @return boolean TRUE on success or FALSE on failure.
      * The return value will be casted to boolean if non-boolean was returned.

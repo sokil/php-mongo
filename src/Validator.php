@@ -29,7 +29,7 @@ abstract class Validator
         array $fieldNameList,
         array $params
     ) {
-        foreach($fieldNameList as $fieldName) {           
+        foreach ($fieldNameList as $fieldName) {
             $this->validateField($document, $fieldName, $params);
         }
     }

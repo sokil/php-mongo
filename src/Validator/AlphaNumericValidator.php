@@ -15,7 +15,7 @@ use Sokil\Mongo\Structure;
 
 /**
  * Alphanumeric values validator
- * 
+ *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
 class AlphaNumericValidator extends \Sokil\Mongo\Validator
@@ -37,5 +37,4 @@ class AlphaNumericValidator extends \Sokil\Mongo\Validator
 
         $document->addError($fieldName, $this->getName(), $params['message']);
     }
-
 }

@@ -21,8 +21,8 @@ class PersistenceLegacy extends Persistence
     public function flush()
     {
         /** @var $document \Sokil\Mongo\Document */
-        foreach($this->pool as $document) {
-            switch($this->pool->offsetGet($document)) {
+        foreach ($this->pool as $document) {
+            switch ($this->pool->offsetGet($document)) {
                 case self::STATE_SAVE:
                     $document->save();
                     break;

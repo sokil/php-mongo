@@ -49,7 +49,7 @@ class Cache implements \Countable
     
     /**
      * Set with expiration on concrete date
-     * 
+     *
      * @param int|string $key
      * @param mixed $value
      * @param int $timestamp
@@ -61,11 +61,11 @@ class Cache implements \Countable
             self::FIELD_NAME_VALUE => $value,
         );
 
-        if($timestamp) {
+        if ($timestamp) {
             $document[self::FIELD_NAME_EXPIRED] = new \MongoDate((int) $timestamp);
         }
 
-        if($tags) {
+        if ($tags) {
             $document[self::FIELD_NAME_TAGS] = $tags;
         }
 
@@ -79,7 +79,7 @@ class Cache implements \Countable
             )
         );
 
-        if((double) 1 !== $result['ok']) {
+        if ((double) 1 !== $result['ok']) {
             throw new Exception('Error setting value');
         }
         
@@ -88,9 +88,9 @@ class Cache implements \Countable
     
     /**
      * Set key that never expired
-     * 
+     *
      * @param int|string $key
-     * @param mixed $value 
+     * @param mixed $value
      * @return \Sokil\Mongo\Cache
      */
     public function setNeverExpired($key, $value, array $tags = null)
@@ -102,7 +102,7 @@ class Cache implements \Countable
     
     /**
      * Set with expiration in seconds
-     * 
+     *
      * @param int|string $key
      * @param mixed $value
      * @param int $ttl
@@ -132,7 +132,7 @@ class Cache implements \Countable
         // Required date checking
         // Expiration may be empty for keys whicj never expired
         $expiredAt = $document->get(self::FIELD_NAME_EXPIRED);
-        if($expiredAt && $expiredAt->sec < time()) {
+        if ($expiredAt && $expiredAt->sec < time()) {
             return null;
         }
 
@@ -154,7 +154,7 @@ class Cache implements \Countable
      */
     public function deleteMatchingTag($tag)
     {
-        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tag) {
+        $this->collection->batchDelete(function (\Sokil\Mongo\Expression $e) use ($tag) {
             return $e->where(Cache::FIELD_NAME_TAGS, $tag);
         });
         
@@ -166,7 +166,7 @@ class Cache implements \Countable
      */
     public function deleteNotMatchingTag($tag)
     {
-        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tag) {
+        $this->collection->batchDelete(function (\Sokil\Mongo\Expression $e) use ($tag) {
             return $e->whereNotEqual(Cache::FIELD_NAME_TAGS, $tag);
         });
         
@@ -179,7 +179,7 @@ class Cache implements \Countable
      */
     public function deleteMatchingAllTags(array $tags)
     {
-        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tags) {
+        $this->collection->batchDelete(function (\Sokil\Mongo\Expression $e) use ($tags) {
             return $e->whereAll(Cache::FIELD_NAME_TAGS, $tags);
         });
         
@@ -192,7 +192,7 @@ class Cache implements \Countable
      */
     public function deleteMatchingNoneOfTags(array $tags)
     {
-        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tags) {
+        $this->collection->batchDelete(function (\Sokil\Mongo\Expression $e) use ($tags) {
             return $e->whereNoneOf(Cache::FIELD_NAME_TAGS, $tags);
         });
         
@@ -205,7 +205,7 @@ class Cache implements \Countable
      */
     public function deleteMatchingAnyTag(array $tags)
     {
-        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tags) {
+        $this->collection->batchDelete(function (\Sokil\Mongo\Expression $e) use ($tags) {
             return $e->whereIn(Cache::FIELD_NAME_TAGS, $tags);
         });
         
@@ -218,7 +218,7 @@ class Cache implements \Countable
      */
     public function deleteNotMatchingAnyTag(array $tags)
     {
-        $this->collection->batchDelete(function(\Sokil\Mongo\Expression $e) use($tags) {
+        $this->collection->batchDelete(function (\Sokil\Mongo\Expression $e) use ($tags) {
             return $e->whereNotIn(Cache::FIELD_NAME_TAGS, $tags);
         });
         
@@ -234,5 +234,4 @@ class Cache implements \Countable
     {
         return (bool) $this->get($key);
     }
-    
 }

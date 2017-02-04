@@ -15,7 +15,7 @@ use \Psr\Log\LoggerInterface;
 
 /**
  * Connection manager and factory to get database and collection instances.
- * 
+ *
  * @link https://github.com/sokil/php-mongo#connecting Connecting
  * @link https://github.com/sokil/php-mongo#selecting-database-and-collection Get database and collection instance
  */
@@ -54,16 +54,17 @@ class Client
     private $debug = false;
 
     /**
-     * 
+     *
      * @param string $dsn Data Source Name
      * @param array $options
      */
-    public function __construct($dsn = null, array $options = null) {
+    public function __construct($dsn = null, array $options = null)
+    {
         if ($dsn) {
             $this->setDsn($dsn);
         }
         
-        if($options) {
+        if ($options) {
             $this->setConnectOptions($options);
         }
     }
@@ -81,7 +82,7 @@ class Client
     /**
      * Set credentials to auth on db, specified in connect options or dsn.
      * If not specified - auth on admin db
-     * 
+     *
      * @param type $username
      * @param type $password
      * @return \Sokil\Mongo\Client
@@ -100,7 +101,7 @@ class Client
     }
     
     /**
-     * 
+     *
      * @return string Version of PHP driver
      */
     public function getVersion()
@@ -139,7 +140,7 @@ class Client
     
     /**
      * Set connect options
-     * 
+     *
      * @link http://php.net/manual/en/mongoclient.construct.php connect options
      * @param array $options
      * @return \Sokil\Mongo\Client
@@ -157,7 +158,7 @@ class Client
     
     /**
      * Set mongo's client
-     * 
+     *
      * @param \MongoClient $client
      * @return \Sokil\Mongo\Client
      */
@@ -189,7 +190,7 @@ class Client
     
     /**
      * Get list of all active connections through this client
-     * 
+     *
      * @return array
      */
     public function getConnections()
@@ -199,7 +200,7 @@ class Client
     
     /**
      * Map database and collection name to class.
-     * 
+     *
      * Collection name -> array definition:
      *  ['acmeDatabaseName' => ['acmeCollectionName' => ['class' => '\Acme\Collection\SomeCollectionClass']]]
      * Collection name -> collection class name (deprecated: use definition array):
@@ -210,7 +211,8 @@ class Client
      * @param array $mapping classpath or class prefix
      * @return Client
      */
-    public function map(array $mapping) {
+    public function map(array $mapping)
+    {
         $this->mapping = $mapping;
         
         return $this;
@@ -222,7 +224,8 @@ class Client
      * @param string    $name   database name
      * @return Database
      */
-    public function getDatabase($name = null) {
+    public function getDatabase($name = null)
+    {
         
         if (!$name) {
             $name = $this->getCurrentDatabaseName();
@@ -244,7 +247,7 @@ class Client
     
     /**
      * Select database
-     * 
+     *
      * @param string $name
      * @return \Sokil\Mongo\Client
      */
@@ -271,13 +274,13 @@ class Client
     
     /**
      * Get collection from previously selected database by self::useDatabase()
-     * 
+     *
      * @param string $name
      * @return \Sokil\Mongo\Collection
      * @throws Exception
      */
     public function getCollection($name)
-    {        
+    {
         return $this
             ->getDatabase($this->getCurrentDatabaseName())
             ->getCollection($name);
@@ -325,7 +328,7 @@ class Client
     }
     
     /**
-     * 
+     *
      * @return \Psr\Log\LoggerInterface
      */
     public function getLogger()
@@ -429,7 +432,7 @@ class Client
      */
     public function createPersistence()
     {
-        // operations of same type and in same collection executed at once 
+        // operations of same type and in same collection executed at once
         if (version_compare($this->getVersion(), '1.5', '>=') && version_compare($this->getDbVersion(), '2.6', '>=')) {
             return new Persistence();
         }

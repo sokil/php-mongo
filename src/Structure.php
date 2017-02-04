@@ -108,7 +108,7 @@ class Structure implements
      * Cloning not allowed because cloning of object not clone related aggregates of this object, so
      * cloned object has links to original aggregates. This is difficult to handle.
      */
-    public final function __clone()
+    final public function __clone()
     {
         throw new \RuntimeException('Cloning not allowed');
     }
@@ -139,14 +139,13 @@ class Structure implements
 
     public function get($selector)
     {
-        if(false === strpos($selector, '.')) {
+        if (false === strpos($selector, '.')) {
             return isset($this->data[$selector]) ? $this->data[$selector] : null;
         }
 
         $value = $this->data;
-        foreach(explode('.', $selector) as $field)
-        {
-            if(!isset($value[$field])) {
+        foreach (explode('.', $selector) as $field) {
+            if (!isset($value[$field])) {
                 return null;
             }
 
@@ -167,18 +166,18 @@ class Structure implements
     public function getObject($selector, $className = '\Sokil\Mongo\Structure')
     {
         $data = $this->get($selector);
-        if(!$data) {
+        if (!$data) {
             return null;
         }
 
         // get class name from callable
-        if(is_callable($className)) {
+        if (is_callable($className)) {
             $className = $className($data);
         }
 
         // prepare structure
         $structure =  new $className();
-        if(!($structure instanceof Structure)) {
+        if (!($structure instanceof Structure)) {
             throw new Exception('Wrong structure class specified');
         }
 
@@ -196,16 +195,16 @@ class Structure implements
     public function getObjectList($selector, $className = '\Sokil\Mongo\Structure')
     {
         $data = $this->get($selector);
-        if(!$data || !is_array($data)) {
+        if (!$data || !is_array($data)) {
             return array();
         }
 
         // class name is string
-        if(is_string($className)) {
+        if (is_string($className)) {
             $list = array_map(
-                function($dataItem) use($className) {
+                function ($dataItem) use ($className) {
                     $listItemStructure = new $className();
-                    if(!($listItemStructure instanceof Structure)) {
+                    if (!($listItemStructure instanceof Structure)) {
                         throw new Exception('Wrong structure class specified');
                     }
                     $listItemStructure->mergeUnmodified($dataItem);
@@ -218,11 +217,11 @@ class Structure implements
         }
 
         // class name id callable
-        if(is_callable($className)) {
-            return array_map(function($dataItem) use( $className) {
+        if (is_callable($className)) {
+            return array_map(function ($dataItem) use ($className) {
                 $classNameString = $className($dataItem);
                 $listItemStructure = new $classNameString;
-                if(!($listItemStructure instanceof Structure)) {
+                if (!($listItemStructure instanceof Structure)) {
                     throw new Exception('Wrong structure class specified');
                 }
 
@@ -261,10 +260,9 @@ class Structure implements
         $chunksNum = count($arraySelector);
 
         // optimize one-level selector search
-        if(1 == $chunksNum) {
-
+        if (1 == $chunksNum) {
             // update only if new value different from current
-            if(!isset($this->data[$selector]) || $this->data[$selector] !== $value) {
+            if (!isset($this->data[$selector]) || $this->data[$selector] !== $value) {
                 // modify
                 $this->data[$selector] = $value;
                 // mark field as modified
@@ -277,13 +275,12 @@ class Structure implements
         // selector is nested
         $section = &$this->data;
 
-        for($i = 0; $i < $chunksNum - 1; $i++) {
-
+        for ($i = 0; $i < $chunksNum - 1; $i++) {
             $field = $arraySelector[$i];
 
-            if(!isset($section[$field])) {
+            if (!isset($section[$field])) {
                 $section[$field] = array();
-            } elseif(!is_array($section[$field])) {
+            } elseif (!is_array($section[$field])) {
                 throw new Exception('Assigning sub-document to scalar value not allowed');
             }
 
@@ -291,7 +288,7 @@ class Structure implements
         }
 
         // update only if new value different from current
-        if(!isset($section[$arraySelector[$chunksNum - 1]]) || $section[$arraySelector[$chunksNum - 1]] !== $value) {
+        if (!isset($section[$arraySelector[$chunksNum - 1]]) || $section[$arraySelector[$chunksNum - 1]] !== $value) {
             // modify
             $section[$arraySelector[$chunksNum - 1]] = $value;
             // mark field as modified
@@ -305,8 +302,8 @@ class Structure implements
     {
         $pointer = &$this->data;
 
-        foreach(explode('.', $selector) as $field) {
-            if(!array_key_exists($field, $pointer)) {
+        foreach (explode('.', $selector) as $field) {
+            if (!array_key_exists($field, $pointer)) {
                 return false;
             }
 
@@ -324,8 +321,8 @@ class Structure implements
     public static function prepareToStore($value)
     {
         // if array - try to prepare every value
-        if(is_array($value)) {
-            foreach($value as $k => $v) {
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
                 $value[$k] = self::prepareToStore($v);
             }
 
@@ -333,22 +330,22 @@ class Structure implements
         }
 
         // if scalar - return it
-        if(!is_object($value)) {
+        if (!is_object($value)) {
             return $value;
         }
 
         // if internal mongo types - pass it as is
-        if(in_array(get_class($value), array('MongoId', 'MongoCode', 'MongoDate', 'MongoRegex', 'MongoBinData', 'MongoInt32', 'MongoInt64', 'MongoDBRef', 'MongoMinKey', 'MongoMaxKey', 'MongoTimestamp'))) {
+        if (in_array(get_class($value), array('MongoId', 'MongoCode', 'MongoDate', 'MongoRegex', 'MongoBinData', 'MongoInt32', 'MongoInt64', 'MongoDBRef', 'MongoMinKey', 'MongoMaxKey', 'MongoTimestamp'))) {
             return $value;
         }
 
         // do not convert geo-json to array
-        if($value instanceof \GeoJson\Geometry\Geometry) {
+        if ($value instanceof \GeoJson\Geometry\Geometry) {
             return $value->jsonSerialize();
         }
 
         // structure
-        if($value instanceof Structure) {
+        if ($value instanceof Structure) {
             // validate structure
             if (!$value->isValid()) {
                 $exception = new InvalidDocumentException('Embedded document not valid');
@@ -371,9 +368,9 @@ class Structure implements
         $chunksNum = count($arraySelector);
 
         // optimize one-level selector search
-        if(1 == $chunksNum) {
+        if (1 == $chunksNum) {
             // check if field exists
-            if(isset($this->data[$selector])) {
+            if (isset($this->data[$selector])) {
                 // unset field
                 unset($this->data[$selector]);
                 // mark field as modified
@@ -386,11 +383,10 @@ class Structure implements
         // find section
         $section = &$this->data;
 
-        for($i = 0; $i < $chunksNum - 1; $i++) {
-
+        for ($i = 0; $i < $chunksNum - 1; $i++) {
             $field = $arraySelector[$i];
 
-            if(!isset($section[$field])) {
+            if (!isset($section[$field])) {
                 return $this;
             }
 
@@ -398,7 +394,7 @@ class Structure implements
         }
 
         // check if field exists
-        if(isset($section[$arraySelector[$chunksNum - 1]])) {
+        if (isset($section[$arraySelector[$chunksNum - 1]])) {
             // unset field
             unset($section[$arraySelector[$chunksNum - 1]]);
             // mark field as modified
@@ -420,8 +416,8 @@ class Structure implements
     public function append($selector, $value)
     {
         $oldValue = $this->get($selector);
-        if($oldValue) {
-            if(!is_array($oldValue)) {
+        if ($oldValue) {
+            if (!is_array($oldValue)) {
                 $oldValue = (array) $oldValue;
             }
             $oldValue[] = $value;
@@ -434,16 +430,16 @@ class Structure implements
 
     public function isModified($selector = null)
     {
-        if(!$this->modifiedFields) {
+        if (!$this->modifiedFields) {
             return false;
         }
 
-        if(!$selector) {
+        if (!$selector) {
             return (bool) $this->modifiedFields;
         }
 
-        foreach($this->modifiedFields as $modifiedField) {
-            if(preg_match('/^' . $selector . '($|.)/', $modifiedField)) {
+        foreach ($this->modifiedFields as $modifiedField) {
+            if (preg_match('/^' . $selector . '($|.)/', $modifiedField)) {
                 return true;
             }
         }
@@ -479,8 +475,8 @@ class Structure implements
      */
     private function mergeUnmodifiedPartial(array &$target, array $source)
     {
-        foreach($source as $key => $value) {
-            if(is_array($value) && isset($target[$key])) {
+        foreach ($source as $key => $value) {
+            if (is_array($value) && isset($target[$key])) {
                 $this->mergeUnmodifiedPartial($target[$key], $value);
             } else {
                 $target[$key] = $value;
@@ -520,12 +516,11 @@ class Structure implements
      */
     private function mergePartial(array &$document, array $updatedDocument, $prefix = null)
     {
-        foreach($updatedDocument as $key => $newValue) {
+        foreach ($updatedDocument as $key => $newValue) {
             // if original data is embedded document and value also - then merge
-            if(is_array($newValue) && isset($document[$key]) && $this->isEmbeddedDocument($document[$key])) {
+            if (is_array($newValue) && isset($document[$key]) && $this->isEmbeddedDocument($document[$key])) {
                 $this->mergePartial($document[$key], $newValue, $prefix . $key . '.');
-            }
-            // in other cases just set new value
+            } // in other cases just set new value
             else {
                 $document[$key] = $newValue;
                 $this->modifiedFields[] = $prefix . $key;
@@ -722,7 +717,7 @@ class Structure implements
 
     private function getValidatorClassNameByRuleName($ruleName)
     {
-        if(false !== strpos($ruleName, '_')) {
+        if (false !== strpos($ruleName, '_')) {
             $className = implode('', array_map('ucfirst', explode('_', strtolower($ruleName))));
         } else {
             $className = ucfirst(strtolower($ruleName));
@@ -787,5 +782,4 @@ class Structure implements
 
         return !$this->hasErrors();
     }
-
 }

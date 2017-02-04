@@ -21,13 +21,13 @@ class GridFS extends Collection
     protected $mongoCollectionClassName = '\MongoGridFS';
     
     /**
-     * Factory method to get document object from array of stored document 
+     * Factory method to get document object from array of stored document
      * @param \MongoGridFSFile $data
      * @return \Sokil\Mongo\GridFsFile
      */
     public function hydrate($data, $useDocumentPool = true)
     {
-        if(($data instanceof \MongoGridFSFile) === false) {
+        if (($data instanceof \MongoGridFSFile) === false) {
             throw new Exception('Must be \MongoGridFSFile');
         }
         
@@ -38,7 +38,7 @@ class GridFS extends Collection
     
     /**
      * Override to define class name of file by file data
-     * 
+     *
      * @param \MongoGridFSFile $fileData
      * @return string Document class data
      */
@@ -49,7 +49,7 @@ class GridFS extends Collection
     
     /**
      * Create file in GridFS from file in filesystem
-     * 
+     *
      * @param string $filename name of source file
      * @param array $metadata metadata stored with file
      * @return \MongoId Id of stored file
@@ -61,7 +61,7 @@ class GridFS extends Collection
     
     /**
      * Create file in GridFS from binary data
-     * 
+     *
      * @param string $bytes binary data to store in GridFS
      * @param array $metadata metadata stored with file
      * @return \MongoId Id of stored file
@@ -80,7 +80,7 @@ class GridFS extends Collection
      */
     public function getFileById($id)
     {
-        if($id instanceof \MongoId) {
+        if ($id instanceof \MongoId) {
             $file = $this->getMongoCollection()->findOne(array('_id' => $id));
         } else {
             try {
@@ -90,7 +90,7 @@ class GridFS extends Collection
             }
         }
         
-        if(!$file) {
+        if (!$file) {
             return null;
         }
         
@@ -100,14 +100,14 @@ class GridFS extends Collection
     
     /**
      * Delete file by id
-     * 
+     *
      * @param string|\MongoId $id id of file's document
      * @return \Sokil\Mongo\GridFS
      * @throws Exception
      */
     public function deleteFileById($id)
     {
-        if($id instanceof \MongoId) {
+        if ($id instanceof \MongoId) {
             $result = $this->getMongoCollection()->delete($id);
         } else {
             try {
@@ -116,7 +116,7 @@ class GridFS extends Collection
                 $result = $this->getMongoCollection()->delete($id);
             }
         }
-        if($result['ok'] !== (double) 1) {
+        if ($result['ok'] !== (double) 1) {
             throw new Exception('Error deleting file: ' . $result['err'] . ': ' . $result['errmsg']);
         }
         

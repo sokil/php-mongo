@@ -13,7 +13,7 @@ namespace Sokil\Mongo;
 
 /**
  * Abstract class of behavior. Every behavior class must extend it.
- * 
+ *
  * @link https://github.com/sokil/php-mongo#behaviors
  */
 abstract class Behavior
@@ -22,7 +22,7 @@ abstract class Behavior
     
     private $options;
     
-    public function __construct(array $options = array()) 
+    public function __construct(array $options = array())
     {
         $this->options = $options;
     }

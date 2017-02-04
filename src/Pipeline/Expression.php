@@ -15,7 +15,7 @@ use Sokil\Mongo\ArrayableInterface;
 
 /**
  * Expressions used in Aggregation Framework
- * 
+ *
  * @link http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#expressions
  *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
@@ -72,7 +72,7 @@ class Expression implements ArrayableInterface
      */
     public function add($expressions)
     {
-        if(func_num_args() > 1) {
+        if (func_num_args() > 1) {
             $expressions = func_get_args();
         }
 
@@ -117,7 +117,7 @@ class Expression implements ArrayableInterface
      */
     public function multiply($expressions)
     {
-        if(func_num_args() > 1) {
+        if (func_num_args() > 1) {
             $expressions = func_get_args();
         }
         
@@ -143,12 +143,12 @@ class Expression implements ArrayableInterface
 
     /**
      * Convert expressions specified in different formats to canonical form
-     * 
+     *
      * @param array<callable|\Sokil\Mongo\Expression> $expressions
      */
     public static function normalizeEach(array $expressions)
     {
-        foreach($expressions as $i => $expression) {
+        foreach ($expressions as $i => $expression) {
             $expressions[$i] = self::normalize($expression);
         }
 
@@ -163,16 +163,16 @@ class Expression implements ArrayableInterface
      */
     public static function normalize($expression)
     {
-        if(is_callable($expression)) {
+        if (is_callable($expression)) {
             $expressionConfigurator = $expression;
             $expression = new Expression;
             call_user_func($expressionConfigurator, $expression);
         }
 
-        if($expression instanceof Expression) {
+        if ($expression instanceof Expression) {
             $expression = $expression->toArray();
-        } elseif(is_array($expression)) {
-            foreach($expression as $fieldName => $value) {
+        } elseif (is_array($expression)) {
+            foreach ($expression as $fieldName => $value) {
                 $expression[$fieldName] = self::normalize($value);
             }
         }

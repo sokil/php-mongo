@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * This file is part of the PHPMongo package.
@@ -16,4 +16,6 @@ namespace Sokil\Mongo\Document\Exception;
  *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
-class Validate extends \Sokil\Mongo\Document\InvalidDocumentException {}
+class Validate extends \Sokil\Mongo\Document\InvalidDocumentException
+{
+}

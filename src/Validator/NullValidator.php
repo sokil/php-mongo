@@ -32,5 +32,4 @@ class NullValidator extends \Sokil\Mongo\Validator
 
         $document->addError($fieldName, $this->getName(), $params['message']);
     }
-
 }
