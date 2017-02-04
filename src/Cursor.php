@@ -502,6 +502,8 @@ class Cursor implements
      *                  parameters, respectively, is deprecated.
      *
      * @return int
+     *
+     * @throws FeatureNotSupportedException
      */
     public function limitedCount()
     {
@@ -567,8 +569,9 @@ class Cursor implements
     }
 
     /**
+     * Get result of searching
      *
-     * @return array result of searching
+     * @return array
      */
     public function findAll()
     {
@@ -577,13 +580,14 @@ class Cursor implements
 
     /**
      * Get random document
-     * @return
+     *
+     * @return Document|null
      */
     public function findRandom()
     {
         $count = $this->count();
 
-        if (!$count) {
+        if (0 === $count) {
             return null;
         }
 
@@ -793,7 +797,7 @@ class Cursor implements
 
         return $this->collection->hydrate(
             $mongoDocument,
-            $this->isDocumentPoolUsed()
+            $this->isDocumentPoolUsed
         );
     }
 
