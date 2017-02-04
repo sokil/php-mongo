@@ -398,6 +398,8 @@ class Collection implements \Countable
     /**
      * Create document query builder
      *
+     * @param callable|null $callable
+     *
      * @return \Sokil\Mongo\Cursor
      */
     public function findAsArray($callable = null)
