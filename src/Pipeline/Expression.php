@@ -158,8 +158,8 @@ class Expression implements ArrayableInterface
     /**
      * Convert expression specified in different formats to canonical form
      *
-     * @param callable|\Sokil\Mongo\Expression $expression
-     * @return type
+     * @param Expression|callable $expression
+     * @return array
      */
     public static function normalize($expression)
     {

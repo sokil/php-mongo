@@ -635,8 +635,8 @@ class Collection implements \Countable
     /**
      * Check if document belongs to collection
      *
-     * @param \Sokil\Mongo\Document $document
-     * @return type
+     * @param Document $document
+     * @return bool
      */
     public function hasDocument(Document $document)
     {

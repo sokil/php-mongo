@@ -795,6 +795,23 @@ class Cursor implements
             ->setItemsOnPage($itemsOnPage);
     }
 
+    /**
+     * Clears the cursor
+     */
+    public function reset()
+    {
+        if ($this->cursor) {
+            $this->cursor->reset();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns the cursor to the beginning of the result set.
+     * This is identical to call reset() && next().
+     * @return $this
+     */
     public function rewind()
     {
         $this->getCursor()->rewind();
