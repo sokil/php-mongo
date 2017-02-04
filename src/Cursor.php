@@ -410,6 +410,7 @@ class Cursor implements
     }
 
     /**
+     * Create native driver's cursor
      *
      * @return \MongoCursor
      */
@@ -421,7 +422,10 @@ class Cursor implements
 
         $this->cursor = $this->collection
             ->getMongoCollection()
-            ->find($this->expression->toArray(), $this->fields);
+            ->find(
+                $this->expression->toArray(),
+                $this->fields
+            );
 
         if ($this->skip) {
             $this->cursor->skip($this->skip);
@@ -485,6 +489,13 @@ class Cursor implements
             ->count($this->expression->toArray());
     }
 
+    /**
+     * Explain expression
+     *
+     * @return array
+     *
+     * @throws FeatureNotSupportedException
+     */
     public function explain()
     {
         if (Client::isEmulationMode()) {
@@ -784,6 +795,17 @@ class Cursor implements
             ->setItemsOnPage($itemsOnPage);
     }
 
+    public function rewind()
+    {
+        $this->getCursor()->rewind();
+        return $this;
+    }
+
+    public function valid()
+    {
+        return $this->getCursor()->valid();
+    }
+
     public function current()
     {
         $mongoDocument = $this->getCursor()->current();
@@ -810,17 +832,6 @@ class Cursor implements
     {
         $this->getCursor()->next();
         return $this;
-    }
-
-    public function rewind()
-    {
-        $this->getCursor()->rewind();
-        return $this;
-    }
-
-    public function valid()
-    {
-        return $this->getCursor()->valid();
     }
 
     public function readPrimaryOnly()
