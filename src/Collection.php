@@ -1046,11 +1046,11 @@ class Collection implements \Countable
 
         // return result as cursor
         if ($asCursor) {
-            if (version_compare(\MongoClient::VERSION, '1.5.0', '<')) {
+            if (version_compare(\MongoClient::VERSION, '1.5.0', '>=')) {
+                return $this->getMongoCollection()->aggregateCursor($pipeline, $options);
+            } else {
                 throw new FeatureNotSupportedException('Aggregate cursor supported from driver version 1.5');
             }
-
-            return $this->getMongoCollection()->aggregateCursor($pipeline, $options);
         }
 
         // prepare command

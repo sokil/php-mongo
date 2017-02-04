@@ -13,6 +13,7 @@ namespace Sokil\Mongo;
 
 use Sokil\Mongo\Exception\CursorException;
 use Sokil\Mongo\Exception\FeatureNotSupportedException;
+use Sokil\Mongo\Exception\WriteException;
 
 /**
  * @mixin Expression
@@ -915,6 +916,10 @@ class Cursor implements
      *
      * @param string $targetCollectionName
      * @param string|null $targetDatabaseName Target database name. If not specified - use current
+     *
+     * @return Cursor
+     *
+     * @throws WriteException
      */
     public function copyToCollection($targetCollectionName, $targetDatabaseName = null)
     {
@@ -960,13 +965,15 @@ class Cursor implements
             // insert
             $result = $targetMongoCollection->batchInsert($documentList);
 
-            // check result
+            // With passed write concern, returns an associative array with the status of the inserts ("ok")
+            // and any error that may have occurred ("err").
+            // Otherwise, returns TRUE if the batch insert was successfully sent, FALSE otherwise.
             if (is_array($result)) {
                 if ($result['ok'] != 1) {
-                    throw new Exception('Batch insert error: ' . $result['err']);
+                    throw new WriteException('Batch insert error: ' . $result['err']);
                 }
-            } elseif (!$result) {
-                throw new Exception('Batch insert error');
+            } elseif (false === $result) {
+                throw new WriteException('Batch insert error');
             }
         }
 
