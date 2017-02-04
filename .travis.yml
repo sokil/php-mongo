@@ -21,8 +21,8 @@ before_script:
 
 script:
   - mongod --version
-  - mkdir -p log
-  - ./vendor/bin/phpunit -c tests/phpunit.xml --coverage-clover log/clover.xml tests
+  - mkdir -p ./share
+  - ./vendor/bin/phpunit -c ./tests/phpunit.xml --coverage-clover ./share/phpunit/clover.xml ./tests
   
 after_script:
   - php ./vendor/bin/coveralls -v

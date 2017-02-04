@@ -4,7 +4,7 @@ file=$(readlink -f $0);
 projectDir=$(dirname $file)/../..
 
 PHPVersion=$(php -r "echo phpversion();");
-PHPUnitLogDir=$projectDir/docker/share/phpunit/${PHPVersion}
+PHPUnitLogDir=$projectDir/share/phpunit/${PHPVersion}
 testPath=$projectDir/tests
 
 # prepare phpunit log dir

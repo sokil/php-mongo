@@ -36,7 +36,9 @@
         "alcaeus/mongo-php-adapter": "Adapter to provide ext-mongo interface on top of mongo-php-library"
     },
     "scripts": {
-        "test": "./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests",
+        "test": "phpunit -c ./tests/phpunit.xml ./tests",
+        "cover": "phpunit -c ./tests/phpunit.xml --coverage-clover ./share/phpunit/clover.xml ./tests",
+        "coveralls": "coveralls",
         "check-style": "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
         "fix-style": "phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src"
     }
