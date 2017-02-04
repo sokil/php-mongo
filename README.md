@@ -3129,6 +3129,17 @@ Tests may be found at `log` dir after finishing tests.
 <hr/>
 <br/>
 
-See [changelog](https://github.com/sokil/php-mongo/blob/master/CHANGELOG.md) for detailed information about new releases.
+Contributing
+------------
 
-Pull requests, bug reports and feature requests is welcome. Add new to [issues](https://github.com/sokil/php-mongo/issues)
+Pull requests, bug reports and feature requests is welcome. Please see [CONTRIBUTING](https://github.com/sokil/php-mongo/blob/master/CONTRIBUTING.md) for details.
+
+Change log
+----------
+
+Please see [CHANGELOG](https://github.com/sokil/php-mongo/blob/master/CHANGELOG.md) for more information on what has changed recently.
+
+License
+-------
+
+The MIT License (MIT). Please see [License File](https://github.com/sokil/php-mongo/blob/master/LICENSE) for more information.
