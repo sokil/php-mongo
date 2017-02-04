@@ -64,6 +64,8 @@ fi
 
 if [[  -z $(which composer) ]];
 then
+    # go to project dir
+    cd $PROJECT_DIR
     # download composer
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
     # add mongodb compatibility layer
