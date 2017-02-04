@@ -704,6 +704,12 @@ class Cursor implements
         return $this->collection->hydrate($mongoDocument, $this->isDocumentPoolUsed());
     }
 
+    /**
+     * Apply callable to all documents in cursor
+     *
+     * @param callable $handler
+     * @return array
+     */
     public function map($handler)
     {
         $result = array();
@@ -715,6 +721,12 @@ class Cursor implements
         return $result;
     }
 
+    /**
+     * Filter documents in cursor by condition in callable
+     *
+     * @param callable $handler
+     * @return array
+     */
     public function filter($handler)
     {
         $result = array();
@@ -921,7 +933,7 @@ class Cursor implements
                 if (!$cursor->valid()) {
                     $inProgress = false;
 
-                    if ($documentList) {
+                    if (!empty($documentList)) {
                         // still need batch insert
                         break;
                     } else {
@@ -955,8 +967,8 @@ class Cursor implements
      * Dociuments will be removed from source collection only after
      * copying them to target collection.
      *
-     * @param type $targetCollectionName
-     * @param type $targetDatabaseName Target database name. If not specified - use current
+     * @param string $targetCollectionName
+     * @param string|null $targetDatabaseName Target database name. If not specified - use current
      */
     public function moveToCollection($targetCollectionName, $targetDatabaseName = null)
     {

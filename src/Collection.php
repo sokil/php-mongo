@@ -767,7 +767,7 @@ class Collection implements \Countable
     /**
      * Delete documents by expression
      *
-     * @param callable|array|Expression $expression
+     * @param Expression|callable|array $expression
      * @return \Sokil\Mongo\Collection
      * @throws Exception
      */
