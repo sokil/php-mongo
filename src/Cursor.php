@@ -916,15 +916,19 @@ class Cursor implements
      *
      * @param string $targetCollectionName
      * @param string|null $targetDatabaseName Target database name. If not specified - use current
+     * @param int $batchLimit count of documents to get from old and insert to new collection per time
      *
      * @return Cursor
      *
      * @throws WriteException
      */
-    public function copyToCollection($targetCollectionName, $targetDatabaseName = null)
-    {
+    public function copyToCollection(
+        $targetCollectionName,
+        $targetDatabaseName = null,
+        $batchLimit = 100
+    ) {
         // target database
-        if (!$targetDatabaseName) {
+        if (empty($targetDatabaseName)) {
             $database = $this->collection->getDatabase();
         } else {
             $database = $this->client->getDatabase($targetDatabaseName);
@@ -938,10 +942,8 @@ class Cursor implements
         // cursor
         $cursor = $this->getCursor();
 
-        $batchLimit = 100;
-        $inProgress = true;
-
         // copy data
+        $inProgress = true;
         while ($inProgress) {
             // get next pack of documents
             $documentList = array();
@@ -987,11 +989,15 @@ class Cursor implements
      *
      * @param string $targetCollectionName
      * @param string|null $targetDatabaseName Target database name. If not specified - use current
+     * @param int $batchLimit count of documents to get from old and insert to new collection per time
      */
-    public function moveToCollection($targetCollectionName, $targetDatabaseName = null)
-    {
+    public function moveToCollection(
+        $targetCollectionName,
+        $targetDatabaseName = null,
+        $batchLimit = 100
+    ) {
         // copy to target
-        $this->copyToCollection($targetCollectionName, $targetDatabaseName);
+        $this->copyToCollection($targetCollectionName, $targetDatabaseName, $batchLimit);
 
         // remove from source
         $this->collection->batchDelete($this->expression);
