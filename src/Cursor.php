@@ -496,10 +496,18 @@ class Cursor implements
     /**
      * Count documents in result with applying limit and offset
      *
+     * ext-mongo:1.0.7	Added limit and skip as second and third parameters, respectively.
+     * ext-mongo:1.6.0	The second parameter is now an options array. Passing limit and skip as the second and third
+     *                  parameters, respectively, is deprecated.
+     *
      * @return int
      */
     public function limitedCount()
     {
+        if (version_compare(\MongoClient::VERSION, '1.0.7', '<')) {
+            throw new FeatureNotSupportedException('Limit and skip not supported in ext-mongo versions prior to 1.0.7');
+        }
+
         return (int) $this->collection
             ->getMongoCollection()
             ->count(
