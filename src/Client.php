@@ -22,9 +22,15 @@ use \Psr\Log\LoggerInterface;
 class Client
 {
     const DEFAULT_DSN = 'mongodb://127.0.0.1';
-    
+
+    /**
+     * @var string
+     */
     private $dsn = self::DEFAULT_DSN;
-    
+
+    /**
+     * @var array
+     */
     private $connectOptions = array();
     
     /**
@@ -32,17 +38,25 @@ class Client
      * @var \MongoClient
      */
     private $mongoClient;
-    
+
+    /**
+     * @var array
+     */
     private $databasePool = array();
     
     /**
      * @var array Database to class mapping
      */
     private $mapping = array();
-    
-        
+
+    /**
+     * @var LoggerInterface|null
+     */
     private $logger;
-    
+
+    /**
+     * @var string
+     */
     private $currentDatabaseName;
 
     /**
@@ -50,7 +64,10 @@ class Client
      * @var string version of MongoDb
      */
     private $dbVersion;
-    
+
+    /**
+     * @var bool
+     */
     private $debug = false;
 
     /**
@@ -60,11 +77,11 @@ class Client
      */
     public function __construct($dsn = null, array $options = null)
     {
-        if ($dsn) {
+        if (!empty($dsn)) {
             $this->setDsn($dsn);
         }
         
-        if ($options) {
+        if (!empty($options)) {
             $this->setConnectOptions($options);
         }
     }
@@ -226,8 +243,7 @@ class Client
      */
     public function getDatabase($name = null)
     {
-        
-        if (!$name) {
+        if (empty($name)) {
             $name = $this->getCurrentDatabaseName();
         }
 
