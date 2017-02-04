@@ -497,8 +497,8 @@ class Cursor implements
     /**
      * Count documents in result with applying limit and offset
      *
-     * ext-mongo:1.0.7	Added limit and skip as second and third parameters, respectively.
-     * ext-mongo:1.6.0	The second parameter is now an options array. Passing limit and skip as the second and third
+     * ext-mongo:1.0.7  Added limit and skip as second and third parameters, respectively.
+     * ext-mongo:1.6.0  The second parameter is now an options array. Passing limit and skip as the second and third
      *                  parameters, respectively, is deprecated.
      *
      * @return int

@@ -562,49 +562,59 @@ class Document extends Structure
     }
 
     /**
-     * Used to define id of stored document. This id must be already present in db
+     * Get normalized id of document. If id is valid ObjectId, convert it to \MongoId
      *
-     * @param \MongoId|string $id id of document
+     * @param \MongoId|string|int $id document identifier
+     *
+     * @return \MongoId|string|int
+     */
+    private function normalizeDocumentId($id)
+    {
+        if (\MongoId::isValid($id)) {
+            return new \MongoId($id);
+        } else {
+            return $id;
+        }
+    }
+
+    /**
+     * Used to define id of stored document.
+     * This id must be already present in db
+     *
+     * @param \MongoId|string|int $id document identifier
+     *
      * @return Document
      */
     public function defineId($id)
     {
-        if (!($id instanceof \MongoId)) {
-            try {
-                $id = new \MongoId($id);
-            } catch (\MongoException $e) {
-            }
-        }
-
-        $this->mergeUnmodified(array('_id' => $id));
-
+        $this->mergeUnmodified(array('_id' => $this->normalizeDocumentId($id)));
         return $this;
     }
 
     /**
-     * Used to define id of not stored document.
+     * Used to define id of not stored document or chane id of stored document.
      *
      * @param \MongoId|string $id id of document
+     *
      * @return Document
      */
     public function setId($id)
     {
-        if (!($id instanceof \MongoId)) {
-            try {
-                $id = new \MongoId($id);
-            } catch (\MongoException $e) {
-            }
-        }
-
-        return $this->set('_id', $id);
+        return $this->set('_id', $this->normalizeDocumentId($id));
     }
 
+    /**
+     * Check if document is stored
+     *
+     * @return bool
+     */
     public function isStored()
     {
         return $this->get('_id') && !$this->isModified('_id');
     }
 
     /**
+     * Validate document
      *
      * @throws \Sokil\Mongo\Document\InvalidDocumentException
      * @return \Sokil\Mongo\Document
