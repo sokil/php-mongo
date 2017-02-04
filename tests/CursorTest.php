@@ -663,7 +663,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
             ->limit(10)
             ->skip(1);
 
-        $this->assertEquals(1, $queryBuilder->limitedCount());
+        $this->assertEquals(
+            1,
+            $queryBuilder->limitedCount()
+        );
     }
 
     public function testExplain()

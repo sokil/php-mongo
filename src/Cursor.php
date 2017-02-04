@@ -116,7 +116,7 @@ class Cursor implements
 
         $this->client = $this->collection->getDatabase()->getClient();
 
-        if ($options) {
+        if (!empty($options)) {
             $this->options = $options + $this->options;
         }
 
@@ -138,6 +138,8 @@ class Cursor implements
      * Get option
      *
      * @param string|int $name
+     * @param mixed $default
+     *
      * @return mixed
      */
     public function getOption($name, $default = null)
@@ -147,6 +149,7 @@ class Cursor implements
 
     /**
      * Get result as array
+     *
      * @return $this
      */
     public function asArray()
@@ -178,7 +181,7 @@ class Cursor implements
      * Return only specified fields
      *
      * @param array $fields
-     * @return \Sokil\Mongo\Cursor
+     * @return Cursor
      */
     public function fields(array $fields)
     {
@@ -208,7 +211,8 @@ class Cursor implements
      * Append field to accept list
      *
      * @param string $field field name
-     * @return \Sokil\Mongo\Cursor
+     *
+     * @return Cursor
      */
     public function field($field)
     {
@@ -491,13 +495,18 @@ class Cursor implements
 
     /**
      * Count documents in result with applying limit and offset
-     * @return int count
+     *
+     * @return int
      */
     public function limitedCount()
     {
         return (int) $this->collection
             ->getMongoCollection()
-            ->count($this->expression->toArray(), $this->limit, $this->skip);
+            ->count(
+                $this->expression->toArray(),
+                $this->limit,
+                $this->skip
+            );
     }
 
 
@@ -757,7 +766,7 @@ class Cursor implements
      *
      * @param int $page page number
      * @param int $itemsOnPage number of items on page
-     * @return \Sokil\Mongo\Paginator
+     * @return Paginator
      */
     public function paginate($page, $itemsOnPage = 30)
     {
@@ -964,7 +973,7 @@ class Cursor implements
 
     /**
      * Move selected documents to another collection.
-     * Dociuments will be removed from source collection only after
+     * Documents will be removed from source collection only after
      * copying them to target collection.
      *
      * @param string $targetCollectionName
@@ -981,6 +990,8 @@ class Cursor implements
 
     /**
      * Used to get hash that uniquely identifies current query
+     *
+     * @return string
      */
     public function getHash()
     {
