@@ -360,16 +360,16 @@ class Cursor implements
 
     /**
      * Instructs the driver to stop waiting for a response and throw a
-     * MongoCursorTimeoutException after a set time,
+     * MongoCursorTimeoutException after a set time.
      * A timeout can be set at any time and will affect subsequent queries on
      * the cursor, including fetching more results from the database.
-     * @param type $ms
-     * @return \Sokil\Mongo\Cursor
+     *
+     * @param int $ms
+     * @return Cursor
      */
     public function setClientTimeout($ms)
     {
         $this->options['clientTimeout'] = (int) $ms;
-
         return $this;
     }
 
@@ -377,13 +377,13 @@ class Cursor implements
      * Server-side timeout for a query,
      * Specifies a cumulative time limit in milliseconds to be allowed
      * by the server for processing operations on the cursor.
-     * @param type $ms
+     *
+     * @param int $ms
      * @return \Sokil\Mongo\Cursor
      */
     public function setServerTimeout($ms)
     {
         $this->options['serverTimeout'] = (int) $ms;
-
         return $this;
     }
 
@@ -396,7 +396,7 @@ class Cursor implements
      * fields array is important. See also the examples section.
      *
      * @param array $sort
-     * @return \Sokil\Mongo\Cursor
+     * @return Cursor
      */
     public function sort(array $sort)
     {
@@ -902,8 +902,8 @@ class Cursor implements
     /**
      * Copy selected documents to another collection
      *
-     * @param type $targetCollectionName
-     * @param type $targetDatabaseName Target database name. If not specified - use current
+     * @param string $targetCollectionName
+     * @param string|null $targetDatabaseName Target database name. If not specified - use current
      */
     public function copyToCollection($targetCollectionName, $targetDatabaseName = null)
     {
