@@ -42,7 +42,7 @@ class Revision extends \Sokil\Mongo\Document
     
     /**
      * Set document data
-     * 
+     *
      * @param array $document
      * @return \Sokil\Mongo\Revision
      */
@@ -61,7 +61,7 @@ class Revision extends \Sokil\Mongo\Document
     
     /**
      * Get document instance
-     * 
+     *
      * @return \Sokil\Mongo\Document
      */
     public function getDocument()
@@ -82,12 +82,12 @@ class Revision extends \Sokil\Mongo\Document
     /**
      * Get date
      *
-     * @param string $format format of date compartible with php's date function
+     * @param string|null $format format of date compatible with php's date function
      * @return \MongoDate|string
      */
     public function getDate($format = null)
     {
-        if(!$format) {
+        if (empty($format)) {
             return $this->get('__date__')->sec;
         }
         

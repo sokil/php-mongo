@@ -2,7 +2,7 @@
     "name": "sokil/php-mongo",
     "description": "PHP Object Document Mapper for MongoDB",
     "license": "MIT",
-    "keywords": ["mongodb", "odm", "nosql", "orm"],
+    "keywords": ["mongo", "mongodb", "odm", "orm", "nosql"],
     "homepage": "http://phpmongokit.github.io/",
     "authors": [
         {
@@ -10,6 +10,12 @@
             "email": "dmytro.sokil@gmail.com"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Sokil\\Mongo\\": ["src/", "tests/"]
+        },
+        "classmap": ["stubs/"]
+    },
     "require": {
         "php": ">=5.3 || ^7.0",
         "ext-mongo": ">=0.9.0",
@@ -17,15 +23,10 @@
         "symfony/event-dispatcher": ">=2.0 <4.0",
         "jmikola/geojson": "~1.0"
     },
-    "autoload": {
-        "psr-4": {
-            "Sokil\\Mongo\\": ["src/", "tests/"]
-        },
-        "classmap": [ "stubs/" ]
-    },
     "require-dev": {
         "phpunit/phpunit": ">=3.7.38 <6.0",
-        "satooshi/php-coveralls": ">=0.7.1"
+        "satooshi/php-coveralls": ">=0.7.1 <2.0",
+        "squizlabs/php_codesniffer": "^2.3"
     },
     "suggest": {
         "sokil/php-mongo-migrator": "Add support of migrations",
@@ -33,5 +34,9 @@
         "sokil/php-mongo-yii": "Yii Framework component",
         "phpmongokit/yii2-mongo-odm": "Yii2 Framework component",
         "alcaeus/mongo-php-adapter": "Adapter to provide ext-mongo interface on top of mongo-php-library"
+    },
+    "scripts": {
+        "test": "./vendor/bin/phpunit -c ./tests/phpunit.xml ./tests",
+        "check-style": "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src"
     }
 }
