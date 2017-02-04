@@ -273,9 +273,10 @@ class Expression implements ArrayableInterface
      * Matches documents in a collection that contain an array field with elements
      * that do not matches all the specified query criteria.
      *
-     * @param type $field
-     * @param \Sokil\Mongo\Expression|callable|array $expression
-     * @return \Sokil\Mongo\Expression
+     * @param string $field
+     * @param Expression|callable|array $expression
+     *
+     * @return Expression
      */
     public function whereElemNotMatch($field, $expression)
     {

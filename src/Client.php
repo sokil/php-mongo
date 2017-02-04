@@ -100,8 +100,8 @@ class Client
      * Set credentials to auth on db, specified in connect options or dsn.
      * If not specified - auth on admin db
      *
-     * @param type $username
-     * @param type $password
+     * @param string $username
+     * @param string $password
      * @return \Sokil\Mongo\Client
      */
     public function setCredentials($username, $password)

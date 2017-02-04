@@ -409,8 +409,8 @@ class Structure implements
      * If field exists and is not array - convert to array and append
      * If field -s array - append
      *
-     * @param type $selector
-     * @param type $value
+     * @param string $selector
+     * @param mixed $value
      * @return \Sokil\Mongo\Structure
      */
     public function append($selector, $value)
@@ -428,13 +428,20 @@ class Structure implements
         return $this;
     }
 
+    /**
+     * If selector passed, return true if field is modified.
+     * If selector omitted, return true if document is modified.
+     *
+     * @param string|null $selector
+     * @return bool
+     */
     public function isModified($selector = null)
     {
-        if (!$this->modifiedFields) {
+        if (empty($this->modifiedFields)) {
             return false;
         }
 
-        if (!$selector) {
+        if (empty($selector)) {
             return (bool) $this->modifiedFields;
         }
 
@@ -658,9 +665,10 @@ class Structure implements
     /**
      * Add custom error which not reset after validation
      *
-     * @param type $fieldName
-     * @param type $ruleName
-     * @param type $message
+     * @param string $fieldName
+     * @param string $ruleName
+     * @param string $message
+     *
      * @return \Sokil\Mongo\Document
      */
     public function triggerError($fieldName, $ruleName, $message)
@@ -706,8 +714,9 @@ class Structure implements
     /**
      * Add own namespace of validators
      *
-     * @param type $namespace
-     * @return \Sokil\Mongo\Document
+     * @param string $namespace
+     *
+     * @return Structure
      */
     public function addValidatorNamespace($namespace)
     {

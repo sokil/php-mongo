@@ -865,11 +865,11 @@ class Document extends Structure
     /**
      * If field not exist - set value.
      * If field exists and is not array - convert to array and append
-     * If field -s array - append
+     * If field is array - append
      *
-     * @param type $selector
-     * @param type $value
-     * @return \Sokil\Mongo\Structure
+     * @param string $selector
+     * @param mixed $value
+     * @return Document
      */
     public function append($selector, $value)
     {
