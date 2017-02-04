@@ -688,7 +688,7 @@ class Collection implements \Countable
         }
 
         $documentsGettingDirectly = $cursor->byIdList($idListToFindDirectly)->findAll();
-        if (!$documentsGettingDirectly) {
+        if (empty($documentsGettingDirectly)) {
             return $documentsInDocumentPool ? $documentsInDocumentPool : array();
         }
 
@@ -991,7 +991,7 @@ class Collection implements \Countable
 
         // get aggregation array
         if ($pipeline instanceof Pipeline) {
-            if ($options && is_array($options)) {
+            if (!empty($options)) {
                 $options = array_merge($pipeline->getOptions(), $options);
             } else {
                 $options = $pipeline->getOptions();
@@ -1337,7 +1337,7 @@ class Collection implements \Countable
             $options['weights'] = $weights;
         }
 
-        if ($languageOverride) {
+        if (!empty($languageOverride)) {
             $options['language_override'] = $languageOverride;
         }
 
