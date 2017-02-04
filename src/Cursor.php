@@ -624,45 +624,37 @@ class Cursor implements
      */
     public function pluck($fieldName)
     {
-        // if field with embedded document or native php function not exists
-        if (false !== strpos($fieldName, '.')) {
-            return $this->pluckDotNotated($fieldName);
-        }
+        $isEmbeddedDocumentField = false !== strpos($fieldName, '.');
 
-        // use native php function if field without embedded document
-        if ($this->isResultAsArray) {
-            $result = $this->findAll();
+        $valueList = array();
+
+        if ($isEmbeddedDocumentField) {
+            // get result
+            if ($this->isResultAsArray) {
+                $cursor = clone $this;
+                $documentObjectList = $cursor->asObject()->findAll();
+                unset($cursor);
+            } else {
+                $documentObjectList = $this->findAll();
+            }
+            // get value of field
+            foreach ($documentObjectList as $key => $documentObject) {
+                $valueList[$key] = $documentObject->get($fieldName);
+            }
         } else {
-            $cursor = clone $this;
-            $result = $cursor->asArray()->findAll();
-            unset($cursor);
+            // get result
+            if ($this->isResultAsArray) {
+                $documentArrayList = $this->findAll();
+            } else {
+                $cursor = clone $this;
+                $documentArrayList = $cursor->asArray()->findAll();
+                unset($cursor);
+            }
+            // get values of field
+            $valueList = array_column($documentArrayList, $fieldName, '_id');
         }
 
-        return array_column($result, $fieldName, '_id');
-    }
-
-    /**
-     * Pluck by dot-notated field name
-     *
-     * @param string $fieldName field name
-     * @return array
-     */
-    private function pluckDotNotated($fieldName)
-    {
-        if ($this->isResultAsArray) {
-            $cursor = clone $this;
-            $result = $cursor->asObject()->findAll();
-            unset($cursor);
-        } else {
-            $result = $this->findAll();
-        }
-
-        $list = array();
-        foreach ($result as $key => $document) {
-            $list[$key] = $document->get($fieldName);
-        }
-
-        return $list;
+        return $valueList;
     }
 
     /**
