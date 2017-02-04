@@ -455,16 +455,6 @@ class Cursor implements
             $this->cursor->hint($this->hint);
         }
 
-        // log request
-        if ($this->client->hasLogger()) {
-            $this->client->getLogger()->debug(get_called_class() . ': ' . json_encode(array(
-                'collection' => $this->collection->getName(),
-                'query' => $this->expression->toArray(),
-                'project' => $this->fields,
-                'sort' => $this->sort,
-            )));
-        }
-
         $this->cursor->rewind();
 
         // define read preferences
