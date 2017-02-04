@@ -3126,9 +3126,6 @@ To run concrete test , pass it:
 
 Tests may be found at `log` dir after finishing tests. 
 
-<hr/>
-<br/>
-
 Contributing
 ------------
 
