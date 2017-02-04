@@ -5,4 +5,5 @@
 /.travis.yml            export-ignore
 /CONTRIBUTING.md        export-ignore
 /.gitignore             export-ignore
+/.gitattributes         export-ignore
 /run-docker-tests.sh    export-ignore
