@@ -530,7 +530,9 @@ class Cursor implements
     /**
      * Find one document which correspond to expression
      *
-     * @return \Sokil\Mongo\Document|array|null
+     * @return Document|array|null
+     *
+     * @throws CursorException
      */
     public function findOne()
     {
@@ -623,7 +625,7 @@ class Cursor implements
     public function pluck($fieldName)
     {
         // if field with embedded document or native php function not exists
-        if (false !== strpos($fieldName, '.') || !function_exists('array_column')) {
+        if (false !== strpos($fieldName, '.')) {
             return $this->pluckDotNotated($fieldName);
         }
 
