@@ -562,7 +562,8 @@ class Document extends Structure
     }
 
     /**
-     * Get normalized id of document. If id is valid ObjectId, convert it to \MongoId
+     * Get normalized id of document.
+     * If id is valid ObjectId (string consisting of exactly 24 hexadecimal characters), convert it to \MongoId.
      *
      * @param \MongoId|string|int $id document identifier
      *
@@ -570,7 +571,7 @@ class Document extends Structure
      */
     private function normalizeDocumentId($id)
     {
-        if (\MongoId::isValid($id)) {
+        if (\MongoId::isValid($id) && !$id instanceof \MongoId) {
             return new \MongoId($id);
         } else {
             return $id;
