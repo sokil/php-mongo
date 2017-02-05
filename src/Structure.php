@@ -619,7 +619,7 @@ class Structure implements
 
     public function hasErrors()
     {
-        return ($this->errors || $this->triggeredErrors);
+        return (!empty($this->errors) || !empty($this->triggeredErrors));
     }
 
     /**
