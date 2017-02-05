@@ -1518,7 +1518,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(3, $this->collection->find()->count());
 
-        $cursor = $this->collection->find()->rewind();
+        $cursor = $this->collection->find();
+        $cursor->rewind();
 
         $this->assertEquals(2, $cursor->current()->param);
 
