@@ -710,7 +710,6 @@ class Cursor implements
     public function paginate($page, $itemsOnPage = 30)
     {
         $paginator = new Paginator($this);
-
         return $paginator
             ->setCurrentPage($page)
             ->setItemsOnPage($itemsOnPage);

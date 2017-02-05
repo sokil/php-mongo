@@ -820,6 +820,8 @@ class Document extends Structure
      *
      * @param string    $name   name of field where reference stored
      * @return null|Document
+     *
+     * @throws Exception
      */
     public function getReferencedDocumentList($name)
     {
@@ -837,7 +839,7 @@ class Document extends Structure
         foreach ($referenceList as $reference) {
             if (empty($reference['$ref']) || empty($reference['$id'])) {
                 throw new Exception(sprintf(
-                    'Iinvalid reference in list for document %s in field %s',
+                    'Invalid reference in list for document %s in field %s',
                     $this->getId(),
                     $name
                 ));

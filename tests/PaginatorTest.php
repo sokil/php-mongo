@@ -20,6 +20,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         
         // select collection
         $this->collection = $database->getCollection('phpmongo_test_collection');
+        $this->collection->delete();
     }
     
     public function tearDown()
@@ -38,12 +39,13 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
             ->find()
             ->paginate(2, 2);
         
+
         $this->assertEquals(4, $pager->getTotalRowsCount());
-        
         $this->assertEquals(2, $pager->getTotalPagesCount());
-        
         $this->assertEquals(2, $pager->getCurrentPage());
-        
+
+        $pager->rewind();
+
         $this->assertEquals(
             $d21->getId(), 
             $pager->current()->getId()
@@ -71,6 +73,8 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
             ->setCurrentPage(2)
             ->setCursor($cursor);
 
+        $pager->rewind();
+
         $this->assertEquals($d12->getId(), $pager->key());
     }
     
@@ -90,7 +94,9 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $pager->getTotalPagesCount());
         
         $this->assertEquals(1, $pager->getCurrentPage());
-        
+
+        $pager->rewind();
+
         $this->assertEquals(
             $d11->getId(), 
             $pager->current()->getId()
@@ -119,7 +125,9 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $pager->getTotalPagesCount());
         
         $this->assertEquals(2, $pager->getCurrentPage());
-        
+
+        $pager->rewind();
+
         $this->assertEquals(
             $d21->getId(), 
             $pager->current()->getId()
@@ -137,7 +145,9 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $pager = $this->collection
             ->find()
             ->paginate(10, 20);
-        
+
+        $pager->rewind();
+
         $this->assertNull($pager->current());
     }
 
@@ -151,6 +161,8 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $pager = $this->collection
             ->find()
             ->paginate(20, 2);
+
+        $pager->rewind();
 
         $this->assertEquals($d21->getId(), $pager->current()->getId());
         $this->assertEquals((string) $d21->getId(), $pager->key());

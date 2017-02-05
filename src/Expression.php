@@ -27,7 +27,7 @@ class Expression implements ArrayableInterface
 
     /**
      * Create new instance of expression
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function expression()
     {
@@ -35,7 +35,7 @@ class Expression implements ArrayableInterface
     }
     /**
      * Return a expression
-     * @return \Sokil\Mongo\Cursor|\Sokil\Mongo\Expression
+     * @return Expression
      */
     public function where($field, $value)
     {
@@ -99,7 +99,7 @@ class Expression implements ArrayableInterface
      *
      * @param string $field
      * @param array $values
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereIn($field, array $values)
     {
@@ -205,7 +205,7 @@ class Expression implements ArrayableInterface
      *
      * @param string $field point-delimited field name
      * @param array $values
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereAll($field, array $values)
     {
@@ -221,7 +221,7 @@ class Expression implements ArrayableInterface
      *
      * @param string $field point-delimited field name
      * @param array $values
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereNoneOf($field, array $values)
     {
@@ -239,7 +239,7 @@ class Expression implements ArrayableInterface
      *
      * @param string $field point-delimited field name
      * @param array $values
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereAny($field, array $values)
     {
@@ -252,7 +252,7 @@ class Expression implements ArrayableInterface
      *
      * @param string $field point-delimited field name
      * @param \Sokil\Mongo\Expression|callable|array $expression
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereElemMatch($field, $expression)
     {
@@ -288,7 +288,7 @@ class Expression implements ArrayableInterface
      *
      * @param string $field
      * @param integer $length
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereArraySize($field, $length)
     {
@@ -299,7 +299,7 @@ class Expression implements ArrayableInterface
      * Selects the documents that satisfy at least one of the expressions
      *
      * @param array|\Sokil\Mongo\Expression $expressions Array of Expression instances or comma delimited expression list
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereOr($expressions = null /**, ...**/)
     {
@@ -316,7 +316,7 @@ class Expression implements ArrayableInterface
      * Select the documents that satisfy all the expressions in the array
      *
      * @param array|\Sokil\Mongo\Expression $expressions Array of Expression instances or comma delimited expression list
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereAnd($expressions = null /**, ...**/)
     {
@@ -333,7 +333,7 @@ class Expression implements ArrayableInterface
      * Selects the documents that fail all the query expressions in the array
      *
      * @param array|\Sokil\Mongo\Expression $expressions Array of Expression instances or comma delimited expression list
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function whereNor($expressions = null /**, ...**/)
     {
@@ -447,7 +447,7 @@ class Expression implements ArrayableInterface
      * @param float $latitude
      * @param int|array $distance distance from point in meters. Array distance
      *  allowed only in MongoDB 2.6
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function nearPoint($field, $longitude, $latitude, $distance)
     {
@@ -484,7 +484,7 @@ class Expression implements ArrayableInterface
      * @param float $latitude
      * @param int|array $distance distance from point in meters. Array distance
      *  allowed only in MongoDB 2.6
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function nearPointSpherical($field, $longitude, $latitude, $distance)
     {
@@ -523,7 +523,7 @@ class Expression implements ArrayableInterface
      *
      * @param string $field
      * @param Geometry $geometry
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function intersects($field, Geometry $geometry)
     {
@@ -542,7 +542,7 @@ class Expression implements ArrayableInterface
      * @link http://docs.mongodb.org/manual/reference/operator/query/geoWithin/
      * @param string $field
      * @param Geometry $geometry
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function within($field, Geometry $geometry)
     {
@@ -563,7 +563,7 @@ class Expression implements ArrayableInterface
      * @param float $longitude
      * @param float $latitude
      * @param float $radius
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function withinCircle($field, $longitude, $latitude, $radius)
     {
@@ -590,7 +590,7 @@ class Expression implements ArrayableInterface
      * @param float $longitude
      * @param float $latitude
      * @param float $radiusInRadians in radians.
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function withinCircleSpherical($field, $longitude, $latitude, $radiusInRadians)
     {
@@ -617,7 +617,7 @@ class Expression implements ArrayableInterface
      * @param string $field
      * @param array $bottomLeftCoordinate Bottom left coordinate of box
      * @param array $upperRightCoordinate Upper right coordinate of box
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function withinBox($field, array $bottomLeftCoordinate, array $upperRightCoordinate)
     {
@@ -643,7 +643,7 @@ class Expression implements ArrayableInterface
      *
      * @param string $field
      * @param array $points array of coordinates
-     * @return \Sokil\Mongo\Expression
+     * @return Expression
      */
     public function withinPolygon($field, array $points)
     {

@@ -27,7 +27,7 @@ class Paginator implements \Iterator
     
     public function __construct(Cursor $cursor = null)
     {
-        if ($cursor) {
+        if ($cursor !== null) {
             $this->setCursor($cursor);
         }
     }
@@ -40,7 +40,7 @@ class Paginator implements \Iterator
     /**
      *
      * @param int $itemsOnPage
-     * @return \Sokil\Mongo\Paginator
+     * @return Paginator
      */
     public function setItemsOnPage($itemsOnPage)
     {
@@ -73,7 +73,7 @@ class Paginator implements \Iterator
         $totalPageCount = $this->getTotalPagesCount();
         
         // no document found - page is 1
-        if (!$totalPageCount) {
+        if (0 === $totalPageCount) {
             return 1;
         }
         
@@ -103,7 +103,7 @@ class Paginator implements \Iterator
     
     public function getTotalRowsCount()
     {
-        if ($this->totalRowsCount) {
+        if (null !== $this->totalRowsCount) {
             return $this->totalRowsCount;
         }
         
@@ -111,7 +111,10 @@ class Paginator implements \Iterator
         
         return $this->totalRowsCount;
     }
-    
+
+    /**
+     * @return int
+     */
     public function getTotalPagesCount()
     {
         return (int) ceil($this->getTotalRowsCount() / $this->itemsOnPage);
@@ -130,34 +133,44 @@ class Paginator implements \Iterator
             ->limit($this->itemsOnPage)
             ->skip(($currentPage - 1) * $this->itemsOnPage);
     }
-    
+
     /**
-     * @return \Sokil\Mongo\Document
+     * @return void
+     */
+    public function rewind()
+    {
+        $this->cursor->rewind();
+    }
+
+    /**
+     * @return bool
+     */
+    public function valid()
+    {
+        return $this->cursor->valid();
+    }
+
+    /**
+     * @return Document
      */
     public function current()
     {
         return $this->cursor->current();
     }
-    
+
+    /**
+     * @return string
+     */
     public function key()
     {
         return $this->cursor->key();
     }
-    
+
+    /**
+     * @return void
+     */
     public function next()
     {
         $this->cursor->next();
-        return $this;
-    }
-    
-    public function rewind()
-    {
-        $this->cursor->rewind();
-        return $this;
-    }
-    
-    public function valid()
-    {
-        return $this->cursor->valid();
     }
 }
