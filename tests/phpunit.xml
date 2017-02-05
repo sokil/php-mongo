@@ -8,6 +8,9 @@
     stopOnFailure="true"
     >
     <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../src</directory>
+        </whitelist>
         <blacklist>
             <file>../src/Exception.php</file>
             <file>../src/Validator/Exception.php</file>
