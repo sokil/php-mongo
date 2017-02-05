@@ -1003,47 +1003,9 @@ class Collection implements \Countable
             throw new Exception('Wrong pipeline specified');
         }
 
-        // log
-        $client = $this->database->getClient();
-        if ($client->isDebugEnabled()) {
-            // record pipeline
-            if ($client->hasLogger()) {
-                $client->getLogger()->debug(
-                    get_called_class() . ': ' . json_encode($pipeline)
-                );
-            }
-
-            // Check options only in debug mode. In production common exception will raised
-            if (!empty($options)) {
-                // get db version
-                $dbVersion = $client->getDbVersion();
-
-                // check options for db < 2.6
-                if (version_compare($dbVersion, '2.6.0', '<')) {
-                    if (!empty($options['explain'])) {
-                        throw new FeatureNotSupportedException('Explain of aggregation implemented only from 2.6.0');
-                    }
-
-                    if (!empty($options['allowDiskUse'])) {
-                        throw new FeatureNotSupportedException('Option allowDiskUse of aggregation implemented only from 2.6.0');
-                    }
-
-                    if (!empty($options['cursor'])) {
-                        throw new FeatureNotSupportedException('Option cursor of aggregation implemented only from 2.6.0');
-                    }
-                }
-
-                // check options for db < 3.2
-                if (version_compare($dbVersion, '3.2.0', '<')) {
-                    if (!empty($options['bypassDocumentValidation'])) {
-                        throw new FeatureNotSupportedException('Option bypassDocumentValidation of aggregation implemented only from 3.2.0');
-                    }
-
-                    if (!empty($options['readConcern'])) {
-                        throw new FeatureNotSupportedException('Option readConcern of aggregation implemented only from 3.2.0');
-                    }
-                }
-            }
+        // Check options for supporting by database
+        if (!empty($options)) {
+            $this->validateAggregationOptions($options);
         }
 
         // return result as cursor
@@ -1068,7 +1030,6 @@ class Collection implements \Countable
 
         // aggregate
         $status = $this->database->executeCommand($command);
-
         if ($status['ok'] != 1) {
             throw new Exception('Aggregate error: ' . $status['errmsg']);
         }
@@ -1080,6 +1041,45 @@ class Collection implements \Countable
 
         // result response
         return $status['result'];
+    }
+
+    /**
+     * Check if aggragator options supported by database
+     *
+     * @param array $options
+     * @throws FeatureNotSupportedException
+     */
+    private function validateAggregationOptions(array $options)
+    {
+        // get db version
+        $client = $this->getDatabase()->getClient();
+        $dbVersion = $client->getDbVersion();
+
+        // check options for db < 2.6
+        if (version_compare($dbVersion, '2.6.0', '<')) {
+            if (!empty($options['explain'])) {
+                throw new FeatureNotSupportedException('Explain of aggregation implemented only from 2.6.0');
+            }
+
+            if (!empty($options['allowDiskUse'])) {
+                throw new FeatureNotSupportedException('Option allowDiskUse of aggregation implemented only from 2.6.0');
+            }
+
+            if (!empty($options['cursor'])) {
+                throw new FeatureNotSupportedException('Option cursor of aggregation implemented only from 2.6.0');
+            }
+        }
+
+        // check options for db < 3.2
+        if (version_compare($dbVersion, '3.2.0', '<')) {
+            if (!empty($options['bypassDocumentValidation'])) {
+                throw new FeatureNotSupportedException('Option bypassDocumentValidation of aggregation implemented only from 3.2.0');
+            }
+
+            if (!empty($options['readConcern'])) {
+                throw new FeatureNotSupportedException('Option readConcern of aggregation implemented only from 3.2.0');
+            }
+        }
     }
 
     /**

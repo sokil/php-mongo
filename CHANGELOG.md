@@ -2,6 +2,7 @@
  * `Collection::batchDelete()` now has required argument
  * Now may be configured batch limit in `Cursor::copyToCollection` and `Cursor::moveToCollection`
  * Methods of `\Iterator` interface currently not recommended to use directly in `Cursor` and `Paginator`. But if used, now `rewind` MUST be calls before `current`.
+ * Remove debug logger calls
 
 ## 1.20 (2017-01-09)
  * Implemented support of new ext-mongodb and, as a result, PHP7 and HHVM through compatibility layer "alcaeus/mongo-php-adapter", which implement API from old ext-mongo extension;
