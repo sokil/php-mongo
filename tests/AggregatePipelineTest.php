@@ -377,32 +377,6 @@ class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
             ));
     }
 
-    public function testAggregate_Logger()
-    {
-        // create documents
-        $this->collection->createDocument(array('param' => 1))->save();
-        $this->collection->createDocument(array('param' => 2))->save();
-        $this->collection->createDocument(array('param' => 3))->save();
-        $this->collection->createDocument(array('param' => 4))->save();
-
-        // create logger
-        $logger = $this->getMockBuilder('\Psr\Log\LoggerInterface')->getMock();
-        $logger
-            ->expects($this->once())
-            ->method('debug')
-            ->with('Sokil\Mongo\Collection: [{"$match":{"param":{"$gte":2}}},{"$group":{"_id":0,"sum":{"$sum":"$param"}}}]');
-
-        // set logger to client
-        $this->collection->getDatabase()->getClient()->setLogger($logger);
-
-        // aggregate
-        $this->collection
-            ->createAggregator()
-            ->match(array('param' => array('$gte' => 2)))
-            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
-            ->aggregate();
-    }
-
     public function testAggregate_ExplainOption()
     {
         $this->collection->createDocument(array('param' => 1))->save();
