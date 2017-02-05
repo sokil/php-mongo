@@ -38,13 +38,13 @@ class Structure implements
 
     /**
      *
-     * @var original data.
+     * @var array original data.
      */
     private $originalData = array();
 
     /**
      *
-     * @var modified fields.
+     * @var array modified fields.
      */
     private $modifiedFields = array();
 
@@ -75,14 +75,14 @@ class Structure implements
 
     /**
      * @param array|null $data data to initialise structure
-     * @param bool|true $notModified define if data set as modified or not
+     * @param bool $notModified define if data set as modified or not
      */
     public function __construct(
         array $data = null,
         $notModified = true
     ) {
         // self::$data and self::$schema instead of deprecated self::$_data
-        if ($this->_data) {
+        if (null !== $this->_data) {
             $this->schema = $this->_data;
         }
 
