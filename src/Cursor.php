@@ -187,24 +187,7 @@ class Cursor implements
     public function fields(array $fields)
     {
         $this->fields = array_fill_keys($fields, 1);
-
         $this->skipDocumentPool();
-
-        return $this;
-    }
-
-    /**
-     * Return all fields except specified
-     *
-     * @param array $fields
-     * @return \Sokil\Mongo\Cursor
-     */
-    public function skipFields(array $fields)
-    {
-        $this->fields = array_fill_keys($fields, 0);
-
-        $this->skipDocumentPool();
-
         return $this;
     }
 
@@ -218,9 +201,19 @@ class Cursor implements
     public function field($field)
     {
         $this->fields[$field] = 1;
-
         $this->skipDocumentPool();
-
+        return $this;
+    }
+    /**
+     * Return all fields except specified
+     *
+     * @param array $fields
+     * @return \Sokil\Mongo\Cursor
+     */
+    public function skipFields(array $fields)
+    {
+        $this->fields = array_fill_keys($fields, 0);
+        $this->skipDocumentPool();
         return $this;
     }
 
@@ -233,9 +226,7 @@ class Cursor implements
     public function skipField($field)
     {
         $this->fields[$field] = 0;
-
         $this->skipDocumentPool();
-
         return $this;
     }
 
@@ -410,65 +401,6 @@ class Cursor implements
     }
 
     /**
-     * Create native driver's cursor
-     *
-     * @return \MongoCursor
-     */
-    private function getCursor()
-    {
-        if ($this->cursor) {
-            return $this->cursor;
-        }
-
-        $this->cursor = $this->collection
-            ->getMongoCollection()
-            ->find(
-                $this->expression->toArray(),
-                $this->fields
-            );
-
-        if ($this->skip) {
-            $this->cursor->skip($this->skip);
-        }
-
-        if ($this->limit) {
-            $this->cursor->limit($this->limit);
-        }
-
-        if ($this->options['batchSize']) {
-            $this->cursor->batchSize($this->options['batchSize']);
-        }
-
-        if ($this->options['clientTimeout']) {
-            $this->cursor->timeout($this->options['clientTimeout']);
-        }
-
-        if ($this->options['serverTimeout']) {
-            $this->cursor->maxTimeMS($this->options['clientTimeout']);
-        }
-
-        if (!empty($this->sort)) {
-            $this->cursor->sort($this->sort);
-        }
-
-        if ($this->hint) {
-            $this->cursor->hint($this->hint);
-        }
-
-        $this->cursor->rewind();
-
-        // define read preferences
-        if (!empty($this->readPreference)) {
-            $this->cursor->setReadPreference(
-                $this->readPreference['type'],
-                $this->readPreference['tagsets']
-            );
-        }
-
-        return $this->cursor;
-    }
-
-    /**
      * Count documents in result without applying limit and offset
      * @return int count
      */
@@ -492,7 +424,9 @@ class Cursor implements
             throw new FeatureNotSupportedException('Feature not implemented in emulation mode');
         }
 
-        return $this->getCursor()->explain();
+        $this->rewind();
+
+        return $this->cursor->explain();
     }
 
     /**
@@ -587,19 +521,16 @@ class Cursor implements
     public function findRandom()
     {
         $count = $this->count();
-
-        if (0 === $count) {
-            return null;
+        switch ($count) {
+            case 0:
+                return null;
+            case 1:
+                return $this->findOne();
+            default:
+                $cursor = $this->skip(mt_rand(0, $count - 1))->limit(1);
+                $cursor->rewind();
+                return $cursor->current();
         }
-
-        if (1 === $count) {
-            return $this->findOne();
-        }
-
-        return $this
-            ->skip(mt_rand(0, $count - 1))
-            ->limit(1)
-            ->current();
     }
 
     /**
@@ -790,7 +721,7 @@ class Cursor implements
      */
     public function reset()
     {
-        if ($this->cursor) {
+        if ($this->cursor !== null) {
             $this->cursor->reset();
         }
 
@@ -800,22 +731,76 @@ class Cursor implements
     /**
      * Returns the cursor to the beginning of the result set.
      * This is identical to call reset() && next().
-     * @return $this
+     * @return void
      */
     public function rewind()
     {
-        $this->getCursor()->rewind();
-        return $this;
+        if ($this->cursor !== null) {
+            $this->cursor->rewind();
+            return;
+        }
+
+        $this->cursor = $this->collection
+            ->getMongoCollection()
+            ->find(
+                $this->expression->toArray(),
+                $this->fields
+            );
+
+        if ($this->skip) {
+            $this->cursor->skip($this->skip);
+        }
+
+        if ($this->limit) {
+            $this->cursor->limit($this->limit);
+        }
+
+        if ($this->options['batchSize']) {
+            $this->cursor->batchSize($this->options['batchSize']);
+        }
+
+        if ($this->options['clientTimeout']) {
+            $this->cursor->timeout($this->options['clientTimeout']);
+        }
+
+        if ($this->options['serverTimeout']) {
+            $this->cursor->maxTimeMS($this->options['clientTimeout']);
+        }
+
+        if (!empty($this->sort)) {
+            $this->cursor->sort($this->sort);
+        }
+
+        if ($this->hint) {
+            $this->cursor->hint($this->hint);
+        }
+
+        // define read preferences
+        if (!empty($this->readPreference)) {
+            $this->cursor->setReadPreference(
+                $this->readPreference['type'],
+                $this->readPreference['tagsets']
+            );
+        }
+
+        // init cursor state
+        $this->cursor->rewind();
     }
 
+    /**
+     * @return bool
+     */
     public function valid()
     {
-        return $this->getCursor()->valid();
+        return $this->cursor->valid();
     }
 
+    /**
+     * @return Document|array|null
+     */
     public function current()
     {
-        $mongoDocument = $this->getCursor()->current();
+        $mongoDocument = $this->cursor->current();
         if (empty($mongoDocument)) {
             return null;
         }
@@ -830,15 +815,20 @@ class Cursor implements
         );
     }
 
+    /**
+     * @return string
+     */
     public function key()
     {
-        return $this->getCursor()->key();
+        return $this->cursor->key();
     }
 
+    /**
+     * @return void
+     */
     public function next()
     {
-        $this->getCursor()->next();
-        return $this;
+        $this->cursor->next();
     }
 
     public function readPrimaryOnly()
@@ -962,7 +952,7 @@ class Cursor implements
             ->getMongoCollection();
 
         // cursor
-        $cursor = $this->getCursor();
+        $this->rewind();
 
         // copy data
         $inProgress = true;
@@ -970,7 +960,7 @@ class Cursor implements
             // get next pack of documents
             $documentList = array();
             for ($i = 0; $i < $batchLimit; $i++) {
-                if (!$cursor->valid()) {
+                if (!$this->cursor->valid()) {
                     $inProgress = false;
 
                     if (!empty($documentList)) {
@@ -982,8 +972,8 @@ class Cursor implements
                     }
                 }
 
-                $documentList[] = $cursor->current();
-                $cursor->next();
+                $documentList[] = $this->cursor->current();
+                $this->cursor->next();
             }
 
             // insert

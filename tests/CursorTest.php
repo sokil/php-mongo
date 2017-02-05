@@ -40,31 +40,36 @@ class CursorTest extends \PHPUnit_Framework_TestCase
     public function testReturnSpecifiedFields()
     {
         // create new document
-        $document = $this->collection
+        $documentId = $this
+            ->collection
             ->createDocument(array(
                 'a'    => 'a1',
                 'b'    => 'b1',
                 'c'    => 'c1',
                 'd'    => 'd1',
-            ));
+            ))
+            ->save()
+            ->getId();
 
-        $document->save();
-        $documentId = $document->getId();
-
-        // fild some fields of document
-        $document = $this->collection->find()
+        // find some fields of document
+        $document = $this
+            ->collection
+            ->find()
             ->fields(array(
                 'a', 'c'
             ))
             ->field('b')
             ->findOne();
 
-        $this->assertEquals(array(
-            'a'    => 'a1',
-            'b'    => 'b1',
-            'c'    => 'c1',
-            '_id'   => $documentId,
-        ), $document->toArray());
+        $this->assertEquals(
+            array(
+                'a'    => 'a1',
+                'b'    => 'b1',
+                'c'    => 'c1',
+                '_id'   => $documentId,
+            ),
+            $document->toArray()
+        );
     }
 
     public function testSkipSpecifiedFields()
@@ -415,7 +420,10 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $document->save();
 
         // find all rows
-        $document = $this->collection->findAsArray()->where('some-field', 'some-value')->rewind()->current();
+        $cursor = $this->collection->findAsArray()->where('some-field', 'some-value');
+        $cursor->rewind();
+        $document = $cursor->current();
+
         $this->assertEquals('array', gettype($document));
 
         // find one row
@@ -429,42 +437,12 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->collection->createDocument(array('p' => 'A'))->save();
         $this->collection->createDocument(array('p' => 'B'))->save();
         $this->collection->createDocument(array('p' => 'C'))->save();
+        $this->collection->createDocument(array('p' => 'D'))->save();
 
-        $documentId = $this->collection
-            ->createDocument(array('p' => 'D'))
-            ->save()
-            ->getId();
+        $cursor = $this->collection->find()->sort(array('p' => -1));
+        $cursor->rewind();
 
-        $document = $this->collection
-            ->find()
-            ->sort(array('p' => -1));
-
-        $this->assertEquals('D', $document->current()->p);
-    }
-
-    public function testLogger()
-    {
-        // create documents
-        $this->collection->createDocument(array('param' => 1))->save();
-        $this->collection->createDocument(array('param' => 2))->save();
-        $this->collection->createDocument(array('param' => 3))->save();
-        $this->collection->createDocument(array('param' => 4))->save();
-
-        // create logger
-        $logger = $this->getMockBuilder('\Psr\Log\LoggerInterface')->getMock();
-        $logger
-            ->expects($this->once())
-            ->method('debug')
-            ->with('Sokil\Mongo\Cursor: {"collection":"phpmongo_test_collection","query":{"param":2},"project":[],"sort":[]}');
-
-        // set logger to client
-        $this->collection
-            ->getDatabase()
-            ->getClient()
-            ->setLogger($logger);
-
-        // aggregate
-        $this->collection->find()->where('param', 2)->findAll();
+        $this->assertEquals('D', $cursor->current()->p);
     }
 
     /**
@@ -697,32 +675,38 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
     public function testReadPrimaryOnly()
     {
-        $qb = $this->collection
+        $cursor = $this->collection
             ->find()
             ->readPrimaryOnly();
 
-        $this->assertEquals(array(
-            'type'      => \MongoClient::RP_PRIMARY,
-            'tagsets' => array(),
-        ), $qb->getReadPreference());
+        $this->assertEquals(
+            array(
+                'type'      => \MongoClient::RP_PRIMARY,
+                'tagsets' => array(),
+            ),
+            $cursor->getReadPreference()
+        );
 
-        $qb->current();
+        $cursor->rewind();
 
-        $this->assertEquals(array(
-            'type'      => \MongoClient::RP_PRIMARY,
-        ), $qb->getReadPreference());
+        $this->assertEquals(
+            array(
+                'type' => \MongoClient::RP_PRIMARY,
+            ),
+            $cursor->getReadPreference()
+        );
     }
 
     public function testReadPrimaryPreferred()
     {
-        $qb = $this->collection
+        $cursor = $this->collection
             ->find()
             ->readPrimaryPreferred(array(
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ));
 
-        $qb->current();
+        $cursor->rewind();
 
         $this->assertEquals(array(
             'type' => \MongoClient::RP_PRIMARY_PREFERRED,
@@ -730,19 +714,19 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), $qb->getReadPreference());
+        ), $cursor->getReadPreference());
     }
 
     public function testReadSecondaryOnly(array $tags = null)
     {
-        $qb = $this->collection
+        $cursor = $this->collection
             ->find()
             ->readSecondaryOnly(array(
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ));
 
-        $qb->current();
+        $cursor->rewind();
 
         $this->assertEquals(array(
             'type' => \MongoClient::RP_SECONDARY,
@@ -750,19 +734,19 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), $qb->getReadPreference());
+        ), $cursor->getReadPreference());
     }
 
     public function testReadSecondaryPreferred(array $tags = null)
     {
-        $qb = $this->collection
+        $cursor = $this->collection
             ->find()
             ->readSecondaryPreferred(array(
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ));
 
-        $qb->current();
+        $cursor->rewind();
 
         $this->assertEquals(array(
             'type' => \MongoClient::RP_SECONDARY_PREFERRED,
@@ -770,19 +754,19 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), $qb->getReadPreference());
+        ), $cursor->getReadPreference());
     }
 
     public function testReadNearest(array $tags = null)
     {
-        $qb = $this->collection
+        $cursor = $this->collection
             ->find()
             ->readNearest(array(
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ));
 
-        $qb->current();
+        $cursor->rewind();
 
         $this->assertEquals(array(
             'type' => \MongoClient::RP_NEAREST,
@@ -790,7 +774,7 @@ class CursorTest extends \PHPUnit_Framework_TestCase
                 array('dc' => 'kyiv'),
                 array('dc' => 'lviv'),
             ),
-        ), $qb->getReadPreference());
+        ), $cursor->getReadPreference());
     }
 
     public function testHint()
@@ -854,27 +838,36 @@ class CursorTest extends \PHPUnit_Framework_TestCase
 
         // fill collection with documents
         for($i = 0; $i < 200; $i++) {
-            $this->collection->createDocument(array('i' => $i))->save();
+            $this->collection->createDocument(array('param' => $i))->save();
         }
 
+        // move docs
         $this->collection
             ->find()
-            ->whereMod('i', 2, 0)
+            ->whereMod('param', 2, 0)
             ->moveToCollection($targetCollectionName);
 
         // check source collection
-        $this->assertEquals(100, $this->collection->count());
+        $this->assertEquals(
+            100,
+            $this->collection->count(),
+            'Count of documents in source collection must be 100'
+        );
 
         foreach($this->collection->find() as $document) {
-            $this->assertEquals(1, $document->i % 2);
+            $this->assertEquals(1, $document->param % 2);
         }
 
         // check target collection
 
-        $this->assertEquals(100, $targetCollection->count());
+        $this->assertEquals(
+            100,
+            $targetCollection->count(),
+            'Nothing moved to target collection'
+        );
 
         foreach($targetCollection->find() as $document) {
-            $this->assertEquals(0, $document->i % 2);
+            $this->assertEquals(0, $document->param % 2);
         }
 
         // clear
