@@ -24,13 +24,13 @@ class Cursor implements
 {
     /**
      *
-     * @var \Sokil\Mongo\Client
+     * @var Client
      */
     private $client;
 
     /**
      *
-     * @var \Sokil\Mongo\Collection
+     * @var Collection
      */
     private $collection;
 
@@ -114,7 +114,6 @@ class Cursor implements
     public function __construct(Collection $collection, array $options = null)
     {
         $this->collection = $collection;
-
         $this->client = $this->collection->getDatabase()->getClient();
 
         if (!empty($options)) {
@@ -151,7 +150,7 @@ class Cursor implements
     /**
      * Get result as array
      *
-     * @return $this
+     * @return Cursor
      */
     public function asArray()
     {
@@ -161,7 +160,7 @@ class Cursor implements
 
     /**
      * Get result as object
-     * @return $this
+     * @return Cursor
      */
     public function asObject()
     {
