@@ -718,6 +718,7 @@ class Cursor implements
 
     /**
      * Clears the cursor
+     * Mongo's rewind is reset+next
      */
     public function reset()
     {
@@ -730,7 +731,6 @@ class Cursor implements
 
     /**
      * Returns the cursor to the beginning of the result set.
-     * This is identical to call reset() && next().
      * @return void
      */
     public function rewind()

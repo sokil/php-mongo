@@ -128,8 +128,10 @@ class GridFsTest extends \PHPUnit_Framework_TestCase
         $this->gridFs->storeBytes('somebinarydata', array(
             'meta' => 3,
         ));
-        
-        $file = $this->gridFs->find()->where('meta', 2)->current();
+
+        $cursor = $this->gridFs->find()->where('meta', 2);
+        $cursor->rewind();
+        $file = $cursor->current();
         
         $this->assertNotEmpty($file);
         
