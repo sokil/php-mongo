@@ -103,7 +103,7 @@ class Document extends Structure
      */
     public function __construct(Collection $collection, array $data = null, array $options = array())
     {
-        // lisk to collection
+        // link to collection
         $this->collection = $collection;
 
         // configure document with options

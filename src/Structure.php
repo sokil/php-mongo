@@ -82,7 +82,7 @@ class Structure implements
         $notModified = true
     ) {
         // self::$data and self::$schema instead of deprecated self::$_data
-        if (null !== $this->_data) {
+        if (!empty($this->_data)) {
             $this->schema = $this->_data;
         }
 
