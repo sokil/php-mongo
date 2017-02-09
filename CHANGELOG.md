@@ -1,4 +1,5 @@
-## 1.21 (2017-01-17)
+## 1.21 (2017-02-09)
+ * `Document::beforeConstruct` moved to `Structure::beforeConstruct` so embedded documents may configure some logic there
  * `Collection::batchDelete()` now has required argument
  * Now may be configured batch limit in `Cursor::copyToCollection` and `Cursor::moveToCollection`
  * Methods of `\Iterator` interface currently not recommended to use directly in `Cursor` and `Paginator`. But if used, now `rewind` MUST be calls before `current`.

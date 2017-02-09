@@ -92,6 +92,9 @@ class Structure implements
         $this->data = $this->schema;
         $this->originalData = $this->data;
 
+        // execute before construct callable
+        $this->beforeConstruct();
+
         // initialize with passed data
         if ($data) {
             if ($notModified) {
@@ -102,6 +105,15 @@ class Structure implements
                 $this->merge($data);
             }
         }
+    }
+
+    /**
+     * Event handler, called before running constructor.
+     * May be overridden in child classes
+     */
+    public function beforeConstruct()
+    {
+        // override this to add some functionality on structure instance initialization
     }
 
     /**

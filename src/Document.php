@@ -112,9 +112,6 @@ class Document extends Structure
         // init document
         $this->initDelegates();
 
-        // execute before construct callable
-        $this->beforeConstruct();
-
         // initialize with data
         parent::__construct($data, $this->getOption('stored'));
 
@@ -140,14 +137,6 @@ class Document extends Structure
     public function hasOption($name)
     {
         return isset($this->options[$name]);
-    }
-
-    /**
-     * Event handler, called before running constructor.
-     * May be overridden in child classes
-     */
-    public function beforeConstruct()
-    {
     }
 
     /**
