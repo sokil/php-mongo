@@ -13,19 +13,20 @@ services: mongodb
 
 before_script:
   - echo $TRAVIS_PHP_VERSION
+  - mongod --version
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs; fi
   - composer update --no-interaction
   - "mongo --eval 'db.adminCommand({ setParameter: true, textSearchEnabled : true}).ok === 1'"
+  - mkdir -p ./share
 
 script:
-  - mongod --version
-  - mkdir -p ./share
-  - ./vendor/bin/phpunit -c ./tests/phpunit.xml --coverage-clover ./share/phpunit/clover.xml ./tests
+  - composer cover
+  - composer check-style
   
 after_script:
-  - php ./vendor/bin/coveralls -v
+  - composer coveralls
   
 notifications:
   webhooks:
