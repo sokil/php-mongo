@@ -25,9 +25,6 @@ Why to use this ODM? You can easily work with document data through comfortable 
  * [Compatibility layer](https://github.com/alcaeus/mongo-php-adapter). Please, note some [restriontions](#compatibility-with-php-7)
  * Currently not tested in HHVM
 * Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0 (See [Unit tests](#unit-tests))
-* [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html)
-* [GeoJson version ~1.0](https://github.com/jmikola/geojson)
-* [PSR-3 logger interface](https://github.com/php-fig/log)
 <br/>
 <br/>
 
