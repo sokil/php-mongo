@@ -183,7 +183,7 @@ class RelationManager
                 $this->document->set($field, $document->getId());
                 break;
 
-            case Document::RELATION_HAS_ONE;
+            case Document::RELATION_HAS_ONE:
                 if (!$this->document->isStored()) {
                     throw new \Sokil\Mongo\Exception('Document ' . get_class($this) . ' must be saved before adding relation');
                 }
