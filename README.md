@@ -3120,7 +3120,7 @@ To run concrete test , pass it:
 ./run-docker-tests.sh -t DocumentTest.php
 ```
 
-Tests may be found at `log` dir after finishing tests. 
+Tests may be found at `./share/phpunit` dir after finishing tests. 
 
 Contributing
 ------------
