@@ -19,7 +19,7 @@ php:
 services: mongodb
 
 before_script:
-  - MONGOD_VERSION=$(mongod --version)
+  - mongod --version
   - echo $TRAVIS_PHP_VERSION
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
