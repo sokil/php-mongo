@@ -3097,19 +3097,22 @@ Unit tests
 ### Local PHPUnit tests
 
 To start unit tests, run:
+
 ```
 ./vendor/bin/phpunit -c tests/phpunit.xml tests
 ```
 
-### Docker PHPUNit tests
+### Docker PHPUnit tests
 
 Also available Docker containers. They starts with xdebug enabled, so you can sign in to any container and debug code there. 
 Before running tests start docker container with:
+
 ```
 docker-compose -f docker/compose.yaml up
 ```
 
 To start tests on all supported PHP and MongoDB versions, run 
+
 ```
 ./run-docker-tests.sh
 ```
