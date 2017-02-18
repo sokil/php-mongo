@@ -189,7 +189,9 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     {
         $this->database->profileAllQueries();
 
-        $row = $this->database->findProfilerRows()
+        $row = $this
+            ->database
+            ->findProfilerRows()
             ->findOne();
 
         $this->assertArrayHasKey('op', $row);
