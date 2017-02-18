@@ -33,7 +33,12 @@ class LengthValidator extends \Sokil\Mongo\Validator
             }
 
             if (!isset($params['message'])) {
-                $params['message'] = 'Field "' . $fieldName . '" length not equal to ' . $params['is'] . ' in model ' . get_called_class();
+                $params['message'] = sprintf(
+                    'Field "%s" length not equal to %s in model %s',
+                    $fieldName,
+                    $params['is'],
+                    get_called_class()
+                );
             }
 
             $document->addError($fieldName, $this->getName(), $params['message']);
@@ -44,7 +49,12 @@ class LengthValidator extends \Sokil\Mongo\Validator
         if (isset($params['min'])) {
             if ($length < $params['min']) {
                 if (!isset($params['messageTooShort'])) {
-                    $params['messageTooShort'] = 'Field "' . $fieldName . '" length is shorter tnan ' . $params['min'] . ' in model ' . get_called_class();
+                    $params['messageTooShort'] = sprintf(
+                        'Field "%s" length is shorter than %s in model %s',
+                        $fieldName,
+                        $params['min'],
+                        get_called_class()
+                    );
                 }
 
                 $document->addError($fieldName, $this->getName(), $params['messageTooShort']);
@@ -56,7 +66,12 @@ class LengthValidator extends \Sokil\Mongo\Validator
         if (isset($params['max'])) {
             if ($length > $params['max']) {
                 if (!isset($params['messageTooLong'])) {
-                    $params['messageTooLong'] = 'Field "' . $fieldName . '" length is longer tnan ' . $params['max'] . ' in model ' . get_called_class();
+                    $params['messageTooLong'] = sprintf(
+                        'Field "%s" length is longer than %s in model %s',
+                        $fieldName,
+                        $params['max'],
+                        get_called_class()
+                    );
                 }
 
                 $document->addError($fieldName, $this->getName(), $params['messageTooLong']);

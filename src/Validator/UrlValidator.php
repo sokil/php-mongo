@@ -29,7 +29,10 @@ class UrlValidator extends \Sokil\Mongo\Validator
         $isValidUrl = (bool) filter_var($value, FILTER_VALIDATE_URL);
         if (!$isValidUrl) {
             if (!isset($params['message'])) {
-                $params['message'] = 'Value of field "' . $fieldName . '" is not valid url in model ' . get_called_class();
+                $params['message'] = 'Value of field "'
+                    . $fieldName
+                    . '" is not valid url in model '
+                    . get_called_class();
             }
 
             $document->addError($fieldName, $this->getName(), $params['message']);
@@ -52,7 +55,10 @@ class UrlValidator extends \Sokil\Mongo\Validator
         // empty array - host not found
         if (is_array($dnsRecordExists) && empty($dnsRecordExists)) {
             if (!isset($params['message'])) {
-                $params['message'] = 'Value of field "' . $fieldName . '" is valid url but host is unreachable in model ' . get_called_class();
+                $params['message'] = 'Value of field "'
+                    . $fieldName
+                    . '" is valid url but host is unreachable in model '
+                    . get_called_class();
             }
 
             $document->addError($fieldName, $this->getName(), $params['message']);
@@ -64,7 +70,10 @@ class UrlValidator extends \Sokil\Mongo\Validator
         }
         
         if (!isset($params['message'])) {
-            $params['message'] = 'Value of field "' . $fieldName . '" is valid url but page not found ' . get_called_class();
+            $params['message'] = 'Value of field "'
+                . $fieldName
+                . '" is valid url but page not found '
+                . get_called_class();
         }
 
         $document->addError($fieldName, $this->getName(), $params['message']);
