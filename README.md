@@ -3105,10 +3105,17 @@ To start unit tests, run:
 ### Docker PHPUnit tests
 
 Also available Docker containers. They starts with xdebug enabled, so you can sign in to any container and debug code there. 
+
 Before running tests start docker container with:
 
 ```
-docker-compose -f docker/compose.yaml up
+docker-compose -f docker/compose.yml up -d
+```
+
+To run only few environments, run:
+
+```
+docker-compose -f docker/compose.yml up -d php70 mongodb32
 ```
 
 To start tests on all supported PHP and MongoDB versions, run 
