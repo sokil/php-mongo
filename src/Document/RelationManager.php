@@ -180,8 +180,10 @@ class RelationManager
         switch ($relationType) {
             case Document::RELATION_BELONGS:
                 if (!$document->isStored()) {
-                    throw new \Sokil\Mongo\Exception(
-                        'Document ' . get_class($document) . ' must be saved before adding relation');
+                    throw new \Sokil\Mongo\Exception(sprintf(
+                        'Document %s must be saved before adding relation',
+                        get_class($document)
+                    ));
                 }
                 $this->document->set($field, $document->getId());
                 break;
