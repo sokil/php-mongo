@@ -3,7 +3,9 @@ sudo: false
 addons:
   apt:
     sources:
-      - mongodb-3.0-precise
+      - mongodb-3.2-precise
+    packages:
+      - mongodb-org-server
   
 language: php
 php:
