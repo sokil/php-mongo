@@ -23,6 +23,10 @@ use GeoJson\Geometry\Point;
  */
 class Expression implements ArrayableInterface
 {
+    /**
+     * @deprecated Since 1.22 using this property is NOT ALLOWED. Use getters and setters instead.
+     * @var array
+     */
     protected $_expression = array();
 
     /**
