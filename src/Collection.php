@@ -642,18 +642,21 @@ class Collection implements \Countable
      */
     public function hasDocument(Document $document)
     {
+        $documentCollection = $document->getCollection();
+        $documentDatabase = $documentCollection->getDatabase();
+
         // check connection
-        if ($document->getCollection()->getDatabase()->getClient()->getDsn() !== $this->getDatabase()->getClient()->getDsn()) {
+        if ($documentDatabase->getClient()->getDsn() !== $this->getDatabase()->getClient()->getDsn()) {
             return false;
         }
 
         // check database
-        if ($document->getCollection()->getDatabase()->getName() !== $this->getDatabase()->getName()) {
+        if ($documentDatabase->getName() !== $this->getDatabase()->getName()) {
             return false;
         }
 
         // check collection
-        return $document->getCollection()->getName() == $this->getName();
+        return $documentCollection->getName() == $this->getName();
     }
 
     /**
@@ -1058,26 +1061,36 @@ class Collection implements \Countable
         // check options for db < 2.6
         if (version_compare($dbVersion, '2.6.0', '<')) {
             if (!empty($options['explain'])) {
-                throw new FeatureNotSupportedException('Explain of aggregation implemented only from 2.6.0');
+                throw new FeatureNotSupportedException(
+                    'Explain of aggregation implemented only from 2.6.0'
+                );
             }
 
             if (!empty($options['allowDiskUse'])) {
-                throw new FeatureNotSupportedException('Option allowDiskUse of aggregation implemented only from 2.6.0');
+                throw new FeatureNotSupportedException(
+                    'Option allowDiskUse of aggregation implemented only from 2.6.0'
+                );
             }
 
             if (!empty($options['cursor'])) {
-                throw new FeatureNotSupportedException('Option cursor of aggregation implemented only from 2.6.0');
+                throw new FeatureNotSupportedException(
+                    'Option cursor of aggregation implemented only from 2.6.0'
+                );
             }
         }
 
         // check options for db < 3.2
         if (version_compare($dbVersion, '3.2.0', '<')) {
             if (!empty($options['bypassDocumentValidation'])) {
-                throw new FeatureNotSupportedException('Option bypassDocumentValidation of aggregation implemented only from 3.2.0');
+                throw new FeatureNotSupportedException(
+                    'Option bypassDocumentValidation of aggregation implemented only from 3.2.0'
+                );
             }
 
             if (!empty($options['readConcern'])) {
-                throw new FeatureNotSupportedException('Option readConcern of aggregation implemented only from 3.2.0');
+                throw new FeatureNotSupportedException(
+                    'Option readConcern of aggregation implemented only from 3.2.0'
+                );
             }
         }
     }
@@ -1221,8 +1234,8 @@ class Collection implements \Countable
      *
      * @link http://docs.mongodb.org/manual/tutorial/expire-data/
      *
-     * If seconds not specified then document expired at specified time, as
-     * described at @link http://docs.mongodb.org/manual/tutorial/expire-data/#expire-documents-at-a-certain-clock-time
+     * If seconds not specified then document expired at specified time, as described at
+     * @link http://docs.mongodb.org/manual/tutorial/expire-data/#expire-documents-at-a-certain-clock-time
      *
      * @param string|array $key key must be date to use TTL
      * @param int $seconds
@@ -1297,18 +1310,18 @@ class Collection implements \Countable
      * The specified language in an embedded document override the language specified in an enclosing document or
      * the default language for the index.
      *
-     * @param   array|string    $field              definition of fields where full text index ensured. May be string to
-     *                                              ensure index on one field, array of fields  to create full text index on few
-     *                                              fields, and * widdcard '$**'  to create index on all fields of collection.
-     *                                              Default value is '$**'
+     * @param   array|string    $field              definition of fields where full text index ensured. May be
+     *                                              string to ensure index on one field, array of fields  to
+     *                                              create full text index on few fields, and * widdcard '$**' to
+     *                                              create index on all fields of collection. Default value is '$**'
      *
-     * @param   array           $weights            For a text index, the weight of an indexed field denotes the significance
-     *                                              of the field relative to the other indexed fields in terms of the text
-     *                                              search score.
+     * @param   array           $weights            For a text index, the weight of an indexed field denotes the
+     *                                              significance of the field relative to the other indexed fields
+     *                                              in terms of the text search score.
      *
-     * @param   string          $defaultLanguage    Default language associated with the indexed data determines the rules to parse
-     *                                              word roots (i.e. stemming) and ignore stop words. The default
-     *                                              language for the indexed data is english.
+     * @param   string          $defaultLanguage    Default language associated with the indexed data determines
+     *                                              the rules to parse word roots (i.e. stemming) and ignore stop
+     *                                              words. The default language for the indexed data is english.
      *
      * @param   string          $languageOverride   To use a field with a name other than language, include the
      *                                              language_override option when creating the index.
