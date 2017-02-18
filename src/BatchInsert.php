@@ -44,6 +44,15 @@ class BatchInsert extends BatchOperation
         return $this;
     }
 
+    public function isValidationEnabled()
+    {
+        return $this->isValidationEnabled;
+    }
+
+    /**
+     * @deprecated use self::isValidationEnabled()
+     * @return bool
+     */
     public function isValidationEbabled()
     {
         return $this->isValidationEnabled;
