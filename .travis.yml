@@ -1,5 +1,10 @@
 sudo: false
 
+addons:
+  apt:
+    packages:
+      - mongodb-3.0-precise
+  
 language: php
 php:
   - 7.1
