@@ -56,6 +56,7 @@ then
     echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/xdebug.ini
     echo "xdebug.remote_host=dockerhost" >> /usr/local/etc/php/conf.d/xdebug.ini
     echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini
+    echo "xdebug.extended_info=1" >> /usr/local/etc/php/conf.d/xdebug.ini
 fi
 
 #####################################
