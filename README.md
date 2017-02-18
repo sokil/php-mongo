@@ -3094,13 +3094,17 @@ Unit tests
 [![Code Climate](https://codeclimate.com/github/sokil/php-mongo/badges/gpa.svg)](https://codeclimate.com/github/sokil/php-mongo)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6/mini.png)](https://insight.sensiolabs.com/projects/45b7bd7f-9145-49af-8d6a-9380f14e12b6)
 
+### Local PHPUnit tests
+
 To start unit tests, run:
 ```
 ./vendor/bin/phpunit -c tests/phpunit.xml tests
 ```
 
-Also available Docker containers. They starts with xdebug enabled, so you can sign in to any container and debug code there.
-Start docker container with:
+### Docker PHPUNit tests
+
+Also available Docker containers. They starts with xdebug enabled, so you can sign in to any container and debug code there. 
+Before running tests start docker container with:
 ```
 docker-compose -f docker/compose.yaml up
 ```
