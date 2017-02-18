@@ -94,7 +94,8 @@ class Cursor implements
         'batchSize' => null,
         // client timeout
         'clientTimeout' => null,
-        // Specifies a cumulative time limit in milliseconds to be allowed by the server for processing operations on the cursor.
+        // Specifies a cumulative time limit in milliseconds to
+        // be allowed by the server for processing operations on the cursor.
         'serverTimeout' => null,
     );
 
@@ -1088,7 +1089,9 @@ class Cursor implements
                 return $element;
             }
 
-            throw new \InvalidArgumentException('Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer');
+            throw new \InvalidArgumentException(
+                'Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer'
+            );
         }, array_values($list));
     }
 }

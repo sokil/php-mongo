@@ -37,8 +37,13 @@ class ClientPool
      * @param array $connectOptions connect options
      * @return \Sokil\Mongo\ClientPool
      */
-    public function addConnection($name, $dsn = null, array $mapping = null, $defaultDatabase = null, array $connectOptions = null)
-    {
+    public function addConnection(
+        $name,
+        $dsn = null,
+        array $mapping = null,
+        $defaultDatabase = null,
+        array $connectOptions = null
+    ) {
         $this->configuration[$name] = array(
             'dsn'               => $dsn,
             'connectOptions'    => $connectOptions,

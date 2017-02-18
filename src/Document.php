@@ -901,7 +901,10 @@ class Document extends Structure
         if (is_array($oldValue)) {
             $isSubDocument = (array_keys($oldValue) !== range(0, count($oldValue) - 1));
             if ($isSubDocument) {
-                throw new InvalidOperationException(sprintf('The field "%s" must be an array but is of type Object', $fieldName));
+                throw new InvalidOperationException(sprintf(
+                    'The field "%s" must be an array but is of type Object',
+                    $fieldName
+                ));
             }
         }
 
@@ -997,7 +1000,10 @@ class Document extends Structure
         } elseif (array_keys($set) !== range(0, count($set) - 1)) {
             // check if old value is list or sub document
             // on sub document throw exception
-            throw new InvalidOperationException(sprintf('The field "%s" must be an array but is of type Object', $fieldName));
+            throw new InvalidOperationException(sprintf(
+                'The field "%s" must be an array but is of type Object',
+                $fieldName
+            ));
         } else {
             // check if already in set
             if (in_array($value, $set, true)) {

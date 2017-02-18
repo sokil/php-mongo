@@ -32,7 +32,7 @@ class Operator implements ArrayableInterface
     
     public function push($fieldName, $value)
     {
-        // prepasre to store
+        // prepare to store
         $value = Structure::prepareToStore($value);
         
         // no $push operator found
@@ -40,18 +40,20 @@ class Operator implements ArrayableInterface
             $this->operators['$push'] = array();
         }
         
-        // no field name found
         if (!isset($this->operators['$push'][$fieldName])) {
+            // no field name found
             $this->operators['$push'][$fieldName] = $value;
-        } // field name found and has single value
-        elseif (!is_array($this->operators['$push'][$fieldName]) || !isset($this->operators['$push'][$fieldName]['$each'])) {
+        } else {
             $oldValue = $this->operators['$push'][$fieldName];
-            $this->operators['$push'][$fieldName] = array(
-                '$each' => array($oldValue, $value)
-            );
-        } // field name found and already $each
-        else {
-            $this->operators['$push'][$fieldName]['$each'][] = $value;
+            if (!is_array($oldValue) || !isset($oldValue['$each'])) {
+                // field name found and has single value
+                $this->operators['$push'][$fieldName] = array(
+                    '$each' => array($oldValue, $value)
+                );
+            } else {
+                // field name found and already $each
+                $this->operators['$push'][$fieldName]['$each'][] = $value;
+            }
         }
 
         return $this;

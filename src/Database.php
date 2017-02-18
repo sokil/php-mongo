@@ -166,8 +166,10 @@ class Database
     /**
      * Map collection name to class
      *
-     * @param string|array                  $name               collection name or array like [collectionName => collectionClass, ...]
-     * @param string|array|Definition|null  $classDefinition    if $name is string, then full class name or array with parameters, else omitted
+     * @param string|array                  $name               collection name or array like
+     *                                                          [collectionName => collectionClass, ...]
+     * @param string|array|Definition|null  $classDefinition    if $name is string, then full class name or array
+     *                                                          with parameters, else omitted
      * @return \Sokil\Mongo\Client
      */
     public function map($name, $classDefinition = null)
@@ -250,7 +252,9 @@ class Database
         if (!isset($classDefinition)) {
             if (!empty($this->mapping['*'])) {
                 $classDefinition = clone $this->mapping['*'];
-                $collectionClass = $classDefinition->getClass() . '\\' . implode('\\', array_map('ucfirst', explode('.', $name)));
+                $collectionClass = $classDefinition->getClass()
+                    . '\\'
+                    . implode('\\', array_map('ucfirst', explode('.', $name)));
                 $classDefinition->setClass($collectionClass);
             } else {
                 $classDefinition = new Definition();
@@ -262,7 +266,9 @@ class Database
 
         // check if class exists
         if (!class_exists($classDefinition->getClass())) {
-            throw new Exception('Class ' . $classDefinition->getClass() . ' not found while map collection name to class');
+            throw new Exception(
+                'Class ' . $classDefinition->getClass() . ' not found while map collection name to class'
+            );
         }
 
         return $classDefinition;
