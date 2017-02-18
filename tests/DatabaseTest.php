@@ -187,7 +187,8 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     public function testFindProfilerRows()
     {
-        $this->database->profileAllQueries();
+        $commandExecutionResponse = $this->database->profileAllQueries();
+        var_dump($commandExecutionResponse);
 
         $row = $this
             ->database
