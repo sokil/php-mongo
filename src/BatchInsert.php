@@ -17,50 +17,66 @@ class BatchInsert extends BatchOperation
 {
     protected $batchClass = '\MongoInsertBatch';
 
+    /**
+     * @var bool
+     */
     private $isValidationEnabled = true;
 
     /**
      * Used for validating array of data
      * @var Document
      */
-    private static $validator;
+    private $validator;
 
-    public function __construct(Collection $collection, $writeConcern = null, $timeout = null, $ordered = null)
+    public function init()
     {
-        parent::__construct($collection, $writeConcern, $timeout, $ordered);
-
-        self::$validator = $collection->createDocument();
+        $this->validator = $this->collection->createDocument();
     }
 
+    /**
+     * @return $this
+     */
     public function enableValidation()
     {
         $this->isValidationEnabled = true;
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function disableValidation()
     {
         $this->isValidationEnabled = false;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isValidationEnabled()
     {
         return $this->isValidationEnabled;
     }
 
+    /**
+     * @param array $document
+     * @return $this
+     * @throws InvalidDocumentException
+     */
     public function insert(array $document)
     {
+        // validate
         if ($this->isValidationEnabled) {
-            self::$validator->merge($document);
-            $isValid = self::$validator->isValid();
-            self::$validator->reset();
-
+            $this->validator->merge($document);
+            $isValid = $this->validator->isValid();
+            $this->validator->reset();
             if (!$isValid) {
                 throw new InvalidDocumentException('Document is invalid on batch insert');
             }
         }
 
+        // add to batch
         $this->add($document);
         return $this;
     }

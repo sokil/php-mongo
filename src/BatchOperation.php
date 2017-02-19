@@ -22,7 +22,7 @@ abstract class BatchOperation implements \Countable
     /**
      * @var Collection
      */
-    private $collection;
+    protected $collection;
 
     /**
      * Batch operation instance
@@ -43,13 +43,12 @@ abstract class BatchOperation implements \Countable
     protected $result;
 
     /**
-     * @param Collection $collection
-     * @param int|string $writeConcern Write concern. Default is 1 (Acknowledged)
-     * @param int $timeout Timeout for write concern. Default is 10000 milliseconds
-     * @param bool $ordered Determins if MongoDB must apply this batch in order (sequentally,
-     *   one item at a time) or can rearrange it. Defaults to TRUE
-     *
-     * @limk http://php.net/manual/ru/mongo.writeconcerns.php
+     * @param Collection    $collection
+     * @param int|string    $writeConcern  Write concern. Default is 1 (Acknowledged).
+     *                                     More info at http://php.net/manual/ru/mongo.writeconcerns.php
+     * @param int           $timeout       Timeout for write concern. Default is 10000 milliseconds
+     * @param bool          $ordered       Set to true if MongoDB must apply this batch in order (sequentially,
+     *                                     one item at a time) or can rearrange it. Defaults to TRUE
      */
     public function __construct(
         Collection $collection,
@@ -61,7 +60,7 @@ abstract class BatchOperation implements \Countable
 
         $writeOptions = array();
 
-        if ($writeConcern) {
+        if (null !== $writeConcern) {
             $writeOptions['w'] = $writeConcern;
         }
 
@@ -69,8 +68,8 @@ abstract class BatchOperation implements \Countable
             $writeOptions['wtimeout'] = (int) $timeout;
         }
 
-        if ($ordered) {
-            $writeOptions['ordered'] = (bool) $ordered;
+        if (true === $ordered) {
+            $writeOptions['ordered'] = true;
         }
 
         $className = $this->batchClass;
@@ -78,7 +77,11 @@ abstract class BatchOperation implements \Countable
             $this->collection->getMongoCollection(),
             $writeOptions
         );
+
+        $this->init();
     }
+
+    protected function init() {}
 
     protected function add($data)
     {
@@ -91,16 +94,16 @@ abstract class BatchOperation implements \Countable
     {
         $writeOptions = array();
 
-        if ($writeConcern) {
+        if (null !== $writeConcern) {
             $writeOptions['w'] = $writeConcern;
         }
 
         if ($timeout && is_numeric($timeout)) {
-            $writeOptions['wtimeout '] = (int) $timeout;
+            $writeOptions['wtimeout'] = (int) $timeout;
         }
 
-        if ($ordered) {
-            $writeOptions['ordered'] = (bool) $ordered;
+        if (true === $ordered) {
+            $writeOptions['ordered'] = true;
         }
 
         $this->result = $this->batch->execute($writeOptions);
