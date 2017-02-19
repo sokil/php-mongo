@@ -65,7 +65,11 @@ abstract class BatchOperation implements \Countable
         }
 
         if (null !== $timeout && is_numeric($timeout)) {
-            $writeOptions['wtimeout'] = (int) $timeout;
+            if (version_compare(\MongoClient::VERSION, '1.5', '<=')) {
+                $writeOptions['wtimeout'] = (int) $timeout;
+            } else {
+                $writeOptions['wTimeoutMS'] = (int) $timeout;
+            }
         }
 
         if (true === $ordered) {
