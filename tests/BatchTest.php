@@ -47,7 +47,12 @@ class BatchTest extends \PHPUnit_Framework_TestCase
 
     public function testInsert()
     {
-        $batch = new BatchInsert($this->collection);
+        $batch = new BatchInsert(
+            $this->collection,
+            1,
+            10000,
+            true
+        );
 
         $batch
             ->insert(array('a' => 1))
