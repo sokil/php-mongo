@@ -1,7 +1,8 @@
 PHPMongo ODM
 ========
 
-<!--[![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg?1)](https://packagist.org/packages/sokil/php-mongo)-->[![Daily Downloads](https://poser.pugx.org/sokil/php-mongo/d/daily)](https://packagist.org/packages/sokil/php-mongo)
+[![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg?1)](https://packagist.org/packages/sokil/php-mongo)
+[![Daily Downloads](https://poser.pugx.org/sokil/php-mongo/d/daily)](https://packagist.org/packages/sokil/php-mongo)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master&2)](https://travis-ci.org/sokil/php-mongo)
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
