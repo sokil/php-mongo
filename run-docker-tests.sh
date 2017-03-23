@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+########################################################################################################################
+# This script executed on host machine.
+#
+# You can optionally pass parameters:
+#   -p : version of PHP without dots. Currently supported 65, 70, 71
+#   -m : version of MongoDB without dots. Currently supported 24, 26, 30, 32, 33, 34
+#   -t : path to concrete test file
+# 
+# Actual list of supported versions may be found in docker's compose (./docker/compose.yml)
+########################################################################################################################
+
 # init php and mongo versions
 phpVersions=()
 phpVersionsCount=0
