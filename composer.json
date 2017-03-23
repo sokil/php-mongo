@@ -39,6 +39,7 @@
     },
     "scripts": {
         "test": "phpunit -c ./tests/phpunit.xml ./tests",
+        "dockertest": "./run-docker-tests.sh",
         "cover": "phpunit -c ./tests/phpunit.xml --coverage-clover ./share/phpunit/clover.xml ./tests",
         "coveralls": "coveralls -v",
         "check-style": "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
