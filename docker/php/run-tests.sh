@@ -1,5 +1,10 @@
 #!/bin/bash
 
+########################################################################################################################
+# This script executed in container by calling from host machine, 
+# and run test on concrete PHP platform and all specified MongoDB platforms
+########################################################################################################################
+
 file=$(readlink -f $0);
 projectDir=$(dirname $file)/../..
 
