@@ -1,5 +1,5 @@
 ## 1.22
- * Fixed method name BatchInsert::isValidationEbabled
+ * Fixed method name BatchInsert::isValidationEnabled
  * Fixed usage of validation flag in BatchInsert
 
 ## 1.21 (2017-02-09)
