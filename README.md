@@ -1,7 +1,7 @@
 PHPMongo ODM
 ============
 
-[![Total Downloads](http://img.shields.io/packagist/dt/sokil/php-mongo.svg?1)](https://packagist.org/packages/sokil/php-mongo)
+[![Total Downloads][badge-totalDownloads-img]][badge-totalDownloads-url]
 [![Daily Downloads](https://poser.pugx.org/sokil/php-mongo/d/daily)](https://packagist.org/packages/sokil/php-mongo)
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master&2)](https://travis-ci.org/sokil/php-mongo)
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
@@ -3151,3 +3151,6 @@ License
 -------
 
 The MIT License (MIT). Please see [License File](https://github.com/sokil/php-mongo/blob/master/LICENSE) for more information.
+
+[badge-totalDownloads-img]: http://img.shields.io/packagist/dt/sokil/php-mongo.svg?1
+[badge-totalDownloads-url]: https://packagist.org/packages/sokil/php-mongo
