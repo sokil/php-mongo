@@ -36,6 +36,11 @@ Why to use this ODM? You can easily work with document data through comfortable 
 > To start using PHPMongo with PHP7, add requirement [alcaeus/mongo-php-adapter](https://github.com/alcaeus/mongo-php-adapter) to composer.
 > Restrictions for using ODM with compatibility layer you can read in [known issues](https://github.com/alcaeus/mongo-php-adapter#known-issues) of original adapter.
 
+To use lib under PHP7, add requirement:
+```
+composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs
+```
+
 <br/>
 
 #### Table of contents
