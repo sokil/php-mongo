@@ -12,7 +12,7 @@ PHPMongo ODM
 
 #### PHP ODM for MongoDB.
 
-Why to use this ODM? You can easily work with document data through comfortable getters and setters instead of array and don't check if key exist in array. Access to sub document uses dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of document's life. You can create relations, build aggregations, create versioned documents, write migrations and do more things which make you life easier.
+Why to use this ODM? You can easily work with document data through comfortable getters and setters instead of array and don't check if key exist in array. Access to sub document uses dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of document's life. You can create relations, build aggregations, create versioned documents, write migrations and do more things which makes your life easier.
 
 [![ArmySOS - Help for Ukrainian Army](http://armysos.com.ua/wp-content/uploads/2014/09/728_90.jpg)](http://armysos.com.ua/en/help-the-army)
 
@@ -168,19 +168,19 @@ Connecting to MongoDB server made through `\Sokil\Mongo\Client` class:
 $client = new Client($dsn);
 ```
 
-Format of DSN used to connect to server described in [PHP manual](http://www.php.net/manual/en/mongo.connecting.php).
-To connect to localhost use next DSN:
+Format of DSN used to connect to server is described in [PHP manual](http://www.php.net/manual/en/mongo.connecting.php).
+To connect to localhost, use next DSN:
 ```
 mongodb://127.0.0.1
 ```
-To connect to replica set use next DSN:
+To connect to replica set, use next DSN:
 ```
 mongodb://server1.com,server2.com/?replicaSet=replicaSetName
 ```
 
 #### Pool of connections
 
-If you have few connections you may prefer connection pool instead of managing different connections. Use `\Sokil\Mongo\ClientPool` instance to initialize pool object:
+If you have few connections, you may prefer connection pool instead of managing different connections. Use `\Sokil\Mongo\ClientPool` instance to initialize pool object:
 
 ```php
 <?php
@@ -258,7 +258,7 @@ $collection = $client->getCollection('collectionName');
 
 ### Custom collections
 
-Custom collections used to add some collection-specific features in related class. 
+Custom collections are used to add some collection-specific features in related class. 
 First you need to create class extended from `\Sokil\Mongo\Collection`:
 ```php
 <?php
