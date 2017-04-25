@@ -143,6 +143,16 @@ class Structure implements
         return $this;
     }
 
+    public function __isset($name)
+    {
+        return isset($this->_data[$name]);
+    }
+
+    public function __unset($name)
+    {
+        unset($this->_data[$name]);
+    }
+
     public function __get($name)
     {
         // get first-level value
