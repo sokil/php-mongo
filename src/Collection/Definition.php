@@ -172,11 +172,15 @@ class Definition
 
     public function getMongoCollectionOptions()
     {
-        return array(
+        $result = array(
             'capped'    => $this->capped,
             'size'      => $this->size,
-            'max'       => $this->max,
+            'max' => $this->max,
         );
+        if (isset($this->options['validator'])) {
+            $result['validator'] = $this->options['validator'];
+        }
+        return $result;
     }
 
     public function getOptions()
