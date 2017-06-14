@@ -1,3 +1,6 @@
+## 1.21.2 (2017-06-14)
+ * Allow specify validator while create collection
+
 ## 1.21.1 (2017-03-24)
  * Fixed mispell in method name BatchInsert::isValidationEbabled
  * Fixed usage of validation flag in BatchInsert
