@@ -282,7 +282,7 @@ class Database
      * @return \Sokil\Mongo\Collection
      * @throws \Sokil\Mongo\Exception
      */
-    public function createCollection($name, array $options = null)
+    public function createCollection($name, array $options = [])
     {
         $classDefinition = $this->getCollectionDefinition($name);
         $classDefinition->merge($options);
