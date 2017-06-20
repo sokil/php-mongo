@@ -1,5 +1,5 @@
 ## 1.21.5 (2017-06-20)
- * Fix searching documents with regex
+ * Fix searching documents with regex [#148](https://github.com/sokil/php-mongo/issues/148)
 
 ## 1.21.4 (2017-06-15)
  * Fix collection creation with empty options
