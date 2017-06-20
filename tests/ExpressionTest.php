@@ -393,6 +393,36 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             $q2->expression()->whereGreater('param', 5)
         )->findOne()->getId());
     }
+
+    public function testWhereRegex()
+    {
+        // create new document
+        $expectedDocumentId = $this
+            ->collection
+            ->createDocument(array(
+                'foo'    => 'foo',
+            ))
+            ->save()
+            ->getId();
+
+        if (class_exists('\MongoDB\BSON\Regex')) {
+            $regex = new \MongoDB\BSON\Regex('bar[0-9]', 'i');
+        } else {
+            $regex = new \MongoRegex('/bar[0-9]/i');
+        }
+
+        // scalar value
+        $actualDocumentId = $this
+            ->collection
+            ->find()
+            ->whereNot(
+                (new Expression())->where('foo', $regex)
+            )
+            ->findOne()
+            ->getId();
+
+        $this->assertEquals($expectedDocumentId, $actualDocumentId);
+    }
     
     public function testWhereElemMatch()
     {
