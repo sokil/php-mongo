@@ -412,12 +412,13 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
         }
 
         // scalar value
+        $expression = new Expression();
+        $expression->where('foo', $regex);
+
         $actualDocumentId = $this
             ->collection
             ->find()
-            ->whereNot(
-                (new Expression())->where('foo', $regex)
-            )
+            ->whereNot($expression)
             ->findOne()
             ->getId();
 
