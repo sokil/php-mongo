@@ -405,12 +405,18 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase
             ->save()
             ->getId();
 
+        if (class_exists('\MongoDB\BSON\Regex')) {
+            $regex = new \MongoDB\BSON\Regex('bar[0-9]', 'i');
+        } else {
+            $regex = new \MongoRegex('/bar[0-9]/i');
+        }
+
         // scalar value
         $actualDocumentId = $this
             ->collection
             ->find()
             ->whereNot(
-                (new Expression())->where('foo', new \MongoDB\BSON\Regex('bar[0-9]', 'i'))
+                (new Expression())->where('foo', $regex)
             )
             ->findOne()
             ->getId();
