@@ -14,6 +14,7 @@ namespace Sokil\Mongo;
 use Sokil\Mongo\Enum\FieldType;
 use GeoJson\Geometry\Geometry;
 use GeoJson\Geometry\Point;
+use Sokil\Mongo\Type\TypeChecker;
 
 /**
  * This class represents all expressions used to query document from collection
@@ -353,11 +354,11 @@ class Expression implements ArrayableInterface
     public function whereNot(Expression $expression)
     {
         foreach ($expression->toArray() as $field => $value) {
-            // $not acceptable only for operators-expressions
-            if (is_array($value) && is_string(key($value))) {
+            if (TypeChecker::isExpression($value) || TypeChecker::isRegex($value)) {
+                // $not acceptable only for operators-expressions or regexps
                 $this->where($field, array('$not' => $value));
-            } // for single values use $ne
-            else {
+            } else {
+                // for single values use $ne
                 $this->whereNotEqual($field, $value);
             }
         }

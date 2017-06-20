@@ -11,8 +11,9 @@
 
 namespace Sokil\Mongo;
 
-use Sokil\Mongo\Validator;
+use GeoJson\Geometry\Geometry;
 use Sokil\Mongo\Document\InvalidDocumentException;
+use Sokil\Mongo\Type\TypeChecker;
 
 class Structure implements
     ArrayableInterface,
@@ -149,6 +150,10 @@ class Structure implements
         return isset($this->data[$name]) ? $this->data[$name] : null;
     }
 
+    /**
+     * @param $selector
+     * @return mixed
+     */
     public function get($selector)
     {
         if (false === strpos($selector, '.')) {
@@ -201,7 +206,9 @@ class Structure implements
      *
      * @param string $selector
      * @param string|callable $className Structure class name or closure, which accept data and return string class name of Structure
-     * @return object representation of document with class, passed as argument
+     *
+     * @return object|array representation of document with class, passed as argument
+     *
      * @throws \Sokil\Mongo\Exception
      */
     public function getObjectList($selector, $className = '\Sokil\Mongo\Structure')
@@ -260,7 +267,9 @@ class Structure implements
      *
      * @param string $selector point-delimited field selector
      * @param mixed $value value
-     * @return \Sokil\Mongo\Document
+     *
+     * @return Structure
+     *
      * @throws Exception
      */
     public function set($selector, $value)
@@ -310,6 +319,13 @@ class Structure implements
         return $this;
     }
 
+    /**
+     * Check if structure has field identified by selector
+     *
+     * @param string $selector
+     *
+     * @return bool
+     */
     public function has($selector)
     {
         $pointer = &$this->data;
@@ -325,11 +341,25 @@ class Structure implements
         return true;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
     public function __isset($name)
     {
         return isset($this->data[$name]);
     }
 
+    /**
+     * Normalize variable to be able to store in database
+     *
+     * @param mixed $value
+     *
+     * @return array
+     *
+     * @throws InvalidDocumentException
+     */
     public static function prepareToStore($value)
     {
         // if array - try to prepare every value
@@ -347,12 +377,12 @@ class Structure implements
         }
 
         // if internal mongo types - pass it as is
-        if (in_array(get_class($value), array('MongoId', 'MongoCode', 'MongoDate', 'MongoRegex', 'MongoBinData', 'MongoInt32', 'MongoInt64', 'MongoDBRef', 'MongoMinKey', 'MongoMaxKey', 'MongoTimestamp'))) {
+        if (TypeChecker::isInternalType($value)) {
             return $value;
         }
 
         // do not convert geo-json to array
-        if ($value instanceof \GeoJson\Geometry\Geometry) {
+        if ($value instanceof Geometry) {
             return $value->jsonSerialize();
         }
 
@@ -466,11 +496,17 @@ class Structure implements
         return false;
     }
 
+    /**
+     * @return array
+     */
     public function getModifiedFields()
     {
         return $this->modifiedFields;
     }
 
+    /**
+     * @return array
+     */
     public function getOriginalData()
     {
         return $this->originalData;
@@ -653,7 +689,8 @@ class Structure implements
      * @param string $fieldName dot-notated field name
      * @param string $ruleName name of validation rule
      * @param string $message error message
-     * @return \Sokil\Mongo\Document
+     *
+     * @return Structure
      */
     public function addError($fieldName, $ruleName, $message)
     {
@@ -666,11 +703,13 @@ class Structure implements
      * Add errors
      *
      * @param array $errors
-     * @return \Sokil\Mongo\Document
+     *
+     * @return Structure
      */
     public function addErrors(array $errors)
     {
         $this->errors = array_merge_recursive($this->errors, $errors);
+
         return $this;
     }
 
@@ -755,8 +794,11 @@ class Structure implements
     }
 
     /**
-     * check if filled model params is valid
+     * Check if filled model params is valid
+     *
      * @return boolean
+     *
+     * @throws Exception
      */
     public function isValid()
     {

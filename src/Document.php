@@ -1200,7 +1200,9 @@ class Document extends Structure
      * Save document
      *
      * @param bool $validate
+     *
      * @return Document
+     *
      * @throws WriteException
      */
     public function save($validate = true)
