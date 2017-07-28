@@ -30,6 +30,9 @@
         "satooshi/php-coveralls": ">=0.7.1 <2.0",
         "squizlabs/php_codesniffer": "^2.3"
     },
+    "provide": {
+        "ext-mongo": "*"
+    },
     "suggest": {
         "sokil/php-mongo-migrator": "Add support of migrations",
         "sokil/php-mongo-bundle": "Symfony Bundle",
