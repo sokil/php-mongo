@@ -83,7 +83,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
         ));
 
         $keys = array_keys($expectedValues);
-        $actualValues = $this->cache->getMultiple($keys);
+        $actualValues = $this->cache->getMultiple($keys, 'defValue');
         $this->assertEquals($expectedValues, $actualValues);
     }
 
