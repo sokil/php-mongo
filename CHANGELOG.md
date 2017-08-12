@@ -1,5 +1,5 @@
 ## 1.22 (2017-08-11)
- * Cache not compatible with PSR-16;
+ * Cache now compatible with PSR-16;
  * Cache setters now return bool instead of exceptions to be compatible with PSR-16;
  * Cache::setNeverExpired and Cache::setDueDate now deprecated. Use Cache::set instead;
 
