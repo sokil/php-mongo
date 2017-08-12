@@ -242,7 +242,7 @@ class Cache implements \Countable, CacheInterface
      * @param string $key
      * @param mixed $default
      *
-     * @return array|null
+     * @return mixed
      */
     public function get($key, $default = null)
     {
@@ -266,12 +266,19 @@ class Cache implements \Countable, CacheInterface
 
 
     /**
-     * @return Cache
+     * Clear all cache
+     *
+     * @return bool
      */
     public function clear()
     {
-        $this->collection->delete();
-        return $this;
+        try {
+            $this->collection->delete();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -289,6 +296,7 @@ class Cache implements \Countable, CacheInterface
         if (empty($key) || !is_string($key)) {
             throw new InvalidArgumentException('Key must be string');
         }
+
         try {
             $this->collection->batchDelete(array(
                 '_id' => $key,
@@ -411,9 +419,15 @@ class Cache implements \Countable, CacheInterface
     {
         return $this->collection->count();
     }
-    
+
+    /**
+     * Check if cache has key
+     *
+     * @param string $key
+     * @return bool
+     */
     public function has($key)
     {
-        return (bool) $this->get($key);
+        return (bool)$this->get($key);
     }
 }
