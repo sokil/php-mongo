@@ -163,9 +163,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteMatchingTag()
     {
-        $this->cache
-            ->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'))
-            ->setNeverExpired('c', 'C', array('language', 'compileable'));
+        $this->cache->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'));
+        $this->cache->setNeverExpired('c', 'C', array('language', 'compileable'));
 
         $this->assertEquals(2, count($this->cache));
 
@@ -178,9 +177,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteNotMatchingTag()
     {
-        $this->cache
-            ->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'))
-            ->setNeverExpired('c', 'C', array('language', 'compileable'));
+        $this->cache->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'));
+        $this->cache->setNeverExpired('c', 'C', array('language', 'compileable'));
 
         $this->assertEquals(2, count($this->cache));
 
@@ -196,7 +194,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     {
         $this->cache
             ->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'))
-            ->setNeverExpired('c', 'C', array('language', 'compileable'));
+        $this->cache->setNeverExpired('c', 'C', array('language', 'compileable'));
 
         $this->assertEquals(2, count($this->cache));
 
@@ -209,9 +207,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteMatchingNoneOfTags()
     {
-        $this->cache
-            ->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'))
-            ->setNeverExpired('c', 'C', array('language', 'compileable'));
+        $this->cache->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'));
+        $this->cache->setNeverExpired('c', 'C', array('language', 'compileable'));
 
         $this->assertEquals(2, count($this->cache));
 
@@ -225,9 +222,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteMatchingAnyTag()
     {
-        $this->cache
-            ->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'))
-            ->setNeverExpired('c', 'C', array('language', 'compileable'));
+        $this->cache->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'));
+        $this->cache->setNeverExpired('c', 'C', array('language', 'compileable'));
 
         $this->assertEquals(2, count($this->cache));
 
@@ -240,9 +236,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteNotMatchingAnyTag()
     {
-        $this->cache
-            ->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'))
-            ->setNeverExpired('c', 'C', array('language', 'compileable'));
+        $this->cache->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'));
+        $this->cache->setNeverExpired('c', 'C', array('language', 'compileable'));
 
         $this->assertEquals(2, count($this->cache));
 

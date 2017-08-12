@@ -1,3 +1,8 @@
+## 1.22 (2017-08-11)
+ * Cache not compatible with PSR-16;
+ * Cache setters now return bool instead of exceptions to be compatible with PSR-16;
+ * Cache::setNeverExpired and Cache::setDueDate now deprecated. Use Cache::set instead;
+
 ## 1.21.5 (2017-06-20)
  * Fix searching documents with regex [#148](https://github.com/sokil/php-mongo/issues/148)
 
