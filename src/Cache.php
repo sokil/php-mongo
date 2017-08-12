@@ -11,7 +11,9 @@
 
 namespace Sokil\Mongo;
 
-class Cache implements \Countable
+use Psr\SimpleCache\CacheInterface;
+
+class Cache implements \Countable, CacheInterface
 {
     const FIELD_NAME_VALUE = 'v';
     const FIELD_NAME_EXPIRED = 'e';
@@ -34,19 +36,51 @@ class Cache implements \Countable
             ->getCollection($collectionName)
             ->disableDocumentPool();
     }
-    
+
+    /**
+     * @return Cache
+     */
     public function init()
     {
         $this->collection->initIndexes();
         return $this;
     }
-    
+
+    /**
+     * @return Cache
+     */
     public function clear()
     {
         $this->collection->delete();
         return $this;
     }
-    
+
+    /**
+     * @param iterable $keys
+     * @param mixed|null $default
+     */
+    public function getMultiple($keys, $default = null)
+    {
+        throw new \Exception('Not implemented');
+    }
+
+    /**
+     * @param iterable $values
+     * @param null|int|\DateInterval $ttl
+     */
+    public function setMultiple($values, $ttl = null)
+    {
+        throw new \Exception('Not implemented');
+    }
+
+    /**
+     * @param iterable $keys
+     */
+    public function deleteMultiple($keys)
+    {
+        throw new \Exception('Not implemented');
+    }
+
     /**
      * Set with expiration on concrete date
      *
@@ -91,7 +125,9 @@ class Cache implements \Countable
      *
      * @param int|string $key
      * @param mixed $value
-     * @return \Sokil\Mongo\Cache
+     * @param array $tags
+     *
+     * @return Cache
      */
     public function setNeverExpired($key, $value, array $tags = null)
     {
@@ -106,10 +142,14 @@ class Cache implements \Countable
      * @param int|string $key
      * @param mixed $value
      * @param int $ttl
+     * @param array $tags
+     *
+     * @return Cache
      */
-    public function set($key, $value, $ttl, array $tags = null)
+    public function set($key, $value, $ttl = null, array $tags = null)
     {
-        $this->setDueDate($key, $value, time() + $ttl, $tags);
+        $expirationTime = $ttl ? time() + $ttl : null;
+        $this->setDueDate($key, $value, $expirationTime, $tags);
         
         return $this;
     }
@@ -117,15 +157,17 @@ class Cache implements \Countable
     /**
      * Get value by key
      *
-     * @param $key
+     * @param string $key
+     * @param mixed $default
+     *
      * @return array|null
      */
-    public function get($key)
+    public function get($key, $default = null)
     {
         // Get document
         $document = $this->collection->getDocument($key);
         if (!$document) {
-            return null;
+            return $default;
         }
 
         // Mongo deletes document not exactly when set in field
@@ -133,7 +175,7 @@ class Cache implements \Countable
         // Expiration may be empty for keys whicj never expired
         $expiredAt = $document->get(self::FIELD_NAME_EXPIRED);
         if ($expiredAt && $expiredAt->sec < time()) {
-            return null;
+            return $default;
         }
 
         // Return value
@@ -224,7 +266,12 @@ class Cache implements \Countable
         
         return $this;
     }
-    
+
+    /**
+     * Get total count of documents in cache
+     *
+     * @return int
+     */
     public function count()
     {
         return $this->collection->count();
