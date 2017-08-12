@@ -2979,7 +2979,7 @@ $cache->set('key', 'value', 10);
 You can define value which never expired and must be deleted manually:
 ```php
 <?php
-$cache->setNeverExpired('key', 'value', null);
+$cache->set('key', 'value', null);
 ```
 
 You can define some tags defined with key:
