@@ -638,6 +638,7 @@ class Collection implements \Countable
      * Check if document belongs to collection
      *
      * @param Document $document
+     *
      * @return bool
      */
     public function hasDocument(Document $document)
@@ -664,7 +665,8 @@ class Collection implements \Countable
      *
      * @param array $idList list of ids
      * @param callable $callable cursor callable used to configure cursor
-     * @return array|null
+     *
+     * @return Document[]
      */
     public function getDocuments(array $idList, $callable = null)
     {
@@ -773,7 +775,9 @@ class Collection implements \Countable
      * Delete documents by expression
      *
      * @param Expression|callable|array $expression
-     * @return \Sokil\Mongo\Collection
+     *
+     * @return Collection
+     *
      * @throws Exception
      */
     public function batchDelete($expression)
@@ -793,6 +797,13 @@ class Collection implements \Countable
 
     /**
      * @deprecated since 1.13. Use Collection::batchDelete();
+     *
+     * @param Expression|callable|array $expression
+     *
+     * @return Collection
+     *
+     * @throws Exception
+     *
      */
     public function deleteDocuments($expression = array())
     {
