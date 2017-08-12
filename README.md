@@ -2930,7 +2930,8 @@ $collection->find()->where('field', 1)->hind(array('field' => 1));
 Caching and documents with TTL
 ------------------------------
 
-If you want to get collection where documents will expire after some specified time, just add special index to this collection.
+If you want to get collection where documents will expire after some specified time,
+just add special index to this collection.
 
 ```php
 <?php
@@ -2940,14 +2941,19 @@ $collection->ensureTTLIndex('createDate', 1000);
 You can do this also in migration script, using [Mongo Migrator](https://github.com/sokil/php-mongo-migrator).
 For details see related documentation.
 
-Or you can use `\Sokil\Mongo\Cache` class, which already implement this functionality.
+You also can use `\Sokil\Mongo\Cache` class, which already implement this functionality and compatible with PSR-16 interface.
 
 ```php
 <?php
+
 // Get cache instance
-$cache = $document->getCache('some_namespace');
+$cache = $database->getCache('some_namespace');
 ```
-Before using cache must be inititalised by calling method `Cache:init()`:
+
+Namespace is a name of collection to be created in database.
+
+Before use cache must be initialised by calling method `Cache:init()`:
+
 ```php
 <?php
 $cahce->init();
@@ -2965,24 +2971,21 @@ db.some_namespace.ensureIndex('e', {expireAfterSeconds: 0});
 Now you can store new value with:
 ```php
 <?php
-// this store value for 10 seconds by defininc concrete timestamp when cached value expired
-$cache->setByDate('key', 'value', time() + 10);
-// same but expiration defined relatively to current time
+// this store value for 10 seconds
+// expiration defined relatively to current time
 $cache->set('key', 'value', 10);
 ```
 
-You can devine value which never expired and must be deleted manually:
+You can define value which never expired and must be deleted manually:
 ```php
 <?php
-$cache->setNeverExpired('key', 'value');
+$cache->setNeverExpired('key', 'value', null);
 ```
 
 You can define some tags defined with key:
 ```php
 <?php
 $cache->set('key', 'value', 10, ['php', 'c', 'java']);
-$cache->setNeverExpired('key', 'value', ['php', 'c', 'java']);
-$cache->setDueDate('key', 'value', time() + 10, ['php', 'c', 'java']);
 ```
 
 To get value

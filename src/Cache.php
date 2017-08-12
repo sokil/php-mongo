@@ -22,7 +22,12 @@ class Cache implements \Countable, CacheInterface
     const FIELD_NAME_TAGS = 't';
     
     private $collection;
-    
+
+    /**
+     * Cache constructor.
+     * @param Database $database
+     * @param string $collectionName namespace of cache
+     */
     public function __construct(Database $database, $collectionName)
     {
         $this->collection = $database

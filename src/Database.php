@@ -423,8 +423,9 @@ class Database
     /**
      * Get cache
      *
-     * @param string $namespace
-     * @return \Sokil\Mongo\Cache
+     * @param string $namespace name of collection to be created in database
+     *
+     * @return Cache
      */
     public function getCache($namespace)
     {
