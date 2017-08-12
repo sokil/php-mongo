@@ -161,6 +161,18 @@ class CacheTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($this->cache->get('php'));
     }
 
+    public function testDeleteMultiple()
+    {
+        $this->cache->set('key1', 'value1');
+        $this->cache->set('key2', 'value2');
+        $this->cache->set('key3', 'value3');
+
+        $actualValues = $this->cache->deleteMultiple(array('key1', 'key3'));
+
+        $this->assertEquals(1, count($this->cache));
+        $this->assertEquals('value2', $this->cache->get('key2'));
+    }
+
     public function testDeleteMatchingTag()
     {
         $this->cache->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'));
