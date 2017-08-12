@@ -192,8 +192,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteMatchingAllTags()
     {
-        $this->cache
-            ->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'))
+        $this->cache->setNeverExpired('php', 'PHP: Hypertext Processor', array('language', 'interpretable'));
         $this->cache->setNeverExpired('c', 'C', array('language', 'compileable'));
 
         $this->assertEquals(2, count($this->cache));
