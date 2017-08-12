@@ -31,16 +31,13 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                array('key1', 'key2'),
-                array('value1', 'value2'),
+                array('key1' => 'value1', 'key2' => 'value2'),
             ),
             array(
-                array('key1', 'unexistedKey'),
-                array('value1', 'defValue'),
+                array('key1' => 'value1', 'unexistedKey' => 'defValue'),
             ),
             array(
-                array('unexistedKey1', 'unexistedKey2'),
-                array('defValue', 'defValue'),
+                array('unexistedKey1' => 'defValue', 'unexistedKey2' => 'defValue'),
             ),
         );
     }
@@ -48,12 +45,13 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider getGetMultipleDataProvider
      */
-    public function testGetMultiple($keys, $expectedValues)
+    public function testGetMultiple(array $expectedValues)
     {
         $this->cache->set('key1', 'value1');
         $this->cache->set('key2', 'value2');
         $this->cache->set('key3', 'value3');
 
+        $keys = array_keys($expectedValues);
         $actualValues = $this->cache->getMultiple($keys, 'defValue');
         $this->assertEquals($expectedValues, $actualValues);
     }
@@ -62,16 +60,13 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                array('key1', 'key2'),
-                array('value1', 'value2'),
+                array('key1' => 'value1', 'key2' => 'value2'),
             ),
             array(
-                array('key1', 'unexistedKey'),
-                array('value1', 'defValue'),
+                array('key1' => 'value1', 'unexistedKey' => 'defValue'),
             ),
             array(
-                array('unexistedKey1', 'unexistedKey2'),
-                array('defValue', 'defValue'),
+                array('unexistedKey1' => 'defValue', 'unexistedKey2' => 'defValue'),
             ),
         );
     }
@@ -79,7 +74,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider getSetMultipleDataProvider
      */
-    public function testSetMultiple($keys, $expectedValues)
+    public function testSetMultiple($expectedValues)
     {
         $this->cache->setMultiple(array(
             'key1' => 'value1',
@@ -87,6 +82,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
             'key3' => 'value3',
         ));
 
+        $keys = array_keys($expectedValues);
         $actualValues = $this->cache->getMultiple($keys);
         $this->assertEquals($expectedValues, $actualValues);
     }
