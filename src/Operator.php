@@ -130,7 +130,7 @@ class Operator implements ArrayableInterface
     public function pushEachSort($field, array $sort)
     {
         // add modifiers
-        if (!$sort) {
+        if (empty($sort)) {
             throw new Exception('Sort condition is empty');
         }
         
