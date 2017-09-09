@@ -1,0 +1,14 @@
+{
+    "timeout": 10,
+    "source": {
+        "directories": [
+            "src"
+        ]
+    },
+    "phpUnit": {
+        "configDir": "tests"
+    },
+    "logs": {
+        "text": "share"
+    }
+}
