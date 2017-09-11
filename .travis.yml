@@ -34,6 +34,7 @@ before_script:
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then php -r "echo \MongoClient::VERSION . PHP_EOL;"; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then php -r 'echo MONGODB_VERSION . PHP_EOL;'; fi
   - composer update --no-interaction
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs; fi
   - mkdir -p ./share
