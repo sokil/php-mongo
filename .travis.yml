@@ -32,12 +32,12 @@ services: mongodb
 before_script:
   - PHP_VERSION=$(php -r 'echo phpversion();')
   - mongod --version
-  - if [[ ${PHP_VERSION:0:2} == "5." ]]; then php -r "echo \MongoClient::VERSION . PHP_EOL;"; fi
-  - if [[ ${PHP_VERSION:0:2} == "7." ]]; then php -r 'echo MONGODB_VERSION . PHP_EOL;'; fi
   - echo $TRAVIS_PHP_VERSION
   - echo $PHP_VERSION
   - if [[ ${PHP_VERSION:0:2} == "5." ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
+  - if [[ ${PHP_VERSION:0:2} == "5." ]]; then php -r "echo \MongoClient::VERSION . PHP_EOL;"; fi
   - if [[ ${PHP_VERSION:0:2} == "7." ]]; then echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
+  - if [[ ${PHP_VERSION:0:2} == "7." ]]; then php -r 'echo MONGODB_VERSION . PHP_EOL;'; fi
   - composer update --no-interaction
   - if [[ ${PHP_VERSION:0:2} == "7." ]]; then composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs; fi
   - mkdir -p ./share
