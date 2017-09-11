@@ -543,6 +543,9 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('a' => array('b' => 2)), $doc->toArray());
     }
 
+    /**
+     * @requires extension mongodb 1.3.0
+     */
     public function testSetMongoCode()
     {
         $doc = $this->collection->createDocument(array(
