@@ -6,11 +6,15 @@ class DocumentWithAfterConstructEvent extends Document
 {
     public $status;
 
+    public $param = 42;
+
     public function beforeConstruct()
     {
         $that = $this;
-        $this->onAfterConstruct(function() use($that) {
-            $that->status = true;
+
+        $this->onAfterConstruct(function(Event $event) use($that) {
+
+            $that->status = $event->getTarget()->param;
         });
     }
 }
@@ -55,7 +59,7 @@ class DocumentEventTest extends \PHPUnit_Framework_TestCase
 
         $document = $collectionMock->createDocument();
 
-        $this->assertEquals(true, $document->status);
+        $this->assertEquals(42, $document->status);
 
     }
 
