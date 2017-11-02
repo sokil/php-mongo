@@ -1,3 +1,6 @@
+## 1.22.1 (2017-11-12)
+ * Document's `afterConstruct` event triggered with document instance
+
 ## 1.22 (2017-08-11)
  * Cache now compatible with PSR-16;
  * Cache setters now return bool instead of exceptions to be compatible with PSR-16;
