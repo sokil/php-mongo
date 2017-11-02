@@ -120,8 +120,8 @@ class Document extends Structure
             $this->getRevisionManager()->listen();
         }
 
-        // execure after construct event handlers
-        $this->eventDispatcher->dispatch('afterConstruct');
+        // execute after construct event handlers
+        $this->triggerEvent('afterConstruct');
     }
 
     public function getOptions()
