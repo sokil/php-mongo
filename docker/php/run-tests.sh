@@ -54,12 +54,12 @@ fi
 # start bunch of tests
 for mongoVersion in ${mongoVersions[@]}
 do
-    echo "Test MongoDB ${mongoVersion} on PHP ${PHPVersion}"
+    echo -e "\033[1;37m\033[42mTest MongoDB ${mongoVersion} on PHP ${PHPVersion}\033[0m\n"
 
     PHPMONGO_DSN=mongodb://mongodb${mongoVersion} \
         $projectDir/vendor/bin/phpunit \
         -c $projectDir/tests/phpunit.xml \
         --colors=never \
         $testPath \
-        > $PHPUnitLogDir/mongo${mongoVersion}.log
+        | tee $PHPUnitLogDir/mongo${mongoVersion}.log
 done
