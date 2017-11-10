@@ -3138,9 +3138,14 @@ To run test on concrete platforms, specify them:
 ./run-docker-tests.sh -p 56 -p 70 -m 30 -m 32
 ```
 
-To run concrete test , pass it:
+To run concrete test, pass it:
 ```
 ./run-docker-tests.sh -t DocumentTest.php
+```
+
+To run concrete method of test, pass it:
+```
+./run-docker-tests.sh -t DocumentTest.php -f ::testElemMatch
 ```
 
 Tests may be found at `./share/phpunit` dir after finishing tests. 
