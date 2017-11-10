@@ -1,5 +1,7 @@
 ## 1.22.2 (2017-11-10)
+ * Add $elemMatch to projection argument of `Cursor`
  * `Cursor` methods `findOne`, `findAll`, `findRandom` deprecated, use `one`, `all` and `random` respectively;
+ * Allow pass filter to docker tests
 
 ## 1.22.1 (2017-11-02)
  * Document's `afterConstruct` event triggered with document instance
