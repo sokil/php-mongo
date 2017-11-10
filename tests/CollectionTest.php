@@ -557,7 +557,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Mixed must be instance of \Sokil\Mongo\Expression
+     * @expectedExceptionMessage Mixed must be instance of "\Sokil\Mongo\Expression", array or callable that accepts "\Sokil\Mongo\Expression", "string" given
      */
     public function testBatchDelete_WrongExpressionSpecified()
     {
