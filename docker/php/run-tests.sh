@@ -11,6 +11,7 @@ projectDir=$(dirname $file)/../..
 PHPVersion=$(php -r "echo phpversion();");
 PHPUnitLogDir=$projectDir/share/phpunit/${PHPVersion}
 testPath=$projectDir/tests
+testFilter=""
 
 # prepare phpunit log dir
 if [[ ! -d $PHPUnitLogDir ]];
@@ -39,6 +40,10 @@ do
             testPath="${testPath}/${value}"
             shift
         ;;
+        -f|--filter)
+            testFilter="--filter ${value}"
+            shift
+        ;;
         *)
         ;;
     esac
@@ -60,6 +65,7 @@ do
         $projectDir/vendor/bin/phpunit \
         -c $projectDir/tests/phpunit.xml \
         --colors=never \
+        $testFilter \
         $testPath \
         | tee $PHPUnitLogDir/mongo${mongoVersion}.log
 done
