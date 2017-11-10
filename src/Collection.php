@@ -29,6 +29,9 @@ use Sokil\Mongo\Enum\Language;
  */
 class Collection implements \Countable
 {
+    /**
+     * @var string fully qualified class name of collection
+     */
     protected $mongoCollectionClassName = '\MongoCollection';
 
     /**

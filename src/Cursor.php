@@ -468,11 +468,25 @@ class Cursor implements
     /**
      * Find one document which correspond to expression
      *
+     * @deprecated since v.1.22.2. Use ::one instead
+     *
      * @return Document|array|null
      *
      * @throws CursorException
      */
     public function findOne()
+    {
+        return $this->one();
+    }
+
+    /**
+     * Find one document which correspond to expression
+     *
+     * @return Document|array|null
+     *
+     * @throws CursorException
+     */
+    public function one()
     {
         try {
             $mongoDocument = $this->collection
@@ -506,9 +520,21 @@ class Cursor implements
     /**
      * Get result of searching
      *
-     * @return array
+     * @deprecated since v.1.22.2. Use ::one instead
+     *
+     * @return Document[]|array[]
      */
     public function findAll()
+    {
+        return $this->all();
+    }
+
+    /**
+     * Get result of searching
+     *
+     * @return array
+     */
+    public function all()
     {
         return iterator_to_array($this);
     }
@@ -516,16 +542,28 @@ class Cursor implements
     /**
      * Get random document
      *
+     * @deprecated since v.1.22.2. Use ::one instead
+     *
      * @return Document|null
      */
     public function findRandom()
+    {
+        return $this->random();
+    }
+
+    /**
+     * Get random document
+     *
+     * @return Document|null
+     */
+    public function random()
     {
         $count = $this->count();
         switch ($count) {
             case 0:
                 return null;
             case 1:
-                return $this->findOne();
+                return $this->one();
             default:
                 $cursor = $this->skip(mt_rand(0, $count - 1))->limit(1);
                 $cursor->rewind();

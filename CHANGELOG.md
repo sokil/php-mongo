@@ -1,4 +1,7 @@
-## 1.22.1 (2017-11-12)
+## 1.22.2 (2017-11-10)
+ * `Cursor` methods `findOne`, `findAll`, `findRandom` deprecated, use `one`, `all` and `random` respectively;
+
+## 1.22.1 (2017-11-02)
  * Document's `afterConstruct` event triggered with document instance
 
 ## 1.22 (2017-08-11)
