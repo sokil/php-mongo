@@ -39,7 +39,9 @@ class Expression implements ArrayableInterface
         return new self;
     }
     /**
-     * Return a expression
+     * @param string $field
+     * @param string|array $value
+     *
      * @return Expression
      */
     public function where($field, $value)
@@ -53,14 +55,24 @@ class Expression implements ArrayableInterface
         return $this;
     }
 
+    /**
+     * Filter empty field
+     *
+     * @param string $field
+     *
+     * @return Expression
+     */
     public function whereEmpty($field)
     {
-        return $this->where('$or', array(
-            array($field => null),
-            array($field => ''),
-            array($field => array()),
-            array($field => array('$exists' => false))
-        ));
+        return $this->where(
+            '$or',
+            array(
+                array($field => null),
+                array($field => ''),
+                array($field => array()),
+                array($field => array('$exists' => false))
+            )
+        );
     }
 
     public function whereNotEmpty($field)
@@ -257,7 +269,10 @@ class Expression implements ArrayableInterface
      *
      * @param string $field point-delimited field name
      * @param \Sokil\Mongo\Expression|callable|array $expression
+     *
      * @return Expression
+     *
+     * @throws Exception
      */
     public function whereElemMatch($field, $expression)
     {
@@ -304,6 +319,7 @@ class Expression implements ArrayableInterface
      * Selects the documents that satisfy at least one of the expressions
      *
      * @param array|\Sokil\Mongo\Expression $expressions Array of Expression instances or comma delimited expression list
+     *
      * @return Expression
      */
     public function whereOr($expressions = null /**, ...**/)
@@ -346,9 +362,15 @@ class Expression implements ArrayableInterface
             $expressions = func_get_args();
         }
 
-        return $this->where('$nor', array_map(function (Expression $expression) {
-            return $expression->toArray();
-        }, $expressions));
+        return $this->where(
+            '$nor',
+            array_map(
+                function (Expression $expression) {
+                    return $expression->toArray();
+                },
+                $expressions
+            )
+        );
     }
 
     public function whereNot(Expression $expression)
@@ -675,8 +697,10 @@ class Expression implements ArrayableInterface
     /**
      * Transform expression in different formats to canonical array form
      *
-     * @param mixed $mixed
+     * @param callable|array|Expression $mixed
+     *
      * @return array
+     *
      * @throws \Sokil\Mongo\Exception
      */
     public static function convertToArray($mixed)
@@ -692,7 +716,10 @@ class Expression implements ArrayableInterface
         if ($mixed instanceof ArrayableInterface && $mixed instanceof self) {
             $mixed = $mixed->toArray();
         } elseif (!is_array($mixed)) {
-            throw new Exception('Mixed must be instance of \Sokil\Mongo\Expression');
+            throw new Exception(sprintf(
+                'Mixed must be instance of "\Sokil\Mongo\Expression", array or callable that accepts "\Sokil\Mongo\Expression", "%s" given',
+                gettype($mixed) === "object" ? get_class($mixed) : gettype($mixed)
+            ));
         }
 
         return $mixed;

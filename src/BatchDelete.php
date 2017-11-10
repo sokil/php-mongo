@@ -17,8 +17,11 @@ class BatchDelete extends BatchOperation
 
     /**
      * @param $expression
+     *
      * @param bool|false $justOne
+     *
      * @return $this
+     *
      * @throws Exception
      */
     public function delete($expression, $justOne = false)

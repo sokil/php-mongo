@@ -2,19 +2,17 @@
 
 namespace Sokil\Mongo;
 
-use Sokil\Mongo\Exception\FeatureNotSupportedException;
-
 class CursorTest extends \PHPUnit_Framework_TestCase
 {
     /**
      *
-     * @var \Sokil\Mongo\Database
+     * @var Database
      */
     private $database;
 
     /**
      *
-     * @var \Sokil\Mongo\Collection
+     * @var Collection
      */
     private $collection;
 
@@ -160,6 +158,52 @@ class CursorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             array('e'),
             $this->collection->find()->slice('key', 1, -2)->findOne()->key
+        );
+    }
+
+    public function testElemMatch()
+    {
+        // create new document
+        $this->collection
+            ->createDocument(array(
+                "_id"=> new \MongoId("59f889e46803fa3713454b5d"),
+                "projectName" => "usecase-updated",
+                "classes" => array(
+                    array(
+                        "_id" => new \MongoId("59f9d7776803faea30b895dd"),
+                        "className" => "OLA"
+                    ),
+                    array(
+                        "_id" => new \MongoId("59f9d8ad6803fa4012b895df"),
+                        "className" => "HELP"
+                    ),
+                    array(
+                        "_id" => new \MongoId("59f9d9086803fa4112b895de"),
+                        "className" => "DOC"
+                    ),
+                    array(
+                        "_id" => new \MongoId("59f9d9186803fa4212b895de"),
+                        "className" => "INVOC"
+                    )
+                )
+            ))
+            ->save();
+
+        // filter embedded documents
+        $filteredClasses = $this->collection
+            ->find()
+            ->elemMatch(
+                'classes',
+                function(Expression $e) {
+                    $e->where('_id', new \MongoId("59f9d9186803fa4212b895de"));
+                }
+            )
+            ->one()
+            ->classes;
+
+        $this->assertEquals(
+            'INVOC',
+            $filteredClasses[0]['className']
         );
     }
 

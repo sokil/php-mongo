@@ -38,7 +38,7 @@ class Cursor implements
      *
      * @var array
      */
-    private $fields = array();
+    private $projection = array();
 
     /**
      *
@@ -186,7 +186,7 @@ class Cursor implements
      */
     public function fields(array $fields)
     {
-        $this->fields = array_fill_keys($fields, 1);
+        $this->projection = array_fill_keys($fields, 1);
         $this->skipDocumentPool();
         return $this;
     }
@@ -200,7 +200,7 @@ class Cursor implements
      */
     public function field($field)
     {
-        $this->fields[$field] = 1;
+        $this->projection[$field] = 1;
         $this->skipDocumentPool();
         return $this;
     }
@@ -212,7 +212,7 @@ class Cursor implements
      */
     public function skipFields(array $fields)
     {
-        $this->fields = array_fill_keys($fields, 0);
+        $this->projection = array_fill_keys($fields, 0);
         $this->skipDocumentPool();
         return $this;
     }
@@ -225,7 +225,7 @@ class Cursor implements
      */
     public function skipField($field)
     {
-        $this->fields[$field] = 0;
+        $this->projection[$field] = 0;
         $this->skipDocumentPool();
         return $this;
     }
@@ -245,10 +245,33 @@ class Cursor implements
         $skip   = (int) $skip;
 
         if ($skip) {
-            $this->fields[$field] = array('$slice' => array($skip, $limit));
+            $this->projection[$field] = array('$slice' => array($skip, $limit));
         } else {
-            $this->fields[$field] = array('$slice' => $limit);
+            $this->projection[$field] = array('$slice' => $limit);
         }
+
+        $this->skipDocumentPool();
+
+        return $this;
+    }
+
+    /**
+     * Filter list of sub-documents
+     *
+     * @see https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/#project-specific-array-elements-in-the-returned-array
+     *
+     * @param string $field
+     * @param Expression|array|callable $expression
+     *
+     * @return Cursor
+     *
+     * @throws Exception
+     */
+    public function elemMatch($field, $expression)
+    {
+        $this->projection[$field] = array(
+            '$elemMatch' => Expression::convertToArray($expression),
+        );
 
         $this->skipDocumentPool();
 
@@ -493,7 +516,7 @@ class Cursor implements
                 ->getMongoCollection()
                 ->findOne(
                     $this->expression->toArray(),
-                    $this->fields
+                    $this->projection
                 );
         } catch (\Exception $e) {
             throw new CursorException(
@@ -642,7 +665,7 @@ class Cursor implements
         $mongoDocument = $this->collection->getMongoCollection()->findAndModify(
             $this->expression->toArray(),
             null,
-            $this->fields,
+            $this->projection,
             array(
                 'remove' => true,
                 'sort' => $this->sort,
@@ -675,7 +698,7 @@ class Cursor implements
             ->findAndModify(
                 $this->expression->toArray(),
                 $operator ? $operator->toArray() : null,
-                $this->fields,
+                $this->projection,
                 array(
                     'new' => $returnUpdated,
                     'sort' => $this->sort,
@@ -781,7 +804,7 @@ class Cursor implements
             ->getMongoCollection()
             ->find(
                 $this->expression->toArray(),
-                $this->fields
+                $this->projection
             );
 
         if ($this->skip) {
@@ -944,6 +967,7 @@ class Cursor implements
     public function skipDocumentPool()
     {
         $this->isDocumentPoolUsed = false;
+
         return $this;
     }
 
@@ -1072,8 +1096,8 @@ class Cursor implements
         }
 
         // fields
-        if (!empty($this->fields)) {
-            $fields = $this->fields;
+        if (!empty($this->projection)) {
+            $fields = $this->projection;
             ksort($fields);
             $hash[] = implode('', array_merge(array_keys($fields), array_values($fields)));
         }
