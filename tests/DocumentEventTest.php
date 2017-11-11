@@ -18,8 +18,9 @@ class DocumentWithAfterConstructEvent extends Document
         });
     }
 }
+use PHPUnit\Framework\TestCase;
 
-class DocumentEventTest extends \PHPUnit_Framework_TestCase
+class DocumentEventTest extends TestCase
 {
     /**
      *

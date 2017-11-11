@@ -27,7 +27,7 @@
         "symfony/polyfill-php55": "~1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": ">=3.7.38 <6.0",
+        "phpunit/phpunit": ">=4.8.35 <6.0",
         "satooshi/php-coveralls": ">=0.7.1 <2.0",
         "squizlabs/php_codesniffer": "^2.3",
         "phpmd/phpmd" : "@stable"

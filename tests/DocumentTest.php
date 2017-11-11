@@ -4,8 +4,9 @@ namespace Sokil\Mongo;
 
 use Sokil\Mongo\DocumentTest\DeprecatedSchemaDocumentStub;
 use Sokil\Mongo\DocumentTest\DocumentStub;
+use PHPUnit\Framework\TestCase;
 
-class DocumentTest extends \PHPUnit_Framework_TestCase
+class DocumentTest extends TestCase
 {
     /**
      *

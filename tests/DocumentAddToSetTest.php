@@ -3,8 +3,9 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\InvalidOperationException;
+use PHPUnit\Framework\TestCase;
 
-class DocumentAddToSetTest extends \PHPUnit_Framework_TestCase
+class DocumentAddToSetTest extends TestCase
 {
     /**
      *

@@ -4,8 +4,9 @@ namespace Sokil\Mongo\Pipeline;
 
 use Sokil\Mongo\Client;
 use Sokil\Mongo\Pipeline;
+use PHPUnit\Framework\TestCase;
 
-class ExpressionTest extends \PHPUnit_Framework_TestCase
+class ExpressionTest extends TestCase
 {
     /**
      *

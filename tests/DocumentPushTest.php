@@ -3,8 +3,9 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\InvalidOperationException;
+use PHPUnit\Framework\TestCase;
 
-class DocumentPushTest extends \PHPUnit_Framework_TestCase
+class DocumentPushTest extends TestCase
 {
     const FIELD_NAME_NEW = 'new';
     const FIELD_NAME_SCALAR = 'scalar';

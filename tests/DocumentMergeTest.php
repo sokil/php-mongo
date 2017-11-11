@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class DocumentMergeTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DocumentMergeTest extends TestCase
 {
     /**
      *

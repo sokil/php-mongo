@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class PersistenceTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class PersistenceTest extends TestCase
 {    
     /**
      *

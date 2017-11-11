@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class ClientPoolTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ClientPoolTest extends TestCase
 {
     
     public function testGet()

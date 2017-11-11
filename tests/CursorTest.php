@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class CursorTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class CursorTest extends TestCase
 {
     /**
      *

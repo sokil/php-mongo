@@ -2,10 +2,12 @@
 
 namespace Sokil\Mongo;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * @link http://docs.mongodb.org/manual/core/2dsphere/
  */
-class DocumentGeoTest extends \PHPUnit_Framework_TestCase
+class DocumentGeoTest extends TestCase
 {
     /**
      *

@@ -6,8 +6,9 @@ use Sokil\Mongo\Client;
 use Sokil\Mongo\Collection\Definition;
 use Sokil\Mongo\Document\OptimisticLockFailureException;
 use Sokil\Mongo\Document\PessimisticLockFailureException;
+use PHPUnit\Framework\TestCase;
 
-class CollectionLockTest extends \PHPUnit_Framework_TestCase
+class CollectionLockTest extends TestCase
 {
     public function testLockConfiguration()
     {
