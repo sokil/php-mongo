@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class BatchInsertTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class BatchInsertTest extends TestCase
 {
     /**
      *

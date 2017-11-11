@@ -4,8 +4,9 @@ namespace Sokil\Mongo;
 
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Sokil\Mongo\EmbeddedDocumentTest\ProfileDocument;
+use PHPUnit\Framework\TestCase;
 
-class EmbeddedDocumentTest extends \PHPUnit_Framework_TestCase
+class EmbeddedDocumentTest extends TestCase
 {
     /**
      *

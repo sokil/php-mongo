@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class GridFsTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class GridFsTest extends TestCase
 {
     /**
      *

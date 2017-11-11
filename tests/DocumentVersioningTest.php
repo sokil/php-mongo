@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class DocumentVersioningTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DocumentVersioningTest extends TestCase
 {
     private $collection;
     

@@ -3,8 +3,9 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\DocumentValidationTest\ValidatorMethodDocument;
+use PHPUnit\Framework\TestCase;
 
-class DocumentValidationTest extends \PHPUnit_Framework_TestCase
+class DocumentValidationTest extends TestCase
 {
     /**
      *

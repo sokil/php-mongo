@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class StructureTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StructureTest extends TestCase
 {
     public function testSet()
     {

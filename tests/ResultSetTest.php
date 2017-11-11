@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class ResultSetTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ResultSetTest extends TestCase
 {
     public function testMap()
     {

@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class PaginatorTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class PaginatorTest extends TestCase
 {
     /**
      *

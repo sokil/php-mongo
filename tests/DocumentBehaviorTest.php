@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class DocumentBehaviorTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DocumentBehaviorTest extends TestCase
 {
     /**
      *

@@ -3,8 +3,9 @@
 namespace Sokil\Mongo;
 
 use Sokil\Mongo\Expression;
+use PHPUnit\Framework\TestCase;
 
-class AggregatePipelinesTest extends \PHPUnit_Framework_TestCase
+class AggregatePipelinesTest extends TestCase
 {
     /**
      *

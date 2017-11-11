@@ -2,7 +2,9 @@
 
 namespace Sokil\Mongo;
 
-class ExpressionTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExpressionTest extends TestCase
 {
     /**
      * @var Collection
