@@ -14,6 +14,8 @@ PHPMongo ODM
 
 Why to use this ODM? You can easily work with document data through comfortable getters and setters instead of array and don't check if key exist in array. Access to sub document uses dot-syntax. You can validate data passed to document before save. We give you  events, which you can handle in different moments of document's life. You can create relations, build aggregations, create versioned documents, write [migrations](https://github.com/sokil/php-mongo-migrator) and do more things which makes your life easier.
 
+Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0. See [Unit tests](#unit-tests) for details.
+
 [![ArmySOS - Help for Ukrainian Army](http://armysos.com.ua/wp-content/uploads/2014/09/728_90.jpg)](http://armysos.com.ua/en/help-the-army)
 
 #### Requirements
@@ -26,7 +28,6 @@ Why to use this ODM? You can easily work with document data through comfortable 
   * [PHP Mongo Extension](https://pecl.php.net/package/mongo) 0.9 or above (Some features require >= 1.5)
 * HHVM
   * HHVM Driver [not supported](https://derickrethans.nl/mongodb-hhvm.html).
-* Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0. See [Unit tests](#unit-tests) for details
 <br/>
 
 #### Table of contents
