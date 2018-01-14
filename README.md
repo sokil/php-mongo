@@ -317,7 +317,7 @@ Predefined options are:
 
 | Option              | Default value            | Description                                                |
 | ------------------- | ------------------------ | ---------------------------------------------------------- |
-| class               | \Sokil\Mongo\Collection  | Fully qualified collectin class                            |
+| class               | \Sokil\Mongo\Collection  | Fully qualified collection class                           |
 | documentClass       | \Sokil\Mongo\Document    | Fully qualified document class                             |
 | versioning          | false                    | Using document versioning                                  |
 | index               | null                     | Index definition                                           |
