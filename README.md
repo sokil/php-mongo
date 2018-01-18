@@ -2,7 +2,6 @@ PHPMongo ODM
 ============
 
 [![Total Downloads][badge-totalDownloads-img]][badge-totalDownloads-url]
-[![Daily Downloads](https://poser.pugx.org/sokil/php-mongo/d/daily)](https://packagist.org/packages/sokil/php-mongo/stats)
 [![Build Status](https://travis-ci.org/sokil/php-mongo.png?branch=master&2)](https://travis-ci.org/sokil/php-mongo)
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sokil/php-mongo/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sokil/php-mongo/?branch=master)
