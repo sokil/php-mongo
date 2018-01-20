@@ -326,7 +326,7 @@ Predefined options are:
 | batchSize           | null                     | Number of documents to return in each batch of response    |
 | clientCursorTimeout | null                     | A timeout can be set at any time and will affect subsequent queries on the cursor, including fetching more results from the database    |
 | serverCursorTimeout | null                     | A cumulative time limit in milliseconds to be allowed by the server for processing operations on the cursor |
-| documentPool        | true                     | Document pool, used to store already fetched documnts in identity map |
+| documentPool        | true                     | Document pool, used to store already fetched documents in identity map |
 
 If `class` omitted, then used standart `\Sokil\Mongo\Collection` class.
 
