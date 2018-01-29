@@ -72,7 +72,7 @@ Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0. See
 * [Aggregation framework](#aggregation-framework)
 * [Events](#events)
 * [Behaviors](#behaviors)
-* [Relation](#relations)
+* [Relations](#relations)
   * [One-to-one relation](#one-to-one-relation)
   * [One-to-many relation](#one-to-many-relation)
   * [Many-to-many relation](#many-to-many-relation)
