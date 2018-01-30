@@ -1,4 +1,5 @@
 /docker                 export-ignore
+/docs                   export-ignore
 /tests                  export-ignore
 /.coveralls.yml         export-ignore
 /.scrutinizer.yml       export-ignore
