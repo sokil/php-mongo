@@ -34,6 +34,7 @@ Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0. See
 * [Installation](#installation)
   * [Common installation](#common-installation)
   * [Symfony bundle](#symfony-bundle)
+  * [Laravel](#laravel)
   * [Yii component](#yii-component)
   * [Yii2 component](#yii2-component)
   * [Support of migrations](#support-of-migrations)
@@ -127,6 +128,13 @@ If you use Symfony framework, you can use [Symfony MongoDB Bundle](https://githu
 
 ```
 composer require sokil/php-mongo-bundle
+```
+
+#### Laravel
+
+If you use Laravel framework, use [Laravel adapter](https://github.com/sokil/laravel-mongo-odm )
+```
+composer require phpmongokit/laravel-mongo-pdm
 ```
 
 #### Yii component
