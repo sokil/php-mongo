@@ -34,6 +34,7 @@
     "suggest": {
         "sokil/php-mongo-migrator": "Add support of migrations",
         "sokil/php-mongo-bundle": "Symfony Bundle",
+        "phpmongokit/laravel-mongo-pdm": "PHPMongo ODM Adapter for Laravel",
         "sokil/php-mongo-yii": "Yii Framework component",
         "phpmongokit/yii2-mongo-odm": "Yii2 Framework component",
         "alcaeus/mongo-php-adapter": "Adapter to provide ext-mongo interface on top of mongo-php-library"
