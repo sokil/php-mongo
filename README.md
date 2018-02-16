@@ -134,7 +134,7 @@ composer require sokil/php-mongo-bundle
 
 If you use Laravel framework, use [Laravel adapter](https://github.com/sokil/laravel-mongo-odm )
 ```
-composer require phpmongokit/laravel-mongo-pdm
+composer require phpmongokit/laravel-mongo-odm
 ```
 
 #### Yii component
