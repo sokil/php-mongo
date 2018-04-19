@@ -32,12 +32,18 @@ abstract class Behavior
         return isset($this->options[$name]) ? $this->options[$name] : null;
     }
     
+    /**
+     * @param Document $owner
+     */
     public function setOwner($owner)
     {
         $this->owner = $owner;
         return $this;
     }
     
+    /**
+     * @return Document
+     */
     protected function getOwner()
     {
         return $this->owner;
