@@ -6,8 +6,13 @@ services:
 before_script:
   - PHP_VERSION=$(php -r 'echo phpversion();')
   - echo $PHP_VERSION
-  - composer update --no-interaction
+  - if [[ ${PHP_VERSION:0:2} == "5." ]]; then no | pecl install -o mongo; fi
+  - if [[ ${PHP_VERSION:0:2} == "5." ]]; then echo "extension = mongo.so" >> /usr/local/etc/php/conf.d/docker-php-ext-mongo.ini; fi
+  - if [[ ${PHP_VERSION:0:2} == "5." ]]; then php -r "echo \MongoClient::VERSION . PHP_EOL;"; fi
+  - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+  - php composer-setup.php --quiet
+  - composer.phar update --no-interaction
 
 test:
   script:
-    - composer cover
+    - composer test
