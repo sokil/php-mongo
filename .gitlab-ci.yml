@@ -1,0 +1,13 @@
+image: php:5.6
+
+services:
+  - mongo:3.4
+
+before_script:
+  - PHP_VERSION=$(php -r 'echo phpversion();')
+  - echo $PHP_VERSION
+  - composer update --no-interaction
+
+test:
+  script:
+    - composer cover
