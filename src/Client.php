@@ -29,6 +29,8 @@ class Client
     private $dsn = self::DEFAULT_DSN;
 
     /**
+     * @link http://php.net/manual/en/mongoclient.construct.php
+     *
      * @var array
      */
     private $connectOptions = array();
@@ -71,18 +73,21 @@ class Client
     private $debug = false;
 
     /**
-     *
      * @param string $dsn Data Source Name
-     * @param array $options
+     * @param array $connectOptions
+     *
+     * @link http://php.net/manual/en/mongoclient.construct.php connect options
      */
-    public function __construct($dsn = null, array $options = null)
-    {
+    public function __construct(
+        $dsn = null,
+        array $connectOptions = null
+    ) {
         if (!empty($dsn)) {
             $this->setDsn($dsn);
         }
         
-        if (!empty($options)) {
-            $this->setConnectOptions($options);
+        if (!empty($connectOptions)) {
+            $this->setConnectOptions($connectOptions);
         }
     }
 
@@ -159,8 +164,9 @@ class Client
      * Set connect options
      *
      * @link http://php.net/manual/en/mongoclient.construct.php connect options
+     *
      * @param array $options
-     * @return \Sokil\Mongo\Client
+     * @return Client
      */
     public function setConnectOptions(array $options)
     {
@@ -234,12 +240,15 @@ class Client
         
         return $this;
     }
-    
+
     /**
      * Get database instance
      *
-     * @param string    $name   database name
+     * @param string $name database name
+     *
      * @return Database
+     *
+     * @throws Exception
      */
     public function getDatabase($name = null)
     {

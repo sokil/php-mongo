@@ -166,11 +166,12 @@ class Database
     /**
      * Map collection name to class
      *
-     * @param string|array                  $name               collection name or array like
-     *                                                          [collectionName => collectionClass, ...]
-     * @param string|array|Definition|null  $classDefinition    if $name is string, then full class name or array
-     *                                                          with parameters, else omitted
-     * @return \Sokil\Mongo\Client
+     * @param string|array $name collection name or array like [collectionName => collectionClass, ...]
+     * @param string|array|Definition|null $classDefinition if $name is string, then full class name or array with parameters, else omitted
+     *
+     * @return Database
+     *
+     * @throws Exception
      */
     public function map($name, $classDefinition = null)
     {
@@ -199,9 +200,12 @@ class Database
     /**
      * Define collection through array or Definition instance
      *
-     * @param string                    $name       collection name
-     * @param Definition|array|string   $definition collection definition
+     * @param string $name collection name
+     * @param Definition|array|string $definition collection definition
+     *
      * @return Database
+     *
+     * @throws Exception
      */
     private function defineCollection($name, $definition)
     {

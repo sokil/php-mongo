@@ -18,10 +18,21 @@ namespace Sokil\Mongo;
  */
 class ClientPool
 {
+    /**
+     * @var array
+     */
     private $pool = array();
-    
+
+    /**
+     * Structure described in self::addConnection method
+     *
+     * @var array
+     */
     private $configuration;
-    
+
+    /**
+     * @param array $configuration
+     */
     public function __construct(array $configuration = array())
     {
         $this->configuration = $configuration;
@@ -35,7 +46,8 @@ class ClientPool
      * @param array $mapping mapping configuration
      * @param string $defaultDatabase name of database used as default
      * @param array $connectOptions connect options
-     * @return \Sokil\Mongo\ClientPool
+     *
+     * @return ClientPool
      */
     public function addConnection(
         $name,
@@ -53,7 +65,14 @@ class ClientPool
         
         return $this;
     }
-    
+
+    /**
+     * @param string $name
+     *
+     * @return Client
+     *
+     * @throws Exception
+     */
     public function __get($name)
     {
         return $this->get($name);
@@ -63,8 +82,10 @@ class ClientPool
      * Get instance of connection
      *
      * @param string $name connection identifier
-     * @return \Sokil\Mongo\Client
-     * @throws \Sokil\Mongo\Exception
+     *
+     * @return Client
+     *
+     * @throws Exception
      */
     public function get($name)
     {

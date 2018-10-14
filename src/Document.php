@@ -51,6 +51,18 @@ use GeoJson\Geometry\Geometry;
  */
 class Document extends Structure
 {
+    const EVENT_NAME_BEFORE_VALIDATE = 'beforeValidate';
+    const EVENT_NAME_VALIDATE_ERROR = 'validateError';
+    const EVENT_NAME_AFTER_VALIDATE = 'afterValidate';
+    const EVENT_NAME_BEFORE_INSERT = 'beforeInsert';
+    const EVENT_NAME_AFTER_INSERT = 'afterInsert';
+    const EVENT_NAME_BEFORE_UPDATE = 'beforeUpdate';
+    const EVENT_NAME_AFTER_UPDATE = 'afterUpdate';
+    const EVENT_NAME_BEFORE_SAVE = 'beforeSave';
+    const EVENT_NAME_AFTER_SAVE = 'afterSave';
+    const EVENT_NAME_BEFORE_DELETE = 'beforeDelete';
+    const EVENT_NAME_AFTER_DELETE = 'afterDelete';
+
     /**
      *
      * @var \Sokil\Mongo\Document\RelationManager
@@ -97,12 +109,15 @@ class Document extends Structure
     private $options;
 
     /**
-     * @param \Sokil\Mongo\Collection $collection instance of Mongo collection
+     * @param Collection $collection instance of Mongo collection
      * @param array $data mongo document
      * @param array $options options of object initialization
      */
-    public function __construct(Collection $collection, array $data = null, array $options = array())
-    {
+    public function __construct(
+        Collection $collection,
+        array $data = null,
+        array $options = array()
+    ) {
         // link to collection
         $this->collection = $collection;
 
@@ -212,6 +227,14 @@ class Document extends Structure
         return (string) $this->getId();
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
     public function __call($name, $arguments)
     {
         // behaviors
@@ -247,9 +270,16 @@ class Document extends Structure
             return $this->set(lcfirst(substr($name, 3)), $arguments[0]);
         }
 
-        throw new Exception('Document has no method "' . $name . '"');
+        throw new Exception(sprintf('Document has no method "%s"', $name));
     }
 
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
     public function __get($name)
     {
         if ($this->getRelationManager()->isRelationExists($name)) {
@@ -545,6 +575,9 @@ class Document extends Structure
         return $this->eventDispatcher->hasListeners($event);
     }
 
+    /**
+     * @return mixed
+     */
     public function getId()
     {
         return $this->get('_id');
@@ -606,12 +639,14 @@ class Document extends Structure
     /**
      * Validate document
      *
-     * @throws \Sokil\Mongo\Document\InvalidDocumentException
-     * @return \Sokil\Mongo\Document
+     * @throws InvalidDocumentException
+     * @throws Exception
+     *
+     * @return Document
      */
     public function validate()
     {
-        if ($this->triggerEvent('beforeValidate')->isCancelled()) {
+        if ($this->triggerEvent(self::EVENT_NAME_BEFORE_VALIDATE)->isCancelled()) {
             return $this;
         }
 
@@ -619,12 +654,12 @@ class Document extends Structure
             $exception = new InvalidDocumentException('Document not valid');
             $exception->setDocument($this);
 
-            $this->triggerEvent('validateError');
+            $this->triggerEvent(self::EVENT_NAME_VALIDATE_ERROR);
 
             throw $exception;
         }
 
-        $this->triggerEvent('afterValidate');
+        $this->triggerEvent(self::EVENT_NAME_AFTER_VALIDATE);
 
         return $this;
     }
@@ -695,9 +730,12 @@ class Document extends Structure
     /**
      * Update value in local cache and in DB
      *
-     * @param string $fieldName point-delimited field name
+     * @param string $fieldName point-delimited field name*
      * @param mixed $value value to store
-     * @return \Sokil\Mongo\Document
+     *
+     * @return Document
+     *
+     * @throws Exception
      */
     public function set($fieldName, $value)
     {
@@ -761,7 +799,10 @@ class Document extends Structure
      *
      * @param $name
      * @param Document $document
+     *
      * @return Document
+     *
+     * @throws Exception
      */
     public function setReference($name, Document $document)
     {
@@ -794,7 +835,10 @@ class Document extends Structure
      *
      * @param string $name
      * @param Document $document
+     *
      * @return Document
+     *
+     * @throws Exception
      */
     public function pushReference($name, Document $document)
     {
@@ -1044,6 +1088,14 @@ class Document extends Structure
         return $this;
     }
 
+    /**
+     * @param string $fieldName
+     * @param int $value
+     *
+     * @return self
+     *
+     * @throws Exception
+     */
     public function increment($fieldName, $value = 1)
     {
         parent::set($fieldName, (int) $this->get($fieldName) + $value);
@@ -1106,7 +1158,7 @@ class Document extends Structure
      */
     private function internalInsert()
     {
-        if ($this->triggerEvent('beforeInsert')->isCancelled()) {
+        if ($this->triggerEvent(self::EVENT_NAME_BEFORE_INSERT)->isCancelled()) {
             return;
         }
 
@@ -1130,7 +1182,7 @@ class Document extends Structure
         $this->defineId($document['_id']);
 
         // after insert event
-        $this->triggerEvent('afterInsert');
+        $this->triggerEvent(self::EVENT_NAME_AFTER_INSERT);
     }
 
     /**
@@ -1141,7 +1193,7 @@ class Document extends Structure
      */
     private function internalUpdate()
     {
-        if ($this->triggerEvent('beforeUpdate')->isCancelled()) {
+        if ($this->triggerEvent(self::EVENT_NAME_BEFORE_UPDATE)->isCancelled()) {
             return;
         }
 
@@ -1193,7 +1245,7 @@ class Document extends Structure
             $this->getOperator()->reset();
         }
 
-        $this->triggerEvent('afterUpdate');
+        $this->triggerEvent(self::EVENT_NAME_AFTER_UPDATE);
     }
 
     /**
@@ -1204,6 +1256,7 @@ class Document extends Structure
      * @return Document
      *
      * @throws WriteException
+     * @throws Exception
      */
     public function save($validate = true)
     {
@@ -1217,7 +1270,7 @@ class Document extends Structure
         }
 
         // handle beforeSave event
-        if ($this->triggerEvent('beforeSave')->isCancelled()) {
+        if ($this->triggerEvent(self::EVENT_NAME_BEFORE_SAVE)->isCancelled()) {
             return $this;
         }
 
@@ -1229,7 +1282,7 @@ class Document extends Structure
         }
 
         // handle afterSave event
-        $this->triggerEvent('afterSave');
+        $this->triggerEvent(self::EVENT_NAME_AFTER_SAVE);
 
         // set document unmodified
         $this->apply();
@@ -1251,11 +1304,12 @@ class Document extends Structure
      * Delete document
      *
      * @return Document
+     *
      * @throws Exception
      */
     public function delete()
     {
-        if ($this->triggerEvent('beforeDelete')->isCancelled()) {
+        if ($this->triggerEvent(self::EVENT_NAME_BEFORE_DELETE)->isCancelled()) {
             return $this;
         }
 
@@ -1264,10 +1318,10 @@ class Document extends Structure
         ));
 
         if (true !== $status && $status['ok'] != 1) {
-            throw new \Sokil\Mongo\Exception(sprintf('Delete document error: %s', $status['err']));
+            throw new Exception(sprintf('Delete document error: %s', $status['err']));
         }
 
-        $this->triggerEvent('afterDelete');
+        $this->triggerEvent(self::EVENT_NAME_AFTER_DELETE);
 
         // drop from document's pool
         $this->getCollection()->removeDocumentFromDocumentPool($this);
