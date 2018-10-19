@@ -23,7 +23,8 @@ Tested over MongoDB v.2.4.12, v.2.6.9, v.3.0.2, v.3.2.10, v.3.3.15, v.3.4.0. See
   * [PHP MongoDB Extension](https://pecl.php.net/package/mongodb) 1.0 or above
   * [Compatibility layer](https://github.com/alcaeus/mongo-php-adapter). Please, note some [restriontions](#compatibility-with-php-7)
 * PHP 5
-  * PHP 5.3 - PHP 5.6
+  * PHP 5.3 not supported starting from 2018-10-19
+  * PHP 5.4 - PHP 5.6.
   * [PHP Mongo Extension](https://pecl.php.net/package/mongo) 0.9 or above (Some features require >= 1.5)
 * HHVM
   * HHVM Driver [not supported](https://derickrethans.nl/mongodb-hhvm.html).
