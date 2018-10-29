@@ -1185,7 +1185,7 @@ class Collection implements \Countable
         $this->getMongoCollection()->createIndex($key, $options);
         return $this;
     }
-    
+
     /**
      * Delete index
      *
@@ -1515,6 +1515,30 @@ class Collection implements \Countable
     {
         return $this->getDatabase()->executeCommand(array(
             'collstats' => $this->getName(),
+        ));
+    }
+
+    /**
+     * Rename collection x to y, with drop previously created target or not option
+     * Note: if dropTarget is false and collection existent, then command will fail
+     *
+     * @param string $dbName            The name of the database in which do renaming
+     * @param string $collectionName    Current collection name
+     * @param string $target            Target name of collection
+     * @param bool $dropTarget          Whether to drop previously created collection
+     * @return array
+     * @throws \MongoException
+     */
+    public function renameCollection($dbName, $collectionName, $target, $dropTarget = false)
+    {
+        if ($this->getDatabase()->getName() !== 'admin') {
+            throw new \MongoException('renaming collection is only possible from "admin" database');
+        }
+
+        return $this->getDatabase()->executeCommand(array(
+            'renameCollection' => $dbName . '.' . $collectionName,
+            'to'               => $dbName . '.' . $target,
+            'dropTarget'       => $dropTarget,
         ));
     }
 }

@@ -18,13 +18,17 @@ class CollectionTest extends TestCase
      */
     private $collection;
 
+
+    /** @var Client */
+    private $client;
+
     public function setUp()
     {
         // connect to mongo
-        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
+        $this->client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
 
         // select database
-        $this->database = $client->getDatabase('test');
+        $this->database = $this->client->getDatabase('test');
         $this->collection = $this->database->getCollection('phpmongo_test_collection');
     }
 
@@ -2061,6 +2065,40 @@ class CollectionTest extends TestCase
             'versioning' => false,
         ));
         $this->assertFalse($this->database->col3->isVersioningEnabled());
+    }
+
+    /**
+     * @throws Exception
+     * @throws \MongoException
+     */
+    public function testRenameCollection()
+    {
+        $sourceDb = 'test';
+        $sourceCollection = 'source_collection';
+
+        // creating fake-collection to rename it then in test db context
+        $this->database = $this->client->getDatabase($sourceDb);
+        $this->database->createCollection($sourceCollection);
+
+        // getting admin db
+        $this->database = $this->client->getDatabase('admin');
+        // set test collection
+        $this->collection = $this->database->getCollection('test');
+
+        // rename an inexistent collection to cause a MongoClient error
+        $badStatus = $this->collection->renameCollection('test', 'non_existent_collection', 'phpmongo_test_collection', true);
+
+        $this->assertArraySubset([
+            'ok'     => 0,
+            'errmsg' => 'source namespace does not exist',
+            'code'   => 26,
+        ], $badStatus);
+
+        // rename an existent collection
+        $status = $this->collection->renameCollection('test', $sourceCollection, 'phpmongo_test_collection', true);
+
+        // assert that we are done renaming
+        $this->assertEquals($status['ok'], 1);
     }
 }
 
