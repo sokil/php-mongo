@@ -2071,34 +2071,35 @@ class CollectionTest extends TestCase
      * @throws Exception
      * @throws \MongoException
      */
-    public function testRenameCollection()
+    public function testRenameNonExistentCollection()
     {
-        $sourceDb = 'test';
-        $sourceCollection = 'source_collection';
+        $this->expectException(Exception::class);
 
-        // creating fake-collection to rename it then in test db context
-        $this->database = $this->client->getDatabase($sourceDb);
-        $this->database->createCollection($sourceCollection);
-
-        // getting admin db
-        $this->database = $this->client->getDatabase('admin');
         // set test collection
         $this->collection = $this->database->getCollection('test');
 
-        // rename an inexistent collection to cause a MongoClient error
-        $badStatus = $this->collection->renameCollection('test', 'non_existent_collection', 'phpmongo_test_collection', true);
+        // rename non-existent collection to cause a MongoClient error
+        $this->collection->renameCollection('phpmongo_test_collection', true);
+    }
 
-        $this->assertArraySubset([
-            'ok'     => 0,
-            'errmsg' => 'source namespace does not exist',
-            'code'   => 26,
-        ], $badStatus);
+    /**
+     * @throws Exception
+     * @throws \MongoException
+     */
+    public function testRenameExistentCollection()
+    {
+        $sourceCollection = 'source_collection';
+
+        // creating fake-collection to rename it then in test db context
+        $this->database->createCollection($sourceCollection);
+
+        $this->collection = $this->database->getCollection($sourceCollection);
 
         // rename an existent collection
-        $status = $this->collection->renameCollection('test', $sourceCollection, 'phpmongo_test_collection', true);
+        $status = $this->collection->renameCollection('phpmongo_test_collection', true);
 
         // assert that we are done renaming
-        $this->assertEquals($status['ok'], 1);
+        $this->assertTrue($status);
     }
 }
 

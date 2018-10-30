@@ -1522,23 +1522,31 @@ class Collection implements \Countable
      * Rename collection x to y, with drop previously created target or not option
      * Note: if dropTarget is false and collection existent, then command will fail
      *
-     * @param string $dbName            The name of the database in which do renaming
-     * @param string $collectionName    Current collection name
-     * @param string $target            Target name of collection
-     * @param bool $dropTarget          Whether to drop previously created collection
-     * @return array
+     * @param string $target Target name of collection
+     * @param bool $dropTarget Whether to drop previously created collection
+     * @return bool
+     * @throws \Sokil\Mongo\Exception
      * @throws \MongoException
      */
-    public function renameCollection($dbName, $collectionName, $target, $dropTarget = false)
+    public function renameCollection($target, $dropTarget = false)
     {
-        if ($this->getDatabase()->getName() !== 'admin') {
-            throw new \MongoException('renaming collection is only possible from "admin" database');
-        }
+        // create admin db instance
+        $adminDb = new Database($this->getDatabase()->getClient(), 'admin');
 
-        return $this->getDatabase()->executeCommand(array(
-            'renameCollection' => $dbName . '.' . $collectionName,
-            'to'               => $dbName . '.' . $target,
+        // getting current context db name
+        $sourceDbName = $this->getDatabase()->getName();
+
+        // rename current collection to target
+        $response = $adminDb->executeCommand(array(
+            'renameCollection' => $sourceDbName . '.' . $this->getName(),
+            'to'               => $sourceDbName . '.' . $target,
             'dropTarget'       => $dropTarget,
         ));
+
+        if ($response['ok'] === 1.0) { // renamed successfully
+            return true;
+        }
+
+        throw new Exception('Error: #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
     }
 }
