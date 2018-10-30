@@ -2074,6 +2074,8 @@ class CollectionTest extends TestCase
     public function testRenameNonExistentCollection()
     {
         $this->expectException(Exception::class);
+        $this->expectExceptionCode(26);
+        $this->expectExceptionMessage('Error: #26: source namespace does not exist');
 
         // set test collection
         $this->collection = $this->database->getCollection('test');
