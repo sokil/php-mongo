@@ -1556,25 +1556,42 @@ class Collection implements \Countable
         // create admin db instance
         $adminDb = $this->getDatabase()->getClient()->getDatabase('admin');
 
+        list($toDb, $toColl) = $this->parseDbDotCollection($target);
+
         // rename current collection to target
         $response = $adminDb->executeCommand(array(
             'renameCollection' => $this->getDatabase()->getName() . '.' . $this->getName(),
-            'to'               => $target,
+            'to'               => $toDb . '.' . $toColl,
             'dropTarget'       => $dropTarget,
         ));
 
-        if ($response['ok'] === 1.0) { // renamed successfully
-            // re-init collection
-            list($db, $coll) = explode('.', $target);
+        if ($response['ok'] === 1.0) {
 
             // re-init to new db and collection
-            $this->database = $this->getDatabase()->getClient()->getDatabase($db);
-            $this->collection = $this->database->getCollection($coll);
+            $this->database = $this->getDatabase()->getClient()->getDatabase($toDb);
+            $this->collection = $this->database->getCollection($toColl);
             $this->collectionName = $this->collection->getName();
 
             return $this->collection;
         }
 
         throw new Exception('Error: #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
+    }
+
+    /**
+     * Parse database and collection with dot between them
+     * if there is no dot, then we assume - $target as collection
+     * and getting db from this object
+     *
+     * @param $target
+     * @return array
+     */
+    private function parseDbDotCollection($target)
+    {
+        if (mb_strpos($target, '.') !== false) {
+            return explode('.', $target);
+        }
+
+        return [$this->getDatabase()->getName(), $target];
     }
 }
