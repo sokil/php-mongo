@@ -1519,32 +1519,60 @@ class Collection implements \Countable
     }
 
     /**
-     * Rename collection x to y, with drop previously created target or not option
-     * Note: if dropTarget is false and collection existent, then command will fail
+     * Rename collection x to y
+     * Note: if collection existent, then command will fail
      *
-     * @param string $target Target name of collection
-     * @param bool $dropTarget Whether to drop previously created collection
-     * @return bool
+     * @param  string $target   The name of target db and collection ex.: "testdb.newcollection"
+     * @return \MongoCollection
      * @throws \Sokil\Mongo\Exception
-     * @throws \MongoException
      */
-    public function renameCollection($target, $dropTarget = false)
+    public function renameCollection($target)
+    {
+        return $this->replaceRenameCollection($target, false);
+    }
+
+    /**
+     * Rename collection x to y, with dropping previously created target
+     *
+     * @param  string $target   The name of target db and collection ex.: "testdb.newcollection"
+     * @return \MongoCollection
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function replaceCollection($target)
+    {
+        return $this->replaceRenameCollection($target, true);
+    }
+
+    /**
+     * Rename collection x to y, with dropping previously created target or not optionally
+     *
+     * @param string $target        The name of target db and collection ex.: "testdb.newcollection"
+     * @param  bool  $dropTarget    Whether to drop target or not
+     * @return \MongoCollection
+     * @throws \Sokil\Mongo\Exception
+     */
+    private function replaceRenameCollection($target, $dropTarget)
     {
         // create admin db instance
-        $adminDb = new Database($this->getDatabase()->getClient(), 'admin');
-
-        // getting current context db name
-        $sourceDbName = $this->getDatabase()->getName();
+        $adminDb = $this->getDatabase()->getClient()->getDatabase('admin');
 
         // rename current collection to target
         $response = $adminDb->executeCommand(array(
-            'renameCollection' => $sourceDbName . '.' . $this->getName(),
-            'to'               => $sourceDbName . '.' . $target,
+            'renameCollection' => $this->getDatabase()->getName() . '.' . $this->getName(),
+            'to'               => $target,
             'dropTarget'       => $dropTarget,
         ));
 
         if ($response['ok'] === 1.0) { // renamed successfully
-            return true;
+            // re-init collection
+            list($db, $coll) = explode('.', $target);
+
+            // re-init to new db and collection
+            $this->database = $this->getDatabase()->getClient()->getDatabase($db);
+            $this->collection = $this->database->getCollection($coll);
+            $this->collectionName = $this->collection->getName();
+
+            return $this->collection;
         }
 
         throw new Exception('Error: #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
