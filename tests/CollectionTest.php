@@ -2117,7 +2117,7 @@ class CollectionTest extends TestCase
         // rename an existent collection
         $newCollection = $collection->replaceCollection('test.phpmongo_test_collection');
 
-        $this->assertInstanceOf(Collection::class, $newCollection);
+        $this->assertInstanceOf(get_class($this->collection), $newCollection);
         $this->assertEquals($newCollection->getDatabase()->getName(), 'test');
         $this->assertEquals($newCollection->getName(), 'phpmongo_test_collection');
 
@@ -2143,7 +2143,7 @@ class CollectionTest extends TestCase
         // rename an existent collection
         $newCollection = $collection->renameCollection('test.phpmongo_test_collection');
 
-        $this->assertInstanceOf(Collection::class, $newCollection);
+        $this->assertInstanceOf(get_class($this->collection), $newCollection);
         $this->assertEquals($newCollection->getDatabase()->getName(), 'test');
         $this->assertEquals($newCollection->getName(), 'phpmongo_test_collection');
 
@@ -2169,7 +2169,7 @@ class CollectionTest extends TestCase
         // rename an existent collection
         $newCollection = $collection->renameCollection('phpmongo_test_collection');
 
-        $this->assertInstanceOf(Collection::class, $newCollection);
+        $this->assertInstanceOf(get_class($this->collection), $newCollection);
         $this->assertEquals($newCollection->getDatabase()->getName(), 'test');
         $this->assertEquals($newCollection->getName(), 'phpmongo_test_collection');
 
