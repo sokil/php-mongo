@@ -1,3 +1,6 @@
+## 1.23.0 (2018-11-04)
+ * Added method to rename collection
+
 ## 1.22.2 (2017-11-10)
  * Add $elemMatch to projection argument of `Cursor`
  * `Cursor` methods `findOne`, `findAll`, `findRandom` deprecated, use `one`, `all` and `random` respectively;
