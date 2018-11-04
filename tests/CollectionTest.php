@@ -2153,32 +2153,6 @@ class CollectionTest extends TestCase
 
         $this->assertEquals('value', $document->param);
     }
-
-    /**
-     * @throws Exception
-     */
-    public function testRenameJustToCollection()
-    {
-        $sourceCollection = 'source_collection';
-
-        // creating fake-collection to rename it then in test db context
-        $this->database->createCollection($sourceCollection);
-
-        $collection = $this->database->getCollection($sourceCollection);
-
-        // rename an existent collection
-        $newCollection = $collection->renameCollection('phpmongo_test_collection');
-
-        $this->assertInstanceOf(get_class($this->collection), $newCollection);
-        $this->assertEquals($newCollection->getDatabase()->getName(), 'test');
-        $this->assertEquals($newCollection->getName(), 'phpmongo_test_collection');
-
-        $document = $newCollection
-            ->createDocument(array('param' => 'value'))
-            ->save();
-
-        $this->assertEquals('value', $document->param);
-    }
 }
 
 class CollectionTestDocumentMock extends Document { }
