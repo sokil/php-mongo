@@ -1556,20 +1556,20 @@ class Collection implements \Countable
         // create admin db instance
         $adminDb = $this->getDatabase()->getClient()->getDatabase('admin');
 
-        list($toDb, $toColl) = $this->parseDbDotCollection($target);
+        list($targetDatabaseName, $targetCollectionName) = $this->getCompleteCollectionNamespace($target);
 
         // rename current collection to target
         $response = $adminDb->executeCommand(array(
             'renameCollection' => $this->getDatabase()->getName() . '.' . $this->getName(),
-            'to'               => $toDb . '.' . $toColl,
+            'to'               => $targetDatabaseName . '.' . $targetCollectionName,
             'dropTarget'       => $dropTarget,
         ));
 
         if ($response['ok'] === 1.0) {
 
             // re-init to new db and collection
-            $this->database = $this->getDatabase()->getClient()->getDatabase($toDb);
-            $this->collection = $this->database->getCollection($toColl);
+            $this->database = $this->getDatabase()->getClient()->getDatabase($targetDatabaseName);
+            $this->collection = $this->database->getCollection($targetCollectionName);
             $this->collectionName = $this->collection->getName();
 
             return $this->collection;
@@ -1586,7 +1586,7 @@ class Collection implements \Countable
      * @param $target
      * @return array
      */
-    private function parseDbDotCollection($target)
+    private function getCompleteCollectionNamespace($target)
     {
         if (mb_strpos($target, '.') !== false) {
             return explode('.', $target);
