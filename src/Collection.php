@@ -1185,7 +1185,7 @@ class Collection implements \Countable
         $this->getMongoCollection()->createIndex($key, $options);
         return $this;
     }
-    
+
     /**
      * Delete index
      *
@@ -1516,5 +1516,82 @@ class Collection implements \Countable
         return $this->getDatabase()->executeCommand(array(
             'collstats' => $this->getName(),
         ));
+    }
+
+    /**
+     * Rename collection x to y
+     * Note: if collection existent, then command will fail
+     *
+     * @param  string $target   The name of target db and collection ex.: "testdb.newcollection"
+     * @return \MongoCollection
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function renameCollection($target)
+    {
+        return $this->replaceRenameCollection($target, false);
+    }
+
+    /**
+     * Rename collection x to y, with dropping previously created target
+     *
+     * @param  string $target   The name of target db and collection ex.: "testdb.newcollection"
+     * @return \MongoCollection
+     * @throws \Sokil\Mongo\Exception
+     */
+    public function replaceCollection($target)
+    {
+        return $this->replaceRenameCollection($target, true);
+    }
+
+    /**
+     * Rename collection x to y, with dropping previously created target or not optionally
+     *
+     * @param string $target        The name of target db and collection ex.: "testdb.newcollection"
+     * @param  bool  $dropTarget    Whether to drop target or not
+     * @return \MongoCollection
+     * @throws \Sokil\Mongo\Exception
+     */
+    private function replaceRenameCollection($target, $dropTarget)
+    {
+        // create admin db instance
+        $adminDb = $this->getDatabase()->getClient()->getDatabase('admin');
+
+        list($targetDatabaseName, $targetCollectionName) = $this->getCompleteCollectionNamespace($target);
+
+        // rename current collection to target
+        $response = $adminDb->executeCommand(array(
+            'renameCollection' => $this->getDatabase()->getName() . '.' . $this->getName(),
+            'to'               => $targetDatabaseName . '.' . $targetCollectionName,
+            'dropTarget'       => $dropTarget,
+        ));
+
+        if ($response['ok'] === 1.0) {
+
+            // re-init to new db and collection
+            $this->database = $this->getDatabase()->getClient()->getDatabase($targetDatabaseName);
+            $this->collection = $this->database->getCollection($targetCollectionName);
+            $this->collectionName = $this->collection->getName();
+
+            return $this->collection;
+        }
+
+        throw new Exception('Error: #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
+    }
+
+    /**
+     * Parse database and collection with dot between them
+     * if there is no dot, then we assume - $target as collection
+     * and getting db from this object
+     *
+     * @param $target
+     * @return array
+     */
+    private function getCompleteCollectionNamespace($target)
+    {
+        if (mb_strpos($target, '.') !== false) {
+            return explode('.', $target);
+        }
+
+        return [$this->getDatabase()->getName(), $target];
     }
 }
