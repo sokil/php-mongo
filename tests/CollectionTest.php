@@ -18,13 +18,17 @@ class CollectionTest extends TestCase
      */
     private $collection;
 
+
+    /** @var Client */
+    private $client;
+
     public function setUp()
     {
         // connect to mongo
-        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
+        $this->client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
 
         // select database
-        $this->database = $client->getDatabase('test');
+        $this->database = $this->client->getDatabase('test');
         $this->collection = $this->database->getCollection('phpmongo_test_collection');
     }
 
@@ -2061,6 +2065,93 @@ class CollectionTest extends TestCase
             'versioning' => false,
         ));
         $this->assertFalse($this->database->col3->isVersioningEnabled());
+    }
+
+    /**
+     * @expectedException           Exception
+     * @expectedExceptionCode       26
+     * @expectedExceptionMessage    Error: #26: source namespace does not exist
+     *
+     * @throws Exception
+     */
+    public function testRenameNonExistentCollection()
+    {
+        // set test collection
+        $collection = $this->database->getCollection('test');
+
+        // rename non-existent collection to cause a MongoClient error
+        $collection->renameCollection('test.phpmongo_test_collection');
+    }
+
+    /**
+     * @expectedException           Exception
+     * @expectedExceptionCode       48
+     * @expectedExceptionMessage    Error: #48: target namespace exists
+     *
+     * @throws Exception
+     */
+    public function testRenameExistentTargetCollection()
+    {
+        $this->database->createCollection('test');
+        $this->database->createCollection('phpmongo_test_collection');
+
+        // set test collection
+        $collection = $this->database->getCollection('test');
+
+        // rename non-existent collection to cause a MongoClient error
+        $collection->renameCollection('test.phpmongo_test_collection');
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testReplaceCollection()
+    {
+        $sourceCollection = 'source_collection';
+
+        // creating fake-collection to rename it then in test db context
+        $this->database->createCollection($sourceCollection);
+
+        $collection = $this->database->getCollection($sourceCollection);
+
+        // rename an existent collection
+        $newCollection = $collection->replaceCollection('test.phpmongo_test_collection');
+
+        $this->assertInstanceOf(get_class($this->collection), $newCollection);
+        $this->assertEquals($newCollection->getDatabase()->getName(), 'test');
+        $this->assertEquals($newCollection->getName(), 'phpmongo_test_collection');
+
+        $document = $newCollection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $this->assertEquals('value', $document->param);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testRenameCollection()
+    {
+        $sourceCollection = 'source_collection';
+
+        // creating fake-collection to rename it then in test db context
+        $this->database->createCollection($sourceCollection);
+
+        $collection = $this->database->getCollection($sourceCollection);
+
+        // rename an existent collection
+        $newCollection = $collection->renameCollection('test.phpmongo_test_collection');
+
+        $this->assertInstanceOf(get_class($this->collection), $newCollection);
+        $this->assertEquals($newCollection->getDatabase()->getName(), 'test');
+        $this->assertEquals($newCollection->getName(), 'phpmongo_test_collection');
+
+        $document = $newCollection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $this->assertEquals('value', $document->param);
     }
 }
 
