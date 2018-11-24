@@ -56,7 +56,7 @@ done
 # if php versions not passed, fill default
 if [[ -z $phpVersions ]]
 then
-    phpVersions=("56" "70" "71")
+    phpVersions=("56" "70" "71" "72" "73")
 fi
 
 # add path to test file
