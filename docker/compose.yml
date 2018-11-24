@@ -40,10 +40,10 @@ services:
   php56:
     image: php:5.6
     container_name: phpmongo_php56
-    command: bash /phpmongo/docker/php/init.sh mongo 1.6.2
+    command: bash /phpmongo-mount-point/docker/php/init.sh mongo 1.6.2
     volumes:
-      - ..:/phpmongo
-      - /phpmongo/vendor
+      - ..:/phpmongo-mount-point
+      - /phpmongo-mount-point/vendor
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
@@ -52,10 +52,10 @@ services:
   php70:
     image: php:7.0
     container_name: phpmongo_php70
-    command: bash /phpmongo/docker/php/init.sh mongodb 1.2.2
+    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.2.2
     volumes:
-      - ..:/phpmongo
-      - /phpmongo/vendor
+      - ..:/phpmongo-mount-point
+      - /phpmongo-mount-point/vendor
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
@@ -64,10 +64,10 @@ services:
   php71:
     image: php:7.1
     container_name: phpmongo_php71
-    command: bash /phpmongo/docker/php/init.sh mongodb 1.2.2
+    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.2.2
     volumes:
-      - ..:/phpmongo
-      - /phpmongo/vendor
+      - ..:/phpmongo-mount-point
+      - /phpmongo-mount-point/vendor
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"

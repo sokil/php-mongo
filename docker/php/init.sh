@@ -7,6 +7,9 @@
 # Project dir
 PROJECT_DIR="/phpmongo/"
 
+# Move project to internal image dir for modifications
+cp -r /phpmongo-mount-point $PROJECT_DIR
+
 # Mongo extension
 MONGO_EXT=$1
 if [[ -z $MONGO_EXT ]];
@@ -81,15 +84,17 @@ if [[ -z $(which composer) ]];
 then
     # go to project dir
     cd $PROJECT_DIR
+
     # download composer
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+
     # add mongodb compatibility layer
     if [[ $MONGO_EXT == "mongodb" ]];
     then
         echo "Installing compatibility layer for new MongoDB extension"
-        composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs --no-interaction
+        composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs --no-interaction -o
     else
-        composer install --no-interaction
+        composer update --no-interaction -o
     fi;
 fi
 
