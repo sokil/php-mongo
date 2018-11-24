@@ -231,6 +231,7 @@ class Collection implements \Countable
     public function delete()
     {
         $status = $this->getMongoCollection()->drop();
+
         if ($status['ok'] != 1) {
             // check if collection exists
             if ('ns not found' !== $status['errmsg']) {
