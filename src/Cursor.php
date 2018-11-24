@@ -16,25 +16,66 @@ use Sokil\Mongo\Exception\FeatureNotSupportedException;
 use Sokil\Mongo\Exception\WriteException;
 
 /**
- * @mixin Expression
+ * Methods from Expression:
+ * @method where()
+ * @method whereEmpty()
+ * @method whereNotEmpty()
+ * @method whereGreater()
+ * @method whereGreaterOrEqual()
+ * @method whereLess()
+ * @method whereLessOrEqual()
+ * @method whereNotEqual()
+ * @method whereIn()
+ * @method whereNotIn()
+ * @method whereExists()
+ * @method whereNotExists()
+ * @method whereHasType()
+ * @method whereDouble()
+ * @method whereString()
+ * @method whereObject()
+ * @method whereBoolean()
+ * @method whereArray()
+ * @method whereArrayOfArrays()
+ * @method whereObjectId()
+ * @method whereDate()
+ * @method whereNull()
+ * @method whereJsCondition()
+ * @method whereLike()
+ * @method whereAll()
+ * @method whereNoneOf()
+ * @method whereAny()
+ * @method whereElemMatch()
+ * @method whereElemNotMatch()
+ * @method whereArraySize()
+ * @method whereOr()
+ * @method whereAnd()
+ * @method whereNor()
+ * @method whereNot()
+ * @method whereMod()
+ * @method whereText()
+ * @method nearPoint()
+ * @method nearPointSpherical()
+ * @method intersects()
+ * @method within()
+ * @method withinCircle()
+ * @method withinCircleSpherical()
+ * @method withinBox()
+ * @method withinPolygon()
  */
-class Cursor implements
-    \Iterator,
-    \Countable
+class Cursor implements \Iterator, \Countable
 {
     /**
-     *
      * @var Client
      */
     private $client;
 
     /**
-     *
      * @var Collection
      */
     private $collection;
 
     /**
+     * Fields to select in format [field1 => true, field2 => true]
      *
      * @var array
      */
@@ -112,6 +153,10 @@ class Cursor implements
      */
     private $hint;
 
+    /**
+     * @param Collection $collection
+     * @param array|null $options
+     */
     public function __construct(Collection $collection, array $options = null)
     {
         $this->collection = $collection;
@@ -125,6 +170,12 @@ class Cursor implements
         $this->expression = $this->expression();
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     *
+     * @return self
+     */
     public function __call($name, $arguments)
     {
         call_user_func_array(
@@ -187,7 +238,9 @@ class Cursor implements
     public function fields(array $fields)
     {
         $this->projection = array_fill_keys($fields, 1);
+
         $this->skipDocumentPool();
+
         return $this;
     }
 
@@ -201,7 +254,9 @@ class Cursor implements
     public function field($field)
     {
         $this->projection[$field] = 1;
+
         $this->skipDocumentPool();
+
         return $this;
     }
     /**
@@ -213,7 +268,9 @@ class Cursor implements
     public function skipFields(array $fields)
     {
         $this->projection = array_fill_keys($fields, 0);
+
         $this->skipDocumentPool();
+
         return $this;
     }
 
@@ -226,7 +283,9 @@ class Cursor implements
     public function skipField($field)
     {
         $this->projection[$field] = 0;
+
         $this->skipDocumentPool();
+
         return $this;
     }
 
@@ -409,17 +468,21 @@ class Cursor implements
     /**
      * Sort result by specified keys and directions
      *
-     *  An array of fields by which to sort. Each element in the array has as key the field name, and as value either
+     * An array of fields by which to sort. Each element in the array has as key the field name, and as value either
      * 1 for ascending sort, or -1 for descending sort. Each result is first sorted on the first field in the array,
      * then (if it exists) on the second field in the array, etc. This means that the order of the fields in the
-     * fields array is important. See also the examples section.
+     * fields array is important.
+     *
+     * Example: $cursor->sort(['foo.bar' => 1, 'baz' => -1]);
      *
      * @param array $sort
+     *
      * @return Cursor
      */
     public function sort(array $sort)
     {
         $this->sort = $sort;
+
         return $this;
     }
 
@@ -485,7 +548,7 @@ class Cursor implements
      */
     public function getIdList()
     {
-        return self::mixedToMongoIdList($this->findAll());
+        return self::mixedToMongoIdList($this->all());
     }
 
     /**
@@ -496,6 +559,7 @@ class Cursor implements
      * @return Document|array|null
      *
      * @throws CursorException
+     * @throws Exception
      */
     public function findOne()
     {
@@ -503,11 +567,19 @@ class Cursor implements
     }
 
     /**
-     * Find one document which correspond to expression
+     * Find one document which correspond to expression.
+     *
+     * If multiple documents satisfy the query, this method returns the first document according to the natural order
+     * which reflects the order of documents on the disk.
+     * In capped collections, natural order is the same as insertion order.
+     * If no document satisfies the query, the method returns null.
+     *
+     * @see https://docs.mongodb.com/manual/reference/method/db.collection.findOne/
      *
      * @return Document|array|null
      *
      * @throws CursorException
+     * @throws Exception
      */
     public function one()
     {
@@ -543,7 +615,7 @@ class Cursor implements
     /**
      * Get result of searching
      *
-     * @deprecated since v.1.22.2. Use ::one instead
+     * @deprecated since v.1.22.2. Use self::all instead
      *
      * @return Document[]|array[]
      */

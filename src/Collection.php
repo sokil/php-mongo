@@ -265,8 +265,12 @@ class Collection implements \Countable
 
     /**
      * Factory method to get not stored Document instance from array
+     *
      * @param array $data
+     *
      * @return Document
+     *
+     * @throws Exception
      */
     public function createDocument(array $data = null)
     {
@@ -379,6 +383,7 @@ class Collection implements \Countable
      * Create document query builder
      *
      * @param $callable callable|null Function to configure query builder&
+     *
      * @return Cursor
      */
     public function find($callable = null)

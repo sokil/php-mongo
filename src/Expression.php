@@ -20,7 +20,6 @@ use Sokil\Mongo\Type\TypeChecker;
  * This class represents all expressions used to query document from collection
  *
  * @link http://docs.mongodb.org/manual/reference/operator/query/
- * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
 class Expression implements ArrayableInterface
 {
@@ -38,6 +37,7 @@ class Expression implements ArrayableInterface
     {
         return new self;
     }
+
     /**
      * @param string $field
      * @param string|array $value
