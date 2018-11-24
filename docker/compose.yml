@@ -70,7 +70,7 @@ services:
   php70:
     image: php:7.0
     container_name: phpmongo_php70
-    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.2.2
+    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.5.3
     volumes:
       - ..:/phpmongo-mount-point
       - /phpmongo-mount-point/vendor
@@ -82,7 +82,7 @@ services:
   php71:
     image: php:7.1
     container_name: phpmongo_php71
-    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.2.2
+    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.5.3
     volumes:
       - ..:/phpmongo-mount-point
       - /phpmongo-mount-point/vendor
@@ -92,9 +92,9 @@ services:
       RES_OPTIONS: "retrans:1 retry:1 timeout:1 attempts:1"
 
   php72:
-    image: php:7.3
-    container_name: phpmongo_php73
-    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.2.2
+    image: php:7.2
+    container_name: phpmongo_php72
+    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.5.3
     volumes:
     - ..:/phpmongo-mount-point
     - /phpmongo-mount-point/vendor
@@ -104,9 +104,9 @@ services:
       RES_OPTIONS: "retrans:1 retry:1 timeout:1 attempts:1"
 
   php73:
-    image: php:7.3
+    image: php:7.3-rc
     container_name: phpmongo_php73
-    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.2.2
+    command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.5.3
     volumes:
     - ..:/phpmongo-mount-point
     - /phpmongo-mount-point/vendor

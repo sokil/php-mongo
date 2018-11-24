@@ -43,7 +43,7 @@ then
     apt-get install --no-install-recommends -y libssl-dev iproute2
 
     # install ext-zip
-    apt-get install --no-install-recommends -y zlib1g-dev
+    apt-get install --no-install-recommends -y zlib1g-dev libzip-dev
     docker-php-ext-install zip
 
     # update pecl
@@ -60,6 +60,8 @@ then
     # last version of xdebug with support PHP < 7.0 is 2.5.5
     if [[ ${PHP_VERSION:0:2} == "5." ]]; then
         pecl install xdebug-2.5.5;
+    elif [[ ${PHP_VERSION:0:3} == "7.3" ]]; then
+        pecl install xdebug-2.7.0beta1;
     else
         pecl install xdebug;
     fi
