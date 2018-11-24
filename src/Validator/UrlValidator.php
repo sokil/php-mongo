@@ -45,7 +45,8 @@ class UrlValidator extends \Sokil\Mongo\Validator
         }
         
         // ping required
-        $dnsRecordExists = dns_get_record(parse_url($value, PHP_URL_HOST));
+        $domainToCheck = rtrim(parse_url($value, PHP_URL_HOST), '.') . '.';
+        $dnsRecordExists = checkdnsrr($domainToCheck);
 
         // network not allowed
         if ($dnsRecordExists === false) {
@@ -79,6 +80,10 @@ class UrlValidator extends \Sokil\Mongo\Validator
         $document->addError($fieldName, $this->getName(), $params['message']);
     }
 
+    /**
+     * @param string $url
+     * @return bool
+     */
     private function isUrlAccessible($url)
     {
         $headers = get_headers($url, true);
