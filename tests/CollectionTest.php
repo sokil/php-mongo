@@ -1851,7 +1851,9 @@ class CollectionTest extends TestCase
                 ),
                 'spanish'
             );
-        } catch (\MongoWriteConcernException $e) {
+        } catch (\Exception $e) {
+            // Native mongo triggers triggers \MongoWriteConcernException
+            // Alcaeus adapter triggers \MongoCursorException
             $this->assertStringEndsWith('text search not enabled', $e->getMessage());
             return;
         }

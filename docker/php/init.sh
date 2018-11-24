@@ -8,6 +8,8 @@
 PROJECT_DIR="/phpmongo/"
 
 # Move project to internal image dir for modifications
+# ATTENTION: skip all unnecessary directories in compose.yaml to be
+# mounted because they will be copied to project dir
 cp -r /phpmongo-mount-point $PROJECT_DIR
 
 # Mongo extension

@@ -62,6 +62,7 @@ services:
     volumes:
       - ..:/phpmongo-mount-point
       - /phpmongo-mount-point/vendor
+      - /phpmongo-mount-point/share
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
@@ -74,6 +75,7 @@ services:
     volumes:
       - ..:/phpmongo-mount-point
       - /phpmongo-mount-point/vendor
+      - /phpmongo-mount-point/share
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
@@ -86,6 +88,7 @@ services:
     volumes:
       - ..:/phpmongo-mount-point
       - /phpmongo-mount-point/vendor
+      - /phpmongo-mount-point/share
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
@@ -96,8 +99,9 @@ services:
     container_name: phpmongo_php72
     command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.5.3
     volumes:
-    - ..:/phpmongo-mount-point
-    - /phpmongo-mount-point/vendor
+      - ..:/phpmongo-mount-point
+      - /phpmongo-mount-point/vendor
+      - /phpmongo-mount-point/share
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
@@ -108,8 +112,9 @@ services:
     container_name: phpmongo_php73
     command: bash /phpmongo-mount-point/docker/php/init.sh mongodb 1.5.3
     volumes:
-    - ..:/phpmongo-mount-point
-    - /phpmongo-mount-point/vendor
+      - ..:/phpmongo-mount-point
+      - /phpmongo-mount-point/vendor
+      - /phpmongo-mount-point/share
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
