@@ -38,7 +38,8 @@ then
     apt-get update -q
     apt-get install --no-install-recommends -y libssl-dev
 
-    # install extensions
+    # install ext-zip
+    apt-get install --no-install-recommends -y zlib1g-dev
     docker-php-ext-install zip
 
     # install pecl mongo extension
