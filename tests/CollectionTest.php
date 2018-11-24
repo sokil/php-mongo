@@ -2069,16 +2069,21 @@ class CollectionTest extends TestCase
         $this->assertFalse($this->database->col3->isVersioningEnabled());
     }
 
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage source namespace does not exist
+     *
+     */
     public function testRenameNonExistentCollection()
     {
         // set test collection
-        $collection = $this->database->getCollection('test');
+        $collection = $this->database->getCollection('some_non_existent_collection');
         $collection->delete();
 
         // rename non-existent collection to cause a MongoClient error
-        $collection->renameCollection('test.phpmongo_test_collection');
+        $collection->renameCollection('test.new_collection_name');
 
-        $this->assertSame('phpmongo_test_collection', $collection->getName());
+        $this->assertSame('new_collection_name', $collection->getName());
     }
 
     /**
