@@ -67,7 +67,7 @@ class Collection implements \Countable
 
     /**
      *
-     * @var \Sokil\Mongo\Database
+     * @var Database
      */
     private $database;
 
@@ -1524,12 +1524,14 @@ class Collection implements \Countable
     }
 
     /**
-     * Rename collection x to y
-     * Note: if collection existent, then command will fail
+     * Rename collection
+     * Note: if target collection exists, then command will fail
      *
-     * @param  string $target   The name of target db and collection ex.: "testdb.newcollection"
-     * @return \MongoCollection
-     * @throws \Sokil\Mongo\Exception
+     * @param string $target The name of target db and collection ex.: "testdb.newcollection"
+     *
+     * @return Collection
+     *
+     * @throws Exception
      */
     public function renameCollection($target)
     {
@@ -1540,8 +1542,10 @@ class Collection implements \Countable
      * Rename collection x to y, with dropping previously created target
      *
      * @param  string $target   The name of target db and collection ex.: "testdb.newcollection"
-     * @return \MongoCollection
-     * @throws \Sokil\Mongo\Exception
+     *
+     * @return Collection
+     *
+     * @throws Exception
      */
     public function replaceCollection($target)
     {
@@ -1549,38 +1553,39 @@ class Collection implements \Countable
     }
 
     /**
-     * Rename collection x to y, with dropping previously created target or not optionally
+     * Rename collection with optionally dropping previously created target collection
      *
-     * @param string $target        The name of target db and collection ex.: "testdb.newcollection"
-     * @param  bool  $dropTarget    Whether to drop target or not
-     * @return \MongoCollection
-     * @throws \Sokil\Mongo\Exception
+     * @param string $newName The name of target db and collection ex.: "testdb.newcollection"
+     * @param bool $dropTarget Whether to drop target or not
+     *
+     * @return Collection
+     *
+     * @throws Exception
      */
-    private function replaceRenameCollection($target, $dropTarget)
+    private function replaceRenameCollection($newName, $dropTarget)
     {
         // create admin db instance
         $adminDb = $this->getDatabase()->getClient()->getDatabase('admin');
 
-        list($targetDatabaseName, $targetCollectionName) = $this->getCompleteCollectionNamespace($target);
+        list($targetDatabaseName, $targetCollectionName) = $this->getCompleteCollectionNamespace($newName);
 
         // rename current collection to target
         $response = $adminDb->executeCommand(array(
             'renameCollection' => $this->getDatabase()->getName() . '.' . $this->getName(),
-            'to'               => $targetDatabaseName . '.' . $targetCollectionName,
-            'dropTarget'       => $dropTarget,
+            'to' => $targetDatabaseName . '.' . $targetCollectionName,
+            'dropTarget' => $dropTarget,
         ));
 
-        if ($response['ok'] === 1.0) {
-
-            // re-init to new db and collection
-            $this->database = $this->getDatabase()->getClient()->getDatabase($targetDatabaseName);
-            $this->collection = $this->database->getCollection($targetCollectionName);
-            $this->collectionName = $this->collection->getName();
-
-            return $this->collection;
+        if ($response['ok'] !== 1.0) {
+            throw new Exception('Error: #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
         }
 
-        throw new Exception('Error: #' . $response['code'] . ': ' . $response['errmsg'], $response['code']);
+        // re-init to new db and collection
+        $this->database = $this->getDatabase()->getClient()->getDatabase($targetDatabaseName);
+        $this->collection = $this->database->getCollection($targetCollectionName)->getMongoCollection();
+        $this->collectionName = $this->collection->getName();
+
+        return $this;
     }
 
     /**
@@ -1588,7 +1593,8 @@ class Collection implements \Countable
      * if there is no dot, then we assume - $target as collection
      * and getting db from this object
      *
-     * @param $target
+     * @param string $target
+     *
      * @return array
      */
     private function getCompleteCollectionNamespace($target)

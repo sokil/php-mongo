@@ -46,6 +46,7 @@ services:
     environment:
       PHP_IDE_CONFIG: "serverName=phpmongo"
       XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
+      RES_OPTIONS: "retrans:1 retry:1 timeout:1 attempts:1"
 
   php70:
     image: php:7.0

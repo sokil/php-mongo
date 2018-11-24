@@ -2067,13 +2067,6 @@ class CollectionTest extends TestCase
         $this->assertFalse($this->database->col3->isVersioningEnabled());
     }
 
-    /**
-     * @expectedException           Exception
-     * @expectedExceptionCode       26
-     * @expectedExceptionMessage    Error: #26: source namespace does not exist
-     *
-     * @throws Exception
-     */
     public function testRenameNonExistentCollection()
     {
         // set test collection
@@ -2081,6 +2074,8 @@ class CollectionTest extends TestCase
 
         // rename non-existent collection to cause a MongoClient error
         $collection->renameCollection('test.phpmongo_test_collection');
+
+        $this->assertSame('phpmongo_test_collection', $collection->getName());
     }
 
     /**
