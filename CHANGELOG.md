@@ -1,3 +1,7 @@
+## 1.23.1 (2018-11-24)
+  * UrlValidator ping use checkdnsrr
+  * Fixed in building docker environment
+
 ## 1.23.0 (2018-11-04)
  * Added method to rename collection
 
