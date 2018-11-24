@@ -247,6 +247,29 @@ class CursorTest extends TestCase
         $this->assertEmpty($document);
     }
 
+    /**
+     * Method findOne returns the first document according to the natural order
+     * which reflects the order of documents on the disk.
+     *
+     * @throws Exception
+     * @throws Exception\CursorException
+     * @throws Exception\WriteException
+     */
+    public function testFindOneWithSort()
+    {
+        $expectedDocument = $this->collection->createDocument(array('someField' => '100'))->save();
+        $this->collection->createDocument(array('someField' => '70'))->save();
+        $this->collection->createDocument(array('someField' => '50'))->save();
+
+        // find existed row
+        $actualDocument = $this->collection
+            ->find()
+            ->sort(['someField' => 1])
+            ->one();
+
+        $this->assertEquals($expectedDocument->get('someField'), $actualDocument->get('someField'));
+    }
+
     public function testQuery()
     {
         $exp1 = new Expression;
