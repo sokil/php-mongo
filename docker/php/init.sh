@@ -94,7 +94,7 @@ then
     if [[ $MONGO_EXT == "mongodb" ]];
     then
         echo "Installing compatibility layer for new MongoDB extension"
-        composer global require "alcaeus/mongo-php-adapter" --no-update --ignore-platform-reqs --no-interaction -o
+        composer require "alcaeus/mongo-php-adapter" --no-update --ignore-platform-reqs --no-interaction -o
     fi;
 fi
 
