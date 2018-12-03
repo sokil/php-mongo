@@ -3117,19 +3117,8 @@ To start unit tests, run:
 
 ### Docker PHPUnit tests
 
-Also available Docker containers. They starts with xdebug enabled, so you can sign in to any container and debug code there. 
-
-Before running tests start docker container with:
-
-```
-docker-compose -f docker/compose.yml up -d
-```
-
-To run only few environments, run:
-
-```
-docker-compose -f docker/compose.yml up -d php70 mongodb32
-```
+Also available Docker containers. 
+They start with xdebug enabled, so you can sign in to any container and debug code there. 
 
 To start tests on all supported PHP and MongoDB versions, run 
 
@@ -3154,15 +3143,18 @@ To run concrete method of test, pass it:
 
 Tests may be found at `./share/phpunit` dir after finishing tests. 
 
+
 Contributing
 ------------
 
 Pull requests, bug reports and feature requests is welcome. Please see [CONTRIBUTING](https://github.com/sokil/php-mongo/blob/master/CONTRIBUTING.md) for details.
 
+
 Change log
 ----------
 
 Please see [CHANGELOG](https://github.com/sokil/php-mongo/blob/master/CHANGELOG.md) for more information on what has changed recently.
+
 
 License
 -------
