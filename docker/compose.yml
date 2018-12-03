@@ -4,56 +4,38 @@ services:
   mongodb24:
     container_name: phpmongo_mongo24
     image: mongo:2.4
-    volumes:
-      - ../share/db/mongo24:/data/db
 
   mongodb26:
     container_name: phpmongo_mongo26
     image: mongo:2.6
-    volumes:
-      - ../share/db/mongo26:/data/db
 
   mongodb30:
     container_name: phpmongo_mongo30
     image: mongo:3.0
-    volumes:
-      - ../share/db/mongo30:/data/db
 
   mongodb32:
     container_name: phpmongo_mongo32
     image: mongo:3.2
-    volumes:
-      - ../share/db/mongo32:/data/db
 
   mongodb33:
     container_name: phpmongo_mongo33
     image: mongo:3.3
-    volumes:
-      - ../share/db/mongo33:/data/db
 
   mongodb34:
     container_name: phpmongo_mongo34
     image: mongo:3.4
-    volumes:
-      - ../share/db/mongo34:/data/db
 
   mongodb36:
     container_name: phpmongo_mongo36
     image: mongo:3.6
-    volumes:
-    - ../share/db/mongo36:/data/db
 
   mongodb40:
     container_name: phpmongo_mongo40
     image: mongo:4.0
-    volumes:
-    - ../share/db/mongo40:/data/db
 
   mongodb41:
     container_name: phpmongo_mongo41
     image: mongo:4.1
-    volumes:
-    - ../share/db/mongo41:/data/db
 
   php56:
     image: php:5.6

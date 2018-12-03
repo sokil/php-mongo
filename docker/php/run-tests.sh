@@ -1,16 +1,15 @@
 #!/bin/bash
 
 ########################################################################################################################
-# This script executed in container by calling from host machine, 
-# and run test on concrete PHP platform and all specified MongoDB platforms
+# This script executed in container by calling from host machine/
+# It run test on concrete PHP and MongoDB platforms
 ########################################################################################################################
 
-file=$(readlink -f $0);
-projectDir=$(dirname $file)/../..
+PROJECT_DIR=$(dirname $(readlink -f $0))/../..
 
 PHPVersion=$(php -r "echo phpversion();");
-PHPUnitLogDir=$projectDir/share/phpunit/${PHPVersion}
-testPath=$projectDir/tests
+PHPUnitLogDir=${PROJECT_DIR}/share/phpunit/${PHPVersion}
+testPath=${PROJECT_DIR}/tests
 testFilter=""
 
 # prepare phpunit log dir
@@ -21,10 +20,6 @@ else
     rm -rf $ $PHPUnitLogDir/*.log
 fi
 
-# init mongo versions
-mongoVersions=()
-mongoVersionsCount=0
-
 # get mongo versions from input arguments
 while [[ $# -gt 1 ]]
 do
@@ -32,8 +27,7 @@ do
     value="$2"
     case $key in
         -m|--mongo)
-            mongoVersions[$mongoVersionsCount]=$value
-            mongoVersionsCount=$(( $mongoVersionsCount + 1 ))
+            mongoVersion=$value
             shift
         ;;
         -t|--test)
@@ -50,22 +44,11 @@ do
     shift
 done
 
-# if versions not passed, fill default
-if [[ -z $mongoVersions ]]
-then
-    mongoVersions=("24" "26" "30" "32" "33" "34" "36" "40" "41")
-fi
-
-# start bunch of tests
-for mongoVersion in ${mongoVersions[@]}
-do
-    echo -e "\033[1;37m\033[42mTest MongoDB ${mongoVersion} on PHP ${PHPVersion}\033[0m\n"
-
-    PHPMONGO_DSN=mongodb://mongodb${mongoVersion} \
-        $projectDir/vendor/bin/phpunit \
-        -c $projectDir/tests/phpunit.xml \
-        --colors=never \
-        $testFilter \
-        $testPath \
-        | tee $PHPUnitLogDir/mongo${mongoVersion}.log
-done
+# start tests
+PHPMONGO_DSN=mongodb://mongodb${mongoVersion} \
+    $PROJECT_DIR/vendor/bin/phpunit \
+    -c $PROJECT_DIR/tests/phpunit.xml \
+    --colors=never \
+    $testFilter \
+    $testPath \
+    | tee $PHPUnitLogDir/mongo${mongoVersion}.log
