@@ -399,6 +399,11 @@ class Structure implements
             return $value->toArray();
         }
 
+        // stdClass
+        if ($value instanceof \stdClass) {
+            return $value;
+        }
+
         // other objects convert to array
         return (array) $value;
     }
