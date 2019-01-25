@@ -46,7 +46,7 @@ class DocumentAddToSetTest extends TestCase
                 null, 'string1', 'string2', array('string1', 'string2'),
             ),
             'newField_emptyStdclass' => array(
-                null, $stdClass, $stdClass, array(array()),
+                null, $stdClass, $stdClass, array($stdClass),
             ),
             'newField_MongoId' => array(
                 null, $mongoId1, $mongoId2, array($mongoId1, $mongoId2),
@@ -83,7 +83,7 @@ class DocumentAddToSetTest extends TestCase
                 'string2', 'string1', 'string2', array('string2', 'string1'),
             ),
             'scalarField_emptyStdclass' => array(
-                2, $stdClass, $stdClass, array(2, array()),
+                2, $stdClass, $stdClass, array(2, $stdClass),
             ),
             'scalarField_MongoId' => array(
                 2, $mongoId1, $mongoId2, array(2, $mongoId1, $mongoId2),
@@ -125,7 +125,7 @@ class DocumentAddToSetTest extends TestCase
                 array('string2', 'string4'), 'string1', 'string2', array('string2', 'string4', 'string1'),
             ),
             'setField_emptyStdclass' => array(
-                array(2, 4), $stdClass, $stdClass, array(2, 4, array()),
+                array(2, 4), $stdClass, $stdClass, array(2, 4, $stdClass),
             ),
             'setField_MongoId' => array(
                 array(2, 4), $mongoId1, $mongoId2, array(2, 4, $mongoId1, $mongoId2),
