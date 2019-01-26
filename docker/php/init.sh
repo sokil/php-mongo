@@ -7,6 +7,15 @@
 # Project dir
 PROJECT_DIR="/phpmongo/"
 
+### PHP version
+PHP_VERSION=$(php -r "echo phpversion();");
+
+# Existence of this dir points that container initialised
+SHARE_DIR=/share/${PHP_VERSION:0:3}
+
+# Remove share dir.
+rm -rf ${SHARE_DIR}
+
 # Mongo extension
 MONGO_EXT=$1
 if [[ -z $MONGO_EXT ]];
@@ -23,9 +32,6 @@ then
     exit
 fi;
 
-### PHP version
-PHP_VERSION=$(php -r "echo phpversion();");
-
 # mongo version notification
 echo "Creating environment for MongoDB PHP extension '${MONGO_EXT}' ver. ${MONGO_EXT_VERSION} and PHP ${PHP_VERSION}"
 
@@ -37,7 +43,7 @@ if [[ -z $(dpkg -l | grep libssl-dev) ]];
 then
     # add library requirements
     apt-get update -q
-    apt-get install --no-install-recommends -y libssl-dev iproute2
+    apt-get install --no-install-recommends -y libssl-dev iproute2 rsync
 
     # install ext-zip
     apt-get install --no-install-recommends -y zlib1g-dev libzip-dev
@@ -76,6 +82,14 @@ then
 fi
 
 #####################################
+#        prepare project            #
+#####################################
+# Copy files to prevent file modification
+echo 'Copying files to container ... '
+rsync -r /phpmongo-source/ ${PROJECT_DIR}
+echo 'done.'
+
+#####################################
 #        Composer                   #
 #####################################
 
@@ -87,7 +101,6 @@ then
     # download composer
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
-    # update composer
     composer update --no-interaction -o
 
     # add mongodb compatibility layer
@@ -98,11 +111,9 @@ then
     fi;
 fi
 
-#####################################
-#        Start dev environment      #
-#####################################
+# this dir used as marker of container initialisation
+mkdir ${SHARE_DIR}
 
-# debug or run tests manually
+# start process to prevent stop of container
 echo "Container for PHP ${PHP_VERSION} initialised."
-
 php -S 127.0.0.1:9876 .

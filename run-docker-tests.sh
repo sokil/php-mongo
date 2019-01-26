@@ -27,7 +27,7 @@ testPath=""
 testFilter=""
 
 # docker command pattern
-dockerCommand="bash /phpmongo/docker/php/run-tests.sh"
+dockerRunTestCommand="bash /phpmongo/docker/php/run-tests.sh"
 
 # get php and mongo versions from input arguments
 while [[ $# -gt 1 ]]
@@ -74,23 +74,33 @@ fi
 # add path to test file
 if [[ ! -z $testPath ]]
 then
-    dockerCommand="${dockerCommand} -t ${testPath}"
+    dockerRunTestCommand="${dockerRunTestCommand} -t ${testPath}"
 fi
 
 # add path to test file
 if [[ ! -z $testFilter ]]
 then
-    dockerCommand="${dockerCommand} -f ${testFilter}"
+    dockerRunTestCommand="${dockerRunTestCommand} -f ${testFilter}"
 fi
 
 # start bunch of tests
 for phpVersion in ${phpVersions[@]}; do
-    docker-compose -f ${PROJECT_DIR}/docker/compose.yml up -d php${phpVersion} > /dev/null 2> /dev/null
-    for mongoVersion in ${mongoVersions[@]}; do
-        echo -e "\033[1;37m\033[42mTest MongoDB ${mongoVersion} on PHP ${phpVersion}\033[0m\n"
-        docker-compose -f ${PROJECT_DIR}/docker/compose.yml up -d mongodb${mongoVersion} > /dev/null 2> /dev/null
-        docker exec -it phpmongo_php${phpVersion} $dockerCommand -m $mongoVersion
-        docker-compose -f ${PROJECT_DIR}/docker/compose.yml stop mongodb${mongoVersion} > /dev/null 2> /dev/null
+    docker-compose -f ${PROJECT_DIR}/docker/compose.yml up -d php${phpVersion}
+
+    # wait for container initialised
+    # see docker/php/init.sh for details
+    SHARE_DIR=${PROJECT_DIR}/docker/share/${phpVersion:0:1}.${phpVersion:1:1}
+    echo "Waiting for docker container initialisation ..."
+    while [[ ! -d ${SHARE_DIR} ]]; do
+        echo -n .
+        sleep 1
     done
-    docker-compose -f ${PROJECT_DIR}/docker/compose.yml stop php${phpVersion} > /dev/null 2> /dev/null
+
+    for mongoVersion in ${mongoVersions[@]}; do
+        echo -e "\n\033[1;37m\033[42mTest MongoDB ${mongoVersion} on PHP ${phpVersion}\033[0m\n"
+        docker-compose -f ${PROJECT_DIR}/docker/compose.yml up -d mongodb${mongoVersion}
+        docker exec -it phpmongo_php${phpVersion} $dockerRunTestCommand -m $mongoVersion
+        docker-compose -f ${PROJECT_DIR}/docker/compose.yml stop mongodb${mongoVersion}
+    done
+    docker-compose -f ${PROJECT_DIR}/docker/compose.yml stop php${phpVersion}
 done

@@ -1,3 +1,4 @@
 vendor
-share
+docker/share
+!docker/share/.gitkeep
 composer.lock

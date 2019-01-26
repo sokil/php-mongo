@@ -5,19 +5,28 @@
 # It run test on concrete PHP and MongoDB platforms
 ########################################################################################################################
 
+# copy source files to prevent file modification
+echo "Updating files in container..."
+rsync -r /phpmongo-source/ /phpmongo/
+echo "done."
+
 PROJECT_DIR=$(dirname $(readlink -f $0))/../..
 
-PHPVersion=$(php -r "echo phpversion();");
-PHPUnitLogDir=${PROJECT_DIR}/share/phpunit/${PHPVersion}
+PHP_VERSION=$(php -r "echo phpversion();");
+
+SHARE_DIR=/share/${PHP_VERSION:0:3}
+
+PHPUNIT_LOG_DIR=/share/${PHP_VERSION}/phpunit
+
 testPath=${PROJECT_DIR}/tests
 testFilter=""
 
 # prepare phpunit log dir
-if [[ ! -d $PHPUnitLogDir ]];
+if [[ ! -d ${PHPUNIT_LOG_DIR} ]];
 then
-    mkdir -p $PHPUnitLogDir
+    mkdir -p ${PHPUNIT_LOG_DIR}
 else
-    rm -rf $ $PHPUnitLogDir/*.log
+    rm -rf $ ${PHPUNIT_LOG_DIR}/*.log
 fi
 
 # get mongo versions from input arguments
@@ -51,4 +60,4 @@ PHPMONGO_DSN=mongodb://mongodb${mongoVersion} \
     --colors=never \
     $testFilter \
     $testPath \
-    | tee $PHPUnitLogDir/mongo${mongoVersion}.log
+    | tee ${PHPUNIT_LOG_DIR}/mongo${mongoVersion}.log
