@@ -16,16 +16,8 @@ SHARE_DIR=/share/${PHP_VERSION:0:3}
 # Remove share dir.
 rm -rf ${SHARE_DIR}
 
-# Mongo extension
-MONGO_EXT=$1
-if [[ -z $MONGO_EXT ]];
-then
-    echo "Mongo extension name not specified (use 'mongo' or 'mongodb')"
-    exit
-fi;
-
 # Mongo extension version
-MONGO_EXT_VERSION=$2
+MONGO_EXT_VERSION=$1
 if [[ -z $MONGO_EXT_VERSION ]];
 then
     echo "Mongo extension version not specified"
@@ -33,7 +25,7 @@ then
 fi;
 
 # mongo version notification
-echo "Creating environment for MongoDB PHP extension '${MONGO_EXT}' ver. ${MONGO_EXT_VERSION} and PHP ${PHP_VERSION}"
+echo "Creating environment for MongoDB PHP extension 'mongodb' ver. ${MONGO_EXT_VERSION} and PHP ${PHP_VERSION}"
 
 #####################################
 #        PHP extensions             #
@@ -53,8 +45,8 @@ then
     pecl channel-update pecl.php.net
 
     # install pecl mongo extension
-    yes '' | pecl -q install -f ${MONGO_EXT}-${MONGO_EXT_VERSION}
-    docker-php-ext-enable ${MONGO_EXT}.so
+    yes '' | pecl -q install -f mongodb-${MONGO_EXT_VERSION}
+    docker-php-ext-enable mongodb.so
 
     # Docker host for XDEBUG
     DOCKERHOST_IP="$(/sbin/ip route | awk '/default/ { print $3 }')";
@@ -104,11 +96,8 @@ then
     composer update --no-interaction -o
 
     # add mongodb compatibility layer
-    if [[ $MONGO_EXT == "mongodb" ]];
-    then
-        echo "Installing compatibility layer for new MongoDB extension"
-        composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs --no-interaction -o
-    fi;
+    echo "Installing compatibility layer for new MongoDB extension"
+    composer require "alcaeus/mongo-php-adapter" --ignore-platform-reqs --no-interaction -o
 fi
 
 # this dir used as marker of container initialisation

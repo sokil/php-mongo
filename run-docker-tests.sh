@@ -3,11 +3,11 @@
 ########################################################################################################################
 # This script executed on host machine.
 # You can optionally pass parameters:
-#   -p : version of PHP without dots. Currently supported 56, 70, 71
-#   -m : version of MongoDB without dots. Currently supported 24, 26, 30, 32, 33, 34
+#   -p : version of PHP without dots.
+#   -m : version of MongoDB without dots.
 #   -t : path to concrete test file, relative to ./tests/
 # For example:
-# $ ./run-docker-tests.sh -p 56 -m 32 -t CursorTest.php
+# $ ./run-docker-tests.sh -p 71 -m 32 -t CursorTest.php
 # 
 # Actual list of supported versions may be found in docker's compose (./docker/compose.yml)
 ########################################################################################################################
