@@ -62,7 +62,7 @@ done
 # if php versions not passed, fill default
 if [[ -z $phpVersions ]]
 then
-    phpVersions=("56" "70" "71" "72" "73")
+    phpVersions=("71" "72" "73")
 fi
 
 # if versions not passed, fill default
