@@ -17,7 +17,7 @@ class PersistenceLegacy extends Persistence
     /**
      * Send data to database
      *
-     * @return \Sokil\Mongo\Persistence
+     * @return Persistence
      */
     public function flush()
     {

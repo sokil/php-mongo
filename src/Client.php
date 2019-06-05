@@ -80,7 +80,7 @@ class Client
      * @link http://php.net/manual/en/mongoclient.construct.php connect options
      */
     public function __construct(
-        $dsn = null,
+        string $dsn = null,
         array $connectOptions = null
     ) {
         if (!empty($dsn)) {
@@ -97,7 +97,7 @@ class Client
      *
      * @return bool
      */
-    public static function isEmulationMode()
+    public static function isEmulationMode() : bool
     {
         return class_exists('\MongoDB\Driver\Manager');
     }
@@ -108,9 +108,10 @@ class Client
      *
      * @param string $username
      * @param string $password
+     *
      * @return \Sokil\Mongo\Client
      */
-    public function setCredentials($username, $password)
+    public function setCredentials(string $username, string $password) : Client
     {
         $this->connectOptions['username'] = $username;
         $this->connectOptions['password'] = $password;
@@ -127,7 +128,7 @@ class Client
      *
      * @return string Version of PHP driver
      */
-    public function getVersion()
+    public function getVersion() : string
     {
         return \MongoClient::VERSION;
     }
@@ -136,7 +137,7 @@ class Client
      *
      * @return string version of mongo database
      */
-    public function getDbVersion()
+    public function getDbVersion() : string
     {
         if ($this->dbVersion) {
             return $this->dbVersion;
@@ -150,13 +151,13 @@ class Client
         return $this->dbVersion;
     }
     
-    public function setDsn($dsn)
+    public function setDsn($dsn) : Client
     {
         $this->dsn = $dsn;
         return $this;
     }
     
-    public function getDsn()
+    public function getDsn() : string
     {
         return $this->dsn;
     }
@@ -169,13 +170,13 @@ class Client
      * @param array $options
      * @return Client
      */
-    public function setConnectOptions(array $options)
+    public function setConnectOptions(array $options) : Client
     {
         $this->connectOptions = $options;
         return $this;
     }
 
-    public function getConnectOptions()
+    public function getConnectOptions() : array
     {
         return $this->connectOptions;
     }
@@ -184,11 +185,13 @@ class Client
      * Set mongo's client
      *
      * @param \MongoClient $client
-     * @return \Sokil\Mongo\Client
+     *
+     * @return Client
      */
-    public function setMongoClient(\MongoClient $client)
+    public function setMongoClient(\MongoClient $client) : Client
     {
         $this->mongoClient = $client;
+
         return $this;
     }
     
@@ -196,7 +199,6 @@ class Client
      * Get mongo connection instance
      *
      * @return \MongoClient
-     * @throws Exception
      */
     public function getMongoClient()
     {
@@ -235,7 +237,7 @@ class Client
      * @param array $mapping classpath or class prefix
      * @return Client
      */
-    public function map(array $mapping)
+    public function map(array $mapping) : Client
     {
         $this->mapping = $mapping;
         
@@ -251,7 +253,7 @@ class Client
      *
      * @throws Exception
      */
-    public function getDatabase($name = null)
+    public function getDatabase($name = null) : Database
     {
         if (empty($name)) {
             $name = $this->getCurrentDatabaseName();
@@ -275,9 +277,10 @@ class Client
      * Select database
      *
      * @param string $name
-     * @return \Sokil\Mongo\Client
+     *
+     * @return Client
      */
-    public function useDatabase($name)
+    public function useDatabase($name) : Client
     {
         $this->currentDatabaseName = $name;
         return $this;
@@ -287,9 +290,10 @@ class Client
      * Get name of current database
      *
      * @return string
+     *
      * @throws Exception
      */
-    public function getCurrentDatabaseName()
+    public function getCurrentDatabaseName() : string
     {
         if (!$this->currentDatabaseName) {
             throw new Exception('Database not selected');
@@ -302,54 +306,93 @@ class Client
      * Get collection from previously selected database by self::useDatabase()
      *
      * @param string $name
-     * @return \Sokil\Mongo\Collection
+     *
+     * @return Collection
+     *
      * @throws Exception
      */
-    public function getCollection($name)
+    public function getCollection($name) : Collection
     {
         return $this
             ->getDatabase($this->getCurrentDatabaseName())
             ->getCollection($name);
     }
-    
-    public function readPrimaryOnly()
+
+    /**
+     * @return Client
+     */
+    public function readPrimaryOnly() : Client
     {
         $this->getMongoClient()->setReadPreference(\MongoClient::RP_PRIMARY);
-        return $this;
-    }
-    
-    public function readPrimaryPreferred(array $tags = null)
-    {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
-        return $this;
-    }
-    
-    public function readSecondaryOnly(array $tags = null)
-    {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
-        return $this;
-    }
-    
-    public function readSecondaryPreferred(array $tags = null)
-    {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
-        return $this;
-    }
-    
-    public function readNearest(array $tags = null)
-    {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+
         return $this;
     }
 
-    public function getReadPreference()
+    /**
+     * @param array|null $tags
+     *
+     * @return Client
+     */
+    public function readPrimaryPreferred(array $tags = null) : Client
+    {
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+
+        return $this;
+    }
+
+    /**
+     * @param array|null $tags
+     *
+     * @return Client
+     */
+    public function readSecondaryOnly(array $tags = null) : Client
+    {
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+
+        return $this;
+    }
+
+    /**
+     * @param array|null $tags
+     *
+     * @return Client
+     */
+    public function readSecondaryPreferred(array $tags = null) : Client
+    {
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+
+        return $this;
+    }
+
+    /**
+     * @param array|null $tags
+     *
+     * @return Client
+     */
+    public function readNearest(array $tags = null) : Client
+    {
+        $this->getMongoClient()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getReadPreference() : array
     {
         return $this->getMongoClient()->getReadPreference();
     }
-    
-    public function setLogger(LoggerInterface $logger)
+
+    /**
+     * @param LoggerInterface $logger
+     *
+     * @return Client
+     */
+    public function setLogger(LoggerInterface $logger) : Client
     {
         $this->logger = $logger;
+
         return $this;
     }
     
@@ -375,11 +418,12 @@ class Client
     /**
      * Remove logger
      *
-     * @return \Sokil\Mongo\Client
+     * @return Client
      */
     public function removeLogger()
     {
         $this->logger = null;
+
         return $this;
     }
 
@@ -389,13 +433,14 @@ class Client
     public function debug($enabled = true)
     {
         $this->debug = (bool) $enabled;
+
         return $this;
     }
 
     /**
      * Check state of debug mode
      */
-    public function isDebugEnabled()
+    public function isDebugEnabled() : bool
     {
         return $this->debug;
     }
@@ -405,13 +450,14 @@ class Client
      *
      * @param string|integer $w write concern
      * @param int $timeout timeout in milliseconds
-     * @return \Sokil\Mongo\Client
      *
-     * @throws \Sokil\Mongo\Exception
+     * @return Client
+     *
+     * @throws Exception
      */
-    public function setWriteConcern($w, $timeout = 10000)
+    public function setWriteConcern($w, int $timeout = 10000)
     {
-        if (!$this->getMongoClient()->setWriteConcern($w, (int) $timeout)) {
+        if (!$this->getMongoClient()->setWriteConcern($w, $timeout)) {
             throw new Exception('Error setting write concern');
         }
         
@@ -422,7 +468,7 @@ class Client
      * Define unacknowledged write concern on whole requests
      *
      * @param int $timeout timeout in milliseconds
-     * @return \Sokil\Mongo\Client
+     * @return Client
      */
     public function setUnacknowledgedWriteConcern($timeout = 10000)
     {
@@ -434,27 +480,30 @@ class Client
      * Define majority write concern on whole requests
      *
      * @param int $timeout timeout in milliseconds
-     * @return \Sokil\Mongo\Client
+     *
+     * @return Client
      */
-    public function setMajorityWriteConcern($timeout = 10000)
+    public function setMajorityWriteConcern($timeout = 10000) : Client
     {
         $this->setWriteConcern('majority', (int) $timeout);
+
         return $this;
     }
 
     /**
      * Get currently active write concern on connection level
      *
-     * @return string|int
+     * @return array
      */
-    public function getWriteConcern()
+    public function getWriteConcern() : array
     {
         return $this->getMongoClient()->getWriteConcern();
     }
 
     /**
      * Create new persistence manager
-     * @return \Sokil\Mongo\Persistence
+     *
+     * @return Persistence
      */
     public function createPersistence()
     {
