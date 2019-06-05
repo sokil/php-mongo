@@ -22,8 +22,7 @@ PHPMongo ODM
 * PHP 7
   * [PHP MongoDB Extension](https://pecl.php.net/package/mongodb) 1.0 or above
   * [Compatibility layer](https://github.com/alcaeus/mongo-php-adapter). Please, note some [restriontions](#compatibility-with-php-7)
-* PHP 5
-  * __PHP 5.3 not supported starting from 2018-10-19__
+* PHP 5 (Supported in version ^1.0 only)
   * PHP 5.4 - PHP 5.6.
   * [PHP Mongo Extension](https://pecl.php.net/package/mongo) 0.9 or above (Some features require >= 1.5)
 * HHVM

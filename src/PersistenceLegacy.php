@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * This file is part of the PHPMongo package.
@@ -16,7 +17,7 @@ class PersistenceLegacy extends Persistence
     /**
      * Send data to database
      *
-     * @return \Sokil\Mongo\Persistence
+     * @return Persistence
      */
     public function flush()
     {

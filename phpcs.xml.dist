@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ruleset name="php-isocodes">
+    <description>PSR2 + extended checks</description>
+    <arg value="p" />
+    <arg value="s" />
+    <file>src/</file>
+    <file>tests/</file>
+    <config name="ignore_errors_on_exit" value="1"/>
+    <config name="ignore_warnings_on_exit" value="1"/>
+    <rule ref="PSR2"/>
+    <rule ref="Squiz.Commenting.FunctionCommentThrowTag" />
+    <rule ref="Squiz.Commenting.VariableComment" />
+    <rule ref="SlevomatCodingStandard.Commenting.UselessInheritDocComment" />
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHintSpacing">
+        <properties>
+            <property name="spacesCountBeforeColon" value="0"/>
+        </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+        <properties>
+            <property name="newlinesCountBetweenOpenTagAndDeclare" value="1" />
+            <property name="newlinesCountAfterDeclare" value="2" />
+            <property name="spacesCountAroundEqualsSign" value="0" />
+        </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Commenting.EmptyComment"/>
+    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration">
+        <properties>
+            <property name="allAnnotationsAreUseful" value="true" />
+            <property name="enableEachParameterAndReturnInspection" value="true" />
+            <property name="enableObjectTypeHint" value="false" />
+        </properties>
+    </rule>
+</ruleset>
