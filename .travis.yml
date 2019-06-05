@@ -42,10 +42,9 @@ before_script:
   - mongod --version
   - echo $TRAVIS_PHP_VERSION
   - echo $PHP_VERSION
-  - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
-  - php -r 'echo MONGODB_VERSION . PHP_EOL;'; fi
+  - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini;
+  - php -r 'echo MONGODB_VERSION . PHP_EOL;';
   - composer update --no-interaction
-  - composer require "alcaeus/mongo-php-adapter"; fi
   - mkdir -p ./share
   
 notifications:

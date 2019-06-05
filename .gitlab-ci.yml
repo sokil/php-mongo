@@ -4,12 +4,11 @@ services:
 before_script:
   - PHP_VERSION=$(php -r 'echo phpversion();')
   - echo $PHP_VERSION
-  - echo "extension = mongodb.so" >> /usr/local/etc/php/conf.d/docker-php-ext-mongodb.ini; fi
-  - php -r 'echo MONGODB_VERSION . PHP_EOL;'; fi
+  - echo "extension = mongodb.so" >> /usr/local/etc/php/conf.d/docker-php-ext-mongodb.ini
+  - php -r 'echo MONGODB_VERSION . PHP_EOL;'
   - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
   - php composer-setup.php --quiet
   - composer.phar update --no-interaction
-  - if [[ ${PHP_VERSION:0:2} == "7." ]]; then composer require "alcaeus/mongo-php-adapter"; fi
 
 test:7.0:
   image: php:7.0
