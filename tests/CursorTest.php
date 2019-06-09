@@ -718,13 +718,6 @@ class CursorTest extends TestCase
 
     public function testExplain()
     {
-        if (Client::isEmulationMode()) {
-            $this->setExpectedException(
-                'Sokil\Mongo\Exception\FeatureNotSupportedException',
-                'Feature not implemented in emulation mode'
-            );
-        }
-
         $this->collection->createDocument(array('param1' => 1, 'param2' => 1))->save();
         $this->collection->createDocument(array('param1' => 1, 'param2' => 2))->save();
 
@@ -848,13 +841,6 @@ class CursorTest extends TestCase
 
     public function testHint()
     {
-        if (Client::isEmulationMode()) {
-            $this->setExpectedException(
-                'Sokil\Mongo\Exception\FeatureNotSupportedException',
-                'Feature not implemented in emulation mode'
-            );
-        }
-
         // create index
         $this->collection->ensureIndex(array('a' => 1));
         $this->collection->ensureIndex(array('a' => 1, 'b' => 1));

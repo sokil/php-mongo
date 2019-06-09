@@ -22,55 +22,6 @@ class ClientTest extends TestCase
         $this->client = new Client($dsn);
     }
 
-    public function testConstructClientWithConnectOptions()
-    {
-        $client = new Client(
-            null,
-            [
-                'param' => 'value',
-            ]
-        );
-
-        $this->assertEquals(
-            [
-                'param' => 'value',
-            ],
-            $client->getConnectOptions()
-        );
-    }
-
-    public function testSetMongoClient()
-    {
-        $mongoClient = new \MongoClient(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : 'localhost');
-
-        $client = new Client();
-        $client->setMongoClient($mongoClient);
-
-        $this->assertEquals($mongoClient, $client->getMongoClient());
-    }
-
-    public function testSetCredentials()
-    {
-        $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
-        $client->setCredentials('u', 'p');
-
-        $connectOptions = $client->getConnectOptions();
-
-        $this->assertArrayHasKey('username', $connectOptions);
-        $this->assertEquals('u', $connectOptions['username']);
-
-        $this->assertArrayHasKey('password', $connectOptions);
-        $this->assertEquals('p', $connectOptions['password']);
-
-        return $this;
-    }
-
-    public function testGetConnectionWhenNoDSNSpecified()
-    {
-        $client = new Client();
-        $this->assertEquals(Client::DEFAULT_DSN, $client->getDsn());
-    }
-
     public function testGetDatabase()
     {
         $this->assertInstanceOf('\Sokil\Mongo\Database', $this->client->getDatabase('test'));

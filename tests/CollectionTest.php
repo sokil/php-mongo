@@ -1833,11 +1833,8 @@ class CollectionTest extends TestCase
             'uniqueDesc'    => -1,
         ), $indexes[1]['key']);
 
-        $currentVersion = $this->collection->getDatabase()->getClient()->getDbVersion();
-        if (version_compare($currentVersion, '3', '<') && !Client::isEmulationMode()) {
-            $this->assertArrayHasKey('dropDups', $indexes[1]);
-            $this->assertEquals(1, $indexes[1]['dropDups']);
-        }
+        $this->assertArrayHasKey('dropDups', $indexes[1]);
+        $this->assertEquals(1, $indexes[1]['dropDups']);
     }
 
     public function testEnsureFulltextIndex()

@@ -23,24 +23,12 @@ use \Psr\Log\LoggerInterface;
 class Client
 {
     const DEFAULT_DSN = 'mongodb://127.0.0.1';
-
-    /**
-     * @var string
-     */
-    private $dsn = self::DEFAULT_DSN;
-
-    /**
-     * @link http://php.net/manual/en/mongoclient.construct.php
-     *
-     * @var array
-     */
-    private $connectOptions = array();
     
     /**
      *
-     * @var \MongoClient
+     * @var \MongoDb\Client
      */
-    private $mongoClient;
+    private $nativeMongoClient;
 
     /**
      * @var array
@@ -74,51 +62,33 @@ class Client
     private $debug = false;
 
     /**
-     * @param string $dsn Data Source Name
-     * @param array $connectOptions
+     * @see https://php.net/manual/en/mongodb-driver-manager.construct.php
      *
-     * @link http://php.net/manual/en/mongoclient.construct.php connect options
+     * @param string $dsn Data Source Name
+     * @param array $uriOptions
+     * @param array $driverOptions
      */
     public function __construct(
-        string $dsn = null,
-        array $connectOptions = null
+        string $dsn = self::DEFAULT_DSN,
+        array $uriOptions = [],
+        array $driverOptions = []
     ) {
-        if (!empty($dsn)) {
-            $this->setDsn($dsn);
-        }
-        
-        if (!empty($connectOptions)) {
-            $this->setConnectOptions($connectOptions);
-        }
+        $this->nativeMongoClient = new \MongoDB\Client(
+            $dsn,
+            $uriOptions,
+            $driverOptions
+        );
     }
 
     /**
-     * Check if client emulates ext-mongo driver by new ext-mongodb extension
+     * Get database instance by name
      *
-     * @return bool
+     * @param string $name
+     *
+     * @return Database
+     *
+     * @throws Exception
      */
-    public static function isEmulationMode() : bool
-    {
-        return class_exists('\MongoDB\Driver\Manager');
-    }
-    
-    /**
-     * Set credentials to auth on db, specified in connect options or dsn.
-     * If not specified - auth on admin db
-     *
-     * @param string $username
-     * @param string $password
-     *
-     * @return \Sokil\Mongo\Client
-     */
-    public function setCredentials(string $username, string $password) : Client
-    {
-        $this->connectOptions['username'] = $username;
-        $this->connectOptions['password'] = $password;
-        
-        return $this;
-    }
-    
     public function __get($name)
     {
         return $this->getDatabase($name);
@@ -128,9 +98,9 @@ class Client
      *
      * @return string Version of PHP driver
      */
-    public function getVersion() : string
+    public function getDriverVersion() : string
     {
-        return \MongoClient::VERSION;
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -148,80 +118,8 @@ class Client
             ->executeCommand(array('buildinfo' => 1));
         
         $this->dbVersion = $buildInfo['version'];
+
         return $this->dbVersion;
-    }
-    
-    public function setDsn($dsn) : Client
-    {
-        $this->dsn = $dsn;
-        return $this;
-    }
-    
-    public function getDsn() : string
-    {
-        return $this->dsn;
-    }
-    
-    /**
-     * Set connect options
-     *
-     * @link http://php.net/manual/en/mongoclient.construct.php connect options
-     *
-     * @param array $options
-     * @return Client
-     */
-    public function setConnectOptions(array $options) : Client
-    {
-        $this->connectOptions = $options;
-        return $this;
-    }
-
-    public function getConnectOptions() : array
-    {
-        return $this->connectOptions;
-    }
-    
-    /**
-     * Set mongo's client
-     *
-     * @param \MongoClient $client
-     *
-     * @return Client
-     */
-    public function setMongoClient(\MongoClient $client) : Client
-    {
-        $this->mongoClient = $client;
-
-        return $this;
-    }
-    
-    /**
-     * Get mongo connection instance
-     *
-     * @return \MongoClient
-     */
-    public function getMongoClient()
-    {
-        if ($this->mongoClient) {
-            return $this->mongoClient;
-        }
-
-        $this->mongoClient = new \MongoClient(
-            $this->dsn,
-            $this->connectOptions
-        );
-        
-        return $this->mongoClient;
-    }
-    
-    /**
-     * Get list of all active connections through this client
-     *
-     * @return array
-     */
-    public function getConnections()
-    {
-        return $this->mongoClient->getConnections();
     }
     
     /**
@@ -253,7 +151,7 @@ class Client
      *
      * @throws Exception
      */
-    public function getDatabase($name = null) : Database
+    public function getDatabase(string $name = null) : Database
     {
         if (empty($name)) {
             $name = $this->getCurrentDatabaseName();
@@ -280,9 +178,10 @@ class Client
      *
      * @return Client
      */
-    public function useDatabase($name) : Client
+    public function useDatabase(string $name) : Client
     {
         $this->currentDatabaseName = $name;
+
         return $this;
     }
 
@@ -323,7 +222,7 @@ class Client
      */
     public function readPrimaryOnly() : Client
     {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_PRIMARY);
+        $this->nativeMongoClient->setReadPreference(\MongoClient::RP_PRIMARY);
 
         return $this;
     }
@@ -335,7 +234,7 @@ class Client
      */
     public function readPrimaryPreferred(array $tags = null) : Client
     {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
+        $this->nativeMongoClient->setReadPreference(\MongoClient::RP_PRIMARY_PREFERRED, $tags);
 
         return $this;
     }
@@ -347,7 +246,7 @@ class Client
      */
     public function readSecondaryOnly(array $tags = null) : Client
     {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
+        $this->nativeMongoClient->setReadPreference(\MongoClient::RP_SECONDARY, $tags);
 
         return $this;
     }
@@ -359,7 +258,7 @@ class Client
      */
     public function readSecondaryPreferred(array $tags = null) : Client
     {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        $this->nativeMongoClient->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
 
         return $this;
     }
@@ -371,7 +270,7 @@ class Client
      */
     public function readNearest(array $tags = null) : Client
     {
-        $this->getMongoClient()->setReadPreference(\MongoClient::RP_NEAREST, $tags);
+        $this->nativeMongoClient->setReadPreference(\MongoClient::RP_NEAREST, $tags);
 
         return $this;
     }
@@ -381,7 +280,7 @@ class Client
      */
     public function getReadPreference() : array
     {
-        return $this->getMongoClient()->getReadPreference();
+        return $this->nativeMongoClient->getReadPreference();
     }
 
     /**
@@ -457,7 +356,7 @@ class Client
      */
     public function setWriteConcern($w, int $timeout = 10000)
     {
-        if (!$this->getMongoClient()->setWriteConcern($w, $timeout)) {
+        if (!$this->nativeMongoClient->setWriteConcern($w, $timeout)) {
             throw new Exception('Error setting write concern');
         }
         
@@ -497,7 +396,7 @@ class Client
      */
     public function getWriteConcern() : array
     {
-        return $this->getMongoClient()->getWriteConcern();
+        return $this->nativeMongoClient->getWriteConcern();
     }
 
     /**

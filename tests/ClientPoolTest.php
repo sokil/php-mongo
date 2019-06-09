@@ -183,27 +183,6 @@ class ClientPoolTest extends TestCase
 
         $this->assertEquals('\Sokil\Mongo\Collection8', $collectionClassName->class);
     }
-
-    public function testGet_DsnNotSpecified()
-    {
-        $pool = new ClientPool(array(
-            'connect1' => array(
-                'defaultDatabase' => 'db2',
-                'mapping' => array(
-                    'db1' => array(
-                        'col1' => '\Sokil\Mongo\Collection1',
-                        'col2' => '\Sokil\Mongo\Collection2',
-                    ),
-                    'db2' => array(
-                        'col1' => '\Sokil\Mongo\Collection3',
-                        'col2' => '\Sokil\Mongo\Collection4',
-                    )
-                ),
-            )
-        ));
-
-        $this->assertEquals(Client::DEFAULT_DSN, $pool->get('connect1')->getDsn());
-    }
 }
 
 class Collection1 extends \Sokil\Mongo\Collection {}

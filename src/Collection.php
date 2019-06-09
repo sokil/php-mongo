@@ -203,13 +203,7 @@ class Collection implements \Countable
      */
     public function getMongoCollection()
     {
-        if (empty($this->collection)) {
-            $mongoCollectionClassName = $this->mongoCollectionClassName;
-            $this->collection = new $mongoCollectionClassName(
-                $this->database->getMongoDB(),
-                $this->collectionName
-            );
-        }
+        throw new \Exception('Not implemented');
 
         return $this->collection;
     }
@@ -653,21 +647,7 @@ class Collection implements \Countable
      */
     public function hasDocument(Document $document)
     {
-        $documentCollection = $document->getCollection();
-        $documentDatabase = $documentCollection->getDatabase();
-
-        // check connection
-        if ($documentDatabase->getClient()->getDsn() !== $this->getDatabase()->getClient()->getDsn()) {
-            return false;
-        }
-
-        // check database
-        if ($documentDatabase->getName() !== $this->getDatabase()->getName()) {
-            return false;
-        }
-
-        // check collection
-        return $documentCollection->getName() == $this->getName();
+        throw new \Exception('Not implemented');
     }
 
     /**

@@ -1,3 +1,10 @@
+## 2.0
+  * Removed methods to get native driver objects.
+  * Removed Client::getConnections().
+  * Removed Client::setConnectOptions(), Client::getConnectOptions(), Client::setCredentials(),  
+    Client::setDsn(), Client::getDsn(), use constructor instead.
+  * Client::getVersion() renamed to Client:getDriverVersion().
+
 ## 1.23.1 (2018-11-24)
   * UrlValidator ping use checkdnsrr
   * Fixed in building docker environment

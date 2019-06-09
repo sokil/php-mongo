@@ -103,14 +103,9 @@ class Database
      *
      * @return \MongoDB
      */
-    public function getMongoDB()
+    private function getMongoDB()
     {
-        if (empty($this->database)) {
-            $this->database = $this
-                ->client
-                ->getMongoClient()
-                ->selectDB($this->databaseName);
-        }
+        throw new \Exception('Not implemented');
 
         return $this->database;
     }

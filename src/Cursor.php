@@ -507,10 +507,6 @@ class Cursor implements \Iterator, \Countable
      */
     public function explain()
     {
-        if (Client::isEmulationMode()) {
-            throw new FeatureNotSupportedException('Feature not implemented in emulation mode');
-        }
-
         $this->rewind();
 
         return $this->cursor->explain();
