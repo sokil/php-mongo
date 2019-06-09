@@ -6,18 +6,21 @@
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
     >
+    <php>
+        <env name="PHPMONGO_DSN" value="mongodb://127.0.0.1"/>
+    </php>
     <testsuites>
         <testsuite name="AllTests">
-            <directory>../tests</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">../src</directory>
+            <directory suffix=".php">src</directory>
         </whitelist>
         <blacklist>
-            <file>../src/Exception.php</file>
-            <file>../src/Validator/Exception.php</file>
+            <file>src/Exception.php</file>
+            <file>src/Validator/Exception.php</file>
         </blacklist>
     </filter>
 </phpunit>

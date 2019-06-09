@@ -8,25 +8,35 @@ class ClientTest extends TestCase
 {
     /**
      *
-     * @var \Sokil\Mongo\Client
+     * @var Client
      */
     private $client;
     
     public function setUp()
     {
         // connect to mongo
-        $this->client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
+        $dsn = getenv('PHPMONGO_DSN')
+            ? getenv('PHPMONGO_DSN')
+            : null;
+
+        $this->client = new Client($dsn);
     }
 
     public function testConstructClientWithConnectOptions()
     {
-        $client = new Client(null, array(
-            'param' => 'value',
-        ));
+        $client = new Client(
+            null,
+            [
+                'param' => 'value',
+            ]
+        );
 
-        $this->assertEquals(array(
-            'param' => 'value',
-        ), $client->getConnectOptions());
+        $this->assertEquals(
+            [
+                'param' => 'value',
+            ],
+            $client->getConnectOptions()
+        );
     }
 
     public function testSetMongoClient()
