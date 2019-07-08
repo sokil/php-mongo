@@ -306,6 +306,23 @@ class Operator implements ArrayableInterface
         $this->operators['$unset'][$fieldName] = '';
         return $this;
     }
+
+    /**
+     * The $rename operator deletes a particular field
+     *
+     * @link https://docs.mongodb.com/manual/reference/operator/update/rename/
+     *
+     * @param string $oldFieldName
+     * @param string $newFieldName
+     *
+     * @return Operator
+     */
+    public function renameField($oldFieldName, $newFieldName)
+    {
+        $this->operators['$rename'][$oldFieldName] = $newFieldName;
+
+        return $this;
+    }
     
     public function bitwiceAnd($field, $value)
     {

@@ -101,6 +101,25 @@ class CollectionTest extends TestCase
         $this->assertEquals($document->getId(), $foundDocument->getId());
     }
 
+    public function testRenameField()
+    {
+        $document = $this->collection
+            ->createDocument(array('param' => 'value'))
+            ->save();
+
+        $this->collection->batchUpdate(
+            array('_id' => $document->getId()),
+            function(Operator $operator) {
+                $operator->renameField('param', 'renamedParam');
+            }
+        );
+
+        $this->assertEquals(
+            'value',
+            $this->collection->getDocumentDirectly($document->getId())->renamedParam
+        );
+    }
+
     public function testGetDocumentDirectly()
     {
         $document = $this->collection
