@@ -1231,25 +1231,32 @@ Making changes in few documents:
 ```php
 <?php
 
-$collection->batchUpdate(function(\Sokil\Mongo\Expression $expression) {
-    return $expression->where('field', 'value');
-}, array('field' => 'new value'));
-
-// deprecated since 1.13
-$collection->updateMultiple(function(\Sokil\Mongo\Expression $expression) {
-    return $expression->where('field', 'value');
-}, array('field' => 'new value'));
+$collection->batchUpdate(
+    function(\Sokil\Mongo\Expression $expression) {
+        return $expression->where('field', 'value');
+    },
+    ['field' => 'new value']
+);
 ```
 
-Method `Collection::updateAll` since 1.13 is deprecated. 
 To update all documents use:
 ```php
 <?php
 
 $collection->batchUpdate([], array('field' => 'new value'));
-// deprecated since 1.13
-$collection->updateAll(array('field' => 'new value'));
 ```
+
+Rename fields of documents:
+```php
+<?php
+$collection->batchUpdate(
+    [],
+    function(Operator $operator) {
+        $operator->renameField('param', 'renamedParam');
+    }
+);
+```
+
 Also supported `\MongoUpdateBatch` through interface:
 ```php
 <?php
