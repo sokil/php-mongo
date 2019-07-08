@@ -152,19 +152,21 @@ class Structure implements
     }
 
     /**
-     * @param $selector
+     * @param string $selector
+     * @param mixed $default
+     *
      * @return mixed
      */
-    public function get($selector)
+    public function get($selector, $default = null)
     {
         if (false === strpos($selector, '.')) {
-            return isset($this->data[$selector]) ? $this->data[$selector] : null;
+            return isset($this->data[$selector]) ? $this->data[$selector] : $default;
         }
 
         $value = $this->data;
         foreach (explode('.', $selector) as $field) {
             if (!isset($value[$field])) {
-                return null;
+                return $default;
             }
 
             $value = $value[$field];

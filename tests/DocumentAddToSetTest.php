@@ -17,6 +17,7 @@ class DocumentAddToSetTest extends TestCase
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $database = $client->getDatabase('test');
+
         $this->collection = $database
             ->getCollection('phpmongo_test_collection')
             ->delete();
