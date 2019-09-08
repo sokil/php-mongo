@@ -28,9 +28,9 @@ PHPMongo ODM
     * [PHP MongoDB Extension](https://pecl.php.net/package/mongodb) 1.0 or above
     * [Compatibility layer](https://github.com/alcaeus/mongo-php-adapter). Please, note some [restriontions](#compatibility-with-php-7)
    * HHVM Driver [not supported](https://derickrethans.nl/mongodb-hhvm.html).
-* PHP-Mongo v.2 
+* PHP-Mongo v.2 (Currentry is under development and can not be used in production)
   * PHP 7
-    * [PHP MongoDB Extension](https://pecl.php.net/package/mongodb) natively without legacy adapters. Currentry v.2 is under development and can not be used in production.
+    * [PHP MongoDB Extension](https://pecl.php.net/package/mongodb) natively without legacy driver adapters. 
   * PHP 5 not supported
   * HHVM Driver [not supported](https://derickrethans.nl/mongodb-hhvm.html).
 <br/>
