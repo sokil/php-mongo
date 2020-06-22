@@ -61,10 +61,9 @@ then
     echo "$DOCKERHOST_IP dockerhost" >> /etc/hosts
 
     # last version of xdebug with support PHP < 7.0 is 2.5.5
-    if [[ ${PHP_VERSION:0:2} == "5." ]]; then
+    if [[ ${PHP_VERSION:0:2} == "5." ]];
+    then
         pecl install xdebug-2.5.5;
-    elif [[ ${PHP_VERSION:0:3} == "7.3" ]]; then
-        pecl install xdebug-2.7.0beta1;
     else
         pecl install xdebug;
     fi

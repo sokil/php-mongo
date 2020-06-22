@@ -3,8 +3,8 @@
 ########################################################################################################################
 # This script executed on host machine.
 # You can optionally pass parameters:
-#   -p : version of PHP without dots. Currently supported 56, 70, 71
-#   -m : version of MongoDB without dots. Currently supported 24, 26, 30, 32, 33, 34
+#   -p : version of PHP without dots. Currently supported 56, 70, 71, 72, 73, 74
+#   -m : version of MongoDB without dots. Currently supported 24, 26, 30, 32, 33, 34, 36, 40, 41
 #   -t : path to concrete test file, relative to ./tests/
 # For example:
 # $ ./run-docker-tests.sh -p 56 -m 32 -t CursorTest.php
@@ -62,7 +62,7 @@ done
 # if php versions not passed, fill default
 if [[ -z $phpVersions ]]
 then
-    phpVersions=("56" "70" "71" "72" "73")
+    phpVersions=("56" "70" "71" "72" "73" "74")
 fi
 
 # if versions not passed, fill default
