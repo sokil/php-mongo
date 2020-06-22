@@ -232,6 +232,11 @@ class Collection implements \Countable
     {
         $status = $this->getMongoCollection()->drop();
 
+        if ($status === array()) {
+            $writeConcern = $this->getWriteConcern();
+            $status['ok'] = ($writeConcern['w'] === 0 ? 1:0);
+        }
+
         if ($status['ok'] != 1) {
             // check if collection exists
             if ('ns not found' !== $status['errmsg']) {
@@ -1037,6 +1042,18 @@ class Collection implements \Countable
                 return $this->getMongoCollection()->aggregateCursor($pipeline, $options);
             } else {
                 throw new FeatureNotSupportedException('Aggregate cursor supported from driver version 1.5');
+            }
+        } else {
+            if (
+                empty($options['explain']) &&
+                version_compare(\MongoClient::VERSION, '1.5.0', '>=') &&
+                version_compare($this->database->getClient()->getDbVersion(), '2.6', '>=')
+            ) {
+                try {
+                    return iterator_to_array($this->getMongoCollection()->aggregateCursor($pipeline, $options), false);
+                } catch (\Exception $e) {
+                    throw new Exception('Aggregate error: ' . $e->getMessage());
+                }
             }
         }
 
