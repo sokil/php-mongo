@@ -61,12 +61,11 @@ then
     echo "$DOCKERHOST_IP dockerhost" >> /etc/hosts
 
     # last version of xdebug with support PHP < 7.0 is 2.5.5
-    if [[ ${PHP_VERSION:0:2} == "5." ]]; then
+    if [[ ${PHP_VERSION:0:2} == "5." ]];
+    then
         pecl install xdebug-2.5.5;
         echo "mongo.native_long=0" >> /usr/local/etc/php/conf.d/mongo.ini
         echo "mongo.long_as_object=1" >> /usr/local/etc/php/conf.d/mongo.ini
-    elif [[ ${PHP_VERSION:0:3} == "7.3" ]]; then
-        pecl install xdebug-2.7.0beta1;
     else
         pecl install xdebug;
     fi
