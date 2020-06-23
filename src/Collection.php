@@ -232,9 +232,10 @@ class Collection implements \Countable
     {
         $status = $this->getMongoCollection()->drop();
 
+        // Drop function in mongodb >= 3.6 with unacknowledged write concern return empty result
         if ($status === array()) {
             $writeConcern = $this->getWriteConcern();
-            $status['ok'] = ($writeConcern['w'] === 0 ? 1:0);
+            $status = ($writeConcern['w'] === 0 ? array('ok' => 1):array('ok' => 0, 'errmsg' => 'unknown error'));
         }
 
         if ($status['ok'] != 1) {
