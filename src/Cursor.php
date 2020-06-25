@@ -765,17 +765,20 @@ class Cursor implements \Iterator, \Countable
      */
     public function findAndUpdate(Operator $operator, $upsert = false, $returnUpdated = true)
     {
+        $options = array(
+            'new' => $returnUpdated,
+            'upsert' => $upsert,
+        );
+        if ($this->sort) {
+            $options['sort'] = $this->sort;
+        }
         $mongoDocument = $this->collection
             ->getMongoCollection()
             ->findAndModify(
                 $this->expression->toArray(),
                 $operator ? $operator->toArray() : null,
                 $this->projection,
-                array(
-                    'new' => $returnUpdated,
-                    'sort' => $this->sort,
-                    'upsert' => $upsert,
-                )
+                $options
             );
 
         if (empty($mongoDocument)) {
