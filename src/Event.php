@@ -11,13 +11,13 @@
 
 namespace Sokil\Mongo;
 
-class Event extends \Symfony\Component\EventDispatcher\Event
+class Event extends \Symfony\Contracts\EventDispatcher\Event
 {
     /**
      * @var mixed $target target object, on which event is fired
      */
     private $target;
-    
+
     private $cancelled = false;
 
     /**
@@ -39,7 +39,7 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     {
         return $this->target;
     }
-    
+
     /**
      * Check if operation execution cancelled
      */
@@ -47,7 +47,7 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     {
         return $this->cancelled;
     }
-    
+
     /**
      * Cancel related operation execution. If called as beforeInsert
      * handler, than insert will be cancelled.
@@ -55,10 +55,10 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     public function cancel()
     {
         $this->cancelled = true;
-        
+
         // propagation also not need
         $this->stopPropagation();
-        
+
         return $this;
     }
 }
