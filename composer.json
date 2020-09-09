@@ -1,5 +1,5 @@
 {
-    "name": "datingvip/php-mongo",
+    "name": "sokil/php-mongo",
     "description": "PHP Object Document Mapper for MongoDB",
     "type": "library",
     "license": "MIT",
