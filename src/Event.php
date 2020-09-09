@@ -12,14 +12,34 @@ declare(strict_types=1);
 
 namespace Sokil\Mongo;
 
-class Event extends \Symfony\Component\EventDispatcher\Event
+use Psr\EventDispatcher\StoppableEventInterface;
+
+class Event implements StoppableEventInterface
 {
     /**
      * @var mixed $target target object, on which event is fired
      */
     private $target;
-    
+
     private $cancelled = false;
+
+    private $propagationStopped = false;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isPropagationStopped(): bool
+    {
+        return $this->propagationStopped;
+    }
+
+    /**
+     * Stops the propagation of the event to further event listeners.
+     */
+    public function stopPropagation(): void
+    {
+        $this->propagationStopped = true;
+    }
 
     /**
      * Set target object, on which event is fired
@@ -40,7 +60,7 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     {
         return $this->target;
     }
-    
+
     /**
      * Check if operation execution cancelled
      */
@@ -48,7 +68,7 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     {
         return $this->cancelled;
     }
-    
+
     /**
      * Cancel related operation execution. If called as beforeInsert
      * handler, than insert will be cancelled.
@@ -56,10 +76,10 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     public function cancel()
     {
         $this->cancelled = true;
-        
+
         // propagation also not need
         $this->stopPropagation();
-        
+
         return $this;
     }
 }
