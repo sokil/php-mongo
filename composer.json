@@ -1,5 +1,5 @@
 {
-    "name": "sokil/php-mongo",
+    "name": "datingvip/php-mongo",
     "description": "PHP Object Document Mapper for MongoDB",
     "type": "library",
     "license": "MIT",
@@ -22,7 +22,7 @@
         "psr/log": "~1.0",
         "psr/simple-cache": "^1.0",
         "jmikola/geojson": "~1.0",
-        "symfony/event-dispatcher": ">=2.0 <5.0",
+        "symfony/event-dispatcher": ">=2.0 <6.0",
         "symfony/polyfill-php55": "~1.0"
     },
     "require-dev": {

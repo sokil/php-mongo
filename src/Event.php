@@ -11,54 +11,110 @@
 
 namespace Sokil\Mongo;
 
-class Event extends \Symfony\Component\EventDispatcher\Event
+if (class_exists('Symfony\Contracts\EventDispatcher\Event'))
 {
-    /**
-     * @var mixed $target target object, on which event is fired
-     */
-    private $target;
-    
-    private $cancelled = false;
+    class Event extends \Symfony\Contracts\EventDispatcher\Event
+    {
+        /**
+         * @var mixed $target target object, on which event is fired
+         */
+        private $target;
 
-    /**
-     * Set target object, on which event is fired
-     * @param mixed $target
-     * @return \Sokil\Mongo\Event
-     */
-    public function setTarget($target)
-    {
-        $this->target = $target;
-        return $this;
-    }
+        private $cancelled = false;
 
-    /**
-     * Get target object, on which event is fired
-     * @return mixed
-     */
-    public function getTarget()
-    {
-        return $this->target;
+        /**
+         * Set target object, on which event is fired
+         * @param mixed $target
+         * @return \Sokil\Mongo\Event
+         */
+        public function setTarget($target)
+        {
+            $this->target = $target;
+            return $this;
+        }
+
+        /**
+         * Get target object, on which event is fired
+         * @return mixed
+         */
+        public function getTarget()
+        {
+            return $this->target;
+        }
+
+        /**
+         * Check if operation execution cancelled
+         */
+        public function isCancelled()
+        {
+            return $this->cancelled;
+        }
+
+        /**
+         * Cancel related operation execution. If called as beforeInsert
+         * handler, than insert will be cancelled.
+         */
+        public function cancel()
+        {
+            $this->cancelled = true;
+
+            // propagation also not need
+            $this->stopPropagation();
+
+            return $this;
+        }
     }
-    
-    /**
-     * Check if operation execution cancelled
-     */
-    public function isCancelled()
+}
+else {
+    class Event extends \Symfony\Component\EventDispatcher\Event
     {
-        return $this->cancelled;
-    }
-    
-    /**
-     * Cancel related operation execution. If called as beforeInsert
-     * handler, than insert will be cancelled.
-     */
-    public function cancel()
-    {
-        $this->cancelled = true;
-        
-        // propagation also not need
-        $this->stopPropagation();
-        
-        return $this;
+        /**
+         * @var mixed $target target object, on which event is fired
+         */
+        private $target;
+
+        private $cancelled = false;
+
+        /**
+         * Set target object, on which event is fired
+         * @param mixed $target
+         * @return \Sokil\Mongo\Event
+         */
+        public function setTarget($target)
+        {
+            $this->target = $target;
+            return $this;
+        }
+
+        /**
+         * Get target object, on which event is fired
+         * @return mixed
+         */
+        public function getTarget()
+        {
+            return $this->target;
+        }
+
+        /**
+         * Check if operation execution cancelled
+         */
+        public function isCancelled()
+        {
+            return $this->cancelled;
+        }
+
+        /**
+         * Cancel related operation execution. If called as beforeInsert
+         * handler, than insert will be cancelled.
+         */
+        public function cancel()
+        {
+            $this->cancelled = true;
+
+            // propagation also not need
+            $this->stopPropagation();
+
+            return $this;
+        }
     }
 }
