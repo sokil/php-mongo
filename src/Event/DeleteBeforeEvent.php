@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class DeleteBeforeEvent extends Event
 {
-    public const NAME = 'beforeDelete';
+    const NAME = 'beforeDelete';
 }

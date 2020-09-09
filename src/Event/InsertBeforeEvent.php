@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class InsertBeforeEvent extends Event
 {
-    public const NAME = 'beforeInsert';
+    const NAME = 'beforeInsert';
 }

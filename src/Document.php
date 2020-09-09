@@ -32,7 +32,6 @@ use Sokil\Mongo\Event\UpdateAfterEvent;
 use Sokil\Mongo\Event\InsertAfterEvent;
 use Sokil\Mongo\Event\InsertBeforeEvent;
 use Sokil\Mongo\Event\ConstructAfterEvent;
-use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
 
 /**
  * Instance of this class is a representation of one document from collection.
@@ -562,7 +561,7 @@ class Document extends Structure
 
         $event->setTarget($this);
 
-        if (interface_exists(PsrEventDispatcherInterface::class)) {
+        if (interface_exists('Psr\EventDispatcher\EventDispatcherInterface')) {
             return $this->eventDispatcher->dispatch($event);
         }
 

@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class ValidateErrorEvent extends Event
 {
-    public const NAME = 'validateError';
+    const NAME = 'validateError';
 }

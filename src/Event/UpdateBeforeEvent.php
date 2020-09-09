@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class UpdateBeforeEvent extends Event
 {
-    public const NAME = 'beforeUpdate';
+    const NAME = 'beforeUpdate';
 }

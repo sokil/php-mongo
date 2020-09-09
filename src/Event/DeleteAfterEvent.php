@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class DeleteAfterEvent extends Event
 {
-    public const NAME = 'afterDelete';
+    const NAME = 'afterDelete';
 }

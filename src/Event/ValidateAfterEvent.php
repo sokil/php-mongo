@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class ValidateAfterEvent extends Event
 {
-    public const NAME = 'afterValidate';
+    const NAME = 'afterValidate';
 }

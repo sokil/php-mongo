@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class ConstructAfterEvent extends Event
 {
-    public const NAME = 'afterConstruct';
+    const NAME = 'afterConstruct';
 }

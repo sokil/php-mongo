@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class SaveAfterEvent extends Event
 {
-    public const NAME = 'afterSave';
+    const NAME = 'afterSave';
 }

@@ -6,5 +6,5 @@ use Sokil\Mongo\Event;
 
 class SaveBeforeEvent extends Event
 {
-    public const NAME = 'beforeSave';
+    const NAME = 'beforeSave';
 }
