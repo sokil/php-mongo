@@ -22,7 +22,6 @@
         "ext-mongodb": "^1.2.0",
         "psr/simple-cache": "^1.0",
         "jmikola/geojson": "~1.0",
-        "symfony/event-dispatcher": ">=2.0 <5.0",
         "alcaeus/mongo-php-adapter": "^1.1"
     },
     "require-dev": {
@@ -39,6 +38,7 @@
         "sokil/php-mongo-bundle": "Symfony Bundle",
         "phpmongokit/laravel-mongo-pdm": "PHPMongo ODM Adapter for Laravel",
         "sokil/php-mongo-yii": "Yii Framework component",
+        "symfony/event-dispatcher": "Add support for event dispatcher",
         "phpmongokit/yii2-mongo-odm": "Yii2 Framework component"
     },
     "scripts": {
