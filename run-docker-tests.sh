@@ -62,7 +62,7 @@ done
 # if php versions not passed, fill default
 if [[ -z $phpVersions ]]
 then
-    phpVersions=("71" "72" "73")
+    phpVersions=("71" "72" "73" "74")
 fi
 
 # if versions not passed, fill default
@@ -99,6 +99,11 @@ for phpVersion in ${phpVersions[@]}; do
     for mongoVersion in ${mongoVersions[@]}; do
         echo -e "\n\033[1;37m\033[42mTest MongoDB ${mongoVersion} on PHP ${phpVersion}\033[0m\n"
         docker-compose -f ${PROJECT_DIR}/docker/compose.yml up -d mongodb${mongoVersion}
+        until docker exec -it phpmongo_mongo${mongoVersion} mongo --eval "print(\"waited for connection\")" > /dev/null
+        do
+            echo -n .
+            sleep 1
+        done
         docker exec -it phpmongo_php${phpVersion} $dockerRunTestCommand -m $mongoVersion
         docker-compose -f ${PROJECT_DIR}/docker/compose.yml stop mongodb${mongoVersion}
     done
