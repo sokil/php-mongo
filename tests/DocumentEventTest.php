@@ -27,20 +27,20 @@ class DocumentEventTest extends TestCase
      * @var \Sokil\Mongo\Collection
      */
     private $collection;
-    
+
     public function setUp()
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
-        
+
         // select database
         $database = $client->getDatabase('test');
-        
+
         // select collection
         $this->collection = $database->getCollection('phpmongo_test_collection');
     }
-    
-    public function tearDown() 
+
+    public function tearDown()
     {
         $this->collection->delete();
     }
@@ -138,159 +138,159 @@ class DocumentEventTest extends TestCase
     {
         $status = new \stdclass;
         $status->done = false;
-        
+
         $document = $this->collection->createDocument(array(
             'p' => 'v'
         ));
         $document->onBeforeInsert(function() use($status) {
             $status->done = true;
         });
-        
+
         $document->save();
-        
+
         $this->assertTrue($status->done);
     }
-    
+
     public function testAfterInsert()
     {
         $status = new \stdclass;
         $status->done = false;
-        
+
         $document = $this->collection->createDocument(array(
             'p' => 'v'
         ));
         $document->onAfterInsert(function() use($status) {
             $status->done = true;
         });
-        
+
         $document->save();
-        
+
         $this->assertTrue($status->done);
     }
-    
+
     public function testBeforeUpdate()
     {
         $status = new \stdclass;
         $status->done = false;
-        
+
         $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
-        
+
         $document->onBeforeUpdate(function() use($status) {
             $status->done = true;
         });
-        
+
         // insert
         $document->save();
-        
+
         // update
         $document->set('p', 'updated')->save();
-        
+
         $this->assertTrue($status->done);
     }
-    
+
     public function testAfterUpdate()
     {
         $status = new \stdclass;
         $status->done = false;
-        
+
         $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
-        
+
         $document->onAfterUpdate(function() use($status) {
             $status->done = true;
         });
-        
+
         // insert
         $document->save();
-        
+
         // update
         $document->set('p', 'updated')->save();
-        
+
         $this->assertTrue($status->done);
     }
-    
+
     public function testBeforeSave()
     {
         $status = new \stdclass;
         $status->done = false;
-        
+
         $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
-        
+
         $document->onBeforeSave(function($event) use($status) {
             $status->done = true;
         });
-        
+
         // insert
         $document->save();
-        
+
         $this->assertTrue($status->done);
     }
-    
+
     public function testAfterSave()
     {
         $status = new \stdclass;
         $status->done = false;
-        
+
         $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ));
-        
+
         $document->onAfterSave(function() use($status) {
             $status->done = true;
         });
-        
+
         // insert
         $document->save();
-        
+
         $this->assertTrue($status->done);
     }
-    
+
     public function testBeforeDelete()
     {
         $status = new \stdclass;
         $status->done = false;
-        
+
         $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ))
             ->save();
-        
+
         $document->onBeforeDelete(function() use($status) {
             $status->done = true;
         });
-        
+
         $document->delete();
-        
+
         $this->assertTrue($status->done);
     }
-    
+
     public function testAfterDelete()
     {
         $status = new \stdclass;
         $status->done = false;
-        
+
         $document = $this->collection
             ->createDocument(array(
                 'p' => 'v'
             ))
             ->save();
-        
+
         $document->onAfterDelete(function() use($status) {
             $status->done = true;
         });
-        
+
         $document->delete();
-        
+
         $this->assertTrue($status->done);
     }
 
@@ -323,18 +323,18 @@ class DocumentEventTest extends TestCase
             $status->done = true;
         });
 
-        $document->triggerEvent('someEventName');
+        $document->triggerEvent(new Event());
 
         $this->assertTrue($status->done);
     }
-    
+
     public function testCancelledEventHandlerNotPropageted()
     {
         $testCase = $this;
-        
+
         $status = new \stdClass;
         $status->done = false;
-        
+
         $this->collection
             ->createDocument()
             ->onBeforeInsert(function(\Sokil\Mongo\Event $event, $eventName, $dispatcher) use($status) {
@@ -345,10 +345,10 @@ class DocumentEventTest extends TestCase
                 $testCase->fail('Event propagation not stoped on event handling cancel');
             })
             ->save();
-            
+
         $this->assertTrue($status->done);
     }
-    
+
     public function testCancelOperation_BeforeInsert()
     {
         $this->collection
@@ -358,10 +358,10 @@ class DocumentEventTest extends TestCase
                 $event->cancel();
             })
             ->save();
-            
+
         $this->assertEquals(0, $this->collection->count());
     }
-    
+
     public function testCancelOperation_BeforeUpdate()
     {
         $document = $this->collection
@@ -373,15 +373,15 @@ class DocumentEventTest extends TestCase
             })
             ->set('field', 'updatedValue')
             ->save();
-            
+
         $this->assertEquals(
-            'value', 
+            'value',
             $this->collection
                 ->getDocumentDirectly($document->getId())
                 ->get('field')
         );
     }
-    
+
     public function testCancelOperation_BeforeSave()
     {
         $this->collection
@@ -391,10 +391,10 @@ class DocumentEventTest extends TestCase
                 $event->cancel();
             })
             ->save();
-            
+
         $this->assertEquals(0, $this->collection->count());
     }
-    
+
     public function testCancelOperation_BeforeDelete()
     {
         $document = $this->collection
@@ -405,10 +405,10 @@ class DocumentEventTest extends TestCase
                 $event->cancel();
             })
             ->delete();
-            
+
         $this->assertEquals(1, $this->collection->count());
     }
-    
+
     public function testCancelOperation_BeforeValidate()
     {
         $testCase = $this;
