@@ -77,9 +77,22 @@ services:
       RES_OPTIONS: "retrans:1 retry:1 timeout:1 attempts:1"
 
   php73:
-    image: php:7.3-rc
+    image: php:7.3
     container_name: phpmongo_php73
     command: bash /phpmongo-source/docker/php/init.sh 1.5.3
+    volumes:
+      - ..:/phpmongo-source
+      - /phpmongo-source/vendor
+      - ./share:/share
+    environment:
+      PHP_IDE_CONFIG: "serverName=phpmongo"
+      XDEBUG_CONFIG: "idekey=PHPSTORM remote_autostart=1 remote_enable=1 remote_host=dockerhost remote_port=9001"
+      RES_OPTIONS: "retrans:1 retry:1 timeout:1 attempts:1"
+
+  php74:
+    image: php:7.4
+    container_name: phpmongo_php74
+    command: bash /phpmongo-source/docker/php/init.sh mongodb 1.5.3
     volumes:
       - ..:/phpmongo-source
       - /phpmongo-source/vendor
