@@ -12,10 +12,10 @@ addons:
 language: php
 
 php:
-  - nightly
+  - 7.4
   - 7.3
   - 7.2
-  - 7.1
+  - nightly
 
 cache:
   directories:
