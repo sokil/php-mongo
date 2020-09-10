@@ -112,7 +112,7 @@ class Client
 
         $this->eventManager = $eventManager;
 
-        $this->eventFactory = $eventFactory;
+        $this->eventFactory = $eventFactory ?: new EventFactory();
     }
 
     /**
