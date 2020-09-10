@@ -274,7 +274,7 @@ class Document extends Structure
             array_unshift($addListenerArguments, lcfirst(substr($name, 2)));
 
             // add listener
-            $this->eventManager->
+            $this->eventManager->addListener(...$addListenerArguments);
 
             return $this;
         }
