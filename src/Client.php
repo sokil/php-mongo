@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace Sokil\Mongo;
 
+use \Psr\EventDispatcher\EventDispatcherInterface;
 use \Psr\Log\LoggerInterface;
+use \Sokil\Mongo\EventFactory\EventFactoryInterface;
 
 /**
  * Connection manager and factory to get database and collection instances.
@@ -35,7 +37,7 @@ class Client
      * @var array
      */
     private $connectOptions = array();
-    
+
     /**
      *
      * @var \MongoClient
@@ -46,7 +48,7 @@ class Client
      * @var array
      */
     private $databasePool = array();
-    
+
     /**
      * @var array Database to class mapping
      */
@@ -56,6 +58,16 @@ class Client
      * @var LoggerInterface|null
      */
     private $logger;
+
+    /**
+     * @var EventDispatcherInterface|null
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var EventFactoryInterface|null
+     */
+    private $eventFactory;
 
     /**
      * @var string
@@ -86,7 +98,7 @@ class Client
         if (!empty($dsn)) {
             $this->setDsn($dsn);
         }
-        
+
         if (!empty($connectOptions)) {
             $this->setConnectOptions($connectOptions);
         }
@@ -101,7 +113,7 @@ class Client
     {
         return class_exists('\MongoDB\Driver\Manager');
     }
-    
+
     /**
      * Set credentials to auth on db, specified in connect options or dsn.
      * If not specified - auth on admin db
@@ -115,15 +127,15 @@ class Client
     {
         $this->connectOptions['username'] = $username;
         $this->connectOptions['password'] = $password;
-        
+
         return $this;
     }
-    
+
     public function __get($name)
     {
         return $this->getDatabase($name);
     }
-    
+
     /**
      *
      * @return string Version of PHP driver
@@ -146,22 +158,22 @@ class Client
         $buildInfo = $this
             ->getDatabase('admin')
             ->executeCommand(array('buildinfo' => 1));
-        
+
         $this->dbVersion = $buildInfo['version'];
         return $this->dbVersion;
     }
-    
+
     public function setDsn($dsn) : Client
     {
         $this->dsn = $dsn;
         return $this;
     }
-    
+
     public function getDsn() : string
     {
         return $this->dsn;
     }
-    
+
     /**
      * Set connect options
      *
@@ -180,7 +192,7 @@ class Client
     {
         return $this->connectOptions;
     }
-    
+
     /**
      * Set mongo's client
      *
@@ -194,7 +206,7 @@ class Client
 
         return $this;
     }
-    
+
     /**
      * Get mongo connection instance
      *
@@ -210,10 +222,10 @@ class Client
             $this->dsn,
             $this->connectOptions
         );
-        
+
         return $this->mongoClient;
     }
-    
+
     /**
      * Get list of all active connections through this client
      *
@@ -223,7 +235,7 @@ class Client
     {
         return $this->mongoClient->getConnections();
     }
-    
+
     /**
      * Map database and collection name to class.
      *
@@ -240,7 +252,7 @@ class Client
     public function map(array $mapping) : Client
     {
         $this->mapping = $mapping;
-        
+
         return $this;
     }
 
@@ -269,10 +281,10 @@ class Client
             // configure db
             $this->databasePool[$name] = $database;
         }
-        
+
         return $this->databasePool[$name];
     }
-    
+
     /**
      * Select database
      *
@@ -301,7 +313,7 @@ class Client
 
         return $this->currentDatabaseName;
     }
-    
+
     /**
      * Get collection from previously selected database by self::useDatabase()
      *
@@ -395,7 +407,7 @@ class Client
 
         return $this;
     }
-    
+
     /**
      *
      * @return \Psr\Log\LoggerInterface
@@ -438,6 +450,46 @@ class Client
     }
 
     /**
+     * @param \Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher
+     * @return Client
+     */
+    public function setEventDispatcher(\Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher) : Client
+    {
+        $this->eventDispatcher = $eventDispatcher;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @return \Psr\EventDispatcher\EventDispatcherInterface|NULL
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @param \Sokil\Mongo\EventFactory\EventFactoryInterface $eventDispatcher
+     * @return Client
+     */
+    public function setEventFactory(EventFactoryInterface $eventFactory) : Client
+    {
+        $this->eventFactory = $eventFactory;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @return \Sokil\Mongo\EventFactory\EventFactoryInterface
+     */
+    public function getEventFactory()
+    {
+        return $this->eventFactory;
+    }
+
+    /**
      * Check state of debug mode
      */
     public function isDebugEnabled() : bool
@@ -460,10 +512,10 @@ class Client
         if (!$this->getMongoClient()->setWriteConcern($w, $timeout)) {
             throw new Exception('Error setting write concern');
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Define unacknowledged write concern on whole requests
      *
@@ -475,7 +527,7 @@ class Client
         $this->setWriteConcern(0, (int) $timeout);
         return $this;
     }
-    
+
     /**
      * Define majority write concern on whole requests
      *
