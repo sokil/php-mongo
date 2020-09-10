@@ -1,3 +1,8 @@
+## 2.0-alpha
+  * Event manager not optional
+  * Removed dependency from symfony event manager, now you may use your own dispatcher.
+  * Event dispatcher now shared between all instances of collections and documents
+
 ## 1.23.1 (2018-11-24)
   * UrlValidator ping use checkdnsrr
   * Fixed in building docker environment

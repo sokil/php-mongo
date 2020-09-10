@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -43,12 +44,15 @@ class Event implements StoppableEventInterface
 
     /**
      * Set target object, on which event is fired
+     *
      * @param mixed $target
-     * @return \Sokil\Mongo\Event
+     *
+     * @return Event
      */
     public function setTarget($target)
     {
         $this->target = $target;
+
         return $this;
     }
 

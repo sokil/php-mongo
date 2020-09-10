@@ -1,10 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
-namespace Sokil\Mongo\EventFactory;
+namespace Sokil\Mongo\Event\Factory;
 
 use Psr\EventDispatcher\StoppableEventInterface;
-use Sokil\Mongo\Document;
 use Sokil\Mongo\Event\ConstructAfterEvent;
 use Sokil\Mongo\Event\DeleteAfterEvent;
 use Sokil\Mongo\Event\DeleteBeforeEvent;
@@ -18,6 +18,10 @@ use Sokil\Mongo\Event\ValidateAfterEvent;
 use Sokil\Mongo\Event\ValidateBeforeEvent;
 use Sokil\Mongo\Event\ValidateErrorEvent;
 
+/**
+ * Default implementation of events.
+ * For using custom events make your own implementation.
+ */
 class EventFactory implements EventFactoryInterface
 {
     public function createConstructAfterEvent() : StoppableEventInterface
@@ -78,50 +82,5 @@ class EventFactory implements EventFactoryInterface
     public function createValidateErrorEvent() : StoppableEventInterface
     {
         return new ValidateErrorEvent();
-    }
-
-    public function create($eventName)
-    {
-        switch($eventName)
-        {
-            case Document::EVENT_NAME_AFTER_CONSTRUCT:
-                $event = $this->createConstructAfterEvent();
-                break;
-            case Document::EVENT_NAME_AFTER_DELETE:
-                $event = $this->createDeleteAfterEvent();
-                break;
-            case Document::EVENT_NAME_BEFORE_DELETE:
-                $event = $this->createDeleteBeforeEvent();
-                break;
-            case Document::EVENT_NAME_AFTER_INSERT:
-                $event = $this->createInsertAfterEvent();
-                break;
-            case Document::EVENT_NAME_BEFORE_INSERT:
-                $event = $this->createInsertBeforeEvent();
-                break;
-            case Document::EVENT_NAME_AFTER_SAVE:
-                $event = $this->createSaveAfterEvent();
-                break;
-            case Document::EVENT_NAME_BEFORE_SAVE:
-                $event = $this->createSaveBeforeEvent();
-                break;
-            case Document::EVENT_NAME_AFTER_UPDATE:
-                $event = $this->createUpdateAfterEvent();
-                break;
-            case Document::EVENT_NAME_BEFORE_UPDATE:
-                $event = $this->createUpdateBeforeEvent();
-                break;
-            case Document::EVENT_NAME_AFTER_VALIDATE:
-                $event = $this->createValidateAfterEvent();
-                break;
-            case Document::EVENT_NAME_BEFORE_VALIDATE:
-                $event =$this->createValidateBeforeEvent();
-                break;
-            case Document::EVENT_NAME_VALIDATE_ERROR:
-                $event = $this->createValidateErrorEvent();
-                break;
-        }
-
-        return $event;
     }
 }

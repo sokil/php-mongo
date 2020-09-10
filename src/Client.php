@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -12,9 +13,11 @@ declare(strict_types=1);
 
 namespace Sokil\Mongo;
 
-use \Psr\EventDispatcher\EventDispatcherInterface;
-use \Psr\Log\LoggerInterface;
-use \Sokil\Mongo\EventFactory\EventFactoryInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
+use Sokil\Mongo\Event\Factory\EventFactory;
+use Sokil\Mongo\Event\Factory\EventFactoryInterface;
+use Sokil\Mongo\Event\Manager\EventManagerInterface;
 
 /**
  * Connection manager and factory to get database and collection instances.
@@ -62,7 +65,7 @@ class Client
     /**
      * @var EventDispatcherInterface|null
      */
-    private $eventDispatcher;
+    private $eventManager;
 
     /**
      * @var EventFactoryInterface|null
@@ -86,14 +89,18 @@ class Client
     private $debug = false;
 
     /**
-     * @param string $dsn Data Source Name
-     * @param array $connectOptions
+     * @param string|null $dsn Data Source Name
+     * @param array|null $connectOptions
+     * @param EventManagerInterface|null $eventManager
+     * @param EventFactoryInterface|null $eventFactory
      *
      * @link http://php.net/manual/en/mongoclient.construct.php connect options
      */
     public function __construct(
         string $dsn = null,
-        array $connectOptions = null
+        array $connectOptions = null,
+        EventManagerInterface $eventManager = null,
+        EventFactoryInterface $eventFactory = null
     ) {
         if (!empty($dsn)) {
             $this->setDsn($dsn);
@@ -102,6 +109,10 @@ class Client
         if (!empty($connectOptions)) {
             $this->setConnectOptions($connectOptions);
         }
+
+        $this->eventManager = $eventManager;
+
+        $this->eventFactory = $eventFactory;
     }
 
     /**
@@ -109,7 +120,7 @@ class Client
      *
      * @return bool
      */
-    public static function isEmulationMode() : bool
+    public static function isEmulationMode(): bool
     {
         return class_exists('\MongoDB\Driver\Manager');
     }
@@ -123,7 +134,7 @@ class Client
      *
      * @return \Sokil\Mongo\Client
      */
-    public function setCredentials(string $username, string $password) : Client
+    public function setCredentials(string $username, string $password): Client
     {
         $this->connectOptions['username'] = $username;
         $this->connectOptions['password'] = $password;
@@ -140,7 +151,7 @@ class Client
      *
      * @return string Version of PHP driver
      */
-    public function getVersion() : string
+    public function getVersion(): string
     {
         return \MongoClient::VERSION;
     }
@@ -149,7 +160,7 @@ class Client
      *
      * @return string version of mongo database
      */
-    public function getDbVersion() : string
+    public function getDbVersion(): string
     {
         if ($this->dbVersion) {
             return $this->dbVersion;
@@ -169,7 +180,7 @@ class Client
         return $this;
     }
 
-    public function getDsn() : string
+    public function getDsn(): string
     {
         return $this->dsn;
     }
@@ -182,7 +193,7 @@ class Client
      * @param array $options
      * @return Client
      */
-    public function setConnectOptions(array $options) : Client
+    public function setConnectOptions(array $options): Client
     {
         $this->connectOptions = $options;
         return $this;
@@ -200,7 +211,7 @@ class Client
      *
      * @return Client
      */
-    public function setMongoClient(\MongoClient $client) : Client
+    public function setMongoClient(\MongoClient $client): Client
     {
         $this->mongoClient = $client;
 
@@ -450,41 +461,19 @@ class Client
     }
 
     /**
-     * @param \Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher
-     * @return Client
+     *
+     * @return EventDispatcherInterface|NULL
      */
-    public function setEventDispatcher(\Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher) : Client
+    public function getEventManager(): ?EventManagerInterface
     {
-        $this->eventDispatcher = $eventDispatcher;
-
-        return $this;
+        return $this->eventManager;
     }
 
     /**
      *
-     * @return \Psr\EventDispatcher\EventDispatcherInterface|NULL
+     * @return EventFactoryInterface|null
      */
-    public function getEventDispatcher()
-    {
-        return $this->eventDispatcher;
-    }
-
-    /**
-     * @param \Sokil\Mongo\EventFactory\EventFactoryInterface $eventDispatcher
-     * @return Client
-     */
-    public function setEventFactory(EventFactoryInterface $eventFactory) : Client
-    {
-        $this->eventFactory = $eventFactory;
-
-        return $this;
-    }
-
-    /**
-     *
-     * @return \Sokil\Mongo\EventFactory\EventFactoryInterface
-     */
-    public function getEventFactory()
+    public function getEventFactory(): ?EventFactoryInterface
     {
         return $this->eventFactory;
     }

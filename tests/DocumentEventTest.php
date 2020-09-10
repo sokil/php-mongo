@@ -422,4 +422,13 @@ class DocumentEventTest extends TestCase
             })
             ->validate();
     }
+
+    /**
+     * Event dispatcher now shared between documents, so adding listener to one document MUST NOT fire event on other
+     * After removing document its listeners also must be removed
+     */
+    public function testEventRaisedOnlyOnValidTarget()
+    {
+        throw new \RuntimeException('Not implemented');
+    }
 }

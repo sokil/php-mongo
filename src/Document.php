@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -18,7 +19,8 @@ use Sokil\Mongo\Document\RelationManager;
 use Sokil\Mongo\Document\RevisionManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Sokil\Mongo\Document\OptimisticLockFailureException;
-use Sokil\Mongo\EventFactory\EventFactory;
+use Sokil\Mongo\Event\Factory\EventFactory;
+use Sokil\Mongo\Event\Manager\EventManagerInterface;
 use Sokil\Mongo\Exception\WriteException;
 use GeoJson\Geometry\Geometry;
 use Psr\EventDispatcher\StoppableEventInterface;
@@ -37,18 +39,18 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  * @link https://github.com/sokil/php-mongo#behaviors Behaviors
  * @link https://github.com/sokil/php-mongo#relations Relations
  *
- * @method \Sokil\Mongo\Document onAfterConstruct(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onBeforeValidate(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onAfterValidate(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onValidateError(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onBeforeInsert(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onAfterInsert(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onBeforeUpdate(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onAfterUpdate(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onBeforeSave(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onAfterSave(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onBeforeDelete(callable $handler, int $priority = 0)
- * @method \Sokil\Mongo\Document onAfterDelete(callable $handler, int $priority = 0)
+ * @method Document onAfterConstruct(callable $handler, int $priority = 0)
+ * @method Document onBeforeValidate(callable $handler, int $priority = 0)
+ * @method Document onAfterValidate(callable $handler, int $priority = 0)
+ * @method Document onValidateError(callable $handler, int $priority = 0)
+ * @method Document onBeforeInsert(callable $handler, int $priority = 0)
+ * @method Document onAfterInsert(callable $handler, int $priority = 0)
+ * @method Document onBeforeUpdate(callable $handler, int $priority = 0)
+ * @method Document onAfterUpdate(callable $handler, int $priority = 0)
+ * @method Document onBeforeSave(callable $handler, int $priority = 0)
+ * @method Document onAfterSave(callable $handler, int $priority = 0)
+ * @method Document onBeforeDelete(callable $handler, int $priority = 0)
+ * @method Document onAfterDelete(callable $handler, int $priority = 0)
  *
  * @author Dmytro Sokil <dmytro.sokil@gmail.com>
  */
@@ -79,23 +81,23 @@ class Document extends Structure
 
     /**
      *
-     * @var \Sokil\Mongo\Document\RevisionManager
+     * @var RevisionManager
      */
     private $revisionManager;
 
     /**
      *
-     * @var \Sokil\Mongo\Collection
+     * @var Collection
      */
     private $collection;
 
     /**
-     * @var \Psr\EventDispatcher\EventDispatcherInterface Event Dispatcher instance
+     * @var EventManagerInterface
      */
-    private $eventDispatcher;
+    private $eventManager;
 
     /**
-     * @var \Sokil\Mongo\EventFactory\EventFactoryInterface Event factory instance
+     * @var EventFactory
      */
     private $eventFactory;
 
@@ -118,7 +120,7 @@ class Document extends Structure
 
     /**
      * @param Collection $collection instance of Mongo collection
-     * @param array $data mongo document
+     * @param array|null $data mongo document
      * @param array $options options of object initialization
      */
     public function __construct(
@@ -215,23 +217,23 @@ class Document extends Structure
     /**
      * Initialise relative classes
      */
-    private function initDelegates()
+    private function initDelegates(): void
     {
-        $client = $this->getCollection()->getDatabase()->getClient();
+        $client = $this
+            ->getCollection()
+            ->getDatabase()
+            ->getClient();
 
-        // $this->eventDispatcher = new EventDispatcher($client->getEventDispatcher());
-        $this->eventDispatcher = $client->getEventDispatcher();
+        $this->eventManager = $client->getEventManager();
 
         $this->eventFactory = $client->getEventFactory();
-        if ($this->eventFactory === null) {
-            $this->eventFactory = new EventFactory();
-        }
 
         // create operator
         $this->operator = $this->getCollection()->operator();
 
         // attach behaviors
         $this->attachBehaviors($this->behaviors());
+
         if ($this->hasOption('behaviors')) {
             $this->attachBehaviors($this->getOption('behaviors'));
         }
@@ -263,18 +265,16 @@ class Document extends Structure
 
         // adding event
         if ('on' === substr($name, 0, 2)) {
-            if ($this->eventDispatcher === null) {
+            if ($this->eventManager === null) {
                 return $this;
             }
 
             // prepend event name to function args
             $addListenerArguments = $arguments;
             array_unshift($addListenerArguments, lcfirst(substr($name, 2)));
+
             // add listener
-            call_user_func_array(
-                array($this->eventDispatcher, 'addListener'),
-                $addListenerArguments
-            );
+            $this->eventManager->
 
             return $this;
         }
@@ -557,18 +557,20 @@ class Document extends Structure
 
     /**
      * Manually trigger defined events
-     * @param string $eventName event name
-     * @return \Psr\EventDispatcher\StoppableEventInterface
+     *
+     * @param StoppableEventInterface $event
+     *
+     * @return StoppableEventInterface
      */
     public function triggerEvent(StoppableEventInterface $event)
     {
-        if ($this->eventDispatcher === null) {
+        if ($this->eventManager === null) {
             return $event;
         }
 
         $event->setTarget($this);
 
-        return $this->eventDispatcher->dispatch($event);
+        return $this->eventManager->dispatch($event);
     }
 
     /**
@@ -579,8 +581,8 @@ class Document extends Structure
      */
     public function attachEvent($event, $handler, $priority = 0)
     {
-        if ($this->eventDispatcher !== null) {
-            $this->eventDispatcher->addListener($event, $handler, $priority);
+        if ($this->eventManager !== null) {
+            $this->eventManager->addListener($event, $handler, $priority);
         }
 
         return $this;
@@ -590,12 +592,13 @@ class Document extends Structure
      * Check if event attached
      *
      * @param string $event event name
+     *
      * @return bool
      */
-    public function hasEvent($event)
+    public function hasEvent(string $event)
     {
-        if ($this->eventDispatcher !== null) {
-            return $this->eventDispatcher->hasListeners($event);
+        if ($this->eventManager !== null) {
+            return $this->eventManager->hasListeners($event);
         }
 
         return false;
