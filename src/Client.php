@@ -15,8 +15,8 @@ namespace Sokil\Mongo;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
-use Sokil\Mongo\Event\Factory\EventFactory;
-use Sokil\Mongo\Event\Factory\EventFactoryInterface;
+use Sokil\Mongo\Event\Builder\EventBuilder;
+use Sokil\Mongo\Event\Builder\EventBuilderInterface;
 use Sokil\Mongo\Event\Manager\EventManagerInterface;
 
 /**
@@ -68,9 +68,9 @@ class Client
     private $eventManager;
 
     /**
-     * @var EventFactoryInterface|null
+     * @var EventBuilderInterface|null
      */
-    private $eventFactory;
+    private $eventBuilder;
 
     /**
      * @var string
@@ -92,7 +92,7 @@ class Client
      * @param string|null $dsn Data Source Name
      * @param array|null $connectOptions
      * @param EventManagerInterface|null $eventManager
-     * @param EventFactoryInterface|null $eventFactory
+     * @param EventBuilderInterface|null $eventBuilder
      *
      * @link http://php.net/manual/en/mongoclient.construct.php connect options
      */
@@ -100,7 +100,7 @@ class Client
         string $dsn = null,
         array $connectOptions = null,
         EventManagerInterface $eventManager = null,
-        EventFactoryInterface $eventFactory = null
+        EventBuilderInterface $eventBuilder = null
     ) {
         if (!empty($dsn)) {
             $this->setDsn($dsn);
@@ -111,8 +111,7 @@ class Client
         }
 
         $this->eventManager = $eventManager;
-
-        $this->eventFactory = $eventFactory ?: new EventFactory();
+        $this->eventBuilder = $eventBuilder ?: new EventBuilder();
     }
 
     /**
@@ -471,11 +470,11 @@ class Client
 
     /**
      *
-     * @return EventFactoryInterface|null
+     * @return EventBuilderInterface|null
      */
-    public function getEventFactory(): ?EventFactoryInterface
+    public function getEventBuilder(): ?EventBuilderInterface
     {
-        return $this->eventFactory;
+        return $this->eventBuilder;
     }
 
     /**

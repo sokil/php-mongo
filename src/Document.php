@@ -19,7 +19,8 @@ use Sokil\Mongo\Document\RelationManager;
 use Sokil\Mongo\Document\RevisionManager;
 use Sokil\Mongo\Document\InvalidDocumentException;
 use Sokil\Mongo\Document\OptimisticLockFailureException;
-use Sokil\Mongo\Event\Factory\EventFactory;
+use Sokil\Mongo\Event\Builder\EventBuilder;
+use Sokil\Mongo\Event\Builder\EventBuilderInterface;
 use Sokil\Mongo\Event\Manager\EventManagerInterface;
 use Sokil\Mongo\Exception\WriteException;
 use GeoJson\Geometry\Geometry;
@@ -97,12 +98,17 @@ class Document extends Structure
     private $eventManager;
 
     /**
-     * @var EventFactory
+     * @var EventBuilderInterface
      */
-    private $eventFactory;
+    private $eventBuilder;
 
     /**
-     * @var \Sokil\Mongo\Operator Modification operator instance
+     * @var array
+     */
+    private $attachedListeners = [];
+
+    /**
+     * @var Operator Modification operator instance
      */
     private $operator;
 
@@ -146,7 +152,7 @@ class Document extends Structure
         }
 
         // execute after construct event handlers
-        $this->triggerEvent($this->eventFactory->createConstructAfterEvent());
+        $this->triggerEvent($this->eventBuilder->buildAfterConstructEvent());
     }
 
     public function getOptions()
@@ -225,8 +231,7 @@ class Document extends Structure
             ->getClient();
 
         $this->eventManager = $client->getEventManager();
-
-        $this->eventFactory = $client->getEventFactory();
+        $this->eventBuilder = $client->getEventBuilder();
 
         // create operator
         $this->operator = $this->getCollection()->operator();
@@ -265,16 +270,13 @@ class Document extends Structure
 
         // adding event
         if ('on' === substr($name, 0, 2)) {
-            if ($this->eventManager === null) {
-                return $this;
+            if ($this->eventManager !== null) {
+                // prepend event name to function args
+                $addListenerArguments = $arguments;
+                array_unshift($addListenerArguments, lcfirst(substr($name, 2)));
+
+                $this->attachEvent(...$addListenerArguments);
             }
-
-            // prepend event name to function args
-            $addListenerArguments = $arguments;
-            array_unshift($addListenerArguments, lcfirst(substr($name, 2)));
-
-            // add listener
-            $this->eventManager->addListener(...$addListenerArguments);
 
             return $this;
         }
@@ -575,14 +577,17 @@ class Document extends Structure
 
     /**
      * Attach event handler
-     * @param string $event event name
-     * @param callable|array|string $handler event handler
-     * @return \Sokil\Mongo\Document
+     *
+     * @param string $eventName event name
+     * @param callable|array|string $listener event handler
+     * @param int $priority
+     *
+     * @return Document
      */
-    public function attachEvent($event, $handler, $priority = 0)
+    public function attachEvent($eventName, $listener, $priority = 0)
     {
         if ($this->eventManager !== null) {
-            $this->eventManager->addListener($event, $handler, $priority);
+            $this->eventManager->addListener($eventName, $listener, $priority);
         }
 
         return $this;
@@ -675,7 +680,7 @@ class Document extends Structure
      */
     public function validate()
     {
-        if ($this->triggerEvent($this->eventFactory->createValidateBeforeEvent())->isCancelled()) {
+        if ($this->triggerEvent($this->eventBuilder->buildBeforeValidateEvent())->isCancelled()) {
             return $this;
         }
 
@@ -683,12 +688,12 @@ class Document extends Structure
             $exception = new InvalidDocumentException('Document not valid');
             $exception->setDocument($this);
 
-            $this->triggerEvent($this->eventFactory->createValidateErrorEvent());
+            $this->triggerEvent($this->eventBuilder->buildValidateErrorEvent());
 
             throw $exception;
         }
 
-        $this->triggerEvent($this->eventFactory->createValidateAfterEvent());
+        $this->triggerEvent($this->eventBuilder->buildAfterValidateEvent());
 
         return $this;
     }
@@ -1187,7 +1192,7 @@ class Document extends Structure
      */
     private function internalInsert()
     {
-        if ($this->triggerEvent($this->eventFactory->createInsertBeforeEvent())->isCancelled()) {
+        if ($this->triggerEvent($this->eventBuilder->buildBeforeInsertEvent())->isCancelled()) {
             return;
         }
 
@@ -1211,7 +1216,7 @@ class Document extends Structure
         $this->defineId($document['_id']);
 
         // after insert event
-        $this->triggerEvent($this->eventFactory->createInsertAfterEvent());
+        $this->triggerEvent($this->eventBuilder->buildAfterInsertEvent());
     }
 
     /**
@@ -1222,7 +1227,7 @@ class Document extends Structure
      */
     private function internalUpdate()
     {
-        if ($this->triggerEvent($this->eventFactory->createUpdateBeforeEvent())->isCancelled()) {
+        if ($this->triggerEvent($this->eventBuilder->buildBeforeUpdateEvent())->isCancelled()) {
             return;
         }
 
@@ -1274,7 +1279,7 @@ class Document extends Structure
             $this->getOperator()->reset();
         }
 
-        $this->triggerEvent($this->eventFactory->createUpdateAfterEvent());
+        $this->triggerEvent($this->eventBuilder->buildAfterUpdateEvent());
     }
 
     /**
@@ -1299,7 +1304,7 @@ class Document extends Structure
         }
 
         // handle beforeSave event
-        if ($this->triggerEvent($this->eventFactory->createSaveBeforeEvent())->isCancelled()) {
+        if ($this->triggerEvent($this->eventBuilder->buildBeforeSaveEvent())->isCancelled()) {
             return $this;
         }
 
@@ -1311,7 +1316,7 @@ class Document extends Structure
         }
 
         // handle afterSave event
-        $this->triggerEvent($this->eventFactory->createSaveAfterEvent());
+        $this->triggerEvent($this->eventBuilder->buildAfterSaveEvent());
 
         // set document unmodified
         $this->apply();
@@ -1338,7 +1343,7 @@ class Document extends Structure
      */
     public function delete()
     {
-        if ($this->triggerEvent($this->eventFactory->createDeleteBeforeEvent())->isCancelled()) {
+        if ($this->triggerEvent($this->eventBuilder->buildBeforeDeleteEvent())->isCancelled()) {
             return $this;
         }
 
@@ -1350,7 +1355,7 @@ class Document extends Structure
             throw new Exception(sprintf('Delete document error: %s', $status['err']));
         }
 
-        $this->triggerEvent($this->eventFactory->createDeleteAfterEvent());
+        $this->triggerEvent($this->eventBuilder->buildAfterDeleteEvent());
 
         // drop from document's pool
         $this->getCollection()->removeDocumentFromDocumentPool($this);

@@ -43,18 +43,18 @@ class ClientPool
      * Add connection to pool
      *
      * @param string $name connection identifier
-     * @param string $dsn data source name
-     * @param array $mapping mapping configuration
-     * @param string $defaultDatabase name of database used as default
-     * @param array $connectOptions connect options
+     * @param string|null $dsn data source name
+     * @param array|null $mapping mapping configuration
+     * @param string|null $defaultDatabase name of database used as default
+     * @param array|null $connectOptions connect options
      *
      * @return ClientPool
      */
     public function addConnection(
-        $name,
-        $dsn = null,
+        string $name,
+        string $dsn = null,
         array $mapping = null,
-        $defaultDatabase = null,
+        string $defaultDatabase = null,
         array $connectOptions = null
     ) {
         $this->configuration[$name] = array(
