@@ -309,25 +309,6 @@ class DocumentEventTest extends TestCase
         $this->assertFalse($document->hasEvent('someUNEXISTEDEventName'));
     }
 
-    public function testTriggerEvent()
-    {
-        $status = new \stdclass;
-        $status->done = false;
-
-        $document = $this->collection
-            ->createDocument(array(
-                'p' => 'v'
-            ));
-
-        $document->attachEvent('someEventName', function() use($status) {
-            $status->done = true;
-        });
-
-        $document->triggerEvent(new Event());
-
-        $this->assertTrue($status->done);
-    }
-
     public function testCancelledEventHandlerNotPropageted()
     {
         $testCase = $this;

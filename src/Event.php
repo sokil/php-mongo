@@ -22,9 +22,20 @@ class Event implements StoppableEventInterface
      */
     private $target;
 
+    /**
+     * @var bool
+     */
     private $cancelled = false;
 
+    /**
+     * @var bool
+     */
     private $propagationStopped = false;
+
+    public function getName(): string
+    {
+        return static::NAME;
+    }
 
     /**
      * {@inheritdoc}

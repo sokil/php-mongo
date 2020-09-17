@@ -57,8 +57,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  */
 class Document extends Structure
 {
-    const EVENT_NAME_BEFORE_VALIDATE = 'beforeValidate';
     const EVENT_NAME_VALIDATE_ERROR = 'validateError';
+    const EVENT_NAME_BEFORE_VALIDATE = 'beforeValidate';
     const EVENT_NAME_AFTER_VALIDATE = 'afterValidate';
     const EVENT_NAME_BEFORE_INSERT = 'beforeInsert';
     const EVENT_NAME_AFTER_INSERT = 'afterInsert';
@@ -101,11 +101,6 @@ class Document extends Structure
      * @var EventBuilderInterface
      */
     private $eventBuilder;
-
-    /**
-     * @var array
-     */
-    private $attachedListeners = [];
 
     /**
      * @var Operator Modification operator instance
@@ -270,12 +265,20 @@ class Document extends Structure
 
         // adding event
         if ('on' === substr($name, 0, 2)) {
-            if ($this->eventManager !== null) {
-                // prepend event name to function args
-                $addListenerArguments = $arguments;
-                array_unshift($addListenerArguments, lcfirst(substr($name, 2)));
+            if (empty($arguments[0])) {
+                throw new \InvalidArgumentException('Invalid listener specified');
+            }
 
-                $this->attachEvent(...$addListenerArguments);
+            if (!empty($arguments[1]) && !is_numeric($arguments[1])) {
+                throw new \InvalidArgumentException('Invalid priority specified');
+            }
+
+            if ($this->eventManager !== null) {
+                $this->attachEvent(
+                    lcfirst(substr($name, 2)),
+                    $arguments[0],
+                    (int) $arguments[1]
+                );
             }
 
             return $this;
@@ -558,13 +561,15 @@ class Document extends Structure
     }
 
     /**
+     * @todo: trigger only event on this document
+     * 
      * Manually trigger defined events
      *
-     * @param StoppableEventInterface $event
+     * @param Event $event
      *
-     * @return StoppableEventInterface
+     * @return Event
      */
-    public function triggerEvent(StoppableEventInterface $event)
+    private function triggerEvent(Event $event): Event
     {
         if ($this->eventManager === null) {
             return $event;
@@ -572,10 +577,15 @@ class Document extends Structure
 
         $event->setTarget($this);
 
-        return $this->eventManager->dispatch($event);
+        /** @var Event $modifiedEvent */
+        $modifiedEvent = $this->eventManager->dispatch($event);
+
+        return $modifiedEvent;
     }
 
     /**
+     * @todo: trigger only event on this document
+     *
      * Attach event handler
      *
      * @param string $eventName event name
@@ -584,7 +594,7 @@ class Document extends Structure
      *
      * @return Document
      */
-    public function attachEvent($eventName, $listener, $priority = 0)
+    public function attachEvent(string $eventName, $listener, int $priority = 0)
     {
         if ($this->eventManager !== null) {
             $this->eventManager->addListener($eventName, $listener, $priority);

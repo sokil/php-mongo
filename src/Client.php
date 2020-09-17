@@ -478,6 +478,20 @@ class Client
     }
 
     /**
+     * Attach event handler
+     *
+     * @param string $eventName event name
+     * @param callable|array|string $listener event handler
+     * @param int $priority
+     */
+    public function attachEvent(string $eventName, $listener, int $priority = 0)
+    {
+        if ($this->eventManager !== null) {
+            $this->eventManager->addListener($eventName, $listener, $priority);
+        }
+    }
+
+    /**
      * Check state of debug mode
      */
     public function isDebugEnabled() : bool

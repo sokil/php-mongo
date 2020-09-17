@@ -37,8 +37,13 @@ class SymfonyEventDispatcher implements EventManagerInterface
         $this->dispatcher->removeListener($eventName, $listener);
     }
 
-    public function dispatch(object $event): void
+    /**
+     * @param object $event
+     *
+     * @return object
+     */
+    public function dispatch(object $event)
     {
-        $this->dispatcher->dispatch($event);
+        return $this->dispatcher->dispatch($event);
     }
 }
