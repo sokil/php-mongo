@@ -24,7 +24,7 @@ class DocumentPushTest extends TestCase
      */
     private $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $database = $client->getDatabase('test');
@@ -33,7 +33,7 @@ class DocumentPushTest extends TestCase
             ->delete();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }
@@ -251,15 +251,15 @@ class DocumentPushTest extends TestCase
      * @param mixed $value1 first value to push
      * @param mixed $value2 second value to push
      * @param array $expectedList expected list, stored in db
-     *
-     * @expectedException \Sokil\Mongo\Document\InvalidOperationException
-     * @expectedExceptionMessage The field "sub_document" must be an array but is of type Object
      */
     public function testPushToSubDocumentFieldOnNewDocument(
         $value1,
         $value2,
         $expectedList
     ) {
+        $this->expectException(\Sokil\Mongo\Document\InvalidOperationException::class);
+        $this->expectExceptionMessage('The field "sub_document" must be an array but is of type Object');
+
         $this->doPushTest(
             $value1,
             $value2,
@@ -275,15 +275,15 @@ class DocumentPushTest extends TestCase
      * @param mixed $value1 first value to push
      * @param mixed $value2 second value to push
      * @param array $expectedList expected list, stored in db
-     *
-     * @expectedException \Sokil\Mongo\Document\InvalidOperationException
-     * @expectedExceptionMessage The field "sub_document" must be an array but is of type Object
      */
     public function testPushToSubDocumentFieldOnExistedDocument(
         $value1,
         $value2,
         $expectedList
     ) {
+        $this->expectException(\Sokil\Mongo\Document\InvalidOperationException::class);
+        $this->expectExceptionMessage('The field "sub_document" must be an array but is of type Object');
+
         $this->doPushTest(
             $value1,
             $value2,

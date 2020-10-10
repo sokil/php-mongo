@@ -12,7 +12,7 @@ class PaginatorTest extends TestCase
      */
     private $collection;
     
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -25,7 +25,7 @@ class PaginatorTest extends TestCase
         $this->collection->delete();
     }
     
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }

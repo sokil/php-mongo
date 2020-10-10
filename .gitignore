@@ -2,3 +2,4 @@ vendor
 docker/share
 !docker/share/.gitkeep
 composer.lock
+.phpunit.result.cache

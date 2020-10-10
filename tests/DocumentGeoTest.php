@@ -15,7 +15,7 @@ class DocumentGeoTest extends TestCase
      */
     private $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $database = $client->getDatabase('test');
@@ -24,7 +24,7 @@ class DocumentGeoTest extends TestCase
             ->delete();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }
@@ -140,12 +140,11 @@ class DocumentGeoTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage LinearRing requires the first and last positions to be equivalent
-     */
     public function testSetPolygon_LineRingNotClosed()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('LinearRing requires the first and last positions to be equivalent');
+
         $documentId = $this->collection
             ->createDocument()
             ->setPolygon('location', array(
@@ -323,12 +322,11 @@ class DocumentGeoTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage LinearRing requires the first and last positions to be equivalent
-     */
     public function testSetMultiPolygon_LineRingNotClosed()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('LinearRing requires the first and last positions to be equivalent');
+
         $documentId = $this->collection
             ->createDocument()
             ->setMultyPolygon('location', array(

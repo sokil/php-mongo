@@ -12,7 +12,7 @@ class DocumentBehaviorTest extends TestCase
      */
     private $collection;
     
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -24,7 +24,7 @@ class DocumentBehaviorTest extends TestCase
         $this->collection = $database->getCollection('phpmongo_test_collection');
     }
     
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }
@@ -38,12 +38,11 @@ class DocumentBehaviorTest extends TestCase
         $this->assertEquals(42, $document->return42());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Document has no method "unexistedMethod"
-     */
     public function test__call_MethodNotFound()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Document has no method "unexistedMethod"');
+
         $document = $this->collection->createDocument(array('param' => 0));
         $document->attachBehavior('get42', new SomeBehavior());
 
@@ -120,12 +119,11 @@ class DocumentBehaviorTest extends TestCase
         $this->assertEquals(42, $document->return42());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Behavior class not specified
-     */
     public function testAttachBehaviors_AsArray_ClassNotSpecified()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Behavior class not specified');
+
         $document = $this->collection->createDocument(array('param' => 0));
         $document->attachBehaviors(array(
             'get42' => array(

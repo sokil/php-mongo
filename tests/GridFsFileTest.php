@@ -18,14 +18,14 @@ class GridFsFileTest extends TestCase
      */
     private $gridFs;
     
-    public function setUp()
+    public function setUp(): void
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $this->database = $client->getDatabase('test');
         $this->gridFs = $this->database->getGridFs('images');
     }
     
-    public function tearDown()
+    public function tearDown(): void
     {
         if($this->gridFs) {
             $this->gridFs->delete();
@@ -41,12 +41,11 @@ class GridFsFileTest extends TestCase
         $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Wrong file data specified
-     */
     public function testInitFileWithWrongData()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Wrong file data specified');
+
         $file = new GridFSFile($this->gridFs, 'allowed_only_array_or_MongoGridFSFile');
 
         $this->assertInstanceOf('\Sokil\Mongo\GridFSFile', $file);

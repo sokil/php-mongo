@@ -22,7 +22,7 @@ class CollectionTest extends TestCase
     /** @var Client */
     private $client;
 
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $this->client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -32,7 +32,7 @@ class CollectionTest extends TestCase
         $this->collection = $this->database->getCollection('phpmongo_test_collection');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if ($this->collection) {
             $this->collection->delete();
@@ -249,12 +249,11 @@ class CollectionTest extends TestCase
         $this->assertTrue($document->isStored());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Document must be stored and has _id key
-     */
     public function testGetStoredDocumentInstanceFromArray_DocumentNotStored()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Document must be stored and has _id key');
+
         $document = $this->collection->hydrate(array(
             'param' => 'value',
         ));
@@ -477,11 +476,10 @@ class CollectionTest extends TestCase
         $this->assertEquals('new-value', $document->param);
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Document\InvalidDocumentException
-     */
     public function testSaveInvalidNewDocument()
     {
+        $this->expectException(\Sokil\Mongo\Document\InvalidDocumentException::class);
+
         // create document
         $document = $this
             ->getMockBuilder('\Sokil\Mongo\Document')
@@ -506,12 +504,11 @@ class CollectionTest extends TestCase
         $this->collection->delete();
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Error deleting collection phpmongo_test_collection: Some strange error
-     */
     public function testDeleteCollection_ExceptionOnCollectionDeleteError()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Error deleting collection phpmongo_test_collection: Some strange error');
+
         $this->collectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('drop'))
@@ -580,12 +577,11 @@ class CollectionTest extends TestCase
         $this->assertEquals(2, count($this->collection));
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Mixed must be instance of "\Sokil\Mongo\Expression", array or callable that accepts "\Sokil\Mongo\Expression", "string" given
-     */
     public function testBatchDelete_WrongExpressionSpecified()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Mixed must be instance of "\Sokil\Mongo\Expression", array or callable that accepts "\Sokil\Mongo\Expression", "string" given');
+
         // add
         $this->collection->createDocument(array('param' => 1))->save();
         $this->collection->createDocument(array('param' => 2))->save();
@@ -596,12 +592,11 @@ class CollectionTest extends TestCase
         $this->collection->batchDelete('hello');
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Error removing documents from collection: Some strange error
-     */
     public function testBatchDelete_ErrorDeletingDocuments()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Error removing documents from collection: Some strange error');
+
         $this->collectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('remove'))
@@ -627,12 +622,11 @@ class CollectionTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Delete document error: Some strange error
-     */
     public function testDeleteDocument_ErrorDeletingDocument()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Delete document error: Some strange error');
+
         $this->collectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('remove'))
@@ -988,12 +982,11 @@ class CollectionTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Update error: some_strange_error: Some strange error
-     */
     public function testUpdateMultiple_ErrorWithWriteConcern()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Update error: some_strange_error: Some strange error');
+
         // mock mongo's collection
         $mongoCollectionMock = $this
             ->getMockBuilder('\MongoCollection')
@@ -1022,12 +1015,11 @@ class CollectionTest extends TestCase
         $this->collection->updateMultiple(new Expression(), new Operator());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Update error
-     */
     public function testUpdateMultiple_ErrorWithUnacknowledgedWriteConcern()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Update error');
+
         // mock mongo's collection
         $mongoCollectionMock = $this
             ->getMockBuilder('\MongoCollection')
@@ -1052,12 +1044,11 @@ class CollectionTest extends TestCase
         $this->collection->updateMultiple(new Expression(), new Operator());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Update error: some_strange_error: Some strange error
-     */
     public function testUpdateAll_ErrorWithWriteConcern()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Update error: some_strange_error: Some strange error');
+
         // mock mongo's collection
         $mongoCollectionMock = $this
             ->getMockBuilder('\MongoCollection')
@@ -1086,12 +1077,11 @@ class CollectionTest extends TestCase
         $this->collection->updateAll(new Operator());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Update error
-     */
     public function testUpdateAll_ErrorWithUnacknowledgedWriteConcern()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Update error');
+
         // mock mongo's collection
         $mongoCollectionMock = $this
             ->getMockBuilder('\MongoCollection')
@@ -1339,12 +1329,11 @@ class CollectionTest extends TestCase
         $this->assertEquals(2, $document->b);
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Document\InvalidDocumentException
-     * @expectedExceptionMessage Document is invalid on batch insert
-     */
     public function testInsertMultiple_ValidateError()
     {
+        $this->expectException(\Sokil\Mongo\Document\InvalidDocumentException::class);
+        $this->expectExceptionMessage('Document is invalid on batch insert');
+
         // mock collection
         $this->collectionMock = $this
             ->getMockBuilder('\Sokil\Mongo\Collection')
@@ -1380,12 +1369,11 @@ class CollectionTest extends TestCase
         ));
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Batch insert error: Some strange error
-     */
     public function testInsertMultiple_ErrorInsertingWithAcknowledgeWrite()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Batch insert error: Some strange error');
+
         $this->collectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('batchInsert'))
@@ -1409,12 +1397,11 @@ class CollectionTest extends TestCase
         ));
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Batch insert error
-     */
     public function testInsertMultiple_ErrorInsertingWithUnacknowledgeWrite()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Batch insert error');
+
         $this->collectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('batchInsert'))
@@ -1448,12 +1435,11 @@ class CollectionTest extends TestCase
         $this->assertEquals(2, $document->b);
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Insert error: some_error: Some strange error
-     */
     public function testInsert_Acknowledged_Error()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Insert error: some_error: Some strange error');
+
         $this->collectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('insert'))
@@ -1488,12 +1474,11 @@ class CollectionTest extends TestCase
         $this->assertEquals(2, $document->b);
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Insert error
-     */
     public function testInsert_Unacknowledged_Error()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Insert error');
+
         $this->collectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('insert'))
@@ -1511,12 +1496,11 @@ class CollectionTest extends TestCase
         $collection->insert(array('a' => 1, 'b' => 2));
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage ns not found
-     */
     public function testValidateOnNotExistedCollection()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('ns not found');
+
         $this->database
             ->getCollection('phpmongo_unexisted_collection')
             ->validate(true);
@@ -1681,12 +1665,11 @@ class CollectionTest extends TestCase
         ), $this->collection->getWriteConcern());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Error setting write concern
-     */
     public function testSetWriteConcern_Error()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Error setting write concern');
+
         $mongoCollectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('setWriteConcern'))
@@ -1941,12 +1924,11 @@ class CollectionTest extends TestCase
         $this->assertArrayHasKey('unique', $indexes[1]);
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Keys not specified
-     */
     public function testInitIndexes_KeysNotSpecified()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Keys not specified');
+
         $reflection = new \ReflectionClass($this->collection);
         $property = $reflection->getProperty('definition');
         $property->setAccessible(true);
@@ -2088,13 +2070,11 @@ class CollectionTest extends TestCase
         $this->assertFalse($this->database->col3->isVersioningEnabled());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage source namespace does not exist
-     *
-     */
     public function testRenameNonExistentCollection()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('source namespace does not exist');
+
         // set test collection
         $collection = $this->database->getCollection('some_non_existent_collection');
         $collection->delete();
@@ -2106,13 +2086,13 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage target namespace exists
-     *
      * @throws Exception
      */
     public function testRenameExistentTargetCollection()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('target namespace exists');
+
         $this->database->createCollection('test');
         $this->database->createCollection('phpmongo_test_collection');
 

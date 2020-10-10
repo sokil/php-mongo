@@ -13,7 +13,7 @@ class DocumentValidationTest extends TestCase
      */
     private $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -25,7 +25,7 @@ class DocumentValidationTest extends TestCase
         $this->collection = $database->getCollection('phpmongo_test_collection');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }
@@ -164,12 +164,11 @@ class DocumentValidationTest extends TestCase
         ), $document->getErrors());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Validator\Exception
-     * @expectedExceptionMessage Minimum value of range not specified
-     */
     public function testIsValid_FieldBetween_minNotSpecified()
     {
+        $this->expectException(\Sokil\Mongo\Validator\Exception::class);
+        $this->expectExceptionMessage('Minimum value of range not specified');
+
         // mock of document
         $document = $this->getMockBuilder('\Sokil\Mongo\Document')->setMethods(array('rules'))->setConstructorArgs(array($this->collection))->getMock();
         $document
@@ -184,12 +183,11 @@ class DocumentValidationTest extends TestCase
         $document->isValid();
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Validator\Exception
-     * @expectedExceptionMessage Maximum value of range not specified
-     */
     public function testIsValid_FieldBetween_maxNotSpecified()
     {
+        $this->expectException(\Sokil\Mongo\Validator\Exception::class);
+        $this->expectExceptionMessage('Maximum value of range not specified');
+
         // mock of document
         $document = $this->getMockBuilder('\Sokil\Mongo\Document')->setMethods(array('rules'))->setConstructorArgs(array($this->collection))->getMock();
         $document
@@ -639,12 +637,11 @@ class DocumentValidationTest extends TestCase
         $this->assertTrue($document->isValid());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Type not specified
-     */
     public function testIsValid_TypeValidator_TypeNotSpecified()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Type not specified');
+
         // mock of document
         $document = $this
             ->getMockBuilder('\Sokil\Mongo\Document')
@@ -695,12 +692,11 @@ class DocumentValidationTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Type must be one of array, bool, callable, double, float, int, integer, long, null, numeric, object, real, resource, scalar, string
-     */
     public function testIsValid_TypeValidator_UnexistedType()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Type must be one of array, bool, callable, double, float, int, integer, long, null, numeric, object, real, resource, scalar, string');
+
         // mock of document
         $document = $this
             ->getMockBuilder('\Sokil\Mongo\Document')
@@ -874,12 +870,11 @@ class DocumentValidationTest extends TestCase
             ), $document->getErrors());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Validator with name SomeUnexistedValidator not found
-     */
     public function testIsValid_UnexistedValidator()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Validator with name SomeUnexistedValidator not found');
+
         // mock of document
         $document = $this
             ->getMockBuilder('\Sokil\Mongo\Document')
@@ -983,12 +978,11 @@ class DocumentValidationTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Validator class must implement \Sokil\Mongo\Validator class
-     */
     public function testIsValid_checkValidatorSuperclass()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Validator class must implement \Sokil\Mongo\Validator class');
+
         // mock of document
         $document = $this
             ->getMockBuilder('\Sokil\Mongo\Document')

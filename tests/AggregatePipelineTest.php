@@ -2,7 +2,6 @@
 
 namespace Sokil\Mongo;
 
-use Sokil\Mongo\Expression;
 use PHPUnit\Framework\TestCase;
 
 class AggregatePipelinesTest extends TestCase
@@ -13,7 +12,7 @@ class AggregatePipelinesTest extends TestCase
      */
     private $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -26,7 +25,7 @@ class AggregatePipelinesTest extends TestCase
         $this->collection = $database->getCollection('phpmongo_test_collection');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }
@@ -337,21 +336,19 @@ class AggregatePipelinesTest extends TestCase
 
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Wrong pipeline specified
-     */
     public function testAggregate_WrongArgument()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Wrong pipeline specified');
+
         $this->collection->aggregate('hello');
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Aggregate error: some_error
-     */
     public function testAggregate_ServerSideError()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Aggregate error: some_error');
+
         $mongoDatabaseMock = $this
             ->getMockBuilder('\MongoDB')
             ->setMethods(array('command'))
@@ -459,12 +456,11 @@ class AggregatePipelinesTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Explain of aggregation implemented only from 2.6.0
-     */
     public function testDeprecatedExplainAggregate_UnsupportedDbVersion()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Explain of aggregation implemented only from 2.6.0');
+
         // define db version where aggregate explanation supported
         $clientMock = $this
             ->getMockBuilder('\Sokil\Mongo\Client')
@@ -484,12 +480,11 @@ class AggregatePipelinesTest extends TestCase
             ->explainAggregate(array());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Wrong pipeline specified
-     */
     public function testDeprecatedExplainAggregate_WrongArgument()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Wrong pipeline specified');
+
         // define db version where aggregate explanation supported
         $clientMock = $this
             ->getMockBuilder('\Sokil\Mongo\Client')

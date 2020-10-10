@@ -13,7 +13,7 @@ class DocumentAddToSetTest extends TestCase
      */
     private $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $database = $client->getDatabase('test');
@@ -23,7 +23,7 @@ class DocumentAddToSetTest extends TestCase
             ->delete();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }
@@ -268,11 +268,11 @@ class DocumentAddToSetTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Document\InvalidOperationException
-     * @expectedExceptionMessage The field "field" must be an array but is of type Object
-     */
-    public function testAddToSetOnSubDocumentField() {
+    public function testAddToSetOnSubDocumentField()
+    {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('The field "field" must be an array but is of type Object');
+
         $this->doAddToSetTest(
             array('sub' => 42),
             1,

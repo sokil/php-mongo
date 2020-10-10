@@ -46,12 +46,11 @@ class StructureTest extends TestCase
             )
         ), $structure->toArray());
     }
-    
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     */
+
     public function testSetArrayToScalar()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+
         $structure = new Structure;
         $structure->merge(array(
             'a' => 1,
@@ -190,12 +189,11 @@ class StructureTest extends TestCase
         $this->assertEquals('def-c', $structureWrapper->get('c'));
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Wrong structure class specified
-     */
     public function testGetObject_StringClass_NotExtendStructure()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Wrong structure class specified');
+
         $structure = new Structure;
         $structure->set('param1', 'value1');
         $structure->set('param2', array(
@@ -273,12 +271,11 @@ class StructureTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Wrong structure class specified
-     */
     public function testGetObjectList_StringClass_NotExtendStructure()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Wrong structure class specified');
+
         $structure = new Structure;
         $structure->set('param1', array(
             array('a' => 'a1'),
@@ -288,12 +285,11 @@ class StructureTest extends TestCase
         $structure->getObjectList('param1', '\stdClass');
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Wrong structure class specified
-     */
     public function testGetObjectList_ClosureClass_NotExtendStructure()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Wrong structure class specified');
+
         $structure = new Structure;
         $structure->set('param1', 'value1');
         $structure->set('param2', array(
@@ -306,12 +302,11 @@ class StructureTest extends TestCase
         });
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Wrong class name specified. Use string or closure
-     */
     public function testGetObjectList_ClassNotClosureAndValidClassName()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Wrong class name specified. Use string or closure');
+
         $structure = new Structure;
         $structure->set('param1', 'value1');
         $structure->set('param2', array(

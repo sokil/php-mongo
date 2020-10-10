@@ -12,7 +12,7 @@ class DatabaseTest extends TestCase
      */
     private $database;
 
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -109,12 +109,11 @@ class DatabaseTest extends TestCase
         $this->assertFalse($this->database->isCollectionPoolEnabled());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Size or number of elements must be defined
-     */
     public function testCreateCappedCollection()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Size or number of elements must be defined');
+
         $this->database->createCappedCollection(
             'collection',
             'swong_size',
@@ -122,12 +121,11 @@ class DatabaseTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Class \WrongClass not found while map collection name to class
-     */
     public function testCreateCollection()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Class \WrongClass not found while map collection name to class');
+
         $this->database->map('collection', '\WrongClass');
         $this->database->createCollection('collection');
     }
@@ -208,11 +206,10 @@ class DatabaseTest extends TestCase
         $this->assertEquals(42, $result);
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     */
     public function testExecuteInvalidJs()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+
         $this->database->executeJS('gversion()');
     }
 
@@ -302,12 +299,11 @@ class DatabaseTest extends TestCase
         ), $collection->getOption('regexp'));
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Class \ThisClassIsNotExists not found while map collection name to class
-     */
     public function testMap_UnexistedClassInMapping()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Class \ThisClassIsNotExists not found while map collection name to class');
+
         $this->database->resetMapping();
         $this->database->map(array(
             'acmeCollection'    => '\ThisClassIsNotExists',
@@ -339,12 +335,11 @@ class DatabaseTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Wrong definition passed for collection acmeCollection
-     */
     public function testMap_InvalidDefinitionVariableType()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Wrong definition passed for collection acmeCollection');
+
         $this->database->resetMapping();
         $this->database->map(array(
             'acmeCollection'    => 42,
@@ -353,12 +348,11 @@ class DatabaseTest extends TestCase
         $this->database->getCollection('collection');
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Class \BlahBlahBlah not found while map collection name to class
-     */
     public function testGetGridFs_WrongGridFSClassSpecifiedInMapping()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Class \BlahBlahBlah not found while map collection name to class');
+
         $this->database->map(array(
             'gridfs' => '\BlahBlahBlah',
         ));
@@ -368,12 +362,11 @@ class DatabaseTest extends TestCase
         $this->fail('Must be exception');
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Must be instance of \Sokil\Mongo\GridFS
-     */
     public function testGetGridFs_SpecifiedGridFSClassInMappingIsNotInstanceOfGridFS()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Must be instance of \Sokil\Mongo\GridFS');
+
         $this->database->map(array(
             'gridfs' => '\stdClass',
         ));
@@ -466,12 +459,11 @@ class DatabaseTest extends TestCase
         ), $this->database->getWriteConcern());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Error setting write concern
-     */
     public function testSetWriteConcern_Error()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Error setting write concern');
+
         $mongoDatabaseMock = $this
             ->getMockBuilder('\MongoDB')
             ->setMethods(array('setWriteConcern'))

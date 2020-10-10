@@ -8,7 +8,7 @@ class DocumentRelationTest extends TestCase
 {
     private $database;
     
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -27,7 +27,7 @@ class DocumentRelationTest extends TestCase
             ->getDatabase('test');
     }
     
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->database->getCollection('cars')->delete();
         $this->database->getCollection('engines')->delete();
@@ -310,12 +310,11 @@ class DocumentRelationTest extends TestCase
         $this->assertEquals('red', $wheelDocument2->car->color);
     }
 
-    /**
-     * @expectedException Sokil\Mongo\Exception
-     * @expectedExceptionMessage Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"
-     */
     public function testGetRelated_WrongRelationType()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"');
+
         $wrongRelCollection = $this->database->getCollection('wrongRel');
 
         // add documents
@@ -426,12 +425,11 @@ class DocumentRelationTest extends TestCase
         ), array_keys($car2->getRelated('drivers')));
     }
 
-    /**
-     * @expectedException Sokil\Mongo\Exception
-     * @expectedExceptionMessage Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"
-     */
     public function testAddRelation_WronkRelationType()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"');
+
         $wrongRelCollection = $this->database->getCollection('wrongRel');
         $enginesCollection = $this->database->getCollection('engines');
 
@@ -562,12 +560,11 @@ class DocumentRelationTest extends TestCase
         ), array_keys($car2->getRelated('drivers')));
     }
 
-    /**
-     * @expectedException Sokil\Mongo\Exception
-     * @expectedExceptionMessage Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"
-     */
     public function testRemoveRelation_WronkRelationType()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Unsupported relation type "WRONG_RELATION_TYPE" when resolve relation "engine"');
+
         $wrongRelCollection = $this->database->getCollection('wrongRel');
         $enginesCollection = $this->database->getCollection('engines');
 

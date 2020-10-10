@@ -18,14 +18,14 @@ class GridFsTest extends TestCase
      */
     private $gridFs;
         
-    public function setUp()
+    public function setUp(): void
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $this->database = $client->getDatabase('test');
         $this->gridFs = $this->database->getGridFs('images');
     }
     
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->gridFs->delete();
     }
@@ -162,12 +162,11 @@ class GridFsTest extends TestCase
         $this->assertTrue(is_resource($this->gridFs->getFileById($id)->getResource()));
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Error deleting file: some_error: Some error message
-     */
     public function testDeleteFileById_WithAcknowledgedWriteConcern()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Error deleting file: some_error: Some error message');
+
         $mongoGridFsMock = $this
             ->getMockBuilder('\MongoGridFS')
             ->setMethods(array('delete'))

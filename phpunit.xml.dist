@@ -5,19 +5,22 @@
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
+    failOnRisky="true"
+    failOnWarning="true"
     >
     <testsuites>
         <testsuite name="AllTests">
             <directory>../tests</directory>
         </testsuite>
     </testsuites>
+
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">../src</directory>
+            <exclude>
+                <file>../src/Exception.php</file>
+                <file>../src/Validator/Exception.php</file>
+            </exclude>
         </whitelist>
-        <blacklist>
-            <file>../src/Exception.php</file>
-            <file>../src/Validator/Exception.php</file>
-        </blacklist>
     </filter>
 </phpunit>

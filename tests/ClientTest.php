@@ -12,7 +12,7 @@ class ClientTest extends TestCase
      */
     private $client;
     
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $this->client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -76,12 +76,13 @@ class ClientTest extends TestCase
         $this->assertEquals('some_name', $client->getDatabase()->getName());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Database not selected
-     */
     public function testGetDatabase_NameNotSpecified_DefaultNameNotSpecified()
     {
+        $this->expectExceptionMessage('Database not selected');
+
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('');
+
         $client = new Client('mongodb://127.0.0.1/');
         $this->assertEquals('some_name', $client->getDatabase()->getName());
     }
@@ -328,12 +329,11 @@ class ClientTest extends TestCase
         $this->assertInstanceOf('\Psr\Log\LoggerInterface', $this->client->getLogger());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Error setting write concern
-     */
     public function testErrorOnSetWriteConcern()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Error setting write concern');
+
         $mongoClientMock = $this
             ->getMockBuilder(
                 '\MongoClient',

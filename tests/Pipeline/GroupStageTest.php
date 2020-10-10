@@ -14,7 +14,7 @@ class GroupStageTest extends TestCase
      */
     private $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -26,7 +26,7 @@ class GroupStageTest extends TestCase
         $this->collection = $database->getCollection('phpmongo_test_collection');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }
@@ -64,12 +64,10 @@ class GroupStageTest extends TestCase
         );
     }
 
-
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     */
     public function testConfigure_Array_EmptyId()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+
         $pipeline = new Pipeline($this->collection);
 
         $pipeline->group(array(

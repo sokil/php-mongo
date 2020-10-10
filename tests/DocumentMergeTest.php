@@ -12,7 +12,7 @@ class DocumentMergeTest extends TestCase
      */
     private $collection;
     
-    public function setUp() 
+    public function setUp(): void
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $database = $client->getDatabase('test');
@@ -21,7 +21,7 @@ class DocumentMergeTest extends TestCase
             ->delete();
     }
     
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }

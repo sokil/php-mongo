@@ -14,7 +14,7 @@ class DocumentTest extends TestCase
      */
     private $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $database = $client->getDatabase('test');
@@ -23,7 +23,7 @@ class DocumentTest extends TestCase
             ->delete();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->collection->delete();
     }
@@ -115,11 +115,12 @@ class DocumentTest extends TestCase
 
     /**
      * Test call of method not described in behaviors, not setter and not getter
-     * @expectedException \Exception
-     * @expectedExceptionMessage Document has no method "unexistedMethod"
      */
     public function testUnhandledMethodCall()
     {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Document has no method "unexistedMethod"');
+
         $document = $this->collection->createDocument(array(
             'param' => 'value',
         ));
@@ -299,12 +300,11 @@ class DocumentTest extends TestCase
         $this->assertEquals('value2', $document->get('a.b'));
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Assigning sub-document to scalar value not allowed
-     */
     public function testSet_NewScalarSubkeyOfExistedScalarKey_StoredDocument()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Assigning sub-document to scalar value not allowed');
+
         $document = $this->collection
             ->createDocument(array(
                 'a' => 1,
@@ -415,11 +415,11 @@ class DocumentTest extends TestCase
      * Now test fails because second set not overwrite first and exception occurs.
      * Cannot update 'driving' and 'driving.license' at the same time
      * @todo Need implementation of overwriting values.
-     *
-     * @expectedException \Sokil\Mongo\Exception\WriteException
      */
     public function testSet_SubKeyOverwrite_StoredDocument()
     {
+        $this->expectException(\Sokil\Mongo\Exception\WriteException::class);
+
         /**
          * Modify existed document
          */
@@ -531,11 +531,10 @@ class DocumentTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     */
     public function testSetArrayToScalarOnNewDoc()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+
         $doc = $this->collection->createDocument(array(
             'a' => 1,
         ));
@@ -571,11 +570,10 @@ class DocumentTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     */
     public function testSetArrayToScalarOnExistedDoc()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+
         $doc = $this->collection
             ->createDocument(array(
                 'a' => 1,
@@ -1395,12 +1393,11 @@ class DocumentTest extends TestCase
         $this->assertEquals($data, $document->toArray());
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Update error: some_strange_error: Some strange error
-     */
     public function testSave_UpdateError()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Update error: some_strange_error: Some strange error');
+
         $mongoCollectionMock = $this
             ->getMockBuilder('\MongoCollection')
             ->setMethods(array('update'))

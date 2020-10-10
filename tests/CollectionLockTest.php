@@ -30,11 +30,10 @@ class CollectionLockTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Document\OptimisticLockFailureException
-     */
     public function testOptimisticLock()
     {
+        $this->expectException(\Sokil\Mongo\Document\OptimisticLockFailureException::class);
+
         // init connection
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
         $client->map(array(

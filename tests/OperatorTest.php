@@ -98,12 +98,11 @@ class OperatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Sokil\Mongo\Exception
-     * @expectedExceptionMessage Field fieldName must be pushed wit $each modifier
-     */
     public function testPushEachSlice_EachNotSet()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Field fieldName must be pushed wit $each modifier');
+
         $operator = new Operator;
         $operator->pushEachSlice('fieldName', 42);
     }
@@ -136,12 +135,11 @@ class OperatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Sokil\Mongo\Exception
-     * @expectedExceptionMessage Sort condition is empty
-     */
     public function testPushEachSort_EmptySortCondition()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Sort condition is empty');
+
         $operator = new Operator;
         $operator->pushEach('fieldName', array(
             array('sub' => 1),
@@ -152,12 +150,11 @@ class OperatorTest extends TestCase
         $operator->pushEachSort('fieldName', array());
     }
 
-    /**
-     * @expectedException Sokil\Mongo\Exception
-     * @expectedExceptionMessage Field fieldName must be pushed with $each modifier
-     */
     public function testPushEachSort_EachNotSet()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Field fieldName must be pushed with $each modifier');
+
         $operator = new Operator;
         $operator->pushEachSort('fieldName', array('sub' => 1));
     }
@@ -182,23 +179,21 @@ class OperatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Sokil\Mongo\Exception
-     * @expectedExceptionMessage Position must be greater 0
-     */
     public function testPushEachPosition_WrongPositionValue()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Position must be greater 0');
+
         $operator = new Operator;
         $operator->pushEach('fieldName', array(1, 2, 3));
         $operator->pushEachPosition('fieldName', -1);
     }
 
-    /**
-     * @expectedException Sokil\Mongo\Exception
-     * @expectedExceptionMessage Field fieldName must be pushed with $each modifier
-     */
     public function testPushEachPosition_EachNotSet()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Field fieldName must be pushed with $each modifier');
+
         $operator = new Operator;
         $operator->pushEachPosition('fieldName', 42);
     }
@@ -353,12 +348,14 @@ class OperatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Expression must be field name, callable or Expression object
-     */
     public function testPull_WrongExpression()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Expression must be field name, callable or Expression object');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expression must be field name, callable or Expression object');
+
         $operator = new Operator();
         $operator->pull(new \stdClass());
     }

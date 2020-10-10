@@ -18,7 +18,7 @@ class QueueTest extends TestCase
      */
     private $queue;
     
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -28,7 +28,7 @@ class QueueTest extends TestCase
         $this->queue = $this->database->getQueue('queue_channel');
     }
     
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->queue->clear();
     }

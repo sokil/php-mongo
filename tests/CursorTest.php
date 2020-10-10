@@ -18,7 +18,7 @@ class CursorTest extends TestCase
      */
     private $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         // connect to mongo
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
@@ -30,7 +30,7 @@ class CursorTest extends TestCase
         $this->collection = $this->database->getCollection('phpmongo_test_collection');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if ($this->collection) {
             $this->collection->delete();
@@ -106,11 +106,11 @@ class CursorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception\CursorException
-     */
     public function testErrorOnAcceptedAndSkippedFieldsPassed()
     {
+        $this->expectException(\Sokil\Mongo\Exception\CursorException::class);
+        $this->expectExceptionMessage('ns not found');
+
         // create new document
         $document = $this->collection->createDocument(array(
             'a'    => 'a1',
@@ -317,23 +317,21 @@ class CursorTest extends TestCase
         )));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer
-     */
     public function testMixedToMongoIdList_InvalidType()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Must be \MongoId, \Sokil\Mongo\Document, array with _id key, string or integer');
+
         Cursor::mixedToMongoIdList(array(
             new \stdClass,
         ));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Array must have _id key
-     */
     public function testMixedToMongoIdList_ArrayWithoutIdKey()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Array must have _id key');
+
         Cursor::mixedToMongoIdList(array(
             array('param' => 'value'),
         ));

@@ -56,12 +56,11 @@ class ClientPoolTest extends TestCase
         $this->assertEquals('\Sokil\Mongo\Collection8', $collectionClassName->class);
     }
 
-    /**
-     * @expectedException \Sokil\Mongo\Exception
-     * @expectedExceptionMessage Connection with name unexistedConnection not found
-     */
     public function testGetUnexistedConnection()
     {
+        $this->expectException(\Sokil\Mongo\Exception::class);
+        $this->expectExceptionMessage('Connection with name unexistedConnection not found');
+
         $pool = new ClientPool(array(
             'connect1' => array(
                 'dsn' => getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null,

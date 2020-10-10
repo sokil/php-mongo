@@ -12,7 +12,7 @@ class CacheTest extends TestCase
      */
     private $cache;
     
-    public function setUp()
+    public function setUp(): void
     {
         $client = new Client(getenv('PHPMONGO_DSN') ? getenv('PHPMONGO_DSN') : null);
 
@@ -22,7 +22,7 @@ class CacheTest extends TestCase
             ->init();
     }
     
-    public function tearDown()
+    public function tearDown(): void
     {
         if($this->cache) {
             $this->cache->clear();
