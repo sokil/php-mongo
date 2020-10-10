@@ -1008,22 +1008,23 @@ class DocumentValidationTest extends TestCase
     {
         // mock of document
         $document = $this
-            ->getMockBuilder('\Sokil\Mongo\Document')
+            ->getMockBuilder(Document::class)
             ->setMethods(array('rules'))
             ->setConstructorArgs(array($this->collection))
             ->getMock();
 
         $document
-            ->expects($this->any())
             ->method('rules')
-            ->will($this->returnValue(array(
-                array('field', 'my_own_equals', 'to' => 42)
-            )));
+            ->willReturn(
+                [
+                    ['field', 'my_own_equals', 'to' => 42]
+                ]
+            );
 
         $document
-            ->set('field', '42')
+            ->set('field', 42)
             ->addValidatorNamespace('\Sokil\Mongo\DocumentValidationTest\Validator');
 
-        $document->isValid();
+        $this->assertTrue($document->isValid());
     }
 }
