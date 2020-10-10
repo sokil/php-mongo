@@ -68,7 +68,7 @@ fi
 # if versions not passed, fill default
 if [[ -z $mongoVersions ]]
 then
-    mongoVersions=("24" "26" "30" "32" "33" "34" "36" "40" "41")
+    mongoVersions=("30" "32" "33" "34" "36" "40" "41")
 fi
 
 # add path to test file

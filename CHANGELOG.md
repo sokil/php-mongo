@@ -1,7 +1,9 @@
 ## 2.0-alpha
+  * Minimum supported DB version is 3.0
   * Event manager not optional
   * Removed dependency from symfony event manager, now you may use your own dispatcher.
   * Event dispatcher now shared between all instances of collections and documents
+  * Removed `Collection::explainAggregate`, use `explain` option for `Collection::aggregate` or `Pipeline::explain()`
 
 ## 1.23.1 (2018-11-24)
   * UrlValidator ping use checkdnsrr

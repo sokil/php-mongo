@@ -78,10 +78,8 @@ class ClientTest extends TestCase
 
     public function testGetDatabase_NameNotSpecified_DefaultNameNotSpecified()
     {
-        $this->expectExceptionMessage('Database not selected');
-
         $this->expectException(\Sokil\Mongo\Exception::class);
-        $this->expectExceptionMessage('');
+        $this->expectExceptionMessage('Database not selected');
 
         $client = new Client('mongodb://127.0.0.1/');
         $this->assertEquals('some_name', $client->getDatabase()->getName());

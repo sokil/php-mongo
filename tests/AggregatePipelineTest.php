@@ -157,10 +157,12 @@ class AggregatePipelinesTest extends TestCase
     public function testUnwind()
     {
         // add documents
-        $this->collection->batchInsert(array(
-            array('subdoc' => array('key' => array(1, 2))),
-            array('subdoc' => array('key' => array(4, 8))),
-        ));
+        $this->collection->batchInsert(
+            [
+                ['subdoc' => ['key' => [1, 2]]],
+                ['subdoc' => ['key' => [4, 8]]],
+            ]
+        );
 
         // create pipeline
         $pipeline = new Pipeline($this->collection);
@@ -344,59 +346,6 @@ class AggregatePipelinesTest extends TestCase
         $this->collection->aggregate('hello');
     }
 
-    public function testAggregate_ServerSideError()
-    {
-        $this->expectException(\Sokil\Mongo\Exception::class);
-        $this->expectExceptionMessage('Aggregate error: some_error');
-
-        $mongoDatabaseMock = $this
-            ->getMockBuilder('\MongoDB')
-            ->setMethods(array('command'))
-            ->setConstructorArgs(array(
-                $this->collection->getDatabase()->getClient()->getMongoClient(),
-                'test'
-            ))
-            ->getMock();
-
-        $mongoDatabaseMock
-            ->expects($this->once())
-            ->method('command')
-            ->will($this->returnValue(array(
-                'ok' => (double) 0,
-                'errmsg' => 'some_error',
-                'code' => 1785342,
-            )));
-
-        $database = new Database($this->collection->getDatabase()->getClient(), $mongoDatabaseMock);
-        $database
-            ->getCollection('phpmongo_test_collection')
-            ->aggregate(array(
-                array('$match' => array('field' => 'value'))
-            ));
-    }
-
-    public function testAggregate_ExplainOption()
-    {
-        $this->collection->createDocument(array('param' => 1))->save();
-        $this->collection->createDocument(array('param' => 2))->save();
-        $this->collection->createDocument(array('param' => 3))->save();
-        $this->collection->createDocument(array('param' => 4))->save();
-
-        $pipeline = $this->collection
-            ->createAggregator()
-            ->match(array('param' => array('$gte' => 2)))
-            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
-            ->explain();
-
-        try {
-            $explain = $this->collection->aggregate($pipeline);
-            $this->assertArrayHasKey('$cursor', $explain['0']);
-            $this->assertArrayHasKey('$group', $explain['1']);
-        } catch (\Exception $e) {
-            $this->assertEquals('Explain of aggregation implemented only from 2.6.0', $e->getMessage());
-        }
-    }
-
     public function testAggregate_AllowDiskUseOption()
     {
         $this->collection->createDocument(array('param' => 1))->save();
@@ -421,6 +370,7 @@ class AggregatePipelinesTest extends TestCase
 
     public function testAggregate_ResultAsCursor()
     {
+        $this->collection->delete();
         $this->collection->createDocument(array('param' => 1))->save();
         $this->collection->createDocument(array('param' => 2))->save();
         $this->collection->createDocument(array('param' => 3))->save();
@@ -434,9 +384,39 @@ class AggregatePipelinesTest extends TestCase
         $result = $this->collection->aggregate($pipeline, array(), true);
 
         $this->assertInstanceOf('\MongoCommandCursor', $result);
+
+        $result = iterator_to_array($result);
+        $this->assertSame(
+            [
+                ['_id' => 0, 'sum' => 9],
+            ],
+            $result
+        );
     }
 
-    public function testDeprecatedExplainAggregate()
+    public function testAggregateExplainByPipeline()
+    {
+        $this->collection->createDocument(array('param' => 1))->save();
+        $this->collection->createDocument(array('param' => 2))->save();
+        $this->collection->createDocument(array('param' => 3))->save();
+        $this->collection->createDocument(array('param' => 4))->save();
+
+        $pipeline = $this->collection
+            ->createAggregator()
+            ->match(array('param' => array('$gte' => 2)))
+            ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')))
+            ->explain();
+
+        try {
+            $explain = $this->collection->aggregate($pipeline);
+            $this->assertArrayHasKey('$cursor', $explain['0']);
+            $this->assertArrayHasKey('$group', $explain['1']);
+        } catch (\Exception $e) {
+            $this->assertEquals('Explain of aggregation implemented only from 2.6.0', $e->getMessage());
+        }
+    }
+
+    public function testAggregateExplainByOption()
     {
         $this->collection->createDocument(array('param' => 1))->save();
         $this->collection->createDocument(array('param' => 2))->save();
@@ -448,60 +428,7 @@ class AggregatePipelinesTest extends TestCase
             ->match(array('param' => array('$gte' => 2)))
             ->group(array('_id' => 0, 'sum' => array('$sum' => '$param')));
 
-        try {
-            $explain = $this->collection->explainAggregate($pipeline);
-            $this->assertArrayHasKey('stages', $explain);
-        } catch (\Exception $e) {
-            $this->assertEquals('Explain of aggregation implemented only from 2.6.0', $e->getMessage());
-        }
+        $explain = $this->collection->aggregate($pipeline, ['explain' => true]);
+        $this->assertNotEmpty($explain['0']['$cursor']);
     }
-
-    public function testDeprecatedExplainAggregate_UnsupportedDbVersion()
-    {
-        $this->expectException(\Sokil\Mongo\Exception::class);
-        $this->expectExceptionMessage('Explain of aggregation implemented only from 2.6.0');
-
-        // define db version where aggregate explanation supported
-        $clientMock = $this
-            ->getMockBuilder('\Sokil\Mongo\Client')
-            ->setMethods(array('getDbVersion'))
-            ->getMock();
-
-        $clientMock
-            ->expects($this->once())
-            ->method('getDbVersion')
-            ->will($this->returnValue('2.4.0'));
-
-        $clientMock->setMongoClient($this->collection->getDatabase()->getClient()->getMongoClient());
-
-        $clientMock
-            ->getDatabase('test')
-            ->getCollection('phpmongo_test_collection')
-            ->explainAggregate(array());
-    }
-
-    public function testDeprecatedExplainAggregate_WrongArgument()
-    {
-        $this->expectException(\Sokil\Mongo\Exception::class);
-        $this->expectExceptionMessage('Wrong pipeline specified');
-
-        // define db version where aggregate explanation supported
-        $clientMock = $this
-            ->getMockBuilder('\Sokil\Mongo\Client')
-            ->setMethods(array('getDbVersion'))
-            ->getMock();
-
-        $clientMock
-            ->expects($this->once())
-            ->method('getDbVersion')
-            ->will($this->returnValue('2.6.0'));
-
-        $clientMock->setMongoClient($this->collection->getDatabase()->getClient()->getMongoClient());
-
-        $this->collection = $clientMock
-            ->getDatabase('test')
-            ->getCollection('phpmongo_test_collection')
-            ->explainAggregate('wrong_argument');
-    }
-
 }

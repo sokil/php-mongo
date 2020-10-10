@@ -169,7 +169,12 @@ class Client
             ->getDatabase('admin')
             ->executeCommand(array('buildinfo' => 1));
 
+        if ($buildInfo['ok'] === 0.0) {
+            throw new Exception($buildInfo['errmsg']);
+        }
+
         $this->dbVersion = $buildInfo['version'];
+
         return $this->dbVersion;
     }
 

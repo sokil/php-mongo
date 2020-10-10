@@ -998,10 +998,11 @@ class Collection implements \Countable
      *
      * @param callable|array|Pipeline $pipeline list of pipeline stages
      * @param array aggregate options
-     * @param bool $asCursor return result as cursor
+     * @param bool $asCursor return result as cursor. Parameter skipped of `explain` option passed
      *
      * @throws \Sokil\Mongo\Exception
-     * @return array result of aggregation
+     *
+     * @return array|\MongoCommandCursor result of aggregation
      */
     public function aggregate(
         $pipeline,
@@ -1033,38 +1034,31 @@ class Collection implements \Countable
         }
 
         // return result as cursor
-        if ($asCursor) {
-            if (version_compare(\MongoClient::VERSION, '1.5.0', '>=')) {
-                return $this->getMongoCollection()->aggregateCursor($pipeline, $options);
+        if (empty($options['explain'])) {
+            $cursor = $this->getMongoCollection()->aggregateCursor($pipeline, $options);
+            if ($asCursor) {
+                return $cursor;
             } else {
-                throw new FeatureNotSupportedException('Aggregate cursor supported from driver version 1.5');
+                try {
+                    return iterator_to_array($cursor);
+                } catch (\Throwable $e) {
+                    throw new Exception('Aggregate error: ' . $e->getMessage(), $e->getCode(), $e);
+                }
             }
-        }
+        } else {
+            $command = [
+                'aggregate' => $this->getName(),
+                'pipeline'  => $pipeline,
+            ] + $options;
 
-        // prepare command
-        $command = array(
-            'aggregate' => $this->getName(),
-            'pipeline'  => $pipeline,
-        );
+            // aggregate
+            $status = $this->database->executeCommand($command);
+            if ($status['ok'] != 1) {
+                throw new Exception('Aggregate error: ' . $status['errmsg']);
+            }
 
-        // add options
-        if (!empty($options)) {
-            $command += $options;
-        }
-
-        // aggregate
-        $status = $this->database->executeCommand($command);
-        if ($status['ok'] != 1) {
-            throw new Exception('Aggregate error: ' . $status['errmsg']);
-        }
-
-        // explain response
-        if (!empty($command['explain'])) {
             return $status['stages'];
         }
-
-        // result response
-        return $status['result'];
     }
 
     /**
@@ -1078,27 +1072,6 @@ class Collection implements \Countable
         // get db version
         $client = $this->getDatabase()->getClient();
         $dbVersion = $client->getDbVersion();
-
-        // check options for db < 2.6
-        if (version_compare($dbVersion, '2.6.0', '<')) {
-            if (!empty($options['explain'])) {
-                throw new FeatureNotSupportedException(
-                    'Explain of aggregation implemented only from 2.6.0'
-                );
-            }
-
-            if (!empty($options['allowDiskUse'])) {
-                throw new FeatureNotSupportedException(
-                    'Option allowDiskUse of aggregation implemented only from 2.6.0'
-                );
-            }
-
-            if (!empty($options['cursor'])) {
-                throw new FeatureNotSupportedException(
-                    'Option cursor of aggregation implemented only from 2.6.0'
-                );
-            }
-        }
 
         // check options for db < 3.2
         if (version_compare($dbVersion, '3.2.0', '<')) {
@@ -1114,34 +1087,6 @@ class Collection implements \Countable
                 );
             }
         }
-    }
-
-    /**
-     * Explain aggregation
-     *
-     * @deprecated use pipeline option 'explain' in Collection::aggregate() or method Pipeline::explain()
-     * @param array|Pipeline $pipeline
-     * @return array result
-     * @throws Exception
-     */
-    public function explainAggregate($pipeline)
-    {
-        if (version_compare($this->getDatabase()->getClient()->getDbVersion(), '2.6.0', '<')) {
-            throw new Exception('Explain of aggregation implemented only from 2.6.0');
-        }
-
-        if ($pipeline instanceof Pipeline) {
-            $pipeline = $pipeline->toArray();
-        } elseif (!is_array($pipeline)) {
-            throw new Exception('Wrong pipeline specified');
-        }
-
-        // aggregate
-        return $this->database->executeCommand(array(
-            'aggregate' => $this->getName(),
-            'pipeline'  => $pipeline,
-            'explain'   => true
-        ));
     }
 
     /**
