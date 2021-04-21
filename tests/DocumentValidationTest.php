@@ -778,7 +778,7 @@ class DocumentValidationTest extends TestCase
 
         try {
             // additional MX check on wrong email
-            $document->set('some-field-name-mx', 'user@example.com');
+            $document->set('some-field-name-mx', 'user@example');
             $this->assertFalse($document->isValid());
 
             // additional MX check on valid email

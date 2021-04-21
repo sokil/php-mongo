@@ -361,21 +361,51 @@ class AggregatePipelinesTest extends TestCase
             ))
             ->getMock();
 
-        $mongoDatabaseMock
-            ->expects($this->once())
-            ->method('command')
-            ->will($this->returnValue(array(
-                'ok' => (double) 0,
-                'errmsg' => 'some_error',
-                'code' => 1785342,
-            )));
-
         $database = new Database($this->collection->getDatabase()->getClient(), $mongoDatabaseMock);
-        $database
-            ->getCollection('phpmongo_test_collection')
-            ->aggregate(array(
-                array('$match' => array('field' => 'value'))
-            ));
+
+        $pipeline = array(
+            array('$match' => array('field' => 'value'))
+        );
+
+        if (
+            version_compare(\MongoClient::VERSION, '1.5.0', '>=') &&
+            version_compare($database->getClient()->getDbVersion(), '2.6', '>=')
+        ) {
+            $mongoCollectionMock = $this->getMockBuilder('\MongoCollection')
+                ->setMethods(['aggregateCursor'])
+                ->setConstructorArgs([$mongoDatabaseMock, 'phpmongo_test_collection'])
+                ->getMock()
+            ;
+            $mongoCollectionMock
+                ->method('aggregateCursor')
+                ->willThrowException(new \Exception('some_error'))
+            ;
+
+            $collectionMock = $this->getMockBuilder('Sokil\Mongo\Collection')
+                ->setMethods(['getMongoCollection'])
+                ->setConstructorArgs([$database, 'phpmongo_test_collection'])
+                ->getMock()
+            ;
+            $collectionMock
+                ->method('getMongoCollection')
+                ->willReturn($mongoCollectionMock)
+            ;
+
+            $collectionMock->aggregate($pipeline);
+        } else {
+            $mongoDatabaseMock
+                ->expects($this->once())
+                ->method('command')
+                ->willReturn(array(
+                    'ok' => (double)0,
+                    'errmsg' => 'some_error',
+                    'code' => 1785342,
+                ));
+
+            $database
+                ->getCollection('phpmongo_test_collection')
+                ->aggregate($pipeline);
+        }
     }
 
     public function testAggregate_ExplainOption()

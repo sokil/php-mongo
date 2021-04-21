@@ -232,6 +232,12 @@ class Collection implements \Countable
     {
         $status = $this->getMongoCollection()->drop();
 
+        // Drop function in mongodb >= 3.6 with unacknowledged write concern return empty result
+        if ($status === array()) {
+            $writeConcern = $this->getWriteConcern();
+            $status = ($writeConcern['w'] === 0 ? array('ok' => 1):array('ok' => 0, 'errmsg' => 'unknown error'));
+        }
+
         if ($status['ok'] != 1) {
             // check if collection exists
             if ('ns not found' !== $status['errmsg']) {
@@ -1037,6 +1043,18 @@ class Collection implements \Countable
                 return $this->getMongoCollection()->aggregateCursor($pipeline, $options);
             } else {
                 throw new FeatureNotSupportedException('Aggregate cursor supported from driver version 1.5');
+            }
+        } else {
+            if (
+                empty($options['explain']) &&
+                version_compare(\MongoClient::VERSION, '1.5.0', '>=') &&
+                version_compare($this->database->getClient()->getDbVersion(), '2.6', '>=')
+            ) {
+                try {
+                    return iterator_to_array($this->getMongoCollection()->aggregateCursor($pipeline, $options), false);
+                } catch (\Exception $e) {
+                    throw new Exception('Aggregate error: ' . $e->getMessage());
+                }
             }
         }
 

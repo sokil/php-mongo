@@ -533,6 +533,60 @@ class CollectionTest extends TestCase
         $collection->delete();
     }
 
+    public function testDeleteCollection_WithUnacknowledgedWriteConcernAndEmptyResultStatus()
+    {
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('drop','getWriteConcern'))
+            ->setConstructorArgs(array(
+                $this->database->getMongoDB(),
+                'phpmongo_test_collection',
+            ))
+            ->getMock();
+
+        $this->collectionMock
+            ->expects($this->once())
+            ->method('drop')
+            ->willReturn(array());
+
+        $this->collectionMock
+            ->expects($this->once())
+            ->method('getWriteConcern')
+            ->willReturn(array('w' => 0));
+
+        $collection = new Collection($this->database, $this->collectionMock);
+        $collection->delete();
+    }
+
+    /**
+     * @expectedException \Sokil\Mongo\Exception
+     * @expectedExceptionMessage Error deleting collection phpmongo_test_collection: unknown error
+     */
+    public function testDeleteCollection_WithAcknowledgedWriteConcernAndEmptyResultStatus()
+    {
+        $this->collectionMock = $this
+            ->getMockBuilder('\MongoCollection')
+            ->setMethods(array('drop','getWriteConcern'))
+            ->setConstructorArgs(array(
+                $this->database->getMongoDB(),
+                'phpmongo_test_collection',
+            ))
+            ->getMock();
+
+        $this->collectionMock
+            ->expects($this->once())
+            ->method('drop')
+            ->willReturn(array());
+
+        $this->collectionMock
+            ->expects($this->once())
+            ->method('getWriteConcern')
+            ->willReturn(array('w' => 1));
+
+        $collection = new Collection($this->database, $this->collectionMock);
+        $collection->delete();
+    }
+
     public function testDeleteDocuments_ExpressionAsArray()
     {
         // add
