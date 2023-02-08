@@ -64,6 +64,8 @@ then
     if [[ ${PHP_VERSION:0:2} == "5." ]];
     then
         pecl install xdebug-2.5.5;
+        echo "mongo.native_long=0" >> /usr/local/etc/php/conf.d/mongo.ini
+        echo "mongo.long_as_object=1" >> /usr/local/etc/php/conf.d/mongo.ini
     else
         pecl install xdebug;
     fi
