@@ -10,7 +10,6 @@ PHPMongo ODM
 [![Total Downloads][badge-totalDownloads-img]][badge-totalDownloads-url]
 [![Coverage Status](https://coveralls.io/repos/sokil/php-mongo/badge.png)](https://coveralls.io/r/sokil/php-mongo)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sokil/php-mongo/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sokil/php-mongo/?branch=master)
-[![Code Climate](https://codeclimate.com/github/sokil/php-mongo/badges/gpa.svg)](https://codeclimate.com/github/sokil/php-mongo)
 [![Gitter](https://badges.gitter.im/Join_Chat.svg)](https://gitter.im/sokil/php-mongo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 #### PHP ODM for MongoDB.
